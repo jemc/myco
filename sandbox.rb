@@ -11,13 +11,13 @@ module Myco::ToolSet
 
         pos(g)
         
-        # Call Myco.updated object, name, value
+        # Call Myco.updated object, name, value,
+        # where value is the current top stack object
         g.dup_top
-        g.push_const :Myco
-        g.rotate 2
         g.push_literal @name
         g.push_self
-        g.rotate 3
+        g.push_const :Myco
+        g.rotate 4
         g.send :updated, 3, false
         g.pop
         # Resume normal operation
