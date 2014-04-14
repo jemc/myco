@@ -8,4 +8,4 @@ require 'pp'
 
 Lexer = Myco::ToolSet::Parser::Lexer
 
-pp Lexer.lex "hwhhw"
+pp Lexer.lex "Object"

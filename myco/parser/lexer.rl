@@ -19,6 +19,7 @@ class Myco::ToolSet::Parser::Lexer
     attr_reader :p
     attr_reader :pe
     attr_reader :cs
+    attr_reader :eof
     
     
     def reset data=nil
@@ -46,29 +47,53 @@ class Myco::ToolSet::Parser::Lexer
     
     
     def advance
-      p = @p
       %% write exec;
       # %
-      @p = p
       
       return @tokens.shift
     end
     
     
-    def add_token type, *args
-      @tokens << [type, *args]
-    end
-    
-    
     %%{
     # %
-      c_hello = "h";
-      c_world = "w";
+      variable p  @p;
+      variable ts @ts;
+      variable te @te;
       
-      main := |*
-        c_hello => { add_token :hello };
-        c_world => { add_token :world };
-      *|;
+      action do_nl {
+        @line += 1;
+      }
+      
+      ## 
+      # Basic character types -
+      # Taken from https://github.com/whitequark/parser
+      # Copyright (c) 2013 Peter Zotov  <whitequark@whitequark.org>
+      # MIT License - see https://github.com/whitequark/parser/blob/master/LICENSE.txt
+      
+      c_nl       = '\n' $ do_nl;
+      c_space    = [ \t\r\f\v];
+      c_space_nl = c_space | c_nl;
+      
+      c_eof      = 0x04 | 0x1a | 0 | zlen; # ^D, ^Z, \0, EOF
+      c_eol      = c_nl | c_eof;
+      c_any      = any - c_eof;
+      
+      c_nl_zlen  = c_nl | zlen;
+      c_line     = any - c_nl_zlen;
+      
+      c_unicode  = c_any - 0x00..0x7f;
+      c_upper    = [A-Z];
+      c_lower    = [a-z_]  | c_unicode;
+      c_alpha    = c_lower | c_upper;
+      c_alnum    = c_alpha | [0-9];
+      
+      # (end of basic character types)
+      ##
+      
+      t_const = "Object";
+      
+      main := |* t_const => { p :t_const }; *|;
+      
     }%%
     # %
     

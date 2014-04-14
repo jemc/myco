@@ -1,2 +1,3 @@
+^\.git$
 \.sublime-
 myco/parser/lexer.rb
