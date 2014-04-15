@@ -70,7 +70,6 @@ class Myco::ToolSet::Parser
       @eof      = @data.length
       @p        = 0
       @pe       = @eof
-      @nl_count = 0
     end
     
     ##
@@ -165,6 +164,15 @@ class Myco::ToolSet::Parser
       @tokens << token
     end
     
+    ##
+    # Handles an error condition during lexing.
+    #
+    def error(location, hint=nil)
+      str = "Lexer met unexpected character(s) in #{location.inspect}: #{text.inspect}"
+      str += "; "+hint.to_s if hint
+      warn str
+    end
+    
     %%{
     # %
       # Use instance variables for `ts` and friends.
@@ -174,7 +182,7 @@ class Myco::ToolSet::Parser
       variable pe @pe;
       variable eof @eof;
       
-      action do_nl { @nl_count += 1 }
+      action do_nl { advance_line 1 }
       
       include "lexer_char_classes.rl"; # Basic character classes
       include "lexer.rl";              # Main rules file

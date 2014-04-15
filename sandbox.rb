@@ -8,4 +8,17 @@ require 'pp'
 
 Lexer = Myco::ToolSet::Parser::Lexer
 
-pp Lexer.new("Object").lex
+pp Lexer.new(<<"END_OF_MYCO").lex
+  Object {
+    foo: val
+    bar: { val }
+    
+    Object {
+      foo : val
+      bar : { val }
+      Object { }
+    }
+    
+    Object { }
+  }
+END_OF_MYCO
