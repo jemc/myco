@@ -9,11 +9,28 @@
   object_begin = '{';
   object_end   = '}';
   
-  binding_asgn = ':';
   
-  binding_begin = '{';
-  binding_end   = '}';
+  main := |*
+    c_space_nl;
+    constant => { emit :T_CONSTANT; fcall at_constant; };
+    
+    any => { error :main };
+  *|;
   
+  at_constant := |*
+    c_space_nl;
+    object_begin => { emit :T_OBJECT_BEGIN; fgoto decl_obj_body; };
+    
+    any => { error :at_constant };
+  *|;
+  
+  at_identifier := |*
+    c_space_nl;
+    (':' c_space* '{')         => { emit :T_BINDING_BEGIN, @te-1, @te;      fgoto binding_body; };
+    (':' c_space* ^c_space_nl) => { emit :T_BINDING_BEGIN, @te, @te; fhold; fgoto binding_body_inline; };
+    
+    any => { error :at_identifier };
+  *|;
   
   decl_obj_body := |*
     c_space_nl;
@@ -29,7 +46,7 @@
   binding_body := |*
     c_space_nl;
     identifier => { emit :T_IDENTIFIER; };
-    binding_end => { emit :T_BINDING_END; fret; };
+    '}'        => { emit :T_BINDING_END; fret; };
     
     any => { error :binding_body };
   *|;
@@ -37,37 +54,10 @@
   binding_body_inline := |*
     c_space;
     identifier => { emit :T_IDENTIFIER; };
-    c_nl => { emit :T_BINDING_END, @ts, @ts; fret; };
+    c_nl       => { emit :T_BINDING_END, @ts, @ts; fret; };
     
     any => { error :binding_body_inline };
   *|;
   
-  at_constant := |*
-    c_space_nl;
-    object_begin => { emit :T_OBJECT_BEGIN; fgoto decl_obj_body; };
-    
-    any => { error :at_constant };
-  *|;
-  
-  at_identifier := |*
-    c_space_nl;
-    binding_asgn => { emit :T_BINDING_ASGN; fgoto at_binding_asgn; };
-    
-    any => { error :at_identifier };
-  *|;
-  
-  at_binding_asgn := |*
-    c_space_nl;
-    binding_begin => { emit :T_BINDING_BEGIN;           fgoto binding_body; };
-    any    => { fhold; emit :T_BINDING_BEGIN, @ts, @ts; fgoto binding_body_inline; };
-  *|;
-  
-  
-  main := |*
-    c_space_nl;
-    constant => { emit :T_CONSTANT; fcall at_constant; };
-    
-    any => { error :main };
-  *|;
 }%%
 # %
