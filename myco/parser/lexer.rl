@@ -6,42 +6,51 @@
   constant   = c_upper c_alnum+;
   identifier = c_lower c_alnum+;
   
-  object_begin = '{';
-  object_end   = '}';
   
+  ##
+  # Top level machine
   
   main := |*
     c_space_nl;
-    constant => { emit :T_CONSTANT; fcall at_constant; };
+    constant => { emit :T_CONSTANT; fcall at_decl_constant; };
     
     any => { error :main };
   *|;
   
-  at_constant := |*
+  ##
+  # Declarative expression machines, grouped by what they begin with 
+  
+  at_decl_constant := |*
     c_space_nl;
-    object_begin => { emit :T_OBJECT_BEGIN; fgoto decl_obj_body; };
+    '{' => { emit :T_DECLARE_BEGIN; fgoto decl_body; };
     
-    any => { error :at_constant };
+    any => { error :at_decl_constant };
   *|;
   
-  at_identifier := |*
+  at_decl_identifier := |*
     c_space_nl;
     (':' c_space* '{')         => { emit :T_BINDING_BEGIN, @te-1, @te;      fgoto binding_body; };
     (':' c_space* ^c_space_nl) => { emit :T_BINDING_BEGIN, @te, @te; fhold; fgoto binding_body_inline; };
     
-    any => { error :at_identifier };
+    any => { error :at_decl_identifier };
   *|;
   
-  decl_obj_body := |*
+  ##
+  # Declarative body machines
+  
+  decl_body := |*
     c_space_nl;
     
-    constant   => { emit :T_CONSTANT;   fcall at_constant;   };
-    identifier => { emit :T_IDENTIFIER; fcall at_identifier; };
+    constant   => { emit :T_CONSTANT;   fcall at_decl_constant;   };
+    identifier => { emit :T_IDENTIFIER; fcall at_decl_identifier; };
     
-    object_end => { emit :T_OBJECT_END; fret; };
+    '}' => { emit :T_DECLARE_END; fret; };
     
-    any => { error :decl_obj_body };
+    any => { error :decl_body };
   *|;
+  
+  ##
+  # Binding body machines
   
   binding_body := |*
     c_space_nl;
