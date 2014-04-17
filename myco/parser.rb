@@ -22,8 +22,8 @@ module Myco::ToolSet
   class Parser
     
     def parse_string string
-      klass     = AST::ConstantAccess.new    1, :A
-      sendwargs = AST::SendWithArguments.new 1, klass, :new, nil
+      klass     = process_const 1, :A
+      sendwargs = process_call  1, klass, :new, nil
       
       sendwargs
     end
