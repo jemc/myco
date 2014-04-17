@@ -115,6 +115,8 @@ describe Myco::ToolSet::Parser::Lexer do
           }
         baz  :{
           three}
+        all: \
+          zero
       }
     code
       [[:T_CONSTANT, "Object", 1], [:T_DECLARE_BEGIN, "{", 1],
@@ -124,7 +126,9 @@ describe Myco::ToolSet::Parser::Lexer do
         [:T_IDENTIFIER, "two", 5],   [:T_BINDING_END, "}", 6],
       [:T_IDENTIFIER, "baz", 7],   [:T_BINDING_BEGIN, "{", 7],
         [:T_IDENTIFIER, "three", 8], [:T_BINDING_END, "}", 8],
-      [:T_DECLARE_END, "}", 9]]
+      [:T_IDENTIFIER, "all", 9],   [:T_BINDING_BEGIN, "", 9],
+        [:T_IDENTIFIER, "zero", 9],  [:T_BINDING_END, "", 10],
+      [:T_DECLARE_END, "}", 10]]
     end
     
   end
