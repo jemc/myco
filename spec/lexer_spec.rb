@@ -14,14 +14,36 @@ describe Myco::ToolSet::Parser::Lexer do
         tokens.should eq expected if expected
       end
     end
+    
+    this_spec = self
+    
+    string.instance_eval do
+      define_singleton_method :parse do |expected|
+        this_spec.parse string, print do expected end
+      end
+    end
+    
+    string
+  end
+  
+  def self.parse string, print=false, &block
+    expected = block.call if block
+    
+    describe expected do
+      it "is parsed from code: \n\n#{string}\n\n" do
+        ast = Myco::ToolSet::Parser.new('(eval)', 1, []).parse_string string
+        (puts; pp ast) if print
+        ast.to_sexp.should eq expected if expected
+      end
+    end
   end
   
   
   describe "Constants" do
     
-    lex "Object"  do  [[:T_CONSTANT, "Object", 1]]   end
-    lex "OBJECT"  do  [[:T_CONSTANT, "OBJECT", 1]]   end
-    lex "Obj_3cT" do  [[:T_CONSTANT, "Obj_3cT", 1]]  end
+    lex "Object"  do [[:T_CONSTANT, "Object", 1]]  end.parse [:const, :Object]
+    lex "OBJECT"  do [[:T_CONSTANT, "OBJECT", 1]]  end.parse [:const, :OBJECT]
+    lex "Obj_3cT" do [[:T_CONSTANT, "Obj_3cT", 1]] end.parse [:const, :Obj_3cT]
     
   end
   
