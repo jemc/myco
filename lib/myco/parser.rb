@@ -21,12 +21,12 @@ require_relative 'parser/lexer'
 module Myco::ToolSet
   class Parser
     
-    def parse_string string
-      klass     = process_const 1, :A
-      sendwargs = process_call  1, klass, :new, nil
+    # def parse_string string
+    #   klass     = process_const 1, :A
+    #   sendwargs = process_call  1, klass, :new, nil
       
-      sendwargs
-    end
+    #   sendwargs
+    # end
     
   end
 end
