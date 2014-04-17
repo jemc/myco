@@ -1,6 +1,6 @@
 
 require 'timeout'
-require 'pry'
+# require 'pry'
 # require 'pry-rescue/rspec'
 
 RSpec.configure do |c|
