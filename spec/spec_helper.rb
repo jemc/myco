@@ -18,4 +18,8 @@ RSpec.configure do |c|
 end
 
 
+require 'myco/toolset'
+require 'myco/parser'
+
+
 require_relative 'helpers/parser_helper'
