@@ -1,5 +1,11 @@
 
-task :default => :sandbox
+require 'rspec/core/rake_task'
+
+
+task :default => :test
+
+
+RSpec::Core::RakeTask.new :test
 
 task :build_lexer do
   raise "Ragel railed to build Lexer..." unless \
