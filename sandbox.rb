@@ -6,19 +6,11 @@ require_relative 'myco/eval'
 
 require 'pp'
 
-Lexer = Myco::ToolSet::Parser::Lexer
+class A
+  def initialize *args
+  end
+end
 
-pp Lexer.new(<<"END_OF_MYCO").lex
-  Object {
-    foo: val
-    bar: { val }
-    
-    Object {
-      foo : val
-      bar : { val }
-      Object { }
-    }
-    
-    Object { }
-  }
-END_OF_MYCO
+a = Myco.eval "Object.new"
+
+pp a
