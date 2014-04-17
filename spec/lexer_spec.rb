@@ -2,42 +2,11 @@
 require 'myco/toolset'
 require 'myco/parser'
 
+require 'spec_helper'
+
 
 describe Myco::ToolSet::Parser::Lexer do
-  
-  def self.lex string, print=false, &block
-    expected = block.call if block
-    describe expected do
-      it "is lexed from code: \n\n#{string}\n\n" do
-        tokens = Myco::ToolSet::Parser::Lexer.new(string).lex
-        (puts; pp tokens) if print
-        tokens.should eq expected if expected
-      end
-    end
-    
-    this_spec = self
-    
-    string.instance_eval do
-      define_singleton_method :parse do |expected|
-        this_spec.parse string, print do expected end
-      end
-    end
-    
-    string
-  end
-  
-  def self.parse string, print=false, &block
-    expected = block.call if block
-    
-    describe expected do
-      it "is parsed from code: \n\n#{string}\n\n" do
-        ast = Myco::ToolSet::Parser.new('(eval)', 1, []).parse_string string
-        (puts; pp ast) if print
-        ast.to_sexp.should eq expected if expected
-      end
-    end
-  end
-  
+  extend SpecHelpers::ParserHelper
   
   describe "Constants" do
     
