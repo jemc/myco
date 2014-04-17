@@ -1,8 +1,8 @@
 
-require_relative 'myco/toolset'
-require_relative 'myco/parser'
-require_relative 'myco/compiler'
-require_relative 'myco/eval'
+require_relative 'lib/myco/toolset'
+require_relative 'lib/myco/parser'
+require_relative 'lib/myco/compiler'
+require_relative 'lib/myco/eval'
 
 require 'pp'
 
