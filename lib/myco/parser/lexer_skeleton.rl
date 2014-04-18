@@ -33,16 +33,6 @@ class Myco::ToolSet::Parser
   class Lexer
     %% write data; # %
     
-    # Lazy way of forwarding instance method calls used internally by Ragel
-    # to their corresponding class methods.
-    private_methods.grep(/^_lexer_/).each do |name|
-      define_method(name) do
-        return self.class.send(name)
-      end
-      
-      private(name)
-    end
-    
     ##
     # @param [String] data The data to lex.
     #
@@ -108,7 +98,21 @@ class Myco::ToolSet::Parser
     # @return [Array]
     #
     def advance
-      %% write exec; # % fix highlight
+      _lexer_actions             = self.class.send :_lexer_actions
+      _lexer_range_lengths       = self.class.send :_lexer_range_lengths
+      _lexer_trans_actions       = self.class.send :_lexer_trans_actions
+      _lexer_key_offsets         = self.class.send :_lexer_key_offsets
+      _lexer_index_offsets       = self.class.send :_lexer_index_offsets
+      _lexer_to_state_actions    = self.class.send :_lexer_to_state_actions
+      _lexer_trans_keys          = self.class.send :_lexer_trans_keys
+      _lexer_indicies            = self.class.send :_lexer_indicies
+      _lexer_from_state_actions  = self.class.send :_lexer_from_state_actions
+      _lexer_single_lengths      = self.class.send :_lexer_single_lengths
+      _lexer_trans_targs         = self.class.send :_lexer_trans_targs
+      _lexer_eof_trans           = self.class.send :_lexer_eof_trans
+      
+      %% write exec;
+      # %
       
       return @tokens.shift
     end
