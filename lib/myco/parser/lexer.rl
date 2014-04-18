@@ -6,16 +6,37 @@
   constant   = c_upper c_alnum+;
   identifier = c_lower c_alnum+;
   
-  ##
-  # Object {
-  
+  # Object { ... }
+  #
   decl_begin = (
-    constant       % { grab :constant }
-    c_space_nl*    % { mark :space }
-    '{'            % { grab :brace, kram(:space) }
+    constant     % { grab :constant }
+    c_space_nl*  % { mark :space }
+    '{'          % { grab :brace, kram(:space) }
   ) % {
     stuff :T_CONSTANT,      :constant
     stuff :T_DECLARE_BEGIN, :brace
+  };
+  
+  # foo: { ... }
+  #
+  bind_begin = (
+    identifier                  % { grab :identifier }
+    (c_space* ':' c_space_nl*)  % { mark :space }
+    '{'                         % { grab :brace, kram(:space) }
+  ) % {
+    stuff :T_IDENTIFIER,    :identifier
+    stuff :T_BINDING_BEGIN, :brace
+  };
+  
+  # foo: ...
+  #
+  binl_begin = (
+    identifier                  % { grab :identifier }
+    (c_space* ':' c_space*)
+    ^(c_space_nl|'{')           % { fhold; grab :brace, @p, @p }
+  ) % {
+    stuff :T_IDENTIFIER,    :identifier
+    stuff :T_BINDING_BEGIN, :brace
   };
   
   ##
@@ -31,24 +52,14 @@
   *|;
   
   ##
-  # Declarative expression machines, grouped by what they begin with 
-  
-  at_decl_identifier := |*
-    c_space_nl;
-    (':' c_space* '{')         => { emit :T_BINDING_BEGIN, @te-1, @te;      fgoto binding_body; };
-    (':' c_space* ^c_space_nl) => { emit :T_BINDING_BEGIN, @te, @te; fhold; fgoto binding_body_inline; };
-    
-    any => { error :at_decl_identifier };
-  *|;
-  
-  ##
-  # Declarative body machines
+  # Declarative body machine
   
   decl_body := |*
     c_space_nl;
     
     decl_begin => { fcall decl_body; };
-    identifier => { emit :T_IDENTIFIER; fcall at_decl_identifier; };
+    bind_begin => { fcall bind_body; };
+    binl_begin => { fcall binl_body; };
     
     '}' => { emit :T_DECLARE_END; fret; };
     
@@ -58,20 +69,20 @@
   ##
   # Binding body machines
   
-  binding_body := |*
+  bind_body := |*
     c_space_nl;
     identifier => { emit :T_IDENTIFIER; };
     '}'        => { emit :T_BINDING_END; fret; };
     
-    any => { error :binding_body };
+    any => { error :bind_body };
   *|;
   
-  binding_body_inline := |*
+  binl_body := |*
     c_space;
     identifier => { emit :T_IDENTIFIER; };
     c_nl       => { emit :T_BINDING_END, @ts, @ts; fret; };
     
-    any => { error :binding_body_inline };
+    any => { error :binl_body };
   *|;
   
 }%%
