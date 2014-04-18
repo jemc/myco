@@ -3,10 +3,33 @@ class MycoBuilder
         T_DECLARE_BEGIN T_DECLARE_END
         T_BINDING_BEGIN T_BINDING_END
 
+options no_result_var
+
 
 rule
-  constant: T_CONSTANT
-        { result = pr.process_const val[0][2], val[0][1].to_sym }
+  main:
+    declaration
+  | constant
+  ;
+  
+  
+  constant:
+    T_CONSTANT
+      { pr.process_const val[0][2], val[0][1].to_sym }
+  ;
+  
+  constant_list:
+    constant
+      { pr.process_array val[0].line, [val[0]] }
+  ;
+  
+  declaration: 
+    constant_list T_DECLARE_BEGIN T_DECLARE_END
+      {
+        const = pr.process_const val[1][2], :Component
+        pr.process_call val[1][2], const, :new, val[0]
+      }
+  ;
 
 
 ---- inner
@@ -22,4 +45,3 @@ rule
     tok = @tokens.shift
     [ tok[0], tok ] if tok
   end
-  

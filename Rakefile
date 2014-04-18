@@ -13,8 +13,8 @@ end
 
 task :build_builder do
   raise "Racc failed to build Builder..." unless \
-    system "racc lib/myco/parser/builder.racc" \
-            " -o lib/myco/parser/builder.rb"
+    system "racc -t lib/myco/parser/builder.racc" \
+               " -o lib/myco/parser/builder.rb"
   
   # Reopen file to fix racc problem with class in constant hierarchy
   File.read("lib/myco/parser/builder.rb").tap do |buffer|
