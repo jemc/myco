@@ -6,26 +6,32 @@
   constant   = c_upper c_alnum+;
   identifier = c_lower c_alnum+;
   
+  ##
+  # Object {
+  
+  decl_begin = (
+    constant       % { grab :constant }
+    c_space_nl*    % { mark :space }
+    '{'            % { grab :brace, kram(:space) }
+  ) % {
+    stuff :T_CONSTANT,      :constant
+    stuff :T_DECLARE_BEGIN, :brace
+  };
   
   ##
   # Top level machine
   
   main := |*
     c_space_nl;
-    constant => { emit :T_CONSTANT; fcall at_decl_constant; };
+    
+    decl_begin => { fcall decl_body; };
+    constant   => { emit :T_CONSTANT };
     
     any => { error :main };
   *|;
   
   ##
   # Declarative expression machines, grouped by what they begin with 
-  
-  at_decl_constant := |*
-    c_space_nl;
-    '{' => { emit :T_DECLARE_BEGIN; fgoto decl_body; };
-    
-    any => { error :at_decl_constant };
-  *|;
   
   at_decl_identifier := |*
     c_space_nl;
@@ -41,7 +47,7 @@
   decl_body := |*
     c_space_nl;
     
-    constant   => { emit :T_CONSTANT;   fcall at_decl_constant;   };
+    decl_begin => { fcall decl_body; };
     identifier => { emit :T_IDENTIFIER; fcall at_decl_identifier; };
     
     '}' => { emit :T_DECLARE_END; fret; };

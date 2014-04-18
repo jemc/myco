@@ -60,6 +60,7 @@ class Myco::ToolSet::Parser
       @eof      = @data.length
       @p        = 0
       @pe       = @eof
+      reset_common
     end
     
     ##
@@ -162,19 +163,10 @@ class Myco::ToolSet::Parser
     # @param [Symbol] type The token type.
     # @param [String] value The token value.
     #
-    def add_token(type, value = nil)
-      token = [type, value, @line]
+    def add_token(type, value = nil, line = @line)
+      token = [type, value, line]
       
       @tokens << token
-    end
-    
-    ##
-    # Handles an error condition during lexing.
-    #
-    def error(location, hint=nil)
-      str = "Lexer met unexpected character(s) in #{location.inspect}: #{text.inspect}"
-      str += "; "+hint.to_s if hint
-      warn str
     end
     
     %%{

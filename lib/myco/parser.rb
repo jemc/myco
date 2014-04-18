@@ -17,6 +17,7 @@ module Myco::ToolSet
 end
 
 require_relative 'parser/lexer'
+require_relative 'parser/lexer_common'
 
 module Myco::ToolSet
   class Parser
