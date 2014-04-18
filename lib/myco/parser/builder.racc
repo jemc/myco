@@ -1,0 +1,25 @@
+class MycoBuilder
+  token T_CONSTANT T_IDENTIFIER
+        T_DECLARE_BEGIN T_DECLARE_END
+        T_BINDING_BEGIN T_BINDING_END
+
+
+rule
+  constant: T_CONSTANT
+        { result = pr.process_const val[0][2], val[0][1].to_sym }
+
+
+---- inner
+  attr_accessor :processor
+  def pr; processor; end
+  
+  def parse string
+    @tokens = Myco::ToolSet::Parser::Lexer.new(string).lex
+    do_parse
+  end
+  
+  def next_token
+    tok = @tokens.shift
+    [ tok[0], tok ] if tok
+  end
+  

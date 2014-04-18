@@ -1,3 +1,4 @@
 ^\.git$
 \.sublime-
-myco/parser/lexer.rb
+^lib/myco/parser/lexer.rb$
+^lib/myco/parser/builder.rb$
