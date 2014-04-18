@@ -18,6 +18,7 @@ end
 
 require_relative 'parser/lexer'
 require_relative 'parser/lexer_common'
+require_relative 'parser/ast'
 require_relative 'parser/builder'
 
 module Myco::ToolSet
@@ -29,10 +30,14 @@ module Myco::ToolSet
       end
       
       @builder.parse string
-      # klass     = process_const 1, :A
-      # sendwargs = process_call  1, klass, :new, nil
-      
-      # sendwargs
+    end
+    
+    ##
+    # AST building methods
+    # (supplementing those inherited from rubinius/processor)
+    
+    def process_declobj line, types
+      AST::DeclareObject.new line, types
     end
     
   end

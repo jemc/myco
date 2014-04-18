@@ -23,12 +23,9 @@ rule
       { pr.process_array val[0].line, [val[0]] }
   ;
   
-  declaration: 
+  declaration:
     constant_list T_DECLARE_BEGIN T_DECLARE_END
-      {
-        const = pr.process_const val[1][2], :Component
-        pr.process_call val[1][2], const, :new, val[0]
-      }
+      { pr.process_declobj val[1][2], val[0] }
   ;
 
 
