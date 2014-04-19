@@ -66,4 +66,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .parse [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]]]
   
+  lex "Foo: Object { }" do
+    [[:T_CONSTANT, "Foo", 1],   [:T_BINDING_BEGIN, "", 1],
+     [:T_CONSTANT, "Object", 1],[:T_DECLARE_BEGIN, "{", 1],
+     [:T_DECLARE_END, "}", 1],  [:T_BINDING_END, "", 1]]
+  end
+  .parse [:cdecl, :Foo, [:declobj, [:array, [:const, :Object]]]]
+  
 end

@@ -9,14 +9,15 @@ options no_result_var
 
 rule
   main:
-    declaration
+    const_binding
+  | declaration
   | constant
   ;
   
   
-  constant_list:
-    constants_
-      { pr.process_array val.first[0], val[0] }
+  constant:
+    T_CONSTANT
+      { pr.process_const val[0][2], val[0][1].to_sym }
   ;
   
   constants_:
@@ -24,16 +25,25 @@ rule
   | constant                    { val }
   ;
   
-  constant:
-    T_CONSTANT
-      { pr.process_const val[0][2], val[0][1].to_sym }
+  constant_list:
+    constants_
+      { pr.process_array val.first[0].line, val[0] }
   ;
   
   declaration:
     constant_list T_DECLARE_BEGIN T_DECLARE_END
       { pr.process_declobj val[1][2], val[0] }
   ;
-
+  
+  expression:
+    declaration
+  | constant
+  ;
+  
+  const_binding:
+    constant T_BINDING_BEGIN expression T_BINDING_END
+      { pr.process_cdecl val[1][0], val[0], val[2] }
+  ;
 
 ---- inner
   attr_accessor :processor

@@ -106,11 +106,12 @@ class Myco::ToolSet::Parser
       _lexer_index_offsets       = self.class.send :_lexer_index_offsets
       _lexer_to_state_actions    = self.class.send :_lexer_to_state_actions
       _lexer_trans_keys          = self.class.send :_lexer_trans_keys
-      _lexer_indicies            = self.class.send :_lexer_indicies
       _lexer_from_state_actions  = self.class.send :_lexer_from_state_actions
       _lexer_single_lengths      = self.class.send :_lexer_single_lengths
       _lexer_trans_targs         = self.class.send :_lexer_trans_targs
       _lexer_eof_trans           = self.class.send :_lexer_eof_trans
+      _lexer_indicies            = self.class.send :_lexer_indicies \
+        if self.class.respond_to? :_lexer_indicies
       
       %% write exec;
       # %

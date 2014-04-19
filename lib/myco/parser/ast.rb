@@ -12,14 +12,13 @@ module Myco::ToolSet::AST
       [:declobj, @types.to_sexp]
     end
     
-    # # TODO: test implementation of new AST node types
-    # def implementation
-    #   const = ConstantAccess.new @line, :Component
-    #   SendWithArguments.new @line, const, :new, @types
-    # end
+    def implementation
+      const = ConstantAccess.new @line, :Component
+      SendWithArguments.new @line, const, :new, @types
+    end
     
-    # def bytecode g
-    #   implementation.bytecode g
-    # end
+    def bytecode g
+      implementation.bytecode g
+    end
   end
 end

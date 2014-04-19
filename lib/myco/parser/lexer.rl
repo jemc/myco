@@ -3,8 +3,8 @@
 
 %%{
 # %
-  constant   = c_upper c_alnum+;
-  identifier = c_lower c_alnum+;
+  constant   = c_upper c_alnum*;
+  identifier = c_lower c_alnum*;
   
   
   # Foo,Bar,Baz
@@ -27,6 +27,28 @@
     '{'          % { grab :brace, kram(:space) }
   ) % {
     stuff :T_DECLARE_BEGIN, :brace
+  };
+  
+  # Foo: { ... }
+  #
+  cbind_begin = (
+    constant                    % { grab :constant }
+    (c_space* ':' c_space_nl*)  % { mark :space }
+    '{'                         % { grab :brace, kram(:space) }
+  ) % {
+    stuff :T_CONSTANT,      :constant
+    stuff :T_BINDING_BEGIN, :brace
+  };
+  
+  # Foo: ...
+  #
+  cbinl_begin = (
+    constant                    % { grab :constant }
+    (c_space* ':' c_space*)
+    ^(c_space_nl|'{')           % { fhold; grab :brace, @p, @p }
+  ) % {
+    stuff :T_CONSTANT,      :constant
+    stuff :T_BINDING_BEGIN, :brace
   };
   
   # foo: { ... }
@@ -57,9 +79,13 @@
   main := |*
     c_space_nl;
     
-    decl_begin => { fcall decl_body; };
-    constant   => { emit :T_CONSTANT };
+    cbind_begin => { fcall bind_body; };
+    cbinl_begin => { fcall binl_body; };
     
+    decl_begin  => { fcall decl_body; };
+    constant    => { emit :T_CONSTANT };
+    
+    c_eof;
     any => { error :main };
   *|;
   
@@ -69,9 +95,14 @@
   decl_body := |*
     c_space_nl;
     
-    decl_begin => { fcall decl_body; };
-    bind_begin => { fcall bind_body; };
-    binl_begin => { fcall binl_body; };
+    decl_begin  => { fcall decl_body; };
+    constant    => { emit :T_CONSTANT };
+    
+    cbind_begin => { fcall bind_body; };
+    cbinl_begin => { fcall binl_body; };
+    
+    bind_begin  => { fcall bind_body; };
+    binl_begin  => { fcall binl_body; };
     
     '}' => { emit :T_DECLARE_END; fret; };
     
@@ -83,7 +114,10 @@
   
   bind_body := |*
     c_space_nl;
-    identifier => { emit :T_IDENTIFIER; };
+    
+    decl_begin => { fcall decl_body; };
+    constant   => { emit :T_CONSTANT };
+    identifier => { emit :T_IDENTIFIER };
     '}'        => { emit :T_BINDING_END; fret; };
     
     any => { error :bind_body };
@@ -91,8 +125,11 @@
   
   binl_body := |*
     c_space;
-    identifier => { emit :T_IDENTIFIER; };
-    c_nl       => { emit :T_BINDING_END, @ts, @ts; fret; };
+    
+    decl_begin => { fcall decl_body; };
+    constant   => { emit :T_CONSTANT };
+    identifier => { emit :T_IDENTIFIER };
+    c_eol      => { emit :T_BINDING_END, @ts, @ts; fret; };
     
     any => { error :binl_body };
   *|;

@@ -6,11 +6,24 @@ require_relative 'lib/myco/eval'
 
 require 'pp'
 
-class A
-  def initialize *args
+module Foo; end
+module Bar; end
+module Baz; end
+
+class Component < Module
+  def self.new components
+    super().tap do |this|
+      components.each do |other|
+        this.include other
+      end
+    end
   end
 end
 
-a = Myco.eval "Object.new"
+class Myco
+  Myco.eval "A: Foo,Bar,Baz { }"
+end
 
-pp a
+p Myco::A.ancestors
+
+pp Myco::A
