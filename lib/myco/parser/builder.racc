@@ -1,5 +1,6 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER
+        T_COMMA
         T_DECLARE_BEGIN T_DECLARE_END
         T_BINDING_BEGIN T_BINDING_END
 
@@ -13,14 +14,19 @@ rule
   ;
   
   
+  constant_list:
+    constants_
+      { pr.process_array val.first[0], val[0] }
+  ;
+  
+  constants_:
+    constants_ T_COMMA constant { [*val.first, val.last] }
+  | constant                    { val }
+  ;
+  
   constant:
     T_CONSTANT
       { pr.process_const val[0][2], val[0][1].to_sym }
-  ;
-  
-  constant_list:
-    constant
-      { pr.process_array val[0].line, [val[0]] }
   ;
   
   declaration:

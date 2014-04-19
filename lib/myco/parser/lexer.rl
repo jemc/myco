@@ -6,14 +6,26 @@
   constant   = c_upper c_alnum+;
   identifier = c_lower c_alnum+;
   
+  
+  # Foo,Bar,Baz
+  #
+  constant_list = (
+    constant       % { emit :T_CONSTANT }
+    (
+      c_space*     % { mark :space }
+      ','          % { emit :T_COMMA,    kram(:space), @p }
+      c_space_nl*  % { mark :space }
+      constant     % { emit :T_CONSTANT, kram(:space), @p }
+    )*
+  );
+  
   # Object { ... }
   #
   decl_begin = (
-    constant     % { grab :constant }
+    constant_list
     c_space_nl*  % { mark :space }
     '{'          % { grab :brace, kram(:space) }
   ) % {
-    stuff :T_CONSTANT,      :constant
     stuff :T_DECLARE_BEGIN, :brace
   };
   
