@@ -37,7 +37,7 @@ class Myco::ToolSet::Parser
     # @param [String] data The data to lex.
     #
     def initialize(data)
-      @data = data.unpack('U*')
+      @data = data.unpack('U*') << 0
       
       reset
     end
