@@ -20,13 +20,13 @@ rule
       { ast(:const, val[0], val[0][1].to_sym) }
   ;
   
-  constants_:
-    constants_ T_COMMA constant { [*val.first, val.last] }
-  | constant                    { val }
+  constant_list_:
+    constant_list_ T_COMMA constant { [*val.first, val.last] }
+  | constant                        { val }
   ;
   
   constant_list:
-    constants_
+    constant_list_
       { ast(:array, val.first[0], val[0]) }
   ;
   
