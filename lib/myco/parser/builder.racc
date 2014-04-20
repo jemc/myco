@@ -17,7 +17,7 @@ rule
   
   constant:
     T_CONSTANT
-      { pr.process_const val[0][2], val[0][1].to_sym }
+      { ast(:const, val[0], val[0][1].to_sym) }
   ;
   
   constants_:
@@ -27,12 +27,12 @@ rule
   
   constant_list:
     constants_
-      { pr.process_array val.first[0].line, val[0] }
+      { ast(:array, val.first[0], val[0]) }
   ;
   
   declaration:
     constant_list T_DECLARE_BEGIN T_DECLARE_END
-      { pr.process_declobj val[1][2], val[0] }
+      { ast(:declobj, val[1], val[0]) }
   ;
   
   expression:
@@ -42,12 +42,11 @@ rule
   
   const_binding:
     constant T_BINDING_BEGIN expression T_BINDING_END
-      { pr.process_cdecl val[1][0], val[0], val[2] }
+      { ast(:cdecl, val[1], val[0], val[2]) }
   ;
 
 ---- inner
   attr_accessor :processor
-  def pr; processor; end
   
   def parse string
     @tokens = Myco::ToolSet::Parser::Lexer.new(string).lex
@@ -57,4 +56,20 @@ rule
   def next_token
     tok = @tokens.shift
     [ tok[0], tok ] if tok
+  end
+  
+  # Generate an AST::Node of the given type
+  #
+  # @param type [Symbol] The type of AST::Node to generate
+  # @param locator [Array,AST::Node] The object from which to determine the
+  #   source location where the AST::Node is to reference as its location.
+  #   If it is an lexer token (Array), the location is pulled from it;
+  #   if it is an AST::Node, the location for this node will be copied from it. 
+  # @param args [Array] The arguments to pass to the processor method that
+  #   will generate the AST::Node; usually the same as the arguments that will
+  #   eventually be passed to the AST::Node's constructor.
+  #
+  def ast type, locator, *args
+    line = locator.is_a?(Array) ? locator[2] : locator.line
+    @processor.send :"process_#{type}", line, *args
   end
