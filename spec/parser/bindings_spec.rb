@@ -13,16 +13,16 @@ describe Myco::ToolSet::Parser, "Bindings" do
       all:nil
     }
   code
-    [[:T_CONSTANT, "Object", 1], [:T_DECLARE_BEGIN, "{", 1],
-     [:T_IDENTIFIER, "foo", 2],  [:T_BINDING_BEGIN, "", 2],
-       [:T_IDENTIFIER, "one", 2],  [:T_BINDING_END, "", 3],
-     [:T_IDENTIFIER, "bar", 3],  [:T_BINDING_BEGIN, "", 3],
-       [:T_CONSTANT, "Two", 3],    [:T_BINDING_END, "", 4],
-     [:T_IDENTIFIER, "baz", 4],  [:T_BINDING_BEGIN, "", 4],
-       [:T_NUMERIC, "3", 4],       [:T_BINDING_END, "", 5],
-     [:T_IDENTIFIER, "all", 5],  [:T_BINDING_BEGIN, "", 5],
-       [:T_NIL, "nil", 5],         [:T_BINDING_END, "", 6],
-     [:T_DECLARE_END, "}", 6]]
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+     [:T_IDENTIFIER, "foo"],  [:T_BINDING_BEGIN, ""],
+       [:T_IDENTIFIER, "one"],  [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "bar"],  [:T_BINDING_BEGIN, ""],
+       [:T_CONSTANT, "Two"],    [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "baz"],  [:T_BINDING_BEGIN, ""],
+       [:T_NUMERIC, "3"],       [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "all"],  [:T_BINDING_BEGIN, ""],
+       [:T_NIL, "nil"],         [:T_BINDING_END, ""],
+     [:T_DECLARE_END, "}"]]
   end
   
   lex <<-code do
@@ -33,16 +33,16 @@ describe Myco::ToolSet::Parser, "Bindings" do
       all:{nil }
     }
   code
-    [[:T_CONSTANT, "Object", 1], [:T_DECLARE_BEGIN, "{", 1],
-     [:T_IDENTIFIER, "foo", 2],  [:T_BINDING_BEGIN, "{", 2],
-       [:T_IDENTIFIER, "one", 2],  [:T_BINDING_END, "}", 2],
-     [:T_IDENTIFIER, "bar", 3],  [:T_BINDING_BEGIN, "{", 3],
-       [:T_CONSTANT, "Two", 3],    [:T_BINDING_END, "}", 3],
-     [:T_IDENTIFIER, "baz", 4],  [:T_BINDING_BEGIN, "{", 4],
-       [:T_NUMERIC, "3", 4],       [:T_BINDING_END, "}", 4],
-     [:T_IDENTIFIER, "all", 5],  [:T_BINDING_BEGIN, "{", 5],
-       [:T_NIL, "nil", 5],         [:T_BINDING_END, "}", 5],
-     [:T_DECLARE_END, "}", 6]]
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+     [:T_IDENTIFIER, "foo"],  [:T_BINDING_BEGIN, "{"],
+       [:T_IDENTIFIER, "one"],  [:T_BINDING_END, "}"],
+     [:T_IDENTIFIER, "bar"],  [:T_BINDING_BEGIN, "{"],
+       [:T_CONSTANT, "Two"],    [:T_BINDING_END, "}"],
+     [:T_IDENTIFIER, "baz"],  [:T_BINDING_BEGIN, "{"],
+       [:T_NUMERIC, "3"],       [:T_BINDING_END, "}"],
+     [:T_IDENTIFIER, "all"],  [:T_BINDING_BEGIN, "{"],
+       [:T_NIL, "nil"],         [:T_BINDING_END, "}"],
+     [:T_DECLARE_END, "}"]]
   end
   
   lex <<-code do
@@ -58,16 +58,16 @@ describe Myco::ToolSet::Parser, "Bindings" do
         nil
     }
   code
-    [[:T_CONSTANT, "Object", 1], [:T_DECLARE_BEGIN, "{", 1],
-    [:T_IDENTIFIER, "foo", 2],   [:T_BINDING_BEGIN, "{", 2],
-      [:T_IDENTIFIER, "one", 2],   [:T_BINDING_END, "}", 4],
-    [:T_IDENTIFIER, "bar", 5],   [:T_BINDING_BEGIN, "{", 5],
-      [:T_CONSTANT, "Two", 3],     [:T_BINDING_END, "}", 6],
-    [:T_IDENTIFIER, "baz", 7],   [:T_BINDING_BEGIN, "{", 7],
-      [:T_NUMERIC, "3", 4],        [:T_BINDING_END, "}", 8],
-    [:T_IDENTIFIER, "all", 9],   [:T_BINDING_BEGIN, "", 9],
-      [:T_NIL, "nil", 5],          [:T_BINDING_END, "", 10],
-    [:T_DECLARE_END, "}", 10]]
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+    [:T_IDENTIFIER, "foo"],   [:T_BINDING_BEGIN, "{"],
+      [:T_IDENTIFIER, "one"],   [:T_BINDING_END, "}"],
+    [:T_IDENTIFIER, "bar"],   [:T_BINDING_BEGIN, "{"],
+      [:T_CONSTANT, "Two"],     [:T_BINDING_END, "}"],
+    [:T_IDENTIFIER, "baz"],   [:T_BINDING_BEGIN, "{"],
+      [:T_NUMERIC, "3"],        [:T_BINDING_END, "}"],
+    [:T_IDENTIFIER, "all"],   [:T_BINDING_BEGIN, ""],
+      [:T_NIL, "nil"],          [:T_BINDING_END, ""],
+    [:T_DECLARE_END, "}"]]
   end
   
 end
