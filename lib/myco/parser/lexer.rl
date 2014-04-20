@@ -6,16 +6,18 @@
   constant   = c_upper c_alnum*;
   identifier = c_lower c_alnum*;
   
+  numeric    = '-'? [0-9]+ ('.' [0-9]+)?;
+  
   
   # Foo,Bar,Baz
   #
   constant_list = (
-    constant       % { emit :T_CONSTANT }
+    constant       % { @marks[:constant_list] = [@ts, @p] }
     (
-      c_space*     % { mark :space }
-      ','          % { emit :T_COMMA,    kram(:space), @p }
-      c_space_nl*  % { mark :space }
-      constant     % { emit :T_CONSTANT, kram(:space), @p }
+      c_space*     % { @marks[:constant_list] << @p }
+      ','          % { @marks[:constant_list] << @p }
+      c_space_nl*  % { @marks[:constant_list] << @p }
+      constant     % { @marks[:constant_list] << @p }
     )*
   );
   
@@ -26,6 +28,10 @@
     c_space_nl*  % { mark :space }
     '{'          % { grab :brace, kram(:space) }
   ) % {
+    @marks[:constant_list].each_slice(4) do |a,b,c,d|
+      emit :T_CONSTANT, a, b if a && b
+      emit :T_COMMA,    c, d if c && d
+    end
     stuff :T_DECLARE_BEGIN, :brace
   };
   
@@ -116,8 +122,11 @@
     c_space_nl;
     
     decl_begin => { fcall decl_body; };
+    'nil'      => { emit :T_NIL };
+    numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
+    
     '}'        => { emit :T_BINDING_END; fret; };
     
     any => { error :bind_body };
@@ -127,8 +136,11 @@
     c_space;
     
     decl_begin => { fcall decl_body; };
+    'nil'      => { emit :T_NIL };
+    numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
+    
     c_eol      => { emit :T_BINDING_END, @ts, @ts; fret; };
     
     any => { error :binl_body };

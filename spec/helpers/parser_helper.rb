@@ -8,7 +8,7 @@ module SpecHelpers
         it "is lexed from code: \n\n#{string}\n\n" do
           tokens = Myco::ToolSet::Parser::Lexer.new(string).lex
           (puts; pp tokens) if print
-          tokens.should eq expected if expected
+          tokens.map{|x| x[0..1]}.should eq expected.map{|x| x[0..1]} if expected
         end
       end
       
