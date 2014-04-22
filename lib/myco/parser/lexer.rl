@@ -144,11 +144,16 @@
   dstr_body := |*
     dstr_line => {
       start, stop = @stored[:line];
-      if text(start, stop) =~ /^(\s*)(@@@)/
+      line_text = text start, stop
+      
+      if line_text =~ /^(\s*)@@@/
+        emit :T_DECLSTR_BODY, *@dstr_body_start, start
+        @dstr_body_start = nil
+        
         emit :T_DECLSTR_END, start+$1.size, stop
         fret;
       else
-        emit :T_DECLSTR_LINE, start, stop
+        @dstr_body_start ||= start
       end
     };
   *|;

@@ -81,8 +81,10 @@ describe Myco::ToolSet::Parser, "Declarations" do
   code
     [[:T_CONSTANT, "Object"],
      [:T_DECLSTR_BEGIN, "@@@"],
-     [:T_DECLSTR_LINE,  "      foo"],
-     [:T_DECLSTR_LINE,  "      bar"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+      foo
+      bar
+    DECLSTR
      [:T_DECLSTR_END,   "@@@"]]
   end
   
@@ -95,9 +97,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
   code
     [[:T_CONSTANT, "Object"],
      [:T_DECLSTR_BEGIN, "@@@"],
-     [:T_DECLSTR_LINE,  "      @foo"],
-     [:T_DECLSTR_LINE,  "      bar @@@"],
-     [:T_DECLSTR_LINE,  "      @@baz"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+      @foo
+      bar @@@
+      @@baz
+    DECLSTR
      [:T_DECLSTR_END,   "@@@"]]
   end
   
