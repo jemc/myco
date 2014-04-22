@@ -35,6 +35,22 @@
     stuff :T_DECLARE_BEGIN, :brace
   };
   
+  # Object @@@
+  #   ...
+  # @@@
+  #
+  dstr_begin = (
+    constant_list
+    c_space_nl*  % { mark :space }
+    '@@@'        % { grab :brace, kram(:space) }
+  ) % {
+    @marks[:constant_list].each_slice(4) do |a,b,c,d|
+      emit :T_CONSTANT, a, b if a && b
+      emit :T_COMMA,    c, d if c && d
+    end
+    stuff :T_DECLSTR_BEGIN, :brace
+  };
+  
   # Foo: { ... }
   #
   cbind_begin = (
@@ -89,6 +105,7 @@
     cbinl_begin => { fcall binl_body; };
     
     decl_begin  => { fcall decl_body; };
+    dstr_begin  => { fcall dstr_body; };
     constant    => { emit :T_CONSTANT };
     
     c_eof;
@@ -102,6 +119,7 @@
     c_space_nl;
     
     decl_begin  => { fcall decl_body; };
+    dstr_begin  => { fcall dstr_body; };
     constant    => { emit :T_CONSTANT };
     
     cbind_begin => { fcall bind_body; };
@@ -113,6 +131,26 @@
     '}' => { emit :T_DECLARE_END; fret; };
     
     any => { error :decl_body };
+  *|;
+  
+  ##
+  # Declarative string machine
+  
+  dstr_line = (
+    c_nl     % { mark :newline }
+    (^c_nl)* % { grab :line, kram(:newline) }
+  );
+  
+  dstr_body := |*
+    dstr_line => {
+      start, stop = @stored[:line];
+      if text(start, stop) =~ /^(\s*)(@@@)/
+        emit :T_DECLSTR_END, start+$1.size, stop
+        fret;
+      else
+        emit :T_DECLSTR_LINE, start, stop
+      end
+    };
   *|;
   
   ##
