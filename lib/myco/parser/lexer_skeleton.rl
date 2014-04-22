@@ -122,29 +122,6 @@ class Myco::ToolSet::Parser
     private
     
     ##
-    # @param [Fixnum] amount The amount of lines to advance.
-    #
-    def advance_line(amount = 1)
-      @line += amount
-    end
-    
-    ##
-    # Emits a token who's value is based on the supplied start/stop position.
-    #
-    # @param [Symbol] type The token type.
-    # @param [Fixnum] start
-    # @param [Fixnum] stop
-    #
-    # @see #text
-    # @see #add_token
-    #
-    def emit(type, start = @ts, stop = @te)
-      value = text(start, stop)
-      
-      add_token(type, value)
-    end
-    
-    ##
     # Returns the text of the current buffer based on the supplied start and
     # stop position.
     #
@@ -158,17 +135,6 @@ class Myco::ToolSet::Parser
       return @data[start...stop].pack('U*')
     end
     
-    ##
-    # Adds a token with the given type and value to the list.
-    #
-    # @param [Symbol] type The token type.
-    # @param [String] value The token value.
-    #
-    def add_token(type, value = nil, line = @line)
-      token = [type, value, line]
-      
-      @tokens << token
-    end
     
     %%{
     # %
@@ -179,7 +145,7 @@ class Myco::ToolSet::Parser
       variable pe @pe;
       variable eof @eof;
       
-      action do_nl { advance_line 1 }
+      action do_nl { do_nl }
       
       include "lexer_char_classes.rl"; # Basic character classes
       include "lexer.rl";              # Main rules file
