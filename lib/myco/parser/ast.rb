@@ -2,11 +2,12 @@
 module Myco::ToolSet::AST
   
   class DeclareObject < Node
-    attr_accessor :types
+    attr_accessor :types, :create
     
     def initialize line, types
-      @line  = line
-      @types = types
+      @line   = line
+      @types  = types
+      @create = true
     end
     
     def to_sexp
@@ -15,7 +16,8 @@ module Myco::ToolSet::AST
     
     def implementation
       const = ConstantAccess.new @line, :Component
-      SendWithArguments.new @line, const, :new, @types
+      comp  = SendWithArguments.new @line, const, :new, @types
+      @create ? Send.new(@line, comp, :create) : comp
     end
     
     def bytecode g
@@ -38,10 +40,9 @@ module Myco::ToolSet::AST
     end
     
     def implementation
-      const = ConstantAccess.new @line, :Component
-      comp  = SendWithArguments.new @line, const, :new, @types
+      obj   = DeclareObject.new @line, @types
       args  = ArrayLiteral.new @string.line, [@string]
-      SendWithArguments.new @string.line, comp, :from_string, args
+      SendWithArguments.new @string.line, obj, :from_string, args
     end
     
     def bytecode g
