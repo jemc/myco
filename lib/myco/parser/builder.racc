@@ -33,9 +33,27 @@ rule
       { ast(:array, val.first[0], val[0]) }
   ;
   
+  declobj_expr:
+    declobj
+  | declstr
+  | constant
+  ;
+  
+  declobj_expr_body_:
+    declobj_expr_body_ declobj_expr { [*val.first, val.last] }
+  | declobj_expr                    { val }
+  ;
+  
+  declobj_expr_body:
+    declobj_expr_body_ T_DECLARE_END { ast(:block, val.first[0], val[0]) }
+  | T_DECLARE_END                    { ast(:nil, val[0]) }
+  ;
+  
   declobj:
-    constant_list T_DECLARE_BEGIN T_DECLARE_END
-      { ast(:declobj, val[1], val[0]) }
+    constant_list T_DECLARE_BEGIN declobj_expr_body
+      {
+        ast(:declobj, val[1], val[0], val[2])
+      }
   ;
   
   declstr_body:

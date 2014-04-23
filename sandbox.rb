@@ -15,32 +15,50 @@ class Myco
     def from_string string
       eval string
     end
+    
+    def __component_init__
+      
+    end
   end
   
   class Component < Module
-    def self.new components
-      super().tap do |this|
+    def self.new components=[], &block
+      super() {
+          define_method :__component_init__, &block
+        }.tap do |this|
         components.each do |other|
           this.include other
         end
       end
     end
     
-    def create
+    def new
       obj = Instance.new
       obj.extend self
+      obj.__component_init__
       obj
     end
   end
   
-  A = Myco.eval <<-code
-    A < Foo,Bar,Baz {
-      
+  Object = Component.new do
+  end
+  
+  RubyEval = Component.new do
+    def from_string string
+      eval string
+    end
+  end
+  
+  Myco.eval <<-code
+    A < Object {
+      RubyEval @@@
+        p :hello_world
+      @@@
     }
   code
   
-  p A.singleton_class.ancestors
+  p A.ancestors
   
-  pp A
+  pp A.new
   
 end

@@ -2,22 +2,31 @@
 module Myco::ToolSet::AST
   
   class DeclareObject < Node
-    attr_accessor :types, :create
+    attr_accessor :types, :body
+    attr_accessor :create
     
-    def initialize line, types
+    def initialize line, types, body
       @line   = line
       @types  = types
+      @body   = body
       @create = true
     end
     
     def to_sexp
-      [:declobj, @types.to_sexp]
+      [:declobj, @types.to_sexp, @body.to_sexp]
     end
     
     def implementation
+      # comp = Component.new(*@types, &@body)
+      # obj  = (@create ? comp.new : comp)
+      # return obj
+      
       const = ConstantAccess.new @line, :Component
+      itera = FormalArguments19.new line, nil, nil, nil, nil, nil
+      iter  = Iter19.new @line, itera, @body
       comp  = SendWithArguments.new @line, const, :new, @types
-      @create ? Send.new(@line, comp, :create) : comp
+      comp.instance_variable_set :@block, iter
+      @create ? Send.new(@line, comp, :new) : comp
     end
     
     def bytecode g
@@ -26,8 +35,7 @@ module Myco::ToolSet::AST
   end
   
   class DeclareString < Node
-    attr_accessor :types
-    attr_accessor :string
+    attr_accessor :types, :string
     
     def initialize line, types, string
       @line   = line
@@ -40,7 +48,8 @@ module Myco::ToolSet::AST
     end
     
     def implementation
-      obj   = DeclareObject.new @line, @types
+      blk   = NilLiteral.new @line
+      obj   = DeclareObject.new @line, @types, blk
       args  = ArrayLiteral.new @string.line, [@string]
       SendWithArguments.new @string.line, obj, :from_string, args
     end
@@ -83,8 +92,8 @@ module Myco::ToolSet
     # AST building methods
     # (supplementing those inherited from rubinius/processor)
     
-    def process_declobj line, types
-      AST::DeclareObject.new line, types
+    def process_declobj line, types, body
+      AST::DeclareObject.new line, types, body
     end
     
     def process_declstr line, types, string

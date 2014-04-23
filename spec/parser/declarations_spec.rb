@@ -5,19 +5,31 @@ require 'spec_helper'
 describe Myco::ToolSet::Parser, "Declarations" do
   extend SpecHelpers::ParserHelper
   
+  lex <<-code do
+    Object {
+      Object { }
+    }
+  code
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+     [:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+     [:T_DECLARE_END, "}"],   [:T_DECLARE_END, "}"]]
+  end
+  .parse [:declobj, [:array, [:const, :Object]], [:block, 
+           [:declobj, [:array, [:const, :Object]], [:nil]]]]
+  
   lex "Object { }" do
     [[:T_CONSTANT, "Object"],
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Object]]]
+  .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
   lex "Object{}" do
     [[:T_CONSTANT, "Object"],
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Object]]]
+  .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
   lex <<-code do
     Object {
@@ -28,7 +40,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Object]]]
+  .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
   lex <<-code do
     Object
@@ -40,7 +52,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Object]]]
+  .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
   lex "Foo,Bar,Baz { }" do
     [[:T_CONSTANT, "Foo"],[:T_COMMA, ","],
@@ -49,7 +61,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]]]
+  .parse [:declobj, 
+           [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:nil]]
   
   lex <<-code do
     Foo  ,  Bar,
@@ -64,21 +77,22 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]]]
+  .parse [:declobj, 
+           [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:nil]]
   
   lex "Foo: Object { }" do
     [[:T_CONSTANT, "Foo"],   [:T_BINDING_BEGIN, ""],
      [:T_CONSTANT, "Object"],[:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"],  [:T_BINDING_END, ""]]
   end
-  .parse [:cdecl, :Foo, [:declobj, [:array, [:const, :Object]]]]
+  .parse [:cdecl, :Foo, [:declobj, [:array, [:const, :Object]], [:nil]]]
   
   lex "Foo < Object { }" do
     [[:T_CONSTANT, "Foo"],   [:T_DEFINE, "<"],
      [:T_CONSTANT, "Object"],[:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
   end
-  .parse [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]]]]
+  .parse [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:nil]]]
   
   lex <<-code do
     Object @@@
