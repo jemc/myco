@@ -87,6 +87,10 @@ describe Myco::ToolSet::Parser, "Declarations" do
     DECLSTR
      [:T_DECLSTR_END,   "@@@"]]
   end
+  .parse [:declstr, [:array, [:const, :Object]], [:str, <<-DECLSTR]]
+      foo
+      bar
+  DECLSTR
   
   lex <<-code do
     Object @@@

@@ -32,13 +32,5 @@ module Myco::ToolSet
       @builder.parse string
     end
     
-    ##
-    # AST building methods
-    # (supplementing those inherited from rubinius/processor)
-    
-    def process_declobj line, types
-      AST::DeclareObject.new line, types
-    end
-    
   end
 end
