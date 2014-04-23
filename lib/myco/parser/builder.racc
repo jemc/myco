@@ -1,6 +1,6 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER
-        T_COMMA
+        T_DEFINE T_COMMA
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_BINDING_BEGIN T_BINDING_END
@@ -10,7 +10,8 @@ options no_result_var
 
 rule
   main:
-    const_binding
+    cdefn
+  | cbind
   | declobj
   | declstr
   | constant
@@ -47,15 +48,20 @@ rule
       { ast(:declstr, val[1], val[0], val[2]) }
   ;
   
-  expression:
+  binding_expr:
     declobj
   | declstr
   | constant
   ;
   
-  const_binding:
-    constant T_BINDING_BEGIN expression T_BINDING_END
+  cbind:
+    constant T_BINDING_BEGIN binding_expr T_BINDING_END
       { ast(:cdecl, val[1], val[0], val[2]) }
+  ;
+  
+  cdefn:
+    constant T_DEFINE declobj
+      { ast(:cdefn, val[1], val[0], val[2]) }
   ;
 
 ---- inner

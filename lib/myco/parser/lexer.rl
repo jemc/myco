@@ -12,7 +12,8 @@
   # Foo,Bar,Baz
   #
   constant_list = (
-    constant       % { @marks[:constant_list] = [@ts, @p] }
+    zlen           % { @marks[:constant_list] = [@p] }
+    constant       % { @marks[:constant_list] << @p }
     (
       c_space*     % { @marks[:constant_list] << @p }
       ','          % { @marks[:constant_list] << @p }
@@ -21,9 +22,22 @@
     )*
   );
   
+  # Foo < 
+  #
+  cdefn_begin = (
+    constant  % { grab :defn_constant }
+    c_space*  % { mark :space }
+    '<'       % { grab :defn_caret, kram(:space) }
+    c_space*  % { mark :space }
+  ) % {
+    stuff :T_CONSTANT, :defn_constant
+    stuff :T_DEFINE,   :defn_caret
+  };
+  
   # Object { ... }
   #
   decl_begin = (
+    cdefn_begin?
     constant_list
     c_space_nl*  % { mark :space }
     '{'          % { grab :brace, kram(:space) }

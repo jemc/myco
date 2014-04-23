@@ -73,6 +73,13 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .parse [:cdecl, :Foo, [:declobj, [:array, [:const, :Object]]]]
   
+  lex "Foo < Object { }" do
+    [[:T_CONSTANT, "Foo"],   [:T_DEFINE, "<"],
+     [:T_CONSTANT, "Object"],[:T_DECLARE_BEGIN, "{"],
+     [:T_DECLARE_END, "}"]]
+  end
+  .parse [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]]]]
+  
   lex <<-code do
     Object @@@
       foo

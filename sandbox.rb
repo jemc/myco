@@ -33,10 +33,10 @@ class Myco
     end
   end
   
-  Myco.eval <<-code
-    A: Foo,Bar,Baz @@@
+  A = Myco.eval <<-code
+    A < Foo,Bar,Baz {
       
-    @@@
+    }
   code
   
   p A.singleton_class.ancestors
