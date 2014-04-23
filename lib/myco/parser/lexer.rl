@@ -35,20 +35,58 @@
     stuff :T_DECLARE_BEGIN, :brace
   };
   
+  # Starting delimiter for a string declaration
+  #
+  # Can be any string of characters following a
+  # constant name + whitespace that is not ambiguous
+  # with some other construction
+  #
+  # The ending delimiter will be calculated from as follows:
+  # The string of characters is reversed.
+  # If there are groups of "alphabetical" characters,
+  # the intra-group order remains intact.
+  # If there are non-alphabetical characters with "directionality",
+  # the "opposite" characters are substituted.
+  #
+  dstr_delim = (
+    ^(c_space_nl|'{'|':'|',')
+    ^(c_space_nl)+
+  );
+  
   # Object @@@
   #   ...
   # @@@
   #
   dstr_begin = (
     constant_list
-    c_space_nl*  % { mark :space }
-    '@@@'        % { grab :brace, kram(:space) }
+    c_space_nl+ % { mark :space }
+    dstr_delim  % { grab :delim, kram(:space) }
   ) % {
     @marks[:constant_list].each_slice(4) do |a,b,c,d|
       emit :T_CONSTANT, a, b if a && b
       emit :T_COMMA,    c, d if c && d
     end
-    stuff :T_DECLSTR_BEGIN, :brace
+    
+    start, stop = @stored[:delim]
+    emit :T_DECLSTR_BEGIN, start, stop
+    
+    # Table of replacement characters to use when calculating
+    # the ending delimiter from the starting delimiter.
+    # Directional characters are replaced with their opposite.
+    @dstr_replace_table ||= %w{
+      < > ( ) { } [ ]
+    }
+    
+    # Calculate the ending delimiter to look for and store it
+    @dstr_delim = text(start, stop) \
+      .split(/(?<=[^a-zA-Z])|(?=[^a-zA-Z])/)
+      .map { |str|
+        idx = @dstr_replace_table.find_index(str)
+        idx.nil? ? str : 
+          (idx.odd? ? @dstr_replace_table[idx-1] : @dstr_replace_table[idx+1])
+      }
+      .reverse
+      .join ''
   };
   
   # Foo: { ... }
@@ -136,19 +174,21 @@
   ##
   # Declarative string machine
   
-  dstr_line = (
-    c_nl     % { mark :newline }
-    (^c_nl)* % { grab :line, kram(:newline) }
-  );
-  
   dstr_body := |*
-    dstr_line => {
+    (
+      c_nl     % { mark :newline }
+      (^c_nl)* % { grab :line, kram(:newline) }
+    ) => {
       start, stop = @stored[:line];
       line_text = text start, stop
       
-      if line_text =~ /^(\s*)@@@/
+      raise "No known delimiter for string declaration." \
+        if @dstr_delim.nil?
+      
+      if (line_text =~ /^(\s*)(\S+)/; $2==@dstr_delim)
         emit :T_DECLSTR_BODY, *@dstr_body_start, start
         @dstr_body_start = nil
+        @dstr_delim = nil
         
         emit :T_DECLSTR_END, start+$1.size, stop
         fret;

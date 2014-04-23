@@ -105,4 +105,60 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLSTR_END,   "@@@"]]
   end
   
+  lex <<-code do
+    Object foo
+      bar
+    foo
+  code
+    [[:T_CONSTANT, "Object"],
+     [:T_DECLSTR_BEGIN, "foo"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+      bar
+    DECLSTR
+     [:T_DECLSTR_END,   "foo"]]
+  end
+  
+  lex <<-code do
+    Object
+    
+foo
+bar
+baz
+foo
+  code
+    [[:T_CONSTANT, "Object"],
+     [:T_DECLSTR_BEGIN, "foo"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+bar
+baz
+    DECLSTR
+     [:T_DECLSTR_END,   "foo"]]
+  end
+  
+  lex <<-code do
+    Object 123_TEST
+      foo
+    TEST_321
+  code
+    [[:T_CONSTANT, "Object"],
+     [:T_DECLSTR_BEGIN, "123_TEST"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+      foo
+    DECLSTR
+     [:T_DECLSTR_END,   "TEST_321"]]
+  end
+  
+  lex <<-code do
+    Object >)+-foo><BAR+-]]]}}}
+      foo
+    {{{[[[-+BAR><foo-+(<
+  code
+    [[:T_CONSTANT, "Object"],
+     [:T_DECLSTR_BEGIN, ">)+-foo><BAR+-]]]}}}"],
+     [:T_DECLSTR_BODY,  <<-DECLSTR],
+      foo
+    DECLSTR
+     [:T_DECLSTR_END,   "{{{[[[-+BAR><foo-+(<"]]
+  end
+  
 end
