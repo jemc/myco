@@ -93,6 +93,21 @@ describe Myco::ToolSet::Parser, "Declarations" do
   DECLSTR
   
   lex <<-code do
+    Foo: Object @@@
+      bar
+    @@@
+  code
+    [[:T_CONSTANT, "Foo"],   [:T_BINDING_BEGIN, ""],
+     [:T_CONSTANT, "Object"],
+     [:T_DECLSTR_BEGIN, "@@@"],
+     [:T_DECLSTR_BODY, "      bar\n"],
+     [:T_DECLSTR_END, "@@@"],
+     [:T_BINDING_END, ""]]
+  end
+  .parse [:cdecl, :Foo, [:declstr, [:array, [:const, :Object]], 
+                                   [:str, "      bar\n"]]]
+  
+  lex <<-code do
     Object @@@
       @foo
       bar @@@
@@ -118,23 +133,6 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLSTR_BEGIN, "foo"],
      [:T_DECLSTR_BODY,  <<-DECLSTR],
       bar
-    DECLSTR
-     [:T_DECLSTR_END,   "foo"]]
-  end
-  
-  lex <<-code do
-    Object
-    
-foo
-bar
-baz
-foo
-  code
-    [[:T_CONSTANT, "Object"],
-     [:T_DECLSTR_BEGIN, "foo"],
-     [:T_DECLSTR_BODY,  <<-DECLSTR],
-bar
-baz
     DECLSTR
      [:T_DECLSTR_END,   "foo"]]
   end

@@ -59,7 +59,7 @@
   #
   dstr_begin = (
     constant_list
-    c_space_nl+ % { mark :space }
+    c_space+    % { mark :space }
     dstr_delim  % { grab :delim, kram(:space) }
   ) % {
     @marks[:constant_list].each_slice(4) do |a,b,c,d|
@@ -205,6 +205,7 @@
     c_space_nl;
     
     decl_begin => { fcall decl_body; };
+    dstr_begin => { fcall dstr_body; };
     'nil'      => { emit :T_NIL };
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
@@ -219,6 +220,7 @@
     c_space;
     
     decl_begin => { fcall decl_body; };
+    dstr_begin => { fcall dstr_body; };
     'nil'      => { emit :T_NIL };
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
