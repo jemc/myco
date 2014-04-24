@@ -1,5 +1,6 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER
+        T_NIL T_NUMERIC
         T_DEFINE T_COMMA
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
@@ -10,13 +11,42 @@ options no_result_var
 
 rule
   main:
+    declobj_expr
+  ;
+  
+  
+  declobj_expr:
     cdefn
   | cbind
+  | bind
   | declobj
   | declstr
   | constant
   ;
   
+  bind_expr:
+    declobj
+  | declstr
+  | constant
+  | id_as_symbol
+  | lit_numeric
+  | lit_nil
+  ;
+  
+  lit_nil:
+    T_NIL
+      { ast(:nil, val[0]) }
+  ;
+  
+  lit_numeric:
+    T_NUMERIC
+      { ast(:lit, val[0], Integer(val[0][1])) }
+  ;
+  
+  id_as_symbol:
+    T_IDENTIFIER
+      { ast(:lit, val[0], val[0][1].to_sym) }
+  ;
   
   constant:
     T_CONSTANT
@@ -33,12 +63,6 @@ rule
       { ast(:array, val.first[0], val[0]) }
   ;
   
-  declobj_expr:
-    declobj
-  | declstr
-  | constant
-  ;
-  
   declobj_expr_body_:
     declobj_expr_body_ declobj_expr { [*val.first, val.last] }
   | declobj_expr                    { val }
@@ -49,11 +73,19 @@ rule
   | T_DECLARE_END                    { ast(:nil, val[0]) }
   ;
   
+  bind_expr_body_:
+    bind_expr_body_ bind_expr { [*val.first, val.last] }
+  | bind_expr                 { val }
+  ;
+  
+  bind_expr_body:
+    bind_expr_body_ T_BINDING_END { ast(:block, val.first[0], val[0]) }
+  | T_BINDING_END                 { ast(:nil, val[0]) }
+  ;
+  
   declobj:
     constant_list T_DECLARE_BEGIN declobj_expr_body
-      {
-        ast(:declobj, val[1], val[0], val[2])
-      }
+      { ast(:declobj, val[1], val[0], val[2]) }
   ;
   
   declstr_body:
@@ -66,20 +98,19 @@ rule
       { ast(:declstr, val[1], val[0], val[2]) }
   ;
   
-  binding_expr:
-    declobj
-  | declstr
-  | constant
-  ;
-  
-  cbind:
-    constant T_BINDING_BEGIN binding_expr T_BINDING_END
-      { ast(:cdecl, val[1], val[0], val[2]) }
-  ;
-  
   cdefn:
     constant T_DEFINE declobj
       { ast(:cdefn, val[1], val[0], val[2]) }
+  ;
+  
+  cbind:
+    constant T_BINDING_BEGIN bind_expr T_BINDING_END
+      { ast(:cdecl, val[1], val[0], val[2]) }
+  ;
+  
+  bind:
+    id_as_symbol T_BINDING_BEGIN bind_expr_body
+      { ast(:bind, val[1], val[0], ast(:nil, val[1]), val[2]) }
   ;
 
 ---- inner

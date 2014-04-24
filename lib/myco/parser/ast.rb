@@ -60,7 +60,7 @@ module Myco::ToolSet::AST
   end
   
   class ConstantDefine < Node
-    attr_accessor :object
+    attr_accessor :name, :object
     
     def initialize line, name, object
       @line   = line
@@ -75,6 +75,37 @@ module Myco::ToolSet::AST
     
     def implementation
       ConstantAssignment.new @line, @name, @object
+    end
+    
+    def bytecode g
+      implementation.bytecode g
+    end
+  end
+  
+  class DeclareBinding < Node
+    attr_accessor :name, :args, :body
+    
+    def initialize line, name, args, body
+      @line = line
+      @name = name
+      @args = args
+      @body = body
+    end
+    
+    def to_sexp
+      [:bind, @name.value, @args.to_sexp, @body.to_sexp]
+    end
+    
+    def implementation
+      # __bind__(@name, &@body)
+      
+      rcvr  = Self.new @line
+      args  = ArrayLiteral.new @line, [@name]
+      itera = FormalArguments19.new line, nil, nil, nil, nil, nil
+      iter  = Iter19.new @line, itera, @body
+      call  = SendWithArguments.new @line, rcvr, :__bind__, args, true
+      call.instance_variable_set :@block, iter
+      call
     end
     
     def bytecode g
@@ -102,6 +133,10 @@ module Myco::ToolSet
     
     def process_cdefn line, name, object
       AST::ConstantDefine.new line, name, object
+    end
+    
+    def process_bind line, name, args, body
+      AST::DeclareBinding.new line, name, args, body
     end
   end
 end

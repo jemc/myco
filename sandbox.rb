@@ -19,6 +19,10 @@ class Myco
     def __component_init__
       
     end
+    
+    def __bind__ sym, &block
+      define_singleton_method sym, &block
+    end
   end
   
   class Component < Module
@@ -51,20 +55,13 @@ class Myco
   
   Myco.eval <<-code
     A < Object {
-      from_string: |string| eval string
-      
-      initialize: |*args, **kwargs| {
-        args[0]
-      }
-      
-      RubyEval @@@
-        p :hello_world
-      @@@
+      foo: 88
     }
   code
   
   p A.ancestors
   
-  pp A.new
+  pp a = A.new
+  pp a.foo
   
 end
