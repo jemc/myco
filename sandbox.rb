@@ -51,6 +51,12 @@ class Myco
   
   Myco.eval <<-code
     A < Object {
+      from_string: |string| eval string
+      
+      initialize: |*args, **kwargs| {
+        args[0]
+      }
+      
       RubyEval @@@
         p :hello_world
       @@@

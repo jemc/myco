@@ -13,12 +13,12 @@
   #
   constant_list = (
     zlen           % { @marks[:constant_list] = [@p] }
-    constant       % { @marks[:constant_list] << @p }
+    constant       % {(@marks[:constant_list] << @p) << :T_CONSTANT }
     (
       c_space*     % { @marks[:constant_list] << @p }
-      ','          % { @marks[:constant_list] << @p }
+      ','          % {(@marks[:constant_list] << @p) << :T_COMMA }
       c_space_nl*  % { @marks[:constant_list] << @p }
-      constant     % { @marks[:constant_list] << @p }
+      constant     % {(@marks[:constant_list] << @p) << :T_CONSTANT }
     )*
   );
   
@@ -42,10 +42,7 @@
     c_space_nl*  % { mark :space }
     '{'          % { grab :brace, kram(:space) }
   ) % {
-    @marks[:constant_list].each_slice(4) do |a,b,c,d|
-      emit :T_CONSTANT, a, b if a && b
-      emit :T_COMMA,    c, d if c && d
-    end
+    @marks[:constant_list].each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
     stuff :T_DECLARE_BEGIN, :brace
   };
   
@@ -76,10 +73,7 @@
     c_space+    % { mark :space }
     dstr_delim  % { grab :delim, kram(:space) }
   ) % {
-    @marks[:constant_list].each_slice(4) do |a,b,c,d|
-      emit :T_CONSTANT, a, b if a && b
-      emit :T_COMMA,    c, d if c && d
-    end
+    @marks[:constant_list].each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
     
     start, stop = @stored[:delim]
     emit :T_DECLSTR_BEGIN, start, stop
@@ -125,14 +119,34 @@
     stuff :T_BINDING_BEGIN, :brace
   };
   
+  # |a, b, *args, c:4, d:5, **kwargs|
+  #
+  param_list = (
+    zlen               % { @marks[:param_list] = [@p] }
+    '|'                % {(@marks[:param_list] << @p) << :T_PARAMS_BEGIN }
+    c_space_nl*        % { @marks[:param_list] << @p }
+    identifier         % {(@marks[:param_list] << @p) << :T_IDENTIFIER }
+    c_space*           % { @marks[:param_list] << @p }
+    (
+      ','              % {(@marks[:param_list] << @p) << :T_COMMA }
+      c_space_nl*      % { @marks[:param_list] << @p }
+      identifier       % {(@marks[:param_list] << @p) << :T_IDENTIFIER }
+      c_space*         % { @marks[:param_list] << @p }
+    )*
+    '|'                % {(@marks[:param_list] << @p) << :T_PARAMS_END }
+  );
+  
   # foo: { ... }
   #
   bind_begin = (
     identifier                  % { grab :identifier }
-    (c_space* ':' c_space_nl*)  % { mark :space }
+    (c_space* ':' c_space_nl*)
+    param_list?
+    (c_space_nl*)               % { mark :space }
     '{'                         % { grab :brace, kram(:space) }
   ) % {
     stuff :T_IDENTIFIER,    :identifier
+    (@marks[:param_list] || []).each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
     stuff :T_BINDING_BEGIN, :brace
   };
   
@@ -140,10 +154,13 @@
   #
   binl_begin = (
     identifier                  % { grab :identifier }
-    (c_space* ':' c_space*)
-    ^(c_space_nl|'{')           % { fhold; grab :brace, @p, @p }
+    (c_space* ':' c_space_nl*)
+    param_list?
+    (c_space_nl*)               % { mark :space }
+    ^(c_space_nl|'{'|'|')       % { fhold; grab :brace, @p, @p }
   ) % {
     stuff :T_IDENTIFIER,    :identifier
+    (@marks[:param_list] || []).each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
     stuff :T_BINDING_BEGIN, :brace
   };
   
