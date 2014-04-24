@@ -12,13 +12,13 @@
   # Foo,Bar,Baz
   #
   constant_list = (
-    zlen           % { @marks[:constant_list] = [@p] }
-    constant       % {(@marks[:constant_list] << @p) << :T_CONSTANT }
+    zlen           % { note_begin :constant_list }
+    constant       % { note :constant_list, :T_CONSTANT }
     (
-      c_space*     % { @marks[:constant_list] << @p }
-      ','          % {(@marks[:constant_list] << @p) << :T_COMMA }
-      c_space_nl*  % { @marks[:constant_list] << @p }
-      constant     % {(@marks[:constant_list] << @p) << :T_CONSTANT }
+      c_space*     % { note :constant_list }
+      ','          % { note :constant_list, :T_COMMA }
+      c_space_nl*  % { note :constant_list }
+      constant     % { note :constant_list, :T_CONSTANT }
     )*
   );
   
@@ -42,7 +42,7 @@
     c_space_nl*  % { mark :space }
     '{'          % { grab :brace, kram(:space) }
   ) % {
-    @marks[:constant_list].each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
+    emit_notes :constant_list
     stuff :T_DECLARE_BEGIN, :brace
   };
   
@@ -73,7 +73,7 @@
     c_space+    % { mark :space }
     dstr_delim  % { grab :delim, kram(:space) }
   ) % {
-    @marks[:constant_list].each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
+    emit_notes :constant_list
     
     start, stop = @stored[:delim]
     emit :T_DECLSTR_BEGIN, start, stop
@@ -122,18 +122,18 @@
   # |a, b, *args, c:4, d:5, **kwargs|
   #
   param_list = (
-    zlen               % { @marks[:param_list] = [@p] }
-    '|'                % {(@marks[:param_list] << @p) << :T_PARAMS_BEGIN }
-    c_space_nl*        % { @marks[:param_list] << @p }
-    identifier         % {(@marks[:param_list] << @p) << :T_IDENTIFIER }
-    c_space*           % { @marks[:param_list] << @p }
+    zlen               % { note_begin :param_list }
+    '|'                % { note :param_list, :T_PARAMS_BEGIN }
+    c_space_nl*        % { note :param_list }
+    identifier         % { note :param_list, :T_IDENTIFIER }
+    c_space*           % { note :param_list }
     (
-      ','              % {(@marks[:param_list] << @p) << :T_COMMA }
-      c_space_nl*      % { @marks[:param_list] << @p }
-      identifier       % {(@marks[:param_list] << @p) << :T_IDENTIFIER }
-      c_space*         % { @marks[:param_list] << @p }
+      ','              % { note :param_list, :T_COMMA }
+      c_space_nl*      % { note :param_list }
+      identifier       % { note :param_list, :T_IDENTIFIER }
+      c_space*         % { note :param_list }
     )*
-    '|'                % {(@marks[:param_list] << @p) << :T_PARAMS_END }
+    '|'                % { note :param_list, :T_PARAMS_END }
   );
   
   # foo: { ... }
@@ -146,7 +146,7 @@
     '{'                         % { grab :brace, kram(:space) }
   ) % {
     stuff :T_IDENTIFIER,    :identifier
-    (@marks[:param_list] || []).each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
+    emit_notes              :param_list
     stuff :T_BINDING_BEGIN, :brace
   };
   
@@ -160,7 +160,7 @@
     ^(c_space_nl|'{'|'|')       % { fhold; grab :brace, @p, @p }
   ) % {
     stuff :T_IDENTIFIER,    :identifier
-    (@marks[:param_list] || []).each_slice(3) { |a,b,c| emit c,a,b if a&&b&&c }
+    emit_notes              :param_list
     stuff :T_BINDING_BEGIN, :brace
   };
   

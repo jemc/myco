@@ -24,6 +24,23 @@ class Myco::ToolSet::Parser
       emit type, *@stored.delete(name)
     end
     
+    def note_begin queue_name, pos=@p
+      queue = @marks[queue_name] = [@p]
+    end
+    
+    def note queue_name, type=nil, pos=@p
+      queue = (@marks[queue_name] ||= [])
+      queue << pos
+      queue << type if type
+      queue
+    end
+    
+    def emit_notes queue_name
+      queue = (@marks[queue_name] || [])
+      queue.each_slice(3) { |a,b,c| emit c,a,b if a && b && c }
+      queue.clear
+    end
+    
     def error(location, hint=nil)
       str = "Lexer met unexpected character(s) in #{location.inspect}: #{text.inspect}"
       str += "; "+hint.to_s if hint
