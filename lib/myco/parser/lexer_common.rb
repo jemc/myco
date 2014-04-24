@@ -20,10 +20,6 @@ class Myco::ToolSet::Parser
       @stored[name] = [start, stop]
     end
     
-    def stuff type, name
-      emit type, *@stored.delete(name)
-    end
-    
     def note_begin queue_name, pos=@p
       queue = @marks[queue_name] = [@p]
     end

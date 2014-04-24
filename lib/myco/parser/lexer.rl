@@ -22,28 +22,27 @@
     )*
   );
   
-  # Foo < 
+  # Foo <
   #
   cdefn_begin = (
-    constant  % { grab :defn_constant }
-    c_space*  % { mark :space }
-    '<'       % { grab :defn_caret, kram(:space) }
-    c_space*  % { mark :space }
+    zlen      % { note_begin :cdefn_begin }
+    constant  % { note :cdefn_begin, :T_CONSTANT }
+    c_space*  % { note :cdefn_begin }
+    '<'       % { note :cdefn_begin, :T_DEFINE }
   ) % {
-    stuff :T_CONSTANT, :defn_constant
-    stuff :T_DEFINE,   :defn_caret
+    emit_notes :cdefn_begin
   };
   
   # Object { ... }
   #
   decl_begin = (
-    cdefn_begin?
+    (cdefn_begin c_space_nl*)?
     constant_list
-    c_space_nl*  % { mark :space }
-    '{'          % { grab :brace, kram(:space) }
+    c_space_nl*  % { note_begin :decl_begin }
+    '{'          % { note :decl_begin, :T_DECLARE_BEGIN }
   ) % {
     emit_notes :constant_list
-    stuff :T_DECLARE_BEGIN, :brace
+    emit_notes :decl_begin
   };
   
   # Starting delimiter for a string declaration
@@ -97,28 +96,6 @@
       .join ''
   };
   
-  # Foo: { ... }
-  #
-  cbind_begin = (
-    constant                    % { grab :constant }
-    (c_space* ':' c_space_nl*)  % { mark :space }
-    '{'                         % { grab :brace, kram(:space) }
-  ) % {
-    stuff :T_CONSTANT,      :constant
-    stuff :T_BINDING_BEGIN, :brace
-  };
-  
-  # Foo: ...
-  #
-  cbinl_begin = (
-    constant                    % { grab :constant }
-    (c_space* ':' c_space*)
-    ^(c_space_nl|'{')           % { fhold; grab :brace, @p, @p }
-  ) % {
-    stuff :T_CONSTANT,      :constant
-    stuff :T_BINDING_BEGIN, :brace
-  };
-  
   # |a, b, *args, c:4, d:5, **kwargs|
   #
   param_list = (
@@ -139,29 +116,37 @@
   # foo: { ... }
   #
   bind_begin = (
-    identifier                  % { grab :identifier }
+    zlen                        % { note_begin :bind_begin_id }
+    (
+      identifier                % { note :bind_begin_id, :T_IDENTIFIER }
+    | constant                  % { note :bind_begin_id, :T_CONSTANT }
+    )
     (c_space* ':' c_space_nl*)
     param_list?
-    (c_space_nl*)               % { mark :space }
-    '{'                         % { grab :brace, kram(:space) }
+    (c_space_nl*)               % { note :bind_begin }
+    '{'                         % { note :bind_begin, :T_BINDING_BEGIN }
   ) % {
-    stuff :T_IDENTIFIER,    :identifier
-    emit_notes              :param_list
-    stuff :T_BINDING_BEGIN, :brace
+    emit_notes :bind_begin_id
+    emit_notes :param_list
+    emit_notes :bind_begin
   };
   
   # foo: ...
   #
   binl_begin = (
-    identifier                  % { grab :identifier }
+    zlen                        % { note_begin :bind_begin_id }
+    (
+      identifier                % { note :bind_begin_id, :T_IDENTIFIER }
+    | constant                  % { note :bind_begin_id, :T_CONSTANT }
+    )
     (c_space* ':' c_space_nl*)
     param_list?
-    (c_space_nl*)               % { mark :space }
-    ^(c_space_nl|'{'|'|')       % { fhold; grab :brace, @p, @p }
+    (c_space_nl*)               % { note :bind_begin }
+    ^(c_space_nl|'{'|'|')       % { fhold; note :bind_begin, :T_BINDING_BEGIN }
   ) % {
-    stuff :T_IDENTIFIER,    :identifier
-    emit_notes              :param_list
-    stuff :T_BINDING_BEGIN, :brace
+    emit_notes :bind_begin_id
+    emit_notes :param_list
+    emit_notes :bind_begin
   };
   
   ##
@@ -170,12 +155,12 @@
   main := |*
     c_space_nl;
     
-    cbind_begin => { fcall bind_body; };
-    cbinl_begin => { fcall binl_body; };
+    bind_begin => { fcall bind_body; };
+    binl_begin => { fcall binl_body; };
     
-    decl_begin  => { fcall decl_body; };
-    dstr_begin  => { fcall dstr_body; };
-    constant    => { emit :T_CONSTANT };
+    decl_begin => { fcall decl_body; };
+    dstr_begin => { fcall dstr_body; };
+    constant   => { emit :T_CONSTANT };
     
     c_eof;
     any => { error :main };
@@ -190,9 +175,6 @@
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
     constant    => { emit :T_CONSTANT };
-    
-    cbind_begin => { fcall bind_body; };
-    cbinl_begin => { fcall binl_body; };
     
     bind_begin  => { fcall bind_body; };
     binl_begin  => { fcall binl_body; };
