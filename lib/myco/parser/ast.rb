@@ -100,10 +100,9 @@ module Myco::ToolSet::AST
       # __bind__(@name, &@body)
       
       rcvr  = Self.new @line
-      args  = ArrayLiteral.new @line, [@name]
-      itera = FormalArguments19.new line, nil, nil, nil, nil, nil
-      iter  = Iter19.new @line, itera, @body
-      call  = SendWithArguments.new @line, rcvr, :__bind__, args, true
+      bargs  = ArrayLiteral.new @line, [@name]
+      iter  = Iter19.new @line, @args, @body
+      call  = SendWithArguments.new @line, rcvr, :__bind__, bargs, true
       call.instance_variable_set :@block, iter
       call
     end

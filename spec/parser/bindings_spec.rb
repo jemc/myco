@@ -103,6 +103,12 @@ describe Myco::ToolSet::Parser, "Bindings" do
          [:T_NIL, "nil"], [:T_BINDING_END, ""], 
      [:T_DECLARE_END, "}"]]
   end
+  .parse [:declobj, [:array, [:const, :Object]], [:block,
+    [:bind, :foo, [:args, :a], [:block, [:lit, :one]]],
+    [:bind, :bar, [:args, :b], [:block, [:const, :Two]]],
+    [:bind, :baz, [:args, :c, :d, :e], [:block, [:lit, 3]]],
+    [:bind, :all, [:args, :a], [:block, [:nil]]]
+  ]]
   
   lex <<-code do
     Object {

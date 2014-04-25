@@ -5,6 +5,7 @@ class MycoBuilder
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_BINDING_BEGIN T_BINDING_END
+        T_PARAMS_BEGIN  T_PARAMS_END
 
 options no_result_var
 
@@ -83,6 +84,21 @@ rule
   | T_BINDING_END                 { ast(:nil, val[0]) }
   ;
   
+  param:
+    T_IDENTIFIER { val[0][1].to_sym }
+  ;
+  
+  bind_param_list_:
+    bind_param_list_ T_COMMA param { [*val.first, val.last] }
+  | param                          { val }
+  ;
+  
+  bind_param_list:
+    T_PARAMS_BEGIN bind_param_list_ T_PARAMS_END  T_BINDING_BEGIN
+      { ast(:args, val[0], val[1], nil, false, nil, nil) }
+  | T_BINDING_BEGIN                  { ast(:nil, val[0]) }
+  ;
+  
   declobj:
     constant_list T_DECLARE_BEGIN declobj_expr_body
       { ast(:declobj, val[1], val[0], val[2]) }
@@ -109,8 +125,8 @@ rule
   ;
   
   bind:
-    id_as_symbol T_BINDING_BEGIN bind_expr_body
-      { ast(:bind, val[1], val[0], ast(:nil, val[1]), val[2]) }
+    id_as_symbol bind_param_list bind_expr_body
+      { ast(:bind, val[1], val[0], val[1], val[2]) }
   ;
 
 ---- inner
