@@ -112,6 +112,28 @@ module Myco::ToolSet::AST
     end
   end
   
+  class LocalVariableAccessAmbiguous < Node
+    attr_accessor :name
+    
+    def initialize line, name
+      @line = line
+      @name = name
+    end
+    
+    def bytecode g
+      implementation(g).bytecode(g)
+    end
+    
+    def implementation g
+      if g.state.scope.variables.has_key? @name
+        LocalVariableAccess.new @line, @name
+      else
+        rcvr = Self.new @line
+        Send.new @line, rcvr, @name, true, true
+      end
+    end
+  end
+  
 end
 
 
@@ -136,6 +158,10 @@ module Myco::ToolSet
     
     def process_bind line, name, args, body
       AST::DeclareBinding.new line, name, args, body
+    end
+    
+    def process_lvar line, name
+      AST::LocalVariableAccessAmbiguous.new line, name
     end
   end
 end

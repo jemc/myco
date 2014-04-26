@@ -101,7 +101,7 @@ rule
   bind_param_list:
     T_PARAMS_BEGIN bind_param_list_ T_PARAMS_END  T_BINDING_BEGIN
       { ast(:args, val[0], val[1], nil, false, nil, nil) }
-  | T_BINDING_BEGIN                  { ast(:nil, val[0]) }
+  | T_BINDING_BEGIN                  { nil }
   ;
   
   declobj:
@@ -131,7 +131,7 @@ rule
   
   bind:
     id_as_symbol bind_param_list bind_expr_body
-      { ast(:bind, val[1], val[0], val[1], val[2]) }
+      { ast(:bind, val[2], val[0], val[1], val[2]) }
   ;
 
 ---- inner

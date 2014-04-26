@@ -56,7 +56,9 @@ class Myco
   
   Myco.eval <<-code
     A < Object {
-      foo: |x| x
+      foo: 88
+      bar: foo
+      baz: |x| x
     }
   code
   
@@ -64,5 +66,7 @@ class Myco
   
   pp a = A.new
   pp a.foo 77
+  pp a.bar 77
+  pp a.baz 77
   
 end
