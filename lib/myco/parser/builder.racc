@@ -29,7 +29,7 @@ rule
     declobj
   | declstr
   | constant
-  | id_as_symbol
+  | id_as_lvar
   | lit_numeric
   | lit_nil
   ;
@@ -47,6 +47,11 @@ rule
   id_as_symbol:
     T_IDENTIFIER
       { ast(:lit, val[0], val[0][1].to_sym) }
+  ;
+  
+  id_as_lvar:
+    T_IDENTIFIER
+      { ast(:lvar, val[0], val[0][1].to_sym) }
   ;
   
   constant:
