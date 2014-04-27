@@ -21,7 +21,6 @@ class Myco
     end
     
     def __bind__ sym, &block
-      p block.arity
       define_singleton_method sym, &block
     end
   end
@@ -56,17 +55,21 @@ class Myco
   
   Myco.eval <<-code
     A < Object {
-      foo: 88
-      bar: foo
-      baz: |x| x
+      foo: |i| baz(
+         nil,
+         i,
+         99
+      )
+      bar: baz(1,2,3)
+      baz: |x,y,z| y
     }
   code
   
   p A.ancestors
   
   pp a = A.new
-  pp a.foo 77
-  pp a.bar 77
-  pp a.baz 77
+  pp a.foo 88
+  pp a.bar
+  pp a.baz 66,77,88
   
 end

@@ -223,6 +223,9 @@
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
+    '('        => { emit :T_ARGS_BEGIN };
+    ')'        => { emit :T_ARGS_END };
+    ','        => { emit :T_COMMA };
     
     '}'        => { emit :T_BINDING_END; fret; };
     
@@ -238,8 +241,11 @@
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
+    '('        => { emit :T_ARGS_BEGIN; @in_args = true };
+    ')'        => { emit :T_ARGS_END;   @in_args = false };
+    ','        => { emit :T_COMMA };
     
-    c_eol      => { emit :T_BINDING_END, @ts, @ts; fret; };
+    c_eol      => { (emit :T_BINDING_END, @ts, @ts; fret;) unless @in_args };
     
     any => { error :binl_body };
   *|;

@@ -6,6 +6,7 @@ class MycoBuilder
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_BINDING_BEGIN T_BINDING_END
         T_PARAMS_BEGIN  T_PARAMS_END
+        T_ARGS_BEGIN    T_ARGS_END
 
 options no_result_var
 
@@ -29,6 +30,15 @@ rule
     declobj
   | declstr
   | constant
+  | call_with_args
+  | id_as_lvar
+  | lit_numeric
+  | lit_nil
+  ;
+  
+  arg_expr:
+    constant
+  | call_with_args
   | id_as_lvar
   | lit_numeric
   | lit_nil
@@ -69,6 +79,11 @@ rule
       { ast(:array, val.first[0], val[0]) }
   ;
   
+  call_with_args:
+    T_IDENTIFIER arg_list
+      { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  ;
+  
   declobj_expr_body_:
     declobj_expr_body_ declobj_expr { [*val.first, val.last] }
   | declobj_expr                    { val }
@@ -103,6 +118,16 @@ rule
       { ast(:args, val[0], val[1], nil, false, nil, nil) }
   | T_BINDING_BEGIN
       { ast(:args, val[0], [],     nil, false, nil, nil) }
+  ;
+  
+  arg_list_:
+    arg_list_ T_COMMA arg_expr { [*val.first, val.last] }
+  | arg_expr                   { val }
+  ;
+  
+  arg_list:
+    T_ARGS_BEGIN arg_list_ T_ARGS_END
+      { ast(:array, val[0], val[1]) }
   ;
   
   declobj:
