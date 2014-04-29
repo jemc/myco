@@ -4,6 +4,7 @@ class MycoBuilder
         T_DEFINE T_COMMA T_DOT
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
+        T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
         T_BINDING_BEGIN T_BINDING_END
         T_PARAMS_BEGIN  T_PARAMS_END
         T_ARGS_BEGIN    T_ARGS_END
@@ -29,11 +30,7 @@ rule
   bind_expr:
     declobj
   | declstr
-  | constant
-  | call_with_args
-  | id_as_lambig
-  | lit_numeric
-  | lit_nil
+  | arg_expr
   ;
   
   arg_expr:
@@ -42,6 +39,7 @@ rule
   | id_as_lambig
   | lit_numeric
   | lit_nil
+  | lit_string
   ;
   
   lit_nil:
@@ -52,6 +50,11 @@ rule
   lit_numeric:
     T_NUMERIC
       { ast(:lit, val[0], Integer(val[0][1])) }
+  ;
+  
+  lit_string:
+    T_STRING_BEGIN T_STRING_BODY T_STRING_END
+      { ast(:lit, val[0], val[1][1]) }
   ;
   
   id_as_symbol:

@@ -187,7 +187,7 @@
   *|;
   
   ##
-  # Declarative string machine
+  # String-related machines
   
   dstr_body := |*
     (
@@ -213,6 +213,15 @@
     };
   *|;
   
+  string_lit = (
+    zlen    % { note_begin :string_lit }
+    '"'     % { note :string_lit, :T_STRING_BEGIN; note :string_lit }
+    (^'"')* % { note :string_lit, :T_STRING_BODY;  note :string_lit }
+    '"'     % { note :string_lit, :T_STRING_END; }
+  ) % {
+    emit_notes :string_lit
+  };
+  
   ##
   # Binding body machines
   
@@ -229,6 +238,7 @@
     ')'        => { emit :T_ARGS_END };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
+    string_lit => { emit_notes :string_lit };
     
     '}'        => { emit :T_BINDING_END; fret; };
     
@@ -248,11 +258,13 @@
     ')'        => { emit :T_ARGS_END;   @in_args = false };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
+    string_lit => { emit_notes :string_lit };
     
     c_eol      => { (emit :T_BINDING_END, @ts, @ts; fret;) unless @in_args };
     
     any => { error :binl_body };
   *|;
+  
   
 }%%
 # %
