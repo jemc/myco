@@ -249,7 +249,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
   lex <<-code do
     Object {
       foo: obj.func
-      bar: obj.other.func(1,2,nil)
+      bar: obj.other.func(1,2,nil).other(5,6)
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
@@ -262,7 +262,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("],
          [:T_NUMERIC, "1"], [:T_COMMA, ","],
          [:T_NUMERIC, "2"], [:T_COMMA, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"],
+         [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_DOT, "."],
+       [:T_IDENTIFIER, "other"], [:T_ARGS_BEGIN, "("],
+         [:T_NUMERIC, "5"], [:T_COMMA, ","],
+         [:T_NUMERIC, "6"], [:T_ARGS_END, ")"],
      [:T_BINDING_END, ""], [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
@@ -270,8 +273,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
       [:call, [:lambig, :obj], :func, [:arglist]]]],
     [:bind, :bar, [:args], [:block,
       [:call,
-        [:call, [:lambig, :obj], :other, [:arglist]],
-         :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
+        [:call,
+          [:call, [:lambig, :obj], :other, [:arglist]],
+           :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]],
+         :other, [:arglist, [:lit, 5], [:lit, 6]]]]]
   ]]
   
   
