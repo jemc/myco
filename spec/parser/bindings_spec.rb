@@ -79,7 +79,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
   lex <<-code do
     Object {
       foo:  |a|one
-      bar  :  |b|  Two  
+      bar  :  ||  Two  
       baz    :|c,d,e|  3
       all:
       |a|
@@ -91,7 +91,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "a"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, ""],
          [:T_IDENTIFIER, "one"], [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "bar"], [:T_PARAMS_BEGIN, "|"],
-       [:T_IDENTIFIER, "b"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, ""],
+       [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, ""],
          [:T_CONSTANT, "Two"], [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "baz"], [:T_PARAMS_BEGIN, "|"],
        [:T_IDENTIFIER, "c"], [:T_COMMA, ","], 
@@ -105,7 +105,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
     [:bind, :foo, [:args, :a], [:block, [:lambig, :one]]],
-    [:bind, :bar, [:args, :b], [:block, [:const, :Two]]],
+    [:bind, :bar, [:args], [:block, [:const, :Two]]],
     [:bind, :baz, [:args, :c, :d, :e], [:block, [:lit, 3]]],
     [:bind, :all, [:args, :a], [:block, [:nil]]]
   ]]
@@ -113,7 +113,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
   lex <<-code do
     Object {
       foo:  |a|{one}
-      bar  :  |b|{  Two  }
+      bar  :  ||{  Two  }
       baz    :|c,d,e|  {  3
       }
       all:
@@ -128,7 +128,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "a"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
          [:T_IDENTIFIER, "one"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "bar"], [:T_PARAMS_BEGIN, "|"],
-       [:T_IDENTIFIER, "b"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
+       [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
          [:T_CONSTANT, "Two"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "baz"], [:T_PARAMS_BEGIN, "|"],
        [:T_IDENTIFIER, "c"], [:T_COMMA, ","], 

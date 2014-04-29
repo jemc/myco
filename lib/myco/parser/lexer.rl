@@ -102,14 +102,16 @@
     zlen               % { note_begin :param_list }
     '|'                % { note :param_list, :T_PARAMS_BEGIN }
     c_space_nl*        % { note :param_list }
-    identifier         % { note :param_list, :T_IDENTIFIER }
-    c_space*           % { note :param_list }
     (
-      ','              % { note :param_list, :T_COMMA }
-      c_space_nl*      % { note :param_list }
       identifier       % { note :param_list, :T_IDENTIFIER }
       c_space*         % { note :param_list }
-    )*
+      (
+        ','            % { note :param_list, :T_COMMA }
+        c_space_nl*    % { note :param_list }
+        identifier     % { note :param_list, :T_IDENTIFIER }
+        c_space*       % { note :param_list }
+      )*
+    )?
     '|'                % { note :param_list, :T_PARAMS_END }
   );
   
