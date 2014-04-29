@@ -22,6 +22,7 @@ rule
     cdefn
   | cbind
   | bind
+  | deco
   | declobj
   | declstr
   | constant
@@ -166,7 +167,20 @@ rule
   
   bind:
     id_as_symbol bind_param_list bind_expr_body
-      { ast(:bind, val[1], val[0], val[1], val[2]) }
+      { ast(:bind, val[1], val[0], nil, val[1], val[2]) }
+  ;
+  
+  deco_able:
+    bind
+  | deco
+  ;
+  
+  deco:
+    T_IDENTIFIER deco_able
+      {
+        val[1].decorations.body.push ast(:lit, val[0], val[0][1].to_sym)
+        val[1]
+      }
   ;
 
 ---- inner

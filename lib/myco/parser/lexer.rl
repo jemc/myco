@@ -180,6 +180,7 @@
     
     bind_begin  => { fcall bind_body; };
     binl_begin  => { fcall binl_body; };
+    identifier  => { emit :T_IDENTIFIER };
     
     '}' => { emit :T_DECLARE_END; fret; };
     

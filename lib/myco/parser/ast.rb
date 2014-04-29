@@ -83,24 +83,25 @@ module Myco::ToolSet::AST
   end
   
   class DeclareBinding < Node
-    attr_accessor :name, :args, :body
+    attr_accessor :name, :decorations, :args, :body
     
-    def initialize line, name, args, body
-      @line = line
-      @name = name
-      @args = args
-      @body = body
+    def initialize line, name, decorations, args, body
+      @line        = line
+      @name        = name
+      @decorations = decorations || ArrayLiteral.new(line, [])
+      @args        = args
+      @body        = body
     end
     
     def to_sexp
-      [:bind, @name.value, @args.to_sexp, @body.to_sexp]
+      [:bind, @name.value, @decorations.to_sexp, @args.to_sexp, @body.to_sexp]
     end
     
     def implementation
       # __bind__(@name, &@body)
       
       rcvr  = Self.new @line
-      bargs  = ArrayLiteral.new @line, [@name]
+      bargs = ArrayLiteral.new @line, [@name, @decorations]
       iter  = Iter19.new @line, @args, @body
       call  = SendWithArguments.new @line, rcvr, :__bind__, bargs, true
       call.instance_variable_set :@block, iter
@@ -160,8 +161,8 @@ module Myco::ToolSet
       AST::ConstantDefine.new line, name, object
     end
     
-    def process_bind line, name, args, body
-      AST::DeclareBinding.new line, name, args, body
+    def process_bind line, name, decorations, args, body
+      AST::DeclareBinding.new line, name, decorations, args, body
     end
     
     def process_lambig line, name

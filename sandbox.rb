@@ -17,10 +17,16 @@ class Myco
     end
     
     def __component_init__
-      
     end
     
-    def __bind__ sym, &block
+    def __signal__ signal, *args
+      sym = :"__on_#{signal}__"
+      send sym, *args
+    end
+    
+    def __bind__ sym, decorations, &block
+      sym = :"__on_#{sym}__" if decorations.include? :on
+      
       define_singleton_method sym, &block
     end
   end
@@ -40,6 +46,7 @@ class Myco
       obj = Instance.new
       obj.extend self
       obj.__component_init__
+      obj.__signal__ :creation
       obj
     end
   end
@@ -54,22 +61,11 @@ class Myco
   end
   
   Myco.eval <<-code
-    A < Object {
-      foo: |i| baz(
-         nil,
-         i,
-         99
-      )
-      bar: baz(1,2,3)
-      baz: |x,y,z| y
+    Object {
+      on creation: print("Hello, world!")
+      
+      print: |str| STDOUT.puts(str)
     }
   code
-  
-  p A.ancestors
-  
-  pp a = A.new
-  pp a.foo 88
-  pp a.bar
-  pp a.baz 66,77,88
   
 end

@@ -29,11 +29,11 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block, 
-    [:bind, :foo,  [:args], [:block, [:lambig, :one]]],
-    [:bind, :bar,  [:args], [:block, [:const, :Two]]],
-    [:bind, :baz,  [:args], [:block, [:lit, 3]]],
-    [:bind, :all,  [:args], [:block, [:nil]]],
-    [:bind, :else, [:args], [:block, [:lit, "what"]]]
+    [:bind, :foo,  [:array], [:args], [:block, [:lambig, :one]]],
+    [:bind, :bar,  [:array], [:args], [:block, [:const, :Two]]],
+    [:bind, :baz,  [:array], [:args], [:block, [:lit, 3]]],
+    [:bind, :all,  [:array], [:args], [:block, [:nil]]],
+    [:bind, :else, [:array], [:args], [:block, [:lit, "what"]]]
   ]]
   
   lex <<-code do
@@ -113,10 +113,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
-    [:bind, :foo, [:args, :a], [:block, [:lambig, :one]]],
-    [:bind, :bar, [:args], [:block, [:const, :Two]]],
-    [:bind, :baz, [:args, :c, :d, :e], [:block, [:lit, 3]]],
-    [:bind, :all, [:args, :a], [:block, [:nil]]]
+    [:bind, :foo, [:array], [:args, :a], [:block, [:lambig, :one]]],
+    [:bind, :bar, [:array], [:args], [:block, [:const, :Two]]],
+    [:bind, :baz, [:array], [:args, :c, :d, :e], [:block, [:lit, 3]]],
+    [:bind, :all, [:array], [:args, :a], [:block, [:nil]]]
   ]]
   
   lex <<-code do
@@ -180,11 +180,11 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
-    [:bind, :foo, [:args], [:block,
+    [:bind, :foo, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist]]]],
-    [:bind, :bar, [:args], [:block,
+    [:bind, :bar, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]],
-    [:bind, :baz, [:args], [:block,
+    [:bind, :baz, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
   ]]
   
@@ -247,11 +247,11 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
-    [:bind, :foo, [:args], [:block,
+    [:bind, :foo, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist]]]],
-    [:bind, :bar, [:args], [:block,
+    [:bind, :bar, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]],
-    [:bind, :baz, [:args], [:block,
+    [:bind, :baz, [:array], [:args], [:block,
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
   ]]
   
@@ -278,9 +278,9 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_BINDING_END, ""], [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
-    [:bind, :foo, [:args], [:block,
+    [:bind, :foo, [:array], [:args], [:block,
       [:call, [:lambig, :obj], :func, [:arglist]]]],
-    [:bind, :bar, [:args], [:block,
+    [:bind, :bar, [:array], [:args], [:block,
       [:call,
         [:call,
           [:call, [:lambig, :obj], :other, [:arglist]],
