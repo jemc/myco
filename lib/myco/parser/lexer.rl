@@ -228,6 +228,7 @@
     '('        => { emit :T_ARGS_BEGIN };
     ')'        => { emit :T_ARGS_END };
     ','        => { emit :T_COMMA };
+    '.'        => { emit :T_DOT };
     
     '}'        => { emit :T_BINDING_END; fret; };
     
@@ -246,6 +247,7 @@
     '('        => { emit :T_ARGS_BEGIN; @in_args = true };
     ')'        => { emit :T_ARGS_END;   @in_args = false };
     ','        => { emit :T_COMMA };
+    '.'        => { emit :T_DOT };
     
     c_eol      => { (emit :T_BINDING_END, @ts, @ts; fret;) unless @in_args };
     

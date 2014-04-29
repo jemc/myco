@@ -164,7 +164,7 @@ module Myco::ToolSet
       AST::DeclareBinding.new line, name, args, body
     end
     
-    def process_lvar line, name
+    def process_lambig line, name
       AST::LocalVariableAccessAmbiguous.new line, name
     end
   end

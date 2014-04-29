@@ -1,7 +1,7 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER
         T_NIL T_NUMERIC
-        T_DEFINE T_COMMA
+        T_DEFINE T_COMMA T_DOT
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_BINDING_BEGIN T_BINDING_END
@@ -31,7 +31,7 @@ rule
   | declstr
   | constant
   | call_with_args
-  | id_as_lvar
+  | id_as_lambig
   | lit_numeric
   | lit_nil
   ;
@@ -39,7 +39,7 @@ rule
   arg_expr:
     constant
   | call_with_args
-  | id_as_lvar
+  | id_as_lambig
   | lit_numeric
   | lit_nil
   ;
@@ -59,9 +59,9 @@ rule
       { ast(:lit, val[0], val[0][1].to_sym) }
   ;
   
-  id_as_lvar:
+  id_as_lambig:
     T_IDENTIFIER
-      { ast(:lvar, val[0], val[0][1].to_sym) }
+      { ast(:lambig, val[0], val[0][1].to_sym) }
   ;
   
   constant:
@@ -82,6 +82,10 @@ rule
   call_with_args:
     T_IDENTIFIER arg_list
       { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  | arg_expr T_DOT T_IDENTIFIER arg_list
+      { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
+  | arg_expr T_DOT T_IDENTIFIER
+      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
   ;
   
   declobj_expr_body_:
