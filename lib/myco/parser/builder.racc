@@ -126,8 +126,8 @@ rule
   ;
   
   arg_list:
-    T_ARGS_BEGIN arg_list_ T_ARGS_END
-      { ast(:array, val[0], val[1]) }
+    T_ARGS_BEGIN arg_list_ T_ARGS_END { ast(:array, val[0], val[1]) }
+  | T_ARGS_BEGIN T_ARGS_END           { ast(:array, val[0], []) }
   ;
   
   declobj:

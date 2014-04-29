@@ -124,6 +124,10 @@ module Myco::ToolSet::AST
       implementation(g).bytecode(g)
     end
     
+    def to_sexp
+      [:lambig, @name]
+    end
+    
     def implementation g
       if g.state.scope.variables.has_key? @name
         LocalVariableAccess.new @line, @name
