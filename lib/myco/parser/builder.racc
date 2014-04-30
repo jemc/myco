@@ -63,19 +63,20 @@ rule
   dyn_string_part:
     T_BINDING_BEGIN bind_expr_body   { val[1] }
   | T_BINDING_BEGIN                  { ast(:nil, val[1]) }
-  | lit_string_body                  { val[0] }
   ;
   
   dyn_string_parts:
     dyn_string_parts dyn_string_part { [*val[0], val[1]] }
+  | dyn_string_parts lit_string_body { [*val[0], val[1]] }
   | dyn_string_part                  { val[0] }
+  | lit_string_body                  { val[0] }
   ;
   
   dyn_string:
     T_STRING_BEGIN lit_string_body dyn_string_parts T_STRING_END
       { ast(:dstr, val[0], val[1].value, val[2]) }
-  | T_STRING_BEGIN dyn_string_parts T_STRING_END
-      { ast(:dstr, val[0], '', val[2]) }
+  | T_STRING_BEGIN dyn_string_part dyn_string_parts T_STRING_END
+      { ast(:dstr, val[0], '', [val[1], *val[2]]) }
   ;
   
   id_as_symbol:
