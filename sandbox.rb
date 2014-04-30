@@ -60,12 +60,6 @@ class Myco
     end
   end
   
-  Myco.eval <<-code
-    Object {
-      on creation: print("Hello, world!")
-      
-      print: |str| STDOUT.puts(str)
-    }
-  code
+  Myco.eval File.read './sandbox.my'
   
 end
