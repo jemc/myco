@@ -1,7 +1,7 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER
         T_NIL T_NUMERIC
-        T_DEFINE T_COMMA T_DOT
+        T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
@@ -60,23 +60,14 @@ rule
     T_STRING_BEGIN lit_string_body T_STRING_END { val[1] }
   ;
   
-  dyn_string_part:
-    T_BINDING_BEGIN bind_expr_body   { val[1] }
-  | T_BINDING_BEGIN                  { ast(:nil, val[1]) }
-  ;
-  
   dyn_string_parts:
-    dyn_string_parts dyn_string_part { [*val[0], val[1]] }
-  | dyn_string_parts lit_string_body { [*val[0], val[1]] }
-  | dyn_string_part                  { val[0] }
-  | lit_string_body                  { val[0] }
+    dyn_string_parts arg_expr lit_string { [*val[0], val[1], val[2]] }
+  | arg_expr lit_string                  { [val[0], val[1]] }
   ;
   
   dyn_string:
-    T_STRING_BEGIN lit_string_body dyn_string_parts T_STRING_END
-      { ast(:dstr, val[0], val[1].value, val[2]) }
-  | T_STRING_BEGIN dyn_string_part dyn_string_parts T_STRING_END
-      { ast(:dstr, val[0], '', [val[1], *val[2]]) }
+    lit_string dyn_string_parts
+      { ast(:dstr, val[0], val[0].value, val[1]) }
   ;
   
   id_as_symbol:
@@ -124,8 +115,8 @@ rule
   ;
   
   bind_expr_body_:
-    bind_expr_body_ bind_expr { [*val.first, val.last] }
-  | bind_expr                 { val }
+    bind_expr_body_ T_EXPR_SEP bind_expr { [*val.first, val.last] }
+  | bind_expr                            { val }
   ;
   
   bind_expr_body:

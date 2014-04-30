@@ -23,28 +23,25 @@ describe Myco::ToolSet::Parser, "Strings" do
   
   lex <<-'code' do
     Object {
-      foo: "String#to_s of '#{88}' will return \"#{88}\" when \#{called}"
+      foo: "foo '"88"' bar \""nil"\" baz"
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
      [:T_IDENTIFIER, "foo"],  [:T_BINDING_BEGIN, ""],
-       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "String#to_s of '"],
-       [:T_BINDING_BEGIN, "\#{"], [:T_NUMERIC, "88"],
-       [:T_BINDING_END, "}"],  [:T_STRING_BODY, "' will return \\\""],
-       [:T_BINDING_BEGIN, "\#{"], [:T_NUMERIC, "88"],
-       [:T_BINDING_END, "}"],  [:T_STRING_BODY, "\\\" when \\\#{called}"],
+       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "foo '"],
+       [:T_STRING_END, "\""],  [:T_NUMERIC, "88"],
+       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "' bar \\\""],
+       [:T_STRING_END, "\""],  [:T_NIL, "nil"],
+       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "\\\" baz"],
        [:T_STRING_END, "\""],
      [:T_BINDING_END, ""], [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block, 
-    [:bind, :foo, [:array], [:args], [:block, 
-      [:dstr, "String#to_s of '", 
-        [:block, [:lit, 88]], 
-        [:lit, "' will return \""], 
-        [:block, [:lit, 88]], 
-        [:lit, "\" when \#{called}"]]
+    [:bind, :foo, [:array], [:args], [:block,
+      [:dstr, "foo '",
+        [:lit, 88], [:lit, "' bar \""], [:nil], [:lit, "\" baz"]
       ]
-    ]
+    ]]
   ]]
   
 end

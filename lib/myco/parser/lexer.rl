@@ -259,6 +259,7 @@
     '.'        => { emit :T_DOT };
     '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
     
+    ';'|c_eol  => { emit :T_EXPR_SEP };
     '}'        => { emit :T_BINDING_END; fret; };
     
     any => { error :bind_body };
@@ -279,6 +280,7 @@
     '.'        => { emit :T_DOT };
     '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
     
+    ';'        => { emit :T_EXPR_SEP };
     c_eol      => { (emit :T_BINDING_END, @ts, @ts; fret;) unless @in_args };
     
     any => { error :binl_body };
