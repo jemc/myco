@@ -157,8 +157,8 @@
   main := |*
     c_space_nl;
     
-    bind_begin => { fcall bind_body; };
-    binl_begin => { fcall binl_body; };
+    bind_begin => { bpush :bind; fcall bind_body; };
+    binl_begin => { bpush :binl; fcall bind_body; };
     
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
@@ -178,8 +178,9 @@
     dstr_begin  => { fcall dstr_body; };
     constant    => { emit :T_CONSTANT };
     
-    bind_begin  => { fcall bind_body; };
-    binl_begin  => { fcall binl_body; };
+    bind_begin => { bpush :bind; fcall bind_body; };
+    binl_begin => { bpush :binl; fcall bind_body; };
+    
     identifier  => { emit :T_IDENTIFIER };
     
     '}' => { emit :T_DECLARE_END; fret; };
@@ -226,50 +227,31 @@
   *|;
   
   ##
-  # Binding body machines
+  # Binding body machine
   
   bind_body := |*
-    c_space_nl;
-    
-    decl_begin => { fcall decl_body; };
-    dstr_begin => { fcall dstr_body; };
-    'nil'      => { emit :T_NIL };
-    numeric    => { emit :T_NUMERIC };
-    constant   => { emit :T_CONSTANT };
-    identifier => { emit :T_IDENTIFIER };
-    '('        => { emit :T_ARGS_BEGIN };
-    ')'        => { emit :T_ARGS_END };
-    ','        => { emit :T_COMMA };
-    '.'        => { emit :T_DOT };
-    '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
-    
-    ';'|c_eol  => { emit :T_EXPR_SEP };
-    '}'        => { emit :T_BINDING_END; fret; };
-    
-    any => { error :bind_body };
-  *|;
-  
-  binl_body := |*
     c_space;
     
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
+    
+    '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
+    '('        => { emit :T_ARGS_BEGIN; bpush :args; fcall bind_body; };
+    
     'nil'      => { emit :T_NIL };
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
-    '('        => { emit :T_ARGS_BEGIN; @in_args = true };
-    ')'        => { emit :T_ARGS_END;   @in_args = false };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
-    '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
     
     ';'        => { emit :T_EXPR_SEP };
-    c_eol      => { (emit :T_BINDING_END, @ts, @ts; fret;) unless @in_args };
+    c_eol      => { bthis==:binl ? (emit :T_BINDING_END, @ts, @ts; bpop; fret;) : () };# (emit :T_EXPR_SEP) };
+    '}'        => { bthis==:bind ? (emit :T_BINDING_END;           bpop; fret;) : (error :bind_body) };
+    ')'        => { bthis==:args ? (emit :T_ARGS_END;              bpop; fret;) : (error :bind_body) };
     
-    any => { error :binl_body };
+    any => { error :bind_body };
   *|;
-  
   
 }%%
 # %

@@ -3,9 +3,13 @@ class Myco::ToolSet::Parser
   class Lexer
     
     def reset_common
+      warn "Lexer still has items on @bstack: #{@bstack.inspect}" \
+        if @bstack and !@bstack.empty?
+      
       @newlines = [0]
       @marks  = {}
       @stored = {}
+      @bstack = []
     end
     
     def mark name, pos=@p
@@ -37,9 +41,25 @@ class Myco::ToolSet::Parser
       queue.clear
     end
     
+    def bpush name
+      @bstack << name
+    end
+    
+    def bthis
+      @bstack.last
+    end
+    
+    def bpop
+      @bstack.pop
+    end
+    
     def error(location, hint=nil)
       str = "Lexer met unexpected character(s) in #{location.inspect}: #{text.inspect}"
       str += "; "+hint.to_s if hint
+      str += "\n@marks  = #{@marks }"
+      str += "\n@stored = #{@stored}"
+      str += "\n@bstack = #{@bstack}"
+      str += "\n"
       warn str
     end
     
