@@ -214,27 +214,11 @@
     };
   *|;
   
-  
-  
-  # string_lit = (
-  #   zlen    % { note_begin :string_lit }
-  #   '"'     % { note :string_lit, :T_STRING_BEGIN; note :string_lit }
-  #   (^'"')* % { note :string_lit, :T_STRING_BODY;  note :string_lit }
-  #   '"'     % { note :string_lit, :T_STRING_END; }
-  # ) % {
-  #   emit_notes :string_lit
-  # };
-  
   string_body := |*
-    
-    ( ^('"'|'\\'|'#')
+    ( ^('"'|'\\')
     | '\\\\'
     | '\\"'
-    | ('#' ^'{')
-    | '\\#{'
     )+   => { emit :T_STRING_BODY };
-    
-    '#{' => { emit :T_BINDING_BEGIN; fcall bind_body; };
     
     '"'  => { emit :T_STRING_END; fret; };
     

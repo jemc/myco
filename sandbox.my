@@ -2,5 +2,5 @@
 Object {
   print: |str| STDOUT.puts(str)
   world: 99
-  on creation: print("Hello, #{world}!")
+  on creation: print("Hello, "world"!")
 }

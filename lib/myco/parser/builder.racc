@@ -61,13 +61,12 @@ rule
   ;
   
   dyn_string_parts:
-    dyn_string_parts arg_expr lit_string { [*val[0], val[1], val[2]] }
+    arg_expr lit_string dyn_string_parts { [val[0], val[1], *val[2]] }
   | arg_expr lit_string                  { [val[0], val[1]] }
   ;
   
   dyn_string:
-    lit_string dyn_string_parts
-      { ast(:dstr, val[0], val[0].value, val[1]) }
+    lit_string dyn_string_parts { ast(:dstr, val[0], val[0].value, val[1]) }
   ;
   
   id_as_symbol:
