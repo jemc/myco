@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Myco::ToolSet::Parser, "Bindings" do
   extend SpecHelpers::ParserHelper
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo:    one
       bar  :  Two  
@@ -36,7 +36,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :else, [:array], [:args], [:block, [:lit, "what"]]]
   ]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo:  {  one  }
       bar  :{  Two  }
@@ -60,7 +60,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo: {
         one
@@ -69,7 +69,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
         }
       baz  :{
         3}
-      all: \\
+      all: \
         nil
     }
   code
@@ -85,7 +85,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo:  |a|one
       bar  :  ||  Two  
@@ -119,7 +119,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :all, [:array], [:args, :a], [:block, [:nil]]]
   ]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo:  |a|{one}
       bar  :  ||{  Two  }
@@ -150,7 +150,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo: { func() }
       bar: { func(1,2,nil) }
@@ -189,7 +189,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
   ]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo: func()
       bar: func(1,2,nil)
@@ -218,7 +218,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_DECLARE_END, "}"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo: { func() }
       bar: { func(1,2,nil) }
@@ -257,7 +257,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
       [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
   ]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       foo: obj.func
       bar: obj.other.func(1,2,nil).other(5,6)

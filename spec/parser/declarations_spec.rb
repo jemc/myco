@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Myco::ToolSet::Parser, "Declarations" do
   extend SpecHelpers::ParserHelper
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       Object { }
     }
@@ -31,7 +31,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       
     }
@@ -42,7 +42,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object
     {
       
@@ -64,7 +64,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
   .parse [:declobj, 
            [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:nil]]
   
-  lex <<-code do
+  lex <<-'code' do
     Foo  ,  Bar,
     Baz
     {
@@ -94,7 +94,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .parse [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:nil]]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object @@@
       foo
       bar
@@ -113,7 +113,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
       bar
   DECLSTR
   
-  lex <<-code do
+  lex <<-'code' do
     Foo: Object @@@
       bar
     @@@
@@ -129,7 +129,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:declstr, [:array, [:const, :Object]], [:str, "      bar\n"]]
   ]]
   
-  lex <<-code do
+  lex <<-'code' do
     Object @@@
       @foo
       bar @@@
@@ -146,7 +146,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLSTR_END,   "@@@"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object foo
       bar
     foo
@@ -159,7 +159,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLSTR_END,   "foo"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object 123_TEST
       foo
     TEST_321
@@ -172,7 +172,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
      [:T_DECLSTR_END,   "TEST_321"]]
   end
   
-  lex <<-code do
+  lex <<-'code' do
     Object >)+-foo><BAR+-]]]}}}
       foo
     {{{[[[-+BAR><foo-+(<

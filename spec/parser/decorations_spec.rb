@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Myco::ToolSet::Parser, "Decorations" do
   extend SpecHelpers::ParserHelper
   
-  lex <<-code do
+  lex <<-'code' do
     Object {
       on foo: nil
       one two three: nil
