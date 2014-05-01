@@ -246,6 +246,8 @@
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
     
+    '\\\n';    # Escaped newline - ignore
+    
     ';'        => { emit :T_EXPR_SEP };
     c_eol => {
       case bthis

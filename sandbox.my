@@ -1,6 +1,7 @@
 
 Object {
   print: |str| STDOUT.puts(str)
-  world: 99
+  world: \
+    "dog"
   on creation: print("Hello, "world"!")
 }

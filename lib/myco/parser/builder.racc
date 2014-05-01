@@ -56,12 +56,9 @@ rule
     T_NUMERIC      { ast(:lit, val[0], Integer(val[0][1])) }
   ;
   
-  lit_string_body:
-    T_STRING_BODY  { ast(:lit, val[0], encode_escapes(val[0][1])) }
-  ;
-  
   lit_string:
-    T_STRING_BEGIN lit_string_body T_STRING_END { val[1] }
+    T_STRING_BEGIN T_STRING_BODY T_STRING_END { val[1] }
+      { ast(:lit, val[1], encode_escapes(val[1][1])) }
   ;
   
   dyn_string_part:

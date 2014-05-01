@@ -69,7 +69,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
         }
       baz  :{
         3}
-      all: \
+      all: \\
         nil
     }
   code
