@@ -75,9 +75,9 @@ describe Myco::ToolSet::Parser, "Bindings" do
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
      [:T_IDENTIFIER, "foo"],   [:T_BINDING_BEGIN, "{"],
-       [:T_IDENTIFIER, "one"],   [:T_BINDING_END, "}"],
+       [:T_IDENTIFIER, "one"],   [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "bar"],   [:T_BINDING_BEGIN, "{"],
-       [:T_CONSTANT, "Two"],     [:T_BINDING_END, "}"],
+       [:T_CONSTANT, "Two"],     [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "baz"],   [:T_BINDING_BEGIN, "{"],
        [:T_NUMERIC, "3"],        [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "all"],   [:T_BINDING_BEGIN, ""],
@@ -143,10 +143,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "c"], [:T_COMMA, ","], 
        [:T_IDENTIFIER, "d"], [:T_COMMA, ","], 
        [:T_IDENTIFIER, "e"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
-         [:T_NUMERIC, "3"], [:T_BINDING_END, "}"],
+         [:T_NUMERIC, "3"], [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "all"], [:T_PARAMS_BEGIN, "|"],
        [:T_IDENTIFIER, "a"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"], 
-         [:T_NIL, "nil"], [:T_BINDING_END, "}"], 
+         [:T_NIL, "nil"],   [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"], 
      [:T_DECLARE_END, "}"]]
   end
   
@@ -176,7 +176,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], 
          [:T_NUMERIC, "1"], [:T_COMMA, ","],
          [:T_NUMERIC, "2"], [:T_COMMA, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, "}"],
+         [:T_NIL, "nil"], [:T_ARGS_END, ")"],
+       [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
@@ -243,7 +244,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], 
          [:T_NUMERIC, "1"], [:T_COMMA, ","],
          [:T_NUMERIC, "2"], [:T_COMMA, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, "}"],
+         [:T_NIL, "nil"], [:T_ARGS_END, ")"],
+       [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,

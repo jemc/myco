@@ -127,6 +127,7 @@
     param_list?
     (c_space_nl*)               % { note :bind_begin }
     '{'                         % { note :bind_begin, :T_BINDING_BEGIN }
+    (c_space_nl*)
   ) % {
     emit_notes :bind_begin_id
     emit_notes :param_list
@@ -246,9 +247,25 @@
     '.'        => { emit :T_DOT };
     
     ';'        => { emit :T_EXPR_SEP };
-    c_eol      => { bthis==:binl ? (emit :T_BINDING_END, @ts, @ts; bpop; fret;) : () };# (emit :T_EXPR_SEP) };
-    '}'        => { bthis==:bind ? (emit :T_BINDING_END;           bpop; fret;) : (error :bind_body) };
-    ')'        => { bthis==:args ? (emit :T_ARGS_END;              bpop; fret;) : (error :bind_body) };
+    c_eol => {
+      case bthis
+      when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
+      when :args
+      else; emit :T_EXPR_SEP
+      end
+    };
+    '}' => {
+      case bthis
+      when :bind; emit :T_BINDING_END; bpop; fret;
+      else; error :bind_body
+      end
+    };
+    ')' => {
+      case bthis
+      when :args; emit :T_ARGS_END; bpop; fret;
+      else; error :bind_body
+      end
+    };
     
     any => { error :bind_body };
   *|;
