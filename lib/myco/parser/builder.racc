@@ -1,6 +1,7 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
-        T_NIL T_TRUE T_FALSE T_NUMERIC
+        T_NIL T_TRUE T_FALSE
+        T_INTEGER T_FLOAT
         T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
@@ -56,7 +57,8 @@ rule
   | lit_nil
   | lit_true
   | lit_false
-  | lit_numeric
+  | lit_integer
+  | lit_float
   | lit_symbol
   ;
   
@@ -75,8 +77,12 @@ rule
     T_FALSE    { ast(:false, val[0]) }
   ;
   
-  lit_numeric:
-    T_NUMERIC  { ast(:lit, val[0], Integer(val[0][1])) }
+  lit_integer:
+    T_INTEGER  { ast(:lit, val[0], Integer(val[0][1])) }
+  ;
+  
+  lit_float:
+    T_FLOAT    { ast(:lit, val[0], Float(val[0][1])) }
   ;
   
   lit_symbol:

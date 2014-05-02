@@ -6,7 +6,8 @@
   constant   = c_upper c_alnum* ;
   identifier = c_lower c_alnum* ;
   
-  numeric    = '-'? [0-9]+ ('.' [0-9]+)? ;
+  integer    = [0-9]+ ;
+  float      = [0-9]+ '.' [0-9]+ ;
   
   
   strbody    = ( ^('"'|'\\') | '\\\\' | '\\"' )+ ;
@@ -264,7 +265,8 @@
     'nil'      => { emit :T_NIL };
     'true'     => { emit :T_TRUE };
     'false'    => { emit :T_FALSE };
-    numeric    => { emit :T_NUMERIC };
+    integer    => { emit :T_INTEGER };
+    float      => { emit :T_FLOAT };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
     ','        => { emit :T_COMMA };
