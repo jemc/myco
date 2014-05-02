@@ -8,6 +8,7 @@ class MycoBuilder
         T_BINDING_BEGIN T_BINDING_END
         T_PARAMS_BEGIN  T_PARAMS_END
         T_ARGS_BEGIN    T_ARGS_END
+        T_PAREN_BEGIN   T_PAREN_END
 
 options no_result_var
 
@@ -18,6 +19,7 @@ rule
   ;
   
   
+  # Expressions allowable inside object declarations
   declobj_expr:
     cdefn
   | cbind
@@ -28,25 +30,32 @@ rule
   | constant
   ;
   
+  # Expressions allowable inside bindings
   bind_expr:
     declobj
   | declstr
   | arg_expr
   ;
   
+  # Expressions allowable as function arguments
   arg_expr:
     arg_expr_not_str
   | lit_string
   | dyn_string
   ;
   
+  # Expressions allowable as function arguments that are not strings
   arg_expr_not_str:
-    constant
+    paren_expr
+  | constant
   | call_with_args
   | id_as_lambig
   | lit_numeric
   | lit_nil
   ;
+  
+  ##
+  # Simple literals
   
   lit_nil:
     T_NIL          { ast(:nil, val[0]) }
@@ -61,6 +70,9 @@ rule
       { ast(:lit, val[1], encode_escapes(val[1][1])) }
   ;
   
+  ##
+  # String interpolations / juxtapositions
+  
   dyn_string_part:
     arg_expr_not_str lit_string      { val }
   ;
@@ -74,15 +86,8 @@ rule
     lit_string dyn_string_parts { ast(:dstr, val[0], val[0].value, val[1]) }
   ;
   
-  id_as_symbol:
-    T_IDENTIFIER
-      { ast(:lit, val[0], val[0][1].to_sym) }
-  ;
-  
-  id_as_lambig:
-    T_IDENTIFIER
-      { ast(:lambig, val[0], val[0][1].to_sym) }
-  ;
+  ##
+  # Constants
   
   constant:
     T_CONSTANT
@@ -99,6 +104,32 @@ rule
       { ast(:array, val[0][0], val[0]) }
   ;
   
+  ##
+  # Bare identifiers
+  
+  id_as_symbol: # Used in scopes where a bare identifier is a symbol
+    T_IDENTIFIER
+      { ast(:lit, val[0], val[0][1].to_sym) }
+  ;
+  
+  id_as_lambig: # Ambiguous - could be local variable or call without args
+    T_IDENTIFIER
+      { ast(:lambig, val[0], val[0][1].to_sym) }
+  ;
+  
+  ##
+  # Function calls
+  
+  arg_list_:
+    arg_list_ T_COMMA arg_expr { [*val[0], val[2]] }
+  | arg_expr                   { val }
+  ;
+  
+  arg_list:
+    T_ARGS_BEGIN arg_list_ T_ARGS_END { ast(:array, val[0], val[1]) }
+  | T_ARGS_BEGIN T_ARGS_END           { ast(:array, val[0], []) }
+  ;
+  
   call_with_args:
     T_IDENTIFIER arg_list
       { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
@@ -107,6 +138,9 @@ rule
   | arg_expr T_DOT T_IDENTIFIER
       { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
   ;
+  
+  ##
+  # Object declarations
   
   declobj_expr_body_:
     declobj_expr_body_ declobj_expr { [*val[0], val[1]] }
@@ -118,21 +152,68 @@ rule
   | T_DECLARE_END                    { ast(:nil, val[0]) }
   ;
   
+  declobj:
+    constant_list T_DECLARE_BEGIN declobj_expr_body
+      { ast(:declobj, val[1], val[0], val[2]) }
+  ;
+  
+  cdefn:
+    constant T_DEFINE declobj
+      { ast(:cdefn, val[1], val[0], val[2]) }
+  ;
+  
+  ##
+  # String declarations
+  
+  declstr_body:
+    T_DECLSTR_BODY
+      { ast(:str, val[0], val[0][1]) }
+  ;
+  
+  declstr:
+    constant_list T_DECLSTR_BEGIN declstr_body T_DECLSTR_END
+      { ast(:declstr, val[1], val[0], val[2]) }
+  ;
+  
+  ##
+  # Bindings and etc..
+  
   bind_sepd_expr:
     T_EXPR_SEP bind_expr           { val[1] }
   | T_EXPR_SEP                     { nil }
   ;
   
   bind_sepd_exprs:
-    bind_sepd_exprs bind_sepd_expr { [*val[0], val[1]] }
-  | bind_sepd_expr                 { val }
+    bind_sepd_exprs bind_sepd_expr { [*val[0], val[1]].compact }
+  | bind_sepd_expr                 { val.compact }
   ;
   
   bind_expr_body:
-    bind_expr bind_sepd_exprs T_BINDING_END { ast(:block, val[0], [val[0], *val[1].compact]) }
-  | bind_sepd_exprs T_BINDING_END           { ast(:block, val[0][0], val[0].compact) }
-  | bind_expr T_BINDING_END                 { ast(:block, val[0], [val[0]]) }
-  | T_BINDING_END                           { ast(:nil, val[0]) }
+    bind_expr bind_sepd_exprs T_BINDING_END  { ast(:block, val[0], [val[0], *val[1]]) }
+  | bind_sepd_exprs T_BINDING_END            { ast(:block, val[0][0], val[0]) }
+  | bind_expr T_BINDING_END                  { ast(:block, val[0], [val[0]]) }
+  | T_BINDING_END                            { ast(:nil, val[0]) }
+  ;
+  
+  paren_expr_body:
+    bind_expr bind_sepd_exprs T_PAREN_END  { ast(:block, val[0], [val[0], *val[1]]) }
+  | bind_sepd_exprs T_PAREN_END            { ast(:block, val[0][0], val[0]) }
+  | bind_expr T_PAREN_END                  { val[0] }
+  | T_PAREN_END                            { ast(:nil, val[0]) }
+  ;
+  
+  paren_expr:
+    T_PAREN_BEGIN paren_expr_body { val[1] }
+  ;
+  
+  cbind:
+    constant T_BINDING_BEGIN bind_expr_body
+      { ast(:cdecl, val[1], val[0], val[2]) }
+  ;
+  
+  bind:
+    id_as_symbol bind_param_list bind_expr_body
+      { ast(:bind, val[1], val[0], nil, val[1], val[2]) }
   ;
   
   param:
@@ -151,46 +232,6 @@ rule
       { ast(:args, val[0], [],     nil, false, nil, nil) }
   | T_BINDING_BEGIN
       { ast(:args, val[0], [],     nil, false, nil, nil) }
-  ;
-  
-  arg_list_:
-    arg_list_ T_COMMA arg_expr { [*val[0], val[2]] }
-  | arg_expr                   { val }
-  ;
-  
-  arg_list:
-    T_ARGS_BEGIN arg_list_ T_ARGS_END { ast(:array, val[0], val[1]) }
-  | T_ARGS_BEGIN T_ARGS_END           { ast(:array, val[0], []) }
-  ;
-  
-  declobj:
-    constant_list T_DECLARE_BEGIN declobj_expr_body
-      { ast(:declobj, val[1], val[0], val[2]) }
-  ;
-  
-  declstr_body:
-    T_DECLSTR_BODY
-      { ast(:str, val[0], val[0][1]) }
-  ;
-  
-  declstr:
-    constant_list T_DECLSTR_BEGIN declstr_body T_DECLSTR_END
-      { ast(:declstr, val[1], val[0], val[2]) }
-  ;
-  
-  cdefn:
-    constant T_DEFINE declobj
-      { ast(:cdefn, val[1], val[0], val[2]) }
-  ;
-  
-  cbind:
-    constant T_BINDING_BEGIN bind_expr_body
-      { ast(:cdecl, val[1], val[0], val[2]) }
-  ;
-  
-  bind:
-    id_as_symbol bind_param_list bind_expr_body
-      { ast(:bind, val[1], val[0], nil, val[1], val[2]) }
   ;
   
   deco_able:

@@ -115,6 +115,15 @@
     '|'                % { note :param_list, :T_PARAMS_END }
   );
   
+  # identifier (a, b, *args, c:4, d:5, **kwargs)
+  #
+  args_begin = (
+    zlen               % { note_begin :args_begin }
+    identifier         % { note :args_begin, :T_IDENTIFIER }
+    c_space_nl*        % { note :args_begin }
+    '('                % { note :args_begin, :T_ARGS_BEGIN }
+  );
+  
   # foo: { ... }
   #
   bind_begin = (
@@ -236,8 +245,9 @@
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
     
-    '"'        => { emit :T_STRING_BEGIN; fcall string_body; };
-    '('        => { emit :T_ARGS_BEGIN; bpush :args; fcall bind_body; };
+    '"'        => { emit :T_STRING_BEGIN;                fcall string_body; };
+    args_begin => { emit_notes :args_begin; bpush :args; fcall bind_body;   };
+    '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body;   };
     
     'nil'      => { emit :T_NIL };
     numeric    => { emit :T_NUMERIC };
@@ -248,24 +258,25 @@
     
     '\\\n';    # Escaped newline - ignore
     
-    ';'        => { emit :T_EXPR_SEP };
+    ';'   => { emit :T_EXPR_SEP };
     c_eol => {
       case bthis
       when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
-      when :args
-      else; emit :T_EXPR_SEP
+      when :args; # ignore
+      else;       emit :T_EXPR_SEP
       end
     };
     '}' => {
       case bthis
       when :bind; emit :T_BINDING_END; bpop; fret;
-      else; error :bind_body
+      else;       error :bind_body
       end
     };
     ')' => {
       case bthis
-      when :args; emit :T_ARGS_END; bpop; fret;
-      else; error :bind_body
+      when :args; emit :T_ARGS_END;  bpop; fret;
+      when :parn; emit :T_PAREN_END; bpop; fret;
+      else;       error :bind_body
       end
     };
     
