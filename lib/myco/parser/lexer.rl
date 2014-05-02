@@ -12,6 +12,8 @@
   
   strbody    = ( ^('"'|'\\') | '\\\\' | '\\"' )+ ;
   
+  # "foo bar"
+  #
   string     = (
     zlen     % { note_begin :string }
     '"'      % { note :string, :T_STRING_BEGIN; note :string }
@@ -19,6 +21,9 @@
     '"'      % { note :string, :T_STRING_END }
   );
   
+  # :foo
+  # :"bar baz"
+  #
   symbol     = (
     ':'            % { note_begin :symbol }
     (
