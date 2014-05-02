@@ -11,11 +11,11 @@
   
   strbody    = ( ^('"'|'\\') | '\\\\' | '\\"' )+ ;
   
-  string      = (
-    zlen      % { note_begin :string }
-    '"'       % { note :string, :T_STRING_BEGIN; note :string }
-    strbody   % { note :string, :T_STRING_BODY;  note :string }
-    '"'       % { note :string, :T_STRING_END }
+  string     = (
+    zlen     % { note_begin :string }
+    '"'      % { note :string, :T_STRING_BEGIN; note :string }
+    strbody  % { note :string, :T_STRING_BODY;  note :string }
+    '"'      % { note :string, :T_STRING_END }
   );
   
   symbol     = (
@@ -262,6 +262,8 @@
     '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body; };
     
     'nil'      => { emit :T_NIL };
+    'true'     => { emit :T_TRUE };
+    'false'    => { emit :T_FALSE };
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };

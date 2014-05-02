@@ -1,6 +1,6 @@
 class MycoBuilder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
-        T_NIL T_NUMERIC
+        T_NIL T_TRUE T_FALSE T_NUMERIC
         T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
@@ -54,6 +54,8 @@ rule
   | constant
   | id_as_lambig
   | lit_nil
+  | lit_true
+  | lit_false
   | lit_numeric
   | lit_symbol
   ;
@@ -62,15 +64,23 @@ rule
   # Simple literals
   
   lit_nil:
-    T_NIL          { ast(:nil, val[0]) }
+    T_NIL      { ast(:nil, val[0]) }
+  ;
+  
+  lit_true:
+    T_TRUE     { ast(:true, val[0]) }
+  ;
+  
+  lit_false:
+    T_FALSE    { ast(:false, val[0]) }
   ;
   
   lit_numeric:
-    T_NUMERIC      { ast(:lit, val[0], Integer(val[0][1])) }
+    T_NUMERIC  { ast(:lit, val[0], Integer(val[0][1])) }
   ;
   
   lit_symbol:
-    T_SYMBOL       { ast(:lit, val[0], val[0][1].to_sym) }
+    T_SYMBOL   { ast(:lit, val[0], val[0][1].to_sym) }
   ;
   
   lit_string:
