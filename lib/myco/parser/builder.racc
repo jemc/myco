@@ -5,6 +5,7 @@ class MycoBuilder
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
+        T_SYMSTR_BEGIN  T_SYMSTR_END  T_SYMSTR_BODY
         T_BINDING_BEGIN T_BINDING_END
         T_PARAMS_BEGIN  T_PARAMS_END
         T_ARGS_BEGIN    T_ARGS_END
@@ -41,7 +42,9 @@ rule
   arg_expr:
     arg_expr_not_str
   | lit_string
+  | lit_symstr
   | dyn_string
+  | dyn_symstr
   ;
   
   # Expressions allowable as function arguments that are not strings
@@ -75,6 +78,11 @@ rule
       { ast(:lit, val[1], encode_escapes(val[1][1])) }
   ;
   
+  lit_symstr:
+    T_SYMSTR_BEGIN T_SYMSTR_BODY T_SYMSTR_END
+      { ast(:lit, val[1], encode_escapes(val[1][1]).to_sym) }
+  ;
+  
   ##
   # String interpolations / juxtapositions
   
@@ -89,6 +97,10 @@ rule
   
   dyn_string:
     lit_string dyn_string_parts { ast(:dstr, val[0], val[0].value, val[1]) }
+  ;
+  
+  dyn_symstr:
+    lit_symstr dyn_string_parts { ast(:dsym, val[0], val[0].value.to_s, val[1])}
   ;
   
   ##

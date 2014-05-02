@@ -11,8 +11,9 @@ describe Myco::ToolSet::Parser, "Bindings" do
       bar  :  Two  
       baz    :3
       all:nil
-      else: "what"
-      sym: :bol
+      else:    "what"
+      sym:     :bol
+      ssym: :"with spaces"
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
@@ -28,7 +29,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "what"],
        [:T_STRING_END, "\""], [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "sym"], [:T_BINDING_BEGIN, ""],
-       [:T_SYMBOL, "bol"], [:T_BINDING_END, ""],
+       [:T_SYMBOL, "bol"], [:T_BINDING_END, ""], 
+     [:T_IDENTIFIER, "ssym"], [:T_BINDING_BEGIN, ""],
+       [:T_SYMSTR_BEGIN, "\""], [:T_SYMSTR_BODY, "with spaces"],
+       [:T_SYMSTR_END, "\""], [:T_BINDING_END, ""],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block, 
@@ -37,7 +41,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :baz,  [:array], [:args], [:block, [:lit, 3]]],
     [:bind, :all,  [:array], [:args], [:block, [:nil]]],
     [:bind, :else, [:array], [:args], [:block, [:lit, "what"]]],
-    [:bind, :sym,  [:array], [:args], [:block, [:lit, :bol]]]
+    [:bind, :sym,  [:array], [:args], [:block, [:lit, :bol]]],
+    [:bind, :ssym, [:array], [:args], [:block, [:lit, :"with spaces"]]]
   ]]
   
   lex <<-'code' do

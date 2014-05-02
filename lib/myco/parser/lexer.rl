@@ -3,14 +3,34 @@
 
 %%{
 # %
-  constant   = c_upper c_alnum*;
-  identifier = c_lower c_alnum*;
-  symbol     = (
-    ':'        % { note_begin :symbol }
-    identifier % { note :symbol, :T_SYMBOL }
+  constant   = c_upper c_alnum* ;
+  identifier = c_lower c_alnum* ;
+  
+  numeric    = '-'? [0-9]+ ('.' [0-9]+)? ;
+  
+  
+  strbody    = ( ^('"'|'\\') | '\\\\' | '\\"' )+ ;
+  
+  string      = (
+    zlen      % { note_begin :string }
+    '"'       % { note :string, :T_STRING_BEGIN; note :string }
+    strbody   % { note :string, :T_STRING_BODY;  note :string }
+    '"'       % { note :string, :T_STRING_END }
   );
   
-  numeric    = '-'? [0-9]+ ('.' [0-9]+)?;
+  symbol     = (
+    ':'            % { note_begin :symbol }
+    (
+      (
+        identifier % { note :symbol, :T_SYMBOL; }
+      )
+    | (
+        '"'        % { note :symbol, :T_SYMSTR_BEGIN; note :symbol }
+        strbody    % { note :symbol, :T_SYMSTR_BODY;  note :symbol }
+        '"'        % { note :symbol, :T_SYMSTR_END; }
+      )
+    )
+  );
   
   
   # Foo,Bar,Baz
@@ -203,7 +223,7 @@
   *|;
   
   ##
-  # String-related machines
+  # Declarative string machine
   
   dstr_body := |*
     (
@@ -229,17 +249,6 @@
     };
   *|;
   
-  string_body := |*
-    ( ^('"'|'\\')
-    | '\\\\'
-    | '\\"'
-    )+   => { emit :T_STRING_BODY };
-    
-    '"'  => { emit :T_STRING_END; fret; };
-    
-    any => { error :string_body };
-  *|;
-  
   ##
   # Binding body machine
   
@@ -249,17 +258,18 @@
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
     
-    '"'        => { emit :T_STRING_BEGIN;                fcall string_body; };
-    args_begin => { emit_notes :args_begin; bpush :args; fcall bind_body;   };
-    '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body;   };
+    args_begin => { emit_notes :args_begin; bpush :args; fcall bind_body; };
+    '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body; };
     
     'nil'      => { emit :T_NIL };
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
-    symbol     => { emit_notes :symbol };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
+    
+    symbol     => { emit_notes :symbol };
+    string     => { emit_notes :string };
     
     '\\\n';    # Escaped newline - ignore
     
