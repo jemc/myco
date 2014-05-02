@@ -74,6 +74,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
   lex <<-'code' do
     Object {
       a: 1 + 2 * 3
+      b: 1 / 2 - 3
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
@@ -81,12 +82,20 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_INTEGER, "1"], [:T_OP_PLUS, "+"], [:T_INTEGER, "2"],
                           [:T_OP_MULT, "*"], [:T_INTEGER, "3"],
      [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "b"], [:T_BINDING_BEGIN, ""],
+       [:T_INTEGER, "1"], [:T_OP_DIV, "/"], [:T_INTEGER, "2"],
+                          [:T_OP_MINUS, "-"], [:T_INTEGER, "3"],
+     [:T_BINDING_END, ""],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,
     [:bind, :a, [:array], [:args], [:block,
-      [:call, [:lit, 1], :+, [:arglist, 
+      [:call, [:lit, 1], :+, [:arglist,
               [:call, [:lit, 2], :*, [:arglist, [:lit, 3]]]]]
+    ]],
+    [:bind, :b, [:array], [:args], [:block,
+      [:call, [:call, [:lit, 1], :/, [:arglist, [:lit, 2]]], 
+              :-, [:arglist, [:lit, 3]]]
     ]]
   ]]
   

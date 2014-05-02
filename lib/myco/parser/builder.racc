@@ -18,6 +18,7 @@ options no_result_var
 
 
 prechigh
+  left T_DOT
   left T_OP_MULT T_OP_DIV
   left T_OP_PLUS T_OP_MINUS
 preclow
@@ -49,17 +50,17 @@ rule
   
   # Expressions allowable as function arguments
   arg_expr:
-    arg_expr_not_str
+    arg_expr_atom
+  | two_term_expr
   | lit_string
   | lit_symstr
   | dyn_string
   | dyn_symstr
   ;
   
-  # Expressions allowable as function arguments that are not strings
-  arg_expr_not_str:
+  # Expressions allowable as function arguments and in string juxtapositions
+  arg_expr_atom:
     paren_expr
-  | two_term_expr
   | call_with_args
   | constant
   | id_as_lambig
@@ -118,7 +119,7 @@ rule
   # String interpolations / juxtapositions
   
   dyn_string_part:
-    arg_expr_not_str lit_string      { val }
+    arg_expr_atom lit_string      { val }
   ;
   
   dyn_string_parts:
@@ -203,19 +204,15 @@ rule
   ##
   # Two-term operators
   
-  two_term_oper:
-    T_OP_PLUS
-  | T_OP_MINUS
-  | T_OP_MULT
-  | T_OP_DIV
-  ;
-  
   two_term_expr:
-    arg_expr two_term_oper arg_expr
-      {
-        args = ast(:array, val[2], [val[2]])
-        ast(:call, val[1], val[0], val[1][1].to_sym, args)
-      }
+    arg_expr T_OP_PLUS arg_expr
+      { ast(:call, val[1], val[0], :'+', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_MINUS arg_expr
+      { ast(:call, val[1], val[0], :'-', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_MULT arg_expr
+      { ast(:call, val[1], val[0], :'*', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_DIV arg_expr
+      { ast(:call, val[1], val[0], :'/', ast(:array, val[2], [val[2]])) }
   ;
   
   ##
