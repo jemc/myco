@@ -35,6 +35,12 @@ class Myco::ToolSet::Parser
       queue
     end
     
+    def unnote queue_name, count=1
+      queue = (@marks[queue_name] ||= [])
+      queue.pop count
+      queue
+    end
+    
     def emit_notes queue_name
       queue = (@marks[queue_name] || [])
       queue.each_slice(3) { |a,b,c| emit c,a,b if a && b && c }

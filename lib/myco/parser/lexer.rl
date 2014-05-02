@@ -156,6 +156,7 @@
     (
       identifier                % { note :bind_begin_id, :T_IDENTIFIER }
     | constant                  % { note :bind_begin_id, :T_CONSTANT }
+    | string                    % { emit_notes :string; unnote :bind_begin_id }
     )
     (c_space* ':' c_space_nl*)
     param_list?
@@ -175,6 +176,7 @@
     (
       identifier                % { note :bind_begin_id, :T_IDENTIFIER }
     | constant                  % { note :bind_begin_id, :T_CONSTANT }
+    | string                    % { emit_notes :string; unnote :bind_begin_id }
     )
     (c_space* ':' c_space_nl*)
     param_list?

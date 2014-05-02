@@ -94,6 +94,11 @@ rule
       { ast(:lit, val[1], encode_escapes(val[1][1])) }
   ;
   
+  lit_string_as_symbol: # Used in contexts where a bare string is a symbol
+    T_STRING_BEGIN T_STRING_BODY T_STRING_END { val[1] }
+      { ast(:lit, val[1], encode_escapes(val[1][1]).to_sym) }
+  ;
+  
   lit_symstr:
     T_SYMSTR_BEGIN T_SYMSTR_BODY T_SYMSTR_END
       { ast(:lit, val[1], encode_escapes(val[1][1]).to_sym) }
@@ -140,7 +145,7 @@ rule
   ##
   # Bare identifiers
   
-  id_as_symbol: # Used in scopes where a bare identifier is a symbol
+  id_as_symbol: # Used in contexts where a bare identifier is a symbol
     T_IDENTIFIER
       { ast(:lit, val[0], val[0][1].to_sym) }
   ;
@@ -244,8 +249,13 @@ rule
       { ast(:cdecl, val[1], val[0], val[2]) }
   ;
   
+  bind_name:
+    id_as_symbol
+  | lit_string_as_symbol
+  ;
+  
   bind:
-    id_as_symbol bind_param_list bind_expr_body
+    bind_name bind_param_list bind_expr_body
       { ast(:bind, val[1], val[0], nil, val[1], val[2]) }
   ;
   
