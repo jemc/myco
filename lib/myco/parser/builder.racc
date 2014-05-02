@@ -11,6 +11,7 @@ class MycoBuilder
         T_PARAMS_BEGIN  T_PARAMS_END
         T_ARGS_BEGIN    T_ARGS_END
         T_PAREN_BEGIN   T_PAREN_END
+        T_ARRAY_BEGIN   T_ARRAY_END
 
 options no_result_var
 
@@ -60,6 +61,7 @@ rule
   | lit_integer
   | lit_float
   | lit_symbol
+  | lit_array
   ;
   
   ##
@@ -153,6 +155,19 @@ rule
   id_as_lambig: # Ambiguous - could be local variable or call without args
     T_IDENTIFIER
       { ast(:lambig, val[0], val[0][1].to_sym) }
+  ;
+  
+  ##
+  # Array literals
+  
+  lit_array_:
+    lit_array_ T_COMMA arg_expr { [*val[0], val[2]] }
+  | arg_expr                    { val }
+  ;
+  
+  lit_array:
+    T_ARRAY_BEGIN lit_array_ T_ARRAY_END { ast(:array, val[0], val[1]) }
+  | T_ARRAY_BEGIN T_ARRAY_END            { ast(:array, val[0], []) }
   ;
   
   ##

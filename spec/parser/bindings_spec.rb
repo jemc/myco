@@ -11,10 +11,12 @@ describe Myco::ToolSet::Parser, "Bindings" do
       bar  :  Two  
       baz    :3
       deci  : 3.88
+      ary :  [1,2, 3,
+              4]
       all:nil
-      else:    "what"
-      sym:     :bol
-      ssym: :"with spaces"
+      str  : "string"
+      sym  :  :bol
+      ssym : :"with spaces"
       t:    true
       f:    false
       "x y" : z
@@ -29,10 +31,14 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_INTEGER, "3"],       [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "deci"],  [:T_BINDING_BEGIN, ""],
        [:T_FLOAT, "3.88"],      [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "ary"], [:T_BINDING_BEGIN, ""], [:T_ARRAY_BEGIN, "["],
+       [:T_INTEGER, "1"], [:T_COMMA, ","], [:T_INTEGER, "2"], [:T_COMMA, ","],
+       [:T_INTEGER, "3"], [:T_COMMA, ","], [:T_INTEGER, "4"],
+       [:T_ARRAY_END, "]"],     [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "all"],  [:T_BINDING_BEGIN, ""],
        [:T_NIL, "nil"],         [:T_BINDING_END, ""],
-     [:T_IDENTIFIER, "else"], [:T_BINDING_BEGIN, ""],
-       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "what"],
+     [:T_IDENTIFIER, "str"], [:T_BINDING_BEGIN, ""],
+       [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "string"],
        [:T_STRING_END, "\""],   [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "sym"],  [:T_BINDING_BEGIN, ""],
        [:T_SYMBOL, "bol"],      [:T_BINDING_END, ""],
@@ -53,8 +59,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :bar,   [:array], [:args], [:block, [:const, :Two]]],
     [:bind, :baz,   [:array], [:args], [:block, [:lit, 3]]],
     [:bind, :deci,  [:array], [:args], [:block, [:lit, 3.88]]],
+    [:bind, :ary,   [:array], [:args], [:block, [:array,
+      [:lit, 1], [:lit, 2], [:lit, 3], [:lit, 4]]]],
     [:bind, :all,   [:array], [:args], [:block, [:nil]]],
-    [:bind, :else,  [:array], [:args], [:block, [:lit, "what"]]],
+    [:bind, :str,   [:array], [:args], [:block, [:lit, "string"]]],
     [:bind, :sym,   [:array], [:args], [:block, [:lit, :bol]]],
     [:bind, :ssym,  [:array], [:args], [:block, [:lit, :"with spaces"]]],
     [:bind, :t,     [:array], [:args], [:block, [:true]]],

@@ -268,6 +268,7 @@
     
     args_begin => { emit_notes :args_begin; bpush :args; fcall bind_body; };
     '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body; };
+    '['        => { emit :T_ARRAY_BEGIN;    bpush :arry; fcall bind_body; };
     
     'nil'      => { emit :T_NIL };
     'true'     => { emit :T_TRUE };
@@ -289,6 +290,7 @@
       case bthis
       when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
       when :args; # ignore
+      when :arry; # ignore
       else;       emit :T_EXPR_SEP
       end
     };
@@ -302,6 +304,12 @@
       case bthis
       when :args; emit :T_ARGS_END;  bpop; fret;
       when :parn; emit :T_PAREN_END; bpop; fret;
+      else;       error :bind_body
+      end
+    };
+    ']' => {
+      case bthis
+      when :arry; emit :T_ARRAY_END; bpop; fret;
       else;       error :bind_body
       end
     };
