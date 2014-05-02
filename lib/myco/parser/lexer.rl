@@ -279,6 +279,10 @@
     identifier => { emit :T_IDENTIFIER };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
+    '+'        => { emit :T_OP_PLUS };
+    '-'        => { emit :T_OP_MINUS };
+    '*'        => { emit :T_OP_MULT };
+    '/'        => { emit :T_OP_DIV };
     
     symbol     => { emit_notes :symbol };
     string     => { emit_notes :string };

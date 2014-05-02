@@ -12,7 +12,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
       baz    :3
       deci  : 3.88
       ary :  [1,2, 3,
-              4]
+              4
+             ]
       all:nil
       str  : "string"
       sym  :  :bol
@@ -29,7 +30,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_CONSTANT, "Two"],    [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "baz"],  [:T_BINDING_BEGIN, ""],
        [:T_INTEGER, "3"],       [:T_BINDING_END, ""],
-     [:T_IDENTIFIER, "deci"],  [:T_BINDING_BEGIN, ""],
+     [:T_IDENTIFIER, "deci"], [:T_BINDING_BEGIN, ""],
        [:T_FLOAT, "3.88"],      [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "ary"], [:T_BINDING_BEGIN, ""], [:T_ARRAY_BEGIN, "["],
        [:T_INTEGER, "1"], [:T_COMMA, ","], [:T_INTEGER, "2"], [:T_COMMA, ","],
@@ -68,6 +69,25 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :t,     [:array], [:args], [:block, [:true]]],
     [:bind, :f,     [:array], [:args], [:block, [:false]]],
     [:bind, :"x y", [:array], [:args], [:block, [:lambig, :z]]],
+  ]]
+  
+  lex <<-'code' do
+    Object {
+      a: 1 + 2 * 3
+    }
+  code
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+     [:T_IDENTIFIER, "a"],    [:T_BINDING_BEGIN, ""],
+       [:T_INTEGER, "1"], [:T_OP_PLUS, "+"], [:T_INTEGER, "2"],
+                          [:T_OP_MULT, "*"], [:T_INTEGER, "3"],
+     [:T_BINDING_END, ""],
+     [:T_DECLARE_END, "}"]]
+  end
+  .parse [:declobj, [:array, [:const, :Object]], [:block,
+    [:bind, :a, [:array], [:args], [:block,
+      [:call, [:lit, 1], :+, [:arglist, 
+              [:call, [:lit, 2], :*, [:arglist, [:lit, 3]]]]]
+    ]]
   ]]
   
   lex <<-'code' do

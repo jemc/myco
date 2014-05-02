@@ -2,6 +2,7 @@ class MycoBuilder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
+        T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV
         T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
@@ -14,6 +15,12 @@ class MycoBuilder
         T_ARRAY_BEGIN   T_ARRAY_END
 
 options no_result_var
+
+
+prechigh
+  left T_OP_MULT T_OP_DIV
+  left T_OP_PLUS T_OP_MINUS
+preclow
 
 
 rule
@@ -52,6 +59,7 @@ rule
   # Expressions allowable as function arguments that are not strings
   arg_expr_not_str:
     paren_expr
+  | two_term_expr
   | call_with_args
   | constant
   | id_as_lambig
@@ -190,6 +198,24 @@ rule
       { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
   | arg_expr T_DOT T_IDENTIFIER
       { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  ;
+  
+  ##
+  # Two-term operators
+  
+  two_term_oper:
+    T_OP_PLUS
+  | T_OP_MINUS
+  | T_OP_MULT
+  | T_OP_DIV
+  ;
+  
+  two_term_expr:
+    arg_expr two_term_oper arg_expr
+      {
+        args = ast(:array, val[2], [val[2]])
+        ast(:call, val[1], val[0], val[1][1].to_sym, args)
+      }
   ;
   
   ##
