@@ -12,9 +12,14 @@ task :build_lexer do
 end
 
 task :build_builder do
+  
+  print "\033[1;31m" # Use bold red text color in terminal for Racc warnings
+  
   raise "Racc failed to build Builder..." unless \
     system "racc -t lib/myco/parser/builder.racc -v" \
                " -o lib/myco/parser/builder.rb"
+  
+  print "\033[0m" # End terminal coloring
   
   # Reopen file to fix racc problem with class in constant hierarchy
   File.read("lib/myco/parser/builder.rb").tap do |buffer|
