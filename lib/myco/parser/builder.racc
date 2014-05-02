@@ -1,5 +1,5 @@
 class MycoBuilder
-  token T_CONSTANT T_IDENTIFIER
+  token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_NUMERIC
         T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
@@ -47,11 +47,12 @@ rule
   # Expressions allowable as function arguments that are not strings
   arg_expr_not_str:
     paren_expr
-  | constant
   | call_with_args
+  | constant
   | id_as_lambig
-  | lit_numeric
   | lit_nil
+  | lit_numeric
+  | lit_symbol
   ;
   
   ##
@@ -63,6 +64,10 @@ rule
   
   lit_numeric:
     T_NUMERIC      { ast(:lit, val[0], Integer(val[0][1])) }
+  ;
+  
+  lit_symbol:
+    T_SYMBOL       { ast(:lit, val[0], val[0][1].to_sym) }
   ;
   
   lit_string:

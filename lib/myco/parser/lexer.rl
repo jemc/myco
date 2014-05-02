@@ -5,6 +5,10 @@
 # %
   constant   = c_upper c_alnum*;
   identifier = c_lower c_alnum*;
+  symbol     = (
+    ':'        % { note_begin :symbol }
+    identifier % { note :symbol, :T_SYMBOL }
+  );
   
   numeric    = '-'? [0-9]+ ('.' [0-9]+)?;
   
@@ -253,6 +257,7 @@
     numeric    => { emit :T_NUMERIC };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
+    symbol     => { emit_notes :symbol };
     ','        => { emit :T_COMMA };
     '.'        => { emit :T_DOT };
     

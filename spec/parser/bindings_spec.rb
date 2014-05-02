@@ -12,6 +12,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
       baz    :3
       all:nil
       else: "what"
+      sym: :bol
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
@@ -26,6 +27,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_IDENTIFIER, "else"], [:T_BINDING_BEGIN, ""],
        [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "what"],
        [:T_STRING_END, "\""], [:T_BINDING_END, ""],
+     [:T_IDENTIFIER, "sym"], [:T_BINDING_BEGIN, ""],
+       [:T_SYMBOL, "bol"], [:T_BINDING_END, ""],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block, 
@@ -33,7 +36,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :bar,  [:array], [:args], [:block, [:const, :Two]]],
     [:bind, :baz,  [:array], [:args], [:block, [:lit, 3]]],
     [:bind, :all,  [:array], [:args], [:block, [:nil]]],
-    [:bind, :else, [:array], [:args], [:block, [:lit, "what"]]]
+    [:bind, :else, [:array], [:args], [:block, [:lit, "what"]]],
+    [:bind, :sym,  [:array], [:args], [:block, [:lit, :bol]]]
   ]]
   
   lex <<-'code' do
