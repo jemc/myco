@@ -283,6 +283,10 @@
     '-'        => { emit :T_OP_MINUS };
     '*'        => { emit :T_OP_MULT };
     '/'        => { emit :T_OP_DIV };
+    '%'        => { emit :T_OP_MOD };
+    '**'       => { emit :T_OP_EXP };
+    ('<'|'>'|'<='|'>='|'=='|'==='|'<=>'|'=~')
+               => { emit :T_OP_COMPARE };
     
     symbol     => { emit_notes :symbol };
     string     => { emit_notes :string };

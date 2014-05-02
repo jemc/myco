@@ -2,7 +2,7 @@ class MycoBuilder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
-        T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV
+        T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
         T_DEFINE T_COMMA T_DOT T_EXPR_SEP
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
@@ -19,8 +19,10 @@ options no_result_var
 
 prechigh
   left T_DOT
-  left T_OP_MULT T_OP_DIV
+  left T_OP_EXP
+  left T_OP_MULT T_OP_DIV T_OP_MOD
   left T_OP_PLUS T_OP_MINUS
+  left T_OP_COMPARE
 preclow
 
 
@@ -213,6 +215,12 @@ rule
       { ast(:call, val[1], val[0], :'*', ast(:array, val[2], [val[2]])) }
   | arg_expr T_OP_DIV arg_expr
       { ast(:call, val[1], val[0], :'/', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_MOD arg_expr
+      { ast(:call, val[1], val[0], :'%', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_EXP arg_expr
+      { ast(:call, val[1], val[0], :'**', ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_COMPARE arg_expr
+      { ast(:call, val[1], val[0], val[1][1].to_sym, ast(:array, val[2], [val[2]])) }
   ;
   
   ##
