@@ -13,6 +13,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
       deci  : 3.88
       ary :  [1,2, 3,
               4
+              5,,
+              6
+              
+              7,
              ]
       all:nil
       str  : "string"
@@ -33,9 +37,13 @@ describe Myco::ToolSet::Parser, "Bindings" do
      [:T_IDENTIFIER, "deci"], [:T_BINDING_BEGIN, ""],
        [:T_FLOAT, "3.88"],      [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "ary"], [:T_BINDING_BEGIN, ""], [:T_ARRAY_BEGIN, "["],
-       [:T_INTEGER, "1"], [:T_ARG_SEP, ","], [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
-       [:T_INTEGER, "3"], [:T_ARG_SEP, ","], [:T_INTEGER, "4"],
-       [:T_ARRAY_END, "]"],     [:T_BINDING_END, ""],
+       [:T_INTEGER, "1"], [:T_ARG_SEP, ","], [:T_INTEGER, "2"],
+       [:T_ARG_SEP, ","], [:T_INTEGER, "3"], [:T_ARG_SEP, ","],
+       [:T_ARG_SEP, "\n"], [:T_INTEGER, "4"], [:T_ARG_SEP, "\n"],
+       [:T_INTEGER, "5"], [:T_ARG_SEP, ","], [:T_ARG_SEP, ","],
+       [:T_ARG_SEP, "\n"], [:T_INTEGER, "6"], [:T_ARG_SEP, "\n"],
+       [:T_ARG_SEP, "\n"], [:T_INTEGER, "7"], [:T_ARG_SEP, ","],
+       [:T_ARG_SEP, "\n"], [:T_ARRAY_END, "]"], [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "all"],  [:T_BINDING_BEGIN, ""],
        [:T_NIL, "nil"],         [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "str"], [:T_BINDING_BEGIN, ""],
@@ -61,7 +69,8 @@ describe Myco::ToolSet::Parser, "Bindings" do
     [:bind, :baz,   [:array], [:args], [:block, [:lit, 3]]],
     [:bind, :deci,  [:array], [:args], [:block, [:lit, 3.88]]],
     [:bind, :ary,   [:array], [:args], [:block, [:array,
-      [:lit, 1], [:lit, 2], [:lit, 3], [:lit, 4]]]],
+      [:lit, 1], [:lit, 2], [:lit, 3], [:lit, 4],
+      [:lit, 5], [:lit, 6], [:lit, 7]]]],
     [:bind, :all,   [:array], [:args], [:block, [:nil]]],
     [:bind, :str,   [:array], [:args], [:block, [:lit, "string"]]],
     [:bind, :sym,   [:array], [:args], [:block, [:lit, :bol]]],
@@ -254,10 +263,10 @@ describe Myco::ToolSet::Parser, "Bindings" do
          [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
          [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "baz"], [:T_BINDING_BEGIN, "{"],
-       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], 
-         [:T_INTEGER, "1"], [:T_ARG_SEP, ","],
-         [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"],
+       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], [:T_ARG_SEP, "\n"],
+         [:T_INTEGER, "1"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+         [:T_INTEGER, "2"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+         [:T_NIL, "nil"], [:T_ARG_SEP, "\n"], [:T_ARGS_END, ")"],
        [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_DECLARE_END, "}"]]
   end
@@ -292,51 +301,13 @@ describe Myco::ToolSet::Parser, "Bindings" do
          [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
          [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, ""],
      [:T_IDENTIFIER, "baz"], [:T_BINDING_BEGIN, ""],
-       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], 
-         [:T_INTEGER, "1"], [:T_ARG_SEP, ","],
-         [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, ""],
+       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], [:T_ARG_SEP, "\n"],
+         [:T_INTEGER, "1"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+         [:T_INTEGER, "2"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+         [:T_NIL, "nil"], [:T_ARG_SEP, "\n"], [:T_ARGS_END, ")"],
+       [:T_BINDING_END, ""],
      [:T_DECLARE_END, "}"]]
   end
-  
-  lex <<-'code' do
-    Object {
-      foo: { func() }
-      bar: { func(1,2,nil) }
-      baz: {
-        func(
-          1,
-          2,
-          nil
-        )
-      }
-    }
-  code
-    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
-     [:T_IDENTIFIER, "foo"], [:T_BINDING_BEGIN, "{"],
-       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], [:T_ARGS_END, ")"],
-       [:T_BINDING_END, "}"],
-     [:T_IDENTIFIER, "bar"], [:T_BINDING_BEGIN, "{"],
-       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("],
-         [:T_INTEGER, "1"], [:T_ARG_SEP, ","],
-         [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, "}"],
-     [:T_IDENTIFIER, "baz"], [:T_BINDING_BEGIN, "{"],
-       [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], 
-         [:T_INTEGER, "1"], [:T_ARG_SEP, ","],
-         [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
-         [:T_NIL, "nil"], [:T_ARGS_END, ")"],
-       [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
-     [:T_DECLARE_END, "}"]]
-  end
-  .parse [:declobj, [:array, [:const, :Object]], [:block,
-    [:bind, :foo, [:array], [:args], [:block,
-      [:call, [:self], :func, [:arglist]]]],
-    [:bind, :bar, [:array], [:args], [:block,
-      [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]],
-    [:bind, :baz, [:array], [:args], [:block,
-      [:call, [:self], :func, [:arglist, [:lit, 1], [:lit, 2], [:nil]]]]]
-  ]]
   
   lex <<-'code' do
     Object {

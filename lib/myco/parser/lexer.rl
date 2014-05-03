@@ -277,7 +277,6 @@
     float      => { emit :T_FLOAT };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
-    ','        => { emit :T_ARG_SEP };
     '.'        => { emit :T_DOT };
     '+'        => { emit :T_OP_PLUS };
     '-'        => { emit :T_OP_MINUS };
@@ -293,6 +292,13 @@
     
     '\\\n';    # Escaped newline - ignore
     
+    ','   => {
+      case bthis
+      when :args; emit :T_ARG_SEP
+      when :arry; emit :T_ARG_SEP
+      else;       error :bind_body
+      end
+    };
     ';'   => {
       case bthis
       when :bind; emit :T_EXPR_SEP
@@ -303,10 +309,12 @@
     };
     c_eol => {
       case bthis
+      when :bind; emit :T_EXPR_SEP
       when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
-      when :args; # ignore
-      when :arry; # ignore
-      else;       emit :T_EXPR_SEP
+      when :parn; emit :T_EXPR_SEP
+      when :args; emit :T_ARG_SEP
+      when :arry; emit :T_ARG_SEP
+      else;       error :bind_body
       end
     };
     '}' => {

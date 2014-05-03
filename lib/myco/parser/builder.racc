@@ -169,29 +169,27 @@ rule
   ;
   
   ##
-  # Array literals
-  
-  lit_array_:
-    lit_array_ T_ARG_SEP arg_expr { [*val[0], val[2]] }
-  | arg_expr                      { val }
-  ;
-  
-  lit_array:
-    T_ARRAY_BEGIN lit_array_ T_ARRAY_END { ast(:array, val[0], val[1]) }
-  | T_ARRAY_BEGIN T_ARRAY_END            { ast(:array, val[0], []) }
-  ;
-  
-  ##
   # Function calls
   
+  arg_sepd_expr:
+    T_ARG_SEP arg_expr           { val[1] }
+  | T_ARG_SEP                    { nil }
+  ;
+  
+  arg_sepd_exprs:
+    arg_sepd_exprs arg_sepd_expr { [*val[0], val[1]].compact }
+  | arg_sepd_expr                { val.compact }
+  ;
+  
   arg_list_:
-    arg_list_ T_ARG_SEP arg_expr { [*val[0], val[2]] }
-  | arg_expr                     { val }
+    arg_expr arg_sepd_exprs T_ARGS_END  { ast(:array, val[0], [val[0], *val[1]]) }
+  | arg_sepd_exprs T_ARGS_END           { ast(:array, val[0][0], val[0]) }
+  | arg_expr T_ARGS_END                 { ast(:array, val[0], [val[0]]) }
+  | T_ARGS_END                          { ast(:array, val[0], []) }
   ;
   
   arg_list:
-    T_ARGS_BEGIN arg_list_ T_ARGS_END { ast(:array, val[0], val[1]) }
-  | T_ARGS_BEGIN T_ARGS_END           { ast(:array, val[0], []) }
+    T_ARGS_BEGIN arg_list_  { val[1] }
   ;
   
   call_with_args:
@@ -201,6 +199,20 @@ rule
       { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
   | arg_expr T_DOT T_IDENTIFIER
       { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  ;
+  
+  ##
+  # Array literals
+  
+  lit_array_:
+    arg_expr arg_sepd_exprs T_ARRAY_END  { ast(:array, val[0], [val[0], *val[1]]) }
+  | arg_sepd_exprs T_ARRAY_END           { ast(:array, val[0][0], val[0]) }
+  | arg_expr T_ARRAY_END                 { ast(:array, val[0], [val[0]]) }
+  | T_ARRAY_END                          { ast(:array, val[0], []) }
+  ;
+  
+  lit_array:
+    T_ARRAY_BEGIN lit_array_  { val[1] }
   ;
   
   ##
