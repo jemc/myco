@@ -3,7 +3,7 @@ class MycoBuilder
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
-        T_DEFINE T_COMMA T_DOT T_EXPR_SEP
+        T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
@@ -146,8 +146,8 @@ rule
   ;
   
   constant_list_:
-    constant_list_ T_COMMA constant { [*val[0], val[2]] }
-  | constant                        { val }
+    constant_list_ T_CONST_SEP constant { [*val[0], val[2]] }
+  | constant                            { val }
   ;
   
   constant_list:
@@ -172,8 +172,8 @@ rule
   # Array literals
   
   lit_array_:
-    lit_array_ T_COMMA arg_expr { [*val[0], val[2]] }
-  | arg_expr                    { val }
+    lit_array_ T_ARG_SEP arg_expr { [*val[0], val[2]] }
+  | arg_expr                      { val }
   ;
   
   lit_array:
@@ -185,8 +185,8 @@ rule
   # Function calls
   
   arg_list_:
-    arg_list_ T_COMMA arg_expr { [*val[0], val[2]] }
-  | arg_expr                   { val }
+    arg_list_ T_ARG_SEP arg_expr { [*val[0], val[2]] }
+  | arg_expr                     { val }
   ;
   
   arg_list:
@@ -310,8 +310,8 @@ rule
   ;
   
   bind_param_list_:
-    bind_param_list_ T_COMMA param { [*val[0], val[2]] }
-  | param                          { val }
+    bind_param_list_ T_ARG_SEP param { [*val[0], val[2]] }
+  | param                            { val }
   ;
   
   bind_param_list:

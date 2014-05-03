@@ -46,7 +46,7 @@
     constant       % { note :constant_list, :T_CONSTANT }
     (
       c_space*     % { note :constant_list }
-      ','          % { note :constant_list, :T_COMMA }
+      ','          % { note :constant_list, :T_CONST_SEP }
       c_space_nl*  % { note :constant_list }
       constant     % { note :constant_list, :T_CONSTANT }
     )*
@@ -136,7 +136,7 @@
       identifier       % { note :param_list, :T_IDENTIFIER }
       c_space*         % { note :param_list }
       (
-        ','            % { note :param_list, :T_COMMA }
+        ','            % { note :param_list, :T_ARG_SEP }
         c_space_nl*    % { note :param_list }
         identifier     % { note :param_list, :T_IDENTIFIER }
         c_space*       % { note :param_list }
@@ -277,7 +277,7 @@
     float      => { emit :T_FLOAT };
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
-    ','        => { emit :T_COMMA };
+    ','        => { emit :T_ARG_SEP };
     '.'        => { emit :T_DOT };
     '+'        => { emit :T_OP_PLUS };
     '-'        => { emit :T_OP_MINUS };

@@ -78,7 +78,7 @@ describe Myco::ToolSet::Parser, "Strings" do
          [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "x"], [:T_STRING_END, "\""],
          [:T_PAREN_BEGIN, "("], [:T_INTEGER, "99"], [:T_PAREN_END, ")"],
          [:T_STRING_BEGIN, "\""], [:T_STRING_BODY, "X"], [:T_STRING_END, "\""],
-       [:T_COMMA, ","],
+       [:T_ARG_SEP, ","],
          [:T_SYMSTR_BEGIN, "\""], [:T_SYMSTR_BODY, "y"], [:T_SYMSTR_END, "\""],
          [:T_PAREN_BEGIN, "("],
            [:T_INTEGER, "1"], [:T_EXPR_SEP, ";"],

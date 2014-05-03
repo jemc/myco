@@ -55,8 +55,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
   .parse [:declobj, [:array, [:const, :Object]], [:nil]]
   
   lex "Foo,Bar,Baz { }" do
-    [[:T_CONSTANT, "Foo"],[:T_COMMA, ","],
-     [:T_CONSTANT, "Bar"],[:T_COMMA, ","],
+    [[:T_CONSTANT, "Foo"],[:T_CONST_SEP, ","],
+     [:T_CONSTANT, "Bar"],[:T_CONST_SEP, ","],
      [:T_CONSTANT, "Baz"],
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
@@ -71,8 +71,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
       
     }
   code
-    [[:T_CONSTANT, "Foo"],[:T_COMMA, ","],
-     [:T_CONSTANT, "Bar"],[:T_COMMA, ","],
+    [[:T_CONSTANT, "Foo"],[:T_CONST_SEP, ","],
+     [:T_CONSTANT, "Bar"],[:T_CONST_SEP, ","],
      [:T_CONSTANT, "Baz"],
      [:T_DECLARE_BEGIN, "{"],
      [:T_DECLARE_END, "}"]]
