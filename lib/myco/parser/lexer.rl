@@ -144,9 +144,10 @@
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
     
-    constant   => { emit :T_CONSTANT };
-    identifier => { emit :T_IDENTIFIER };
     string     => { emit_notes :string };
+    identifier => { emit :T_IDENTIFIER };
+    constant   => { emit :T_CONSTANT };
+    '::'       => { emit :T_SCOPE };
     
     ':' => { fcall pre_bind; };
     
@@ -165,9 +166,10 @@
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
     
-    constant   => { emit :T_CONSTANT };
-    identifier => { emit :T_IDENTIFIER };
     string     => { emit_notes :string };
+    identifier => { emit :T_IDENTIFIER };
+    constant   => { emit :T_CONSTANT };
+    '::'       => { emit :T_SCOPE };
     
     ':' => { fcall pre_bind; };
     
@@ -241,6 +243,7 @@
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
     '.'        => { emit :T_DOT };
+    '::'       => { emit :T_SCOPE };
     '+'        => { emit :T_OP_PLUS };
     '-'        => { emit :T_OP_MINUS };
     '*'        => { emit :T_OP_MULT };
