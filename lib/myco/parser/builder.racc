@@ -231,7 +231,10 @@ rule
   # Parameter lists
   
   param:
-    T_IDENTIFIER { val[0][1].to_sym }
+    T_IDENTIFIER
+      { val[0][1].to_sym }
+  | T_IDENTIFIER T_ASSIGN arg_expr
+      { ast(:lasgn, val[1], val[0][1].to_sym, val[2]) }
   ;
   
   param_sepd:
@@ -254,8 +257,12 @@ rule
   param_list:
     T_PARAMS_BEGIN param_list_
       {
-        required = val[1]
-        ast(:args, val[0], required, nil, false, nil, nil)
+        required, optional = [], []
+        
+        required << val[1].shift while val[1][0] && val[1][0].is_a?(Symbol)
+        optional << val[1].shift while val[1][0] && val[1][0].sexp_name==:lasgn
+        optional = optional.empty? ? nil : ast(:block, val[0], optional)
+        ast(:args, val[0], required, optional, false, nil, nil)
       }
   ;
   
