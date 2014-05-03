@@ -255,6 +255,7 @@
     
     '\\\n';    # Escaped newline - ignore
     
+    
     ',' => {
       case bthis
       when :args;  emit :T_ARG_SEP
@@ -263,6 +264,7 @@
       else;        error :bind_body
       end
     };
+    
     ';' => {
       case bthis
       when :bind;  emit :T_EXPR_SEP
@@ -271,22 +273,26 @@
       else;        error :bind_body
       end
     };
+    
     c_eol => {
       case bthis
       when :bind;  emit :T_EXPR_SEP
       when :binl;  emit :T_BINDING_END, @ts, @ts; bpop; fret;
       when :paren; emit :T_EXPR_SEP
       when :args;  emit :T_ARG_SEP
+      when :param; emit :T_ARG_SEP
       when :array; emit :T_ARG_SEP
       else;        error :bind_body
       end
     };
+    
     '}' => {
       case bthis
       when :bind;  emit :T_BINDING_END; bpop; fret;
       else;        error :bind_body
       end
     };
+    
     ')' => {
       case bthis
       when :args;  emit :T_ARGS_END;  bpop; fret;
@@ -294,12 +300,14 @@
       else;        error :bind_body
       end
     };
+    
     ']' => {
       case bthis
       when :array; emit :T_ARRAY_END; bpop; fret;
       else;        error :bind_body
       end
     };
+    
     '|' => {
       case bthis
       when :param; emit :T_PARAMS_END; bpop; fret;

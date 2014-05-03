@@ -171,6 +171,18 @@ rule
   ##
   # Function calls
   
+  call_with_args:
+    T_IDENTIFIER arg_list
+      { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  | arg_expr T_DOT T_IDENTIFIER arg_list
+      { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
+  | arg_expr T_DOT T_IDENTIFIER
+      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  ;
+  
+  ##
+  # Argument lists
+  
   arg_sepd_expr:
     T_ARG_SEP arg_expr           { val[1] }
   | T_ARG_SEP                    { nil }
@@ -192,13 +204,36 @@ rule
     T_ARGS_BEGIN arg_list_  { val[1] }
   ;
   
-  call_with_args:
-    T_IDENTIFIER arg_list
-      { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
-  | arg_expr T_DOT T_IDENTIFIER arg_list
-      { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
-  | arg_expr T_DOT T_IDENTIFIER
-      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  ##
+  # Parameter lists
+  
+  param:
+    T_IDENTIFIER { val[0][1].to_sym }
+  ;
+  
+  param_sepd:
+    T_ARG_SEP param        { val[1] }
+  | T_ARG_SEP              { nil }
+  ;
+  
+  param_sepds:
+    param_sepds param_sepd { [*val[0], val[1]].compact }
+  | param_sepd             { val.compact }
+  ;
+  
+  param_list_:
+    param param_sepds T_PARAMS_END  { [val[0], *val[1]] }
+  | param_sepds T_PARAMS_END        { val[0] }
+  | param T_PARAMS_END              { [val[0]] }
+  | T_PARAMS_END                    { [] }
+  ;
+  
+  param_list:
+    T_PARAMS_BEGIN param_list_
+      {
+        required = val[1]
+        ast(:args, val[0], required, nil, false, nil, nil)
+      }
   ;
   
   ##
@@ -320,22 +355,6 @@ rule
         args = ast(:args, val[0], [], nil, false, nil, nil)
         ast(:bind, val[1], val[0], nil, args, val[2])
       }
-  ;
-  
-  param:
-    T_IDENTIFIER { val[0][1].to_sym }
-  ;
-  
-  param_list_:
-    param_list_ T_ARG_SEP param { [*val[0], val[2]] }
-  | param                            { val }
-  ;
-  
-  param_list:
-    T_PARAMS_BEGIN param_list_ T_PARAMS_END
-      { ast(:args, val[0], val[1], nil, false, nil, nil) }
-  | T_PARAMS_BEGIN T_PARAMS_END
-      { ast(:args, val[0], [],     nil, false, nil, nil) }
   ;
   
   deco_able:

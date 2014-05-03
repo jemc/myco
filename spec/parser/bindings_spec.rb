@@ -342,19 +342,32 @@ describe Myco::ToolSet::Parser, "Bindings" do
          :other, [:arglist, [:lit, 5], [:lit, 6]]]]]
   ]]
   
-  # lex <<-'code' do
-  #   Object {
-  #     foo: |a,b, c,
-  #       d
-  #       e,,
-  #       f
+  lex <<-'code' do
+    Object {
+      foo: |a,b, c,
+        d
+        e,,
+        f
 
-  #       g,
-  #     | { }
-  #   }
-  # code
-  #   [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
-  #     [:T_IDENTIFIER, "foo"], [:T_IDENTIFIER, "a"], [:T_IDENTIFIER, "b"], [:T_IDENTIFIER, "c"], [:T_IDENTIFIER, "d"], [:T_IDENTIFIER, "e"], [:T_IDENTIFIER, "f"], [:T_IDENTIFIER, "g"], [:T_DECLARE_END, "}"]]
-  # end
+        g,
+      | { }
+    }
+  code
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+      [:T_IDENTIFIER, "foo"], [:T_PARAMS_BEGIN, "|"],
+        [:T_IDENTIFIER, "a"], [:T_ARG_SEP, ","],
+        [:T_IDENTIFIER, "b"], [:T_ARG_SEP, ","],
+        [:T_IDENTIFIER, "c"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+        [:T_IDENTIFIER, "d"], [:T_ARG_SEP, "\n"],
+        [:T_IDENTIFIER, "e"], [:T_ARG_SEP, ","],
+          [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+        [:T_IDENTIFIER, "f"], [:T_ARG_SEP, "\n"], [:T_ARG_SEP, "\n"],
+        [:T_IDENTIFIER, "g"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
+      [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"], [:T_BINDING_END, "}"],
+    [:T_DECLARE_END, "}"]]
+  end
+  .parse [:declobj, [:array, [:const, :Object]], [:block,
+    [:bind, :foo, [:array], [:args, :a, :b, :c, :d, :e, :f, :g], [:nil]]
+  ]]
   
 end
