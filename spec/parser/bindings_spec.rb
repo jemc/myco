@@ -164,11 +164,11 @@ describe Myco::ToolSet::Parser, "Bindings" do
     }
   code
     [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
-     [:T_IDENTIFIER, "foo"],   [:T_BINDING_BEGIN, "{"],
+     [:T_IDENTIFIER, "foo"],   [:T_BINDING_BEGIN, "{"], [:T_EXPR_SEP, "\n"],
        [:T_IDENTIFIER, "one"],   [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "bar"],   [:T_BINDING_BEGIN, "{"],
        [:T_CONSTANT, "Two"],     [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
-     [:T_IDENTIFIER, "baz"],   [:T_BINDING_BEGIN, "{"],
+     [:T_IDENTIFIER, "baz"],   [:T_BINDING_BEGIN, "{"], [:T_EXPR_SEP, "\n"],
        [:T_INTEGER, "3"],        [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "all"],   [:T_BINDING_BEGIN, ""],
        [:T_NIL, "nil"],          [:T_BINDING_END, ""],
@@ -235,9 +235,9 @@ describe Myco::ToolSet::Parser, "Bindings" do
        [:T_IDENTIFIER, "e"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
          [:T_INTEGER, "3"], [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"],
      [:T_IDENTIFIER, "all"], [:T_PARAMS_BEGIN, "|"],
-       [:T_IDENTIFIER, "a"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"], 
-         [:T_NIL, "nil"],   [:T_EXPR_SEP, "\n"], [:T_BINDING_END, "}"], 
-     [:T_DECLARE_END, "}"]]
+       [:T_IDENTIFIER, "a"], [:T_PARAMS_END, "|"], [:T_BINDING_BEGIN, "{"],
+         [:T_EXPR_SEP, "\n"], [:T_NIL, "nil"], [:T_EXPR_SEP, "\n"],
+       [:T_BINDING_END, "}"], [:T_DECLARE_END, "}"]]
   end
   
   lex <<-'code' do
@@ -262,7 +262,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
          [:T_INTEGER, "1"], [:T_ARG_SEP, ","],
          [:T_INTEGER, "2"], [:T_ARG_SEP, ","],
          [:T_NIL, "nil"], [:T_ARGS_END, ")"], [:T_BINDING_END, "}"],
-     [:T_IDENTIFIER, "baz"], [:T_BINDING_BEGIN, "{"],
+     [:T_IDENTIFIER, "baz"], [:T_BINDING_BEGIN, "{"], [:T_EXPR_SEP, "\n"],
        [:T_IDENTIFIER, "func"], [:T_ARGS_BEGIN, "("], [:T_ARG_SEP, "\n"],
          [:T_INTEGER, "1"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
          [:T_INTEGER, "2"], [:T_ARG_SEP, ","], [:T_ARG_SEP, "\n"],
@@ -342,5 +342,19 @@ describe Myco::ToolSet::Parser, "Bindings" do
          :other, [:arglist, [:lit, 5], [:lit, 6]]]]]
   ]]
   
+  # lex <<-'code' do
+  #   Object {
+  #     foo: |a,b, c,
+  #       d
+  #       e,,
+  #       f
+
+  #       g,
+  #     | { }
+  #   }
+  # code
+  #   [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+  #     [:T_IDENTIFIER, "foo"], [:T_IDENTIFIER, "a"], [:T_IDENTIFIER, "b"], [:T_IDENTIFIER, "c"], [:T_IDENTIFIER, "d"], [:T_IDENTIFIER, "e"], [:T_IDENTIFIER, "f"], [:T_IDENTIFIER, "g"], [:T_DECLARE_END, "}"]]
+  # end
   
 end

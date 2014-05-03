@@ -313,25 +313,28 @@ rule
   ;
   
   bind:
-    bind_name bind_param_list bind_expr_body
-      { ast(:bind, val[1], val[0], nil, val[1], val[2]) }
+    bind_name param_list T_BINDING_BEGIN bind_expr_body
+      { ast(:bind, val[1], val[0], nil, val[1], val[3]) }
+  | bind_name T_BINDING_BEGIN bind_expr_body
+      {
+        args = ast(:args, val[0], [], nil, false, nil, nil)
+        ast(:bind, val[1], val[0], nil, args, val[2])
+      }
   ;
   
   param:
     T_IDENTIFIER { val[0][1].to_sym }
   ;
   
-  bind_param_list_:
-    bind_param_list_ T_ARG_SEP param { [*val[0], val[2]] }
+  param_list_:
+    param_list_ T_ARG_SEP param { [*val[0], val[2]] }
   | param                            { val }
   ;
   
-  bind_param_list:
-    T_PARAMS_BEGIN bind_param_list_ T_PARAMS_END  T_BINDING_BEGIN
+  param_list:
+    T_PARAMS_BEGIN param_list_ T_PARAMS_END
       { ast(:args, val[0], val[1], nil, false, nil, nil) }
-  | T_PARAMS_BEGIN T_PARAMS_END T_BINDING_BEGIN
-      { ast(:args, val[0], [],     nil, false, nil, nil) }
-  | T_BINDING_BEGIN
+  | T_PARAMS_BEGIN T_PARAMS_END
       { ast(:args, val[0], [],     nil, false, nil, nil) }
   ;
   

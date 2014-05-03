@@ -110,7 +110,7 @@ class Myco::ToolSet::Parser
       _lexer_single_lengths      = self.class.send :_lexer_single_lengths
       _lexer_trans_targs         = self.class.send :_lexer_trans_targs
       _lexer_eof_trans           = self.class.send :_lexer_eof_trans
-      _lexer_indicies            = self.class.send :_lexer_indicies
+      # _lexer_indicies            = self.class.send :_lexer_indicies
       
       %% write exec;
       # %

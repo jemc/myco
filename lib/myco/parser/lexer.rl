@@ -154,57 +154,22 @@
     '('                % { note :args_begin, :T_ARGS_BEGIN }
   );
   
-  # foo: { ... }
-  #
-  bind_begin = (
-    zlen                        % { note_begin :bind_begin_id }
-    (
-      identifier                % { note :bind_begin_id, :T_IDENTIFIER }
-    | constant                  % { note :bind_begin_id, :T_CONSTANT }
-    | string                    % { emit_notes :string; unnote :bind_begin_id }
-    )
-    (c_space* ':' c_space_nl*)
-    param_list?
-    (c_space_nl*)               % { note :bind_begin }
-    '{'                         % { note :bind_begin, :T_BINDING_BEGIN }
-    (c_space_nl*)
-  ) % {
-    emit_notes :bind_begin_id
-    emit_notes :param_list
-    emit_notes :bind_begin
-  };
-  
-  # foo: ...
-  #
-  binl_begin = (
-    zlen                        % { note_begin :bind_begin_id }
-    (
-      identifier                % { note :bind_begin_id, :T_IDENTIFIER }
-    | constant                  % { note :bind_begin_id, :T_CONSTANT }
-    | string                    % { emit_notes :string; unnote :bind_begin_id }
-    )
-    (c_space* ':' c_space_nl*)
-    param_list?
-    (c_space_nl*)               % { note :bind_begin }
-    ^(c_space_nl|'{'|'|')       % { fhold; note :bind_begin, :T_BINDING_BEGIN }
-  ) % {
-    emit_notes :bind_begin_id
-    emit_notes :param_list
-    emit_notes :bind_begin
-  };
-  
   ##
   # Top level machine
   
   main := |*
     c_space_nl;
     
-    bind_begin => { bpush :bind; fcall bind_body; };
-    binl_begin => { bpush :binl; fcall bind_body; };
+    decl_begin  => { fcall decl_body; };
+    dstr_begin  => { fcall dstr_body; };
     
-    decl_begin => { fcall decl_body; };
-    dstr_begin => { fcall dstr_body; };
     constant   => { emit :T_CONSTANT };
+    identifier => { emit :T_IDENTIFIER };
+    string     => { emit_notes :string };
+    
+    ':' => { fcall pre_bind; };
+    
+    '}' => { emit :T_DECLARE_END; fret; };
     
     c_eof;
     any => { error :main };
@@ -218,16 +183,31 @@
     
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
-    constant    => { emit :T_CONSTANT };
     
-    bind_begin => { bpush :bind; fcall bind_body; };
-    binl_begin => { bpush :binl; fcall bind_body; };
+    constant   => { emit :T_CONSTANT };
+    identifier => { emit :T_IDENTIFIER };
+    string     => { emit_notes :string };
     
-    identifier  => { emit :T_IDENTIFIER };
+    ':' => { fcall pre_bind; };
     
     '}' => { emit :T_DECLARE_END; fret; };
     
     any => { error :decl_body };
+  *|;
+  
+  ##
+  # Pre-binding body sub-machine
+  
+  pre_bind := |*
+    c_space_nl+;
+    
+    param_list => { emit_notes :param_list };
+    
+    ^(c_space_nl|'{'|'|') =>
+      { fhold; emit :T_BINDING_BEGIN, @ts, @ts; bpush :binl; fgoto bind_body; };
+    '{'   => { emit :T_BINDING_BEGIN;           bpush :bind; fgoto bind_body; };
+    
+    any => { error :pre_bind };
   *|;
   
   ##
@@ -261,7 +241,7 @@
   # Binding body machine
   
   bind_body := |*
-    c_space;
+    c_space+;
     
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
@@ -292,14 +272,14 @@
     
     '\\\n';    # Escaped newline - ignore
     
-    ','   => {
+    ',' => {
       case bthis
       when :args; emit :T_ARG_SEP
       when :arry; emit :T_ARG_SEP
       else;       error :bind_body
       end
     };
-    ';'   => {
+    ';' => {
       case bthis
       when :bind; emit :T_EXPR_SEP
       when :binl; emit :T_EXPR_SEP
@@ -333,6 +313,12 @@
     ']' => {
       case bthis
       when :arry; emit :T_ARRAY_END; bpop; fret;
+      else;       error :bind_body
+      end
+    };
+    '|' => {
+      case bthis
+      when :pram; emit :T_PARAMS_END; bpop; fret;
       else;       error :bind_body
       end
     };
