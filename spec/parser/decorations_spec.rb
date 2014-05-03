@@ -12,14 +12,17 @@ describe Myco::ToolSet::Parser, "Decorations" do
       sym "str.ng": nil
     }
   code
-    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"], [:T_EXPR_SEP, "\n"],
      [:T_IDENTIFIER, "on"], [:T_IDENTIFIER, "foo"],
-       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"], [:T_BINDING_END, ""],
+       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"],
+       [:T_BINDING_END, ""], [:T_EXPR_SEP, "\n"],
      [:T_IDENTIFIER, "one"], [:T_IDENTIFIER, "two"], [:T_IDENTIFIER, "three"],
-       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"], [:T_BINDING_END, ""],
+       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"],
+       [:T_BINDING_END, ""], [:T_EXPR_SEP, "\n"],
      [:T_IDENTIFIER, "sym"], [:T_STRING_BEGIN, "\""],
        [:T_STRING_BODY, "str.ng"], [:T_STRING_END, "\""],
-       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"], [:T_BINDING_END, ""],
+       [:T_BINDING_BEGIN, ""], [:T_NIL, "nil"],
+       [:T_BINDING_END, ""], [:T_EXPR_SEP, "\n"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block,

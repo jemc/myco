@@ -10,9 +10,9 @@ describe Myco::ToolSet::Parser, "Declarations" do
       Object { }
     }
   code
-    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
+    [[:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"], [:T_EXPR_SEP, "\n"],
      [:T_CONSTANT, "Object"], [:T_DECLARE_BEGIN, "{"],
-     [:T_DECLARE_END, "}"],   [:T_DECLARE_END, "}"]]
+     [:T_DECLARE_END, "}"], [:T_EXPR_SEP, "\n"], [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:block, 
            [:declobj, [:array, [:const, :Object]], [:nil]]]]
@@ -37,7 +37,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     }
   code
     [[:T_CONSTANT, "Object"],
-     [:T_DECLARE_BEGIN, "{"],
+     [:T_DECLARE_BEGIN, "{"], [:T_EXPR_SEP, "\n"], [:T_EXPR_SEP, "\n"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:nil]]
@@ -49,7 +49,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     }
   code
     [[:T_CONSTANT, "Object"],
-     [:T_DECLARE_BEGIN, "{"],
+     [:T_DECLARE_BEGIN, "{"], [:T_EXPR_SEP, "\n"], [:T_EXPR_SEP, "\n"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, [:array, [:const, :Object]], [:nil]]
@@ -74,7 +74,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [[:T_CONSTANT, "Foo"],[:T_CONST_SEP, ","],
      [:T_CONSTANT, "Bar"],[:T_CONST_SEP, ","],
      [:T_CONSTANT, "Baz"],
-     [:T_DECLARE_BEGIN, "{"],
+     [:T_DECLARE_BEGIN, "{"], [:T_EXPR_SEP, "\n"], [:T_EXPR_SEP, "\n"],
      [:T_DECLARE_END, "}"]]
   end
   .parse [:declobj, 

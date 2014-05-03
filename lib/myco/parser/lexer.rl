@@ -161,7 +161,9 @@
   # Declarative body machine
   
   decl_body := |*
-    c_space_nl;
+    c_space;
+    
+    (c_eol|';') => { emit :T_EXPR_SEP };
     
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
@@ -179,7 +181,7 @@
   *|;
   
   ##
-  # Pre-binding body sub-machine
+  # Pre-binding body sub-machines
   
   pre_bind := |*
     c_space_nl+;
@@ -280,7 +282,7 @@
     c_eol => {
       case bthis
       when :bind;  emit :T_EXPR_SEP
-      when :binl;  emit :T_BINDING_END, @ts, @ts; bpop; fret;
+      when :binl;  emit :T_BINDING_END, @ts, @ts; fhold; bpop; fret;
       when :paren; emit :T_EXPR_SEP
       when :args;  emit :T_ARG_SEP
       when :param; emit :T_ARG_SEP
