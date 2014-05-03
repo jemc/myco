@@ -141,13 +141,10 @@ rule
   ##
   # Constants
   
-  constant_:
-    constant_ T_SCOPE T_CONSTANT { ast(:colon2, val[1], val[0], val[2][1].to_sym) }
-  | T_CONSTANT                   { ast(:const, val[0], val[0][1].to_sym) }
-  ;
-  
   constant:
-    constant_ { val[0] }
+    constant T_SCOPE T_CONSTANT { ast(:colon2, val[1], val[0], val[2][1].to_sym) }
+  | T_SCOPE T_CONSTANT          { ast(:colon3, val[0], val[1][1].to_sym) }
+  | T_CONSTANT                  { ast(:const,  val[0], val[0][1].to_sym) }
   ;
   
   constant_list_:

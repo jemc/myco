@@ -16,4 +16,10 @@ describe Myco::ToolSet::Parser, "Constants" do
   end
   .parse [:colon2, [:colon2, [:const, :Obj], :Ect], :Ive]
   
+  lex "::Toplevel::Object" do
+    [[:T_SCOPE, "::"], [:T_CONSTANT, "Toplevel"],
+     [:T_SCOPE, "::"], [:T_CONSTANT, "Object"]]
+  end
+  .parse [:colon2, [:colon3, :Toplevel], :Object]
+  
 end
