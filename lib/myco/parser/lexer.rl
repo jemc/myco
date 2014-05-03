@@ -293,7 +293,14 @@
     
     '\\\n';    # Escaped newline - ignore
     
-    ';'   => { emit :T_EXPR_SEP };
+    ';'   => {
+      case bthis
+      when :bind; emit :T_EXPR_SEP
+      when :binl; emit :T_EXPR_SEP
+      when :parn; emit :T_EXPR_SEP
+      else;       error :bind_body
+      end
+    };
     c_eol => {
       case bthis
       when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
