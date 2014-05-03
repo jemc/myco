@@ -216,6 +216,19 @@ describe Myco::ToolSet::Parser, "Bindings" do
   
   parse <<-'code' do
     Object {
+      foo: x = 8
+      bar: a.b = foo
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:bind, :foo, [:array], [:args], [:block, [:lasgn, :x, [:lit, 8]]]],
+      [:bind, :bar, [:array], [:args], [:block,
+        [:call, [:lambig, :a], :b=, [:arglist, [:lambig, :foo]]]]]
+    ]]
+  end
+  
+  parse <<-'code' do
+    Object {
       foo: |a,b, c,
         d
         e,,

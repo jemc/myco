@@ -246,6 +246,7 @@
     identifier => { emit :T_IDENTIFIER };
     '.'        => { emit :T_DOT };
     '::'       => { emit :T_SCOPE };
+    '='        => { emit :T_ASSIGN };
     '+'        => { emit :T_OP_PLUS };
     '-'        => { emit :T_OP_MINUS };
     '*'        => { emit :T_OP_MULT };

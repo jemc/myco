@@ -3,7 +3,7 @@ class MycoBuilder
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
-        T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE
+        T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE T_ASSIGN
         T_DECLARE_BEGIN T_DECLARE_END
         T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
         T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
@@ -24,6 +24,7 @@ prechigh
   left T_OP_MULT T_OP_DIV T_OP_MOD
   left T_OP_PLUS T_OP_MINUS
   left T_OP_COMPARE
+  left T_ASSIGN
 preclow
 
 
@@ -55,6 +56,8 @@ rule
   arg_expr:
     arg_expr_atom
   | two_term_expr
+  | assignment
+  | nest_assignment
   | lit_string
   | lit_symstr
   | dyn_string
@@ -65,6 +68,7 @@ rule
   arg_expr_atom:
     paren_expr
   | call_with_args
+  | nest_call
   | constant
   | id_as_lambig
   | lit_nil
@@ -171,15 +175,32 @@ rule
   ;
   
   ##
+  # Assignment
+  
+  assignment:
+    T_IDENTIFIER T_ASSIGN arg_expr
+      { ast(:lasgn, val[1], val[0][1].to_sym, val[2]) }
+  ;
+  
+  nest_assignment:
+    arg_expr T_DOT T_IDENTIFIER T_ASSIGN arg_expr
+      { ast(:call, val[3], val[0], :"#{val[2][1]}=", ast(:array, val[4], [val[4]])) }
+  ;
+  
+  
+  ##
   # Function calls
   
   call_with_args:
     T_IDENTIFIER arg_list
       { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  ;
+  
+  nest_call:
+    arg_expr T_DOT T_IDENTIFIER
+      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
   | arg_expr T_DOT T_IDENTIFIER arg_list
       { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
-  | arg_expr T_DOT T_IDENTIFIER
-      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
   ;
   
   ##
