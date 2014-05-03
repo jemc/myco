@@ -65,6 +65,7 @@ class Myco::ToolSet::Parser
       str += "\n@marks  = #{@marks }"
       str += "\n@stored = #{@stored}"
       str += "\n@bstack = #{@bstack}"
+      str += "\n@stack  = #{@stack}"
       str += "\n"
       warn str
     end

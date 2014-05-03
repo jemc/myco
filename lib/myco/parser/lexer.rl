@@ -63,7 +63,7 @@
     emit_notes :cdefn_begin
   };
   
-  # Object { ... }
+  # Object {
   #
   decl_begin = (
     (cdefn_begin c_space_nl*)?
@@ -126,26 +126,7 @@
       .join ''
   };
   
-  # |a, b, *args, c:4, d:5, **kwargs|
-  #
-  param_list = (
-    zlen               % { note_begin :param_list }
-    '|'                % { note :param_list, :T_PARAMS_BEGIN }
-    c_space_nl*        % { note :param_list }
-    (
-      identifier       % { note :param_list, :T_IDENTIFIER }
-      c_space*         % { note :param_list }
-      (
-        ','            % { note :param_list, :T_ARG_SEP }
-        c_space_nl*    % { note :param_list }
-        identifier     % { note :param_list, :T_IDENTIFIER }
-        c_space*       % { note :param_list }
-      )*
-    )?
-    '|'                % { note :param_list, :T_PARAMS_END }
-  );
-  
-  # identifier (a, b, *args, c:4, d:5, **kwargs)
+  # identifier (
   #
   args_begin = (
     zlen               % { note_begin :args_begin }
@@ -201,8 +182,10 @@
   pre_bind := |*
     c_space_nl+;
     
-    param_list => { emit_notes :param_list };
+    # Parameters are specified within '|'s
+    '|'   => { emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body; };
     
+    # A binding begins with either a '{' or some other item for inline
     ^(c_space_nl|'{'|'|') =>
       { fhold; emit :T_BINDING_BEGIN, @ts, @ts; bpush :binl; fgoto bind_body; };
     '{'   => { emit :T_BINDING_BEGIN;           bpush :bind; fgoto bind_body; };
@@ -246,9 +229,9 @@
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
     
-    args_begin => { emit_notes :args_begin; bpush :args; fcall bind_body; };
-    '('        => { emit :T_PAREN_BEGIN;    bpush :parn; fcall bind_body; };
-    '['        => { emit :T_ARRAY_BEGIN;    bpush :arry; fcall bind_body; };
+    args_begin => { emit_notes :args_begin; bpush :args;  fcall bind_body; };
+    '('        => { emit :T_PAREN_BEGIN;    bpush :paren; fcall bind_body; };
+    '['        => { emit :T_ARRAY_BEGIN;    bpush :array; fcall bind_body; };
     
     'nil'      => { emit :T_NIL };
     'true'     => { emit :T_TRUE };
@@ -274,52 +257,53 @@
     
     ',' => {
       case bthis
-      when :args; emit :T_ARG_SEP
-      when :arry; emit :T_ARG_SEP
-      else;       error :bind_body
+      when :args;  emit :T_ARG_SEP
+      when :param; emit :T_ARG_SEP
+      when :array; emit :T_ARG_SEP
+      else;        error :bind_body
       end
     };
     ';' => {
       case bthis
-      when :bind; emit :T_EXPR_SEP
-      when :binl; emit :T_EXPR_SEP
-      when :parn; emit :T_EXPR_SEP
-      else;       error :bind_body
+      when :bind;  emit :T_EXPR_SEP
+      when :binl;  emit :T_EXPR_SEP
+      when :paren; emit :T_EXPR_SEP
+      else;        error :bind_body
       end
     };
     c_eol => {
       case bthis
-      when :bind; emit :T_EXPR_SEP
-      when :binl; emit :T_BINDING_END, @ts, @ts; bpop; fret;
-      when :parn; emit :T_EXPR_SEP
-      when :args; emit :T_ARG_SEP
-      when :arry; emit :T_ARG_SEP
-      else;       error :bind_body
+      when :bind;  emit :T_EXPR_SEP
+      when :binl;  emit :T_BINDING_END, @ts, @ts; bpop; fret;
+      when :paren; emit :T_EXPR_SEP
+      when :args;  emit :T_ARG_SEP
+      when :array; emit :T_ARG_SEP
+      else;        error :bind_body
       end
     };
     '}' => {
       case bthis
-      when :bind; emit :T_BINDING_END; bpop; fret;
-      else;       error :bind_body
+      when :bind;  emit :T_BINDING_END; bpop; fret;
+      else;        error :bind_body
       end
     };
     ')' => {
       case bthis
-      when :args; emit :T_ARGS_END;  bpop; fret;
-      when :parn; emit :T_PAREN_END; bpop; fret;
-      else;       error :bind_body
+      when :args;  emit :T_ARGS_END;  bpop; fret;
+      when :paren; emit :T_PAREN_END; bpop; fret;
+      else;        error :bind_body
       end
     };
     ']' => {
       case bthis
-      when :arry; emit :T_ARRAY_END; bpop; fret;
-      else;       error :bind_body
+      when :array; emit :T_ARRAY_END; bpop; fret;
+      else;        error :bind_body
       end
     };
     '|' => {
       case bthis
-      when :pram; emit :T_PARAMS_END; bpop; fret;
-      else;       error :bind_body
+      when :param; emit :T_PARAMS_END; bpop; fret;
+      else;        error :bind_body
       end
     };
     
