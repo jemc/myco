@@ -6,6 +6,6 @@ Rubinius::ToolSets.create :Myco do
   Rubinius::CodeLoader.require_compiled "rubinius/melbourne"
 end
 
-class Myco
+module Myco
   ToolSet = Rubinius::ToolSets::Myco
 end

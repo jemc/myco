@@ -1,4 +1,4 @@
-class MycoBuilder
+class Myco::ToolSet::Builder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT

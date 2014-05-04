@@ -25,7 +25,7 @@ module Myco::ToolSet
   class Parser
     
     def parse_string string
-      @builder ||= Myco::ToolSet::Parser::Builder.new.tap do |b|
+      @builder ||= Myco::ToolSet::Builder.new.tap do |b|
         b.processor = self
       end
       

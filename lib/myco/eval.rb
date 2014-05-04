@@ -1,5 +1,5 @@
 
-class Myco
+module Myco
   
   # Stolen from Kernel#eval with one crucial difference - Compiler class
   def self.eval(string, binding=nil, filename=nil, lineno=nil)

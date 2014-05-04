@@ -1,4 +1,4 @@
 
-class Myco
+module Myco
   Compiler = ToolSet::Compiler
 end
