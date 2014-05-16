@@ -21,29 +21,54 @@ module Myco
       sym = :"__on_#{signal}__"
       send sym, *args
     end
+  end
+  
+  class Binding
+    attr_reader :component
+    attr_reader :name
+    attr_reader :decorators
+    attr_reader :body
     
-    def __bind__ sym, decorations, &block
-      sym = :"__on_#{sym}__" if decorations.include? :on
+    def initialize component, name, decorators, &body
+      @component  = component
+      @name       = name
+      @decorators = decorators
+      @body       = body
       
-      define_singleton_method sym, &block
+      @component.send :__bind__, name, decorators, self
     end
   end
   
   class Component < Module
     def self.new components=[], &block
-      super() {
-          define_method :__component_init__, &block
-        }.tap do |this|
+      super() {}.tap do |this|
         components.each do |other|
           this.include other
         end
+        
+        this.send :__bind_category__, :bindings
+        
+        this.instance_eval &block
       end
+    end
+    
+    def __bind_category__ name
+      @__bind_category__ = name
+      attr_name = :"@#{name}"
+      instance_variable_set(attr_name, instance_variable_get(attr_name) || {})
+    end
+    
+    def __bind__ name, decorators, binding
+      name = :"__on_#{name}__" if decorators.include? :on
+      
+      instance_variable_get(:"@#{@__bind_category__}")[name] == binding
+      
+      define_method name, &binding.body if @__bind_category__ == :bindings
     end
     
     def new
       obj = Instance.new
       obj.extend self
-      obj.__component_init__
       obj.__signal__ :creation
       obj
     end

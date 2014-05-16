@@ -12,10 +12,10 @@ module Myco
       binding = Rubinius::Type.coerce_to_binding binding
       filename ||= binding.constant_scope.active_path
     else
-      binding = Binding.setup(Rubinius::VariableScope.of_sender,
-                              Rubinius::CompiledCode.of_sender,
-                              Rubinius::ConstantScope.of_sender,
-                              self)
+      binding = ::Binding.setup(Rubinius::VariableScope.of_sender,
+                                Rubinius::CompiledCode.of_sender,
+                                Rubinius::ConstantScope.of_sender,
+                                self)
       
       filename ||= "(eval)"
     end

@@ -98,14 +98,15 @@ module Myco::ToolSet::AST
     end
     
     def implementation
-      # __bind__(@name, &@body)
+      # Binding.new(self, @name, @decorations, &@body)
       
+      const = ConstantAccess.new @line, :Binding
       rcvr  = Self.new @line
-      bargs = ArrayLiteral.new @line, [@name, @decorations]
+      bargs = ArrayLiteral.new @line, [rcvr, @name, @decorations]
       iter  = Iter19.new @line, @args, @body
-      call  = SendWithArguments.new @line, rcvr, :__bind__, bargs, true
-      call.instance_variable_set :@block, iter
-      call
+      bind  = SendWithArguments.new @line, const, :new, bargs
+      bind.instance_variable_set :@block, iter
+      bind
     end
     
     def bytecode g
