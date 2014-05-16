@@ -6,7 +6,7 @@ require_relative 'lib/myco/eval'
 
 require 'pp'
 
-class Myco
+module Myco
   module Foo; end
   module Bar; end
   module Baz; end
