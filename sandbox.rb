@@ -1,7 +1,6 @@
 
 require_relative 'lib/myco/toolset'
 require_relative 'lib/myco/parser'
-require_relative 'lib/myco/compiler'
 require_relative 'lib/myco/eval'
 
 require 'pp'
@@ -13,7 +12,6 @@ module Myco
   
   class Instance < Object
     def from_string string
-      eval string
     end
     
     def __component_init__

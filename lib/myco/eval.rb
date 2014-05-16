@@ -25,7 +25,7 @@ module Myco
     existing_scope = binding.constant_scope
     binding.constant_scope = existing_scope.dup
     
-    c = Myco::Compiler
+    c = Myco::ToolSet::Compiler
     be = c.construct_block string, binding, filename, lineno
     
     result = be.call_on_instance(binding.self)
