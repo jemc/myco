@@ -21,10 +21,21 @@
     '"'      % { note :string, :T_STRING_END }
   );
   
+  # [foo]
+  #
+  category = (
+    zlen       % { note_begin :category }
+    '['        % { note :category, :T_CATEGORY_BEGIN }
+    c_space*   % { note :category }
+    identifier % { note :category, :T_CATEGORY_BODY }
+    c_space*   % { note :category }
+    ']'        % { note :category, :T_CATEGORY_END }
+  );
+  
   # :foo
   # :"bar baz"
   #
-  symbol     = (
+  symbol = (
     ':'            % { note_begin :symbol }
     (
       (
@@ -145,6 +156,7 @@
     dstr_begin  => { fcall dstr_body; };
     
     string     => { emit_notes :string };
+    category   => { emit_notes :category };
     identifier => { emit :T_IDENTIFIER };
     constant   => { emit :T_CONSTANT };
     '::'       => { emit :T_SCOPE };
@@ -169,6 +181,7 @@
     dstr_begin  => { fcall dstr_body; };
     
     string     => { emit_notes :string };
+    category   => { emit_notes :category };
     identifier => { emit :T_IDENTIFIER };
     constant   => { emit :T_CONSTANT };
     '::'       => { emit :T_SCOPE };

@@ -114,6 +114,33 @@ module Myco::ToolSet::AST
     end
   end
   
+  class DeclareCategory < Node
+    attr_accessor :name
+    
+    def initialize line, name
+      @line = line
+      @name = name
+    end
+    
+    def to_sexp
+      [:category, @name]
+    end
+    
+    def implementation
+      # Category.new(self, @name).embed
+      
+      const = ConstantAccess.new @line, :Category
+      rcvr  = Self.new @line
+      cargs = ArrayLiteral.new @line, [rcvr, @name]
+      categ = SendWithArguments.new @line, const, :new, cargs
+      Send.new @line, categ, :embed
+    end
+    
+    def bytecode g
+      implementation.bytecode g
+    end
+  end
+  
   class LocalVariableAccessAmbiguous < Node
     attr_accessor :name
     
@@ -164,6 +191,10 @@ module Myco::ToolSet
     
     def process_bind line, name, decorations, args, body
       AST::DeclareBinding.new line, name, decorations, args, body
+    end
+    
+    def process_category line, name
+      AST::DeclareCategory.new line, name
     end
     
     def process_lambig line, name

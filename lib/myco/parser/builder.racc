@@ -4,15 +4,16 @@ class Myco::ToolSet::Builder
         T_INTEGER T_FLOAT
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
         T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE T_ASSIGN
-        T_DECLARE_BEGIN T_DECLARE_END
-        T_DECLSTR_BEGIN T_DECLSTR_END T_DECLSTR_BODY
-        T_STRING_BEGIN  T_STRING_END  T_STRING_BODY
-        T_SYMSTR_BEGIN  T_SYMSTR_END  T_SYMSTR_BODY
-        T_BINDING_BEGIN T_BINDING_END
-        T_PARAMS_BEGIN  T_PARAMS_END
-        T_ARGS_BEGIN    T_ARGS_END
-        T_PAREN_BEGIN   T_PAREN_END
-        T_ARRAY_BEGIN   T_ARRAY_END
+        T_DECLARE_BEGIN  T_DECLARE_END
+        T_DECLSTR_BEGIN  T_DECLSTR_END  T_DECLSTR_BODY
+        T_STRING_BEGIN   T_STRING_END   T_STRING_BODY
+        T_SYMSTR_BEGIN   T_SYMSTR_END   T_SYMSTR_BODY
+        T_CATEGORY_BEGIN T_CATEGORY_END T_CATEGORY_BODY
+        T_BINDING_BEGIN  T_BINDING_END
+        T_PARAMS_BEGIN   T_PARAMS_END
+        T_ARGS_BEGIN     T_ARGS_END
+        T_PAREN_BEGIN    T_PAREN_END
+        T_ARRAY_BEGIN    T_ARRAY_END
 
 options no_result_var
 
@@ -42,6 +43,7 @@ rule
   | deco
   | declobj
   | declstr
+  | category
   | constant
   ;
   
@@ -405,6 +407,11 @@ rule
         val[1].decorations.body.push ast(:lit, val[0], val[0][1].to_sym)
         val[1]
       }
+  ;
+  
+  category:
+    T_CATEGORY_BEGIN T_CATEGORY_BODY T_CATEGORY_END
+      { ast(:category, val[0], ast(:lit, val[1], val[1][1].to_sym)) }
   ;
 
 ---- inner

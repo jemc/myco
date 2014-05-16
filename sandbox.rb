@@ -39,6 +39,31 @@ module Myco
     end
   end
   
+  class Category
+    attr_reader :component
+    attr_reader :name
+    
+    def initialize component, name
+      @component  = component
+      @name       = name
+      @hash       = {}
+    end
+    
+    def embed
+      @component.send :__category__, self
+    end
+    
+    def [] key
+      @hash[key]
+    end
+    
+    def []= key, val
+      @hash[key] = val
+      define_singleton_method(key) { |*a,&b| @hash[key].body.call *a, &b }
+      @hash[key]
+    end
+  end
+  
   class Component < Module
     def self.new components=[], &block
       super() {}.tap do |this|
@@ -46,24 +71,25 @@ module Myco
           this.include other
         end
         
-        this.send :__bind_category__, :bindings
+        Category.new(this, :bindings).embed
         
         this.instance_eval &block
       end
     end
     
-    def __bind_category__ name
-      @__bind_category__ = name
-      attr_name = :"@#{name}"
-      instance_variable_set(attr_name, instance_variable_get(attr_name) || {})
+    def __category__ cat
+      @__category__ = cat.name
+      attr_name = :"@#{cat.name}"
+      instance_variable_set(attr_name, instance_variable_get(attr_name) || cat)
+      define_method(cat.name) { cat }
     end
     
     def __bind__ name, decorators, binding
       name = :"__on_#{name}__" if decorators.include? :on
       
-      instance_variable_get(:"@#{@__bind_category__}")[name] == binding
+      instance_variable_get(:"@#{@__category__}")[name] = binding
       
-      define_method name, &binding.body if @__bind_category__ == :bindings
+      define_method name, &binding.body if @__category__ == :bindings
     end
     
     def new

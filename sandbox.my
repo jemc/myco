@@ -2,5 +2,9 @@
 Object {
   print: |str| STDOUT.puts(str)
   world: |x=0| 100+x
-  on creation: print("Hello, "world"!")
+  on creation: print("Hello, " other.world "!")
+  
+  [other]
+  
+  world: "exoplanet"
 }
