@@ -23,6 +23,7 @@ require_relative 'parser/builder'
 
 module Myco::ToolSet
   class Parser
+    include Myco::ToolSet::AST::ProcessorMethods
     
     def parse_string string
       @builder ||= Myco::ToolSet::Builder.new.tap do |b|

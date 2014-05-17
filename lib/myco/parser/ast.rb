@@ -167,38 +167,33 @@ module Myco::ToolSet::AST
     end
   end
   
-end
-
-
-module Myco::ToolSet
-  class Parser
-    
+  module ProcessorMethods
     ##
     # AST building methods
     # (supplementing those inherited from rubinius/processor)
     
     def process_declobj line, types, body
-      AST::DeclareObject.new line, types, body
+      DeclareObject.new line, types, body
     end
     
     def process_declstr line, types, string
-      AST::DeclareString.new line, types, string
+      DeclareString.new line, types, string
     end
     
     def process_cdefn line, name, object
-      AST::ConstantDefine.new line, name, object
+      ConstantDefine.new line, name, object
     end
     
     def process_bind line, name, decorations, args, body
-      AST::DeclareBinding.new line, name, decorations, args, body
+      DeclareBinding.new line, name, decorations, args, body
     end
     
     def process_category line, name
-      AST::DeclareCategory.new line, name
+      DeclareCategory.new line, name
     end
     
     def process_lambig line, name
-      AST::LocalVariableAccessAmbiguous.new line, name
+      LocalVariableAccessAmbiguous.new line, name
     end
   end
 end
