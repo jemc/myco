@@ -9,8 +9,8 @@
   integer    = [0-9]+ ;
   float      = [0-9]+ '.' [0-9]+ ;
   
-  
-  strbody    = ( ^('"'|'\\') | '\\\\' | '\\"' )+ ;
+  strbody_norm = ^('\\' | '"');
+  strbody      = strbody_norm* ('\\' c_any strbody_norm*)*;
   
   # "foo bar"
   #
