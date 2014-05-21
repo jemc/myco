@@ -3,6 +3,7 @@ class Myco::ToolSet::Builder
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
+        T_OP_TOPROC
         T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE T_ASSIGN
         T_DECLARE_BEGIN  T_DECLARE_END
         T_DECLSTR_BEGIN  T_DECLSTR_END  T_DECLSTR_BODY
@@ -69,6 +70,7 @@ rule
   # Expressions allowable as function arguments and in string juxtapositions
   arg_expr_atom:
     paren_expr
+  | call_iter
   | call_with_args
   | nest_call
   | constant
@@ -193,6 +195,20 @@ rule
   ##
   # Function calls
   
+  call_iter_body:
+    T_BINDING_BEGIN bind_expr_body
+      { ast(:scope, val[0], nil, val[1], nil) }
+  | param_list T_BINDING_BEGIN bind_expr_body
+      { ast(:scope, val[1], val[0], val[2], nil) }
+  ;
+  
+  call_iter:
+    T_IDENTIFIER call_iter_body
+      { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, nil),    val[1]) }
+  | T_IDENTIFIER arg_list call_iter_body
+      { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, val[1]), val[2]) }
+  ;
+  
   call_with_args:
     T_IDENTIFIER arg_list
       { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
@@ -234,9 +250,11 @@ rule
   
   param:
     T_IDENTIFIER
-      { val[0][1].to_sym }
+      { [0, val[0][1].to_sym] }
   | T_IDENTIFIER T_ASSIGN arg_expr
-      { ast(:lasgn, val[1], val[0][1].to_sym, val[2]) }
+      { [1, ast(:lasgn, val[1], val[0][1].to_sym, val[2])] }
+  | T_OP_TOPROC T_IDENTIFIER
+      { [4, val[1][1].to_sym] }
   ;
   
   param_sepd:
@@ -259,12 +277,13 @@ rule
   param_list:
     T_PARAMS_BEGIN param_list_
       {
-        required, optional = [], []
+        required, optional, block = [], [], []
         
-        required << val[1].shift while val[1][0] && val[1][0].is_a?(Symbol)
-        optional << val[1].shift while val[1][0] && val[1][0].sexp_name==:lasgn
+        required << val[1].shift[1] while val[1][0] && val[1][0][0] == 0
+        optional << val[1].shift[1] while val[1][0] && val[1][0][0] == 1
         optional = optional.empty? ? nil : ast(:block, val[0], optional)
-        ast(:args, val[0], required, optional, false, nil, nil)
+        block    << val[1].shift[1] while val[1][0] && val[1][0][0] == 4
+        ast(:args, val[0], required, optional, false, nil, block.first)
       }
   ;
   

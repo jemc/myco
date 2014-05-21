@@ -249,6 +249,7 @@
     args_begin => { emit_notes :args_begin; bpush :args;  fcall bind_body; };
     '('        => { emit :T_PAREN_BEGIN;    bpush :paren; fcall bind_body; };
     '['        => { emit :T_ARRAY_BEGIN;    bpush :array; fcall bind_body; };
+    '{'        => { emit :T_BINDING_BEGIN;  bpush :bind;  fcall bind_body; };
     
     'nil'      => { emit :T_NIL };
     'true'     => { emit :T_TRUE };
@@ -274,6 +275,13 @@
     
     '\\\n';    # Escaped newline - ignore
     
+    
+    '&' => {
+      case bthis
+      when :param; emit :T_OP_TOPROC
+      else;        error :bind_body
+      end
+    };
     
     ',' => {
       case bthis
@@ -330,6 +338,9 @@
     '|' => {
       case bthis
       when :param; emit :T_PARAMS_END; bpop; fret;
+      when :bind;  emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
+      when :binl;  emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
+      when :paren; emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
       else;        error :bind_body
       end
     };
