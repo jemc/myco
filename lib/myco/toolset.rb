@@ -1,11 +1,16 @@
 
-Rubinius::ToolSets.create :Myco do
-  Rubinius::CodeLoader.require_compiled "rubinius/compiler"
-  Rubinius::CodeLoader.require_compiled "rubinius/ast"
-  Rubinius::CodeLoader.require_compiled "rubinius/processor"
-  Rubinius::CodeLoader.require_compiled "rubinius/melbourne"
-end
+require "rubinius/bridge"
+require "rubinius/toolset"
+
+module Myco; end
 
 module Myco
-  ToolSet = Rubinius::ToolSets::Myco
+  ToolSet = Rubinius::ToolSets.create :myco do
+    require "rubinius/melbourne"
+    require "rubinius/processor"
+    require "rubinius/compiler"
+    require "rubinius/ast"
+    
+    require_relative 'parser'
+  end
 end

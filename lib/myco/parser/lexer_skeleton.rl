@@ -29,7 +29,7 @@
 
 %%machine lexer; # %
 
-class Myco::ToolSet::Parser
+class CodeTools::Parser
   class Lexer
     %% write data; # %
     

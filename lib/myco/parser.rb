@@ -1,5 +1,5 @@
 
-module Myco::ToolSet
+module CodeTools
   class Parser < Rubinius::ToolSets::Runtime::Melbourne
   end
   
@@ -21,9 +21,9 @@ require_relative 'parser/lexer_common'
 require_relative 'parser/ast'
 require_relative 'parser/builder'
 
-module Myco::ToolSet
+module CodeTools
   class Parser
-    include Myco::ToolSet::AST::ProcessorMethods
+    include CodeTools::AST::ProcessorMethods
     
     def parse_string string
       @builder ||= Myco::ToolSet::Builder.new.tap do |b|

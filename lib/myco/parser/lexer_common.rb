@@ -1,5 +1,5 @@
 
-class Myco::ToolSet::Parser
+class CodeTools::Parser
   class Lexer
     
     def reset_common

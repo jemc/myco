@@ -1,5 +1,5 @@
 
-module Myco::ToolSet::AST
+module CodeTools::AST
   
   class DeclareObject < Node
     attr_accessor :types, :body
