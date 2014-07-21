@@ -1,5 +1,6 @@
 ^\.git$
-\.sublime-
+^Gemfile\.lock$
+\.sublime-(workspace|project)$
 ^lib/myco/parser/lexer.rb$
 ^lib/myco/parser/builder.rb$
 ^lib/myco/parser/builder.output$
