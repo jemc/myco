@@ -283,7 +283,7 @@ rule
         optional << val[1].shift[1] while val[1][0] && val[1][0][0] == 1
         optional = optional.empty? ? nil : ast(:block, val[0], optional)
         block    << val[1].shift[1] while val[1][0] && val[1][0][0] == 4
-        ast(:args, val[0], required, optional, false, nil, block.first)
+        ast(:args, val[0], required, optional, false, nil, nil, nil, block.first)
       }
   ;
   
@@ -410,7 +410,7 @@ rule
       { ast(:bind, val[1], val[0], nil, val[1], val[3]) }
   | bind_name T_BINDING_BEGIN bind_expr_body
       {
-        args = ast(:args, val[0], [], nil, false, nil, nil)
+        args = ast(:args, val[0], [], nil, false, nil, nil, nil, nil)
         ast(:bind, val[1], val[0], nil, args, val[2])
       }
   ;
