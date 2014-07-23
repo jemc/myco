@@ -1,6 +1,6 @@
 
 module CodeTools
-  class Parser < Rubinius::ToolSets::Runtime::Melbourne
+  class Parser < Melbourne
   end
   
   class Compiler
