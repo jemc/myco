@@ -22,9 +22,10 @@ module CodeTools::AST
       # return obj
       
       const = ConstantAccess.new @line, :Component
-      itera = FormalArguments19.new line, nil, nil, nil, nil, nil
-      iter  = Iter19.new @line, itera, @body
-      comp  = SendWithArguments.new @line, const, :new, @types
+      itera = Parameters.new line, nil, nil, nil, nil, nil, nil, nil
+      iter  = Iter.new @line, itera, @body
+      args  = ArrayLiteral.new @types.line, [@types]
+      comp  = SendWithArguments.new @line, const, :new, args
       comp.instance_variable_set :@block, iter
       @create ? Send.new(@line, comp, :new) : comp
     end
@@ -103,7 +104,7 @@ module CodeTools::AST
       const = ConstantAccess.new @line, :Binding
       rcvr  = Self.new @line
       bargs = ArrayLiteral.new @line, [rcvr, @name, @decorations]
-      iter  = Iter19.new @line, @args, @body
+      iter  = Iter.new @line, @args, @body
       bind  = SendWithArguments.new @line, const, :new, bargs
       bind.instance_variable_set :@block, iter
       bind

@@ -2,7 +2,7 @@
 require 'rspec/core/rake_task'
 
 
-task :default => :test
+task :default => :sandbox
 
 
 task :build_lexer do
