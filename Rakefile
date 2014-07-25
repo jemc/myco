@@ -5,13 +5,15 @@ require 'rspec/core/rake_task'
 task :default => :sandbox
 
 
-task :build_lexer do
+file 'lib/myco/parser/lexer.rb' => 'lib/myco/parser/lexer.rl' do
+  puts "Building Lexer..."
   raise "Ragel failed to build Lexer..." unless \
     system "ragel -R lib/myco/parser/lexer_skeleton.rl" \
                 " -o lib/myco/parser/lexer.rb"
 end
 
-task :build_builder do
+file 'lib/myco/parser/builder.rb' => 'lib/myco/parser/builder.racc' do
+  puts "Building Builder..."
   print "\033[1;31m" # Use bold red text color in terminal for Racc warnings
   
   raise "Racc failed to build Builder..." unless \
@@ -21,6 +23,9 @@ task :build_builder do
   print "\033[0m" # End terminal coloring
 end
 
+
+task :build_lexer => 'lib/myco/parser/lexer.rb'
+task :build_builder => 'lib/myco/parser/builder.rb'
 task :build => [:build_lexer, :build_builder]
 
 
