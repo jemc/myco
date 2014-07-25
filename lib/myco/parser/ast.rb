@@ -17,7 +17,7 @@ module CodeTools::AST
     end
     
     def implementation
-      # comp = Component.new(*@types, &@body)
+      # comp = Component.new(@types, &@body)
       # obj  = (@create ? comp.new : comp)
       # return obj
       
