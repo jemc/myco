@@ -32,5 +32,5 @@ task :build => [:build_lexer, :build_builder]
 RSpec::Core::RakeTask.new :test => :build
 
 task :sandbox => :build do
-  system "ruby ./sandbox.rb"
+  require_relative 'sandbox.rb'
 end
