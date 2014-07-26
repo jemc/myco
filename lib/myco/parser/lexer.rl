@@ -4,7 +4,7 @@
 %%{
 # %
   constant   = c_upper c_alnum* ;
-  identifier = c_lower c_alnum* ;
+  identifier = c_lower c_alnum* ('?' | '!')?;
   
   integer    = [0-9]+ ;
   float      = [0-9]+ '.' [0-9]+ ;
