@@ -2,7 +2,8 @@ class CodeTools::Builder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
-        T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP T_OP_COMPARE
+        T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP
+        T_OP_COMPARE T_OP_AND T_OP_OR
         T_OP_TOPROC
         T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE T_ASSIGN
         T_DECLARE_BEGIN  T_DECLARE_END
@@ -26,6 +27,7 @@ prechigh
   left T_OP_MULT T_OP_DIV T_OP_MOD
   left T_OP_PLUS T_OP_MINUS
   left T_OP_COMPARE
+  left T_OP_AND T_OP_OR
   left T_ASSIGN
 preclow
 
@@ -319,6 +321,10 @@ rule
       { ast(:call, val[1], val[0], :'**', ast(:array, val[2], [val[2]])) }
   | arg_expr T_OP_COMPARE arg_expr
       { ast(:call, val[1], val[0], val[1][1].to_sym, ast(:array, val[2], [val[2]])) }
+  | arg_expr T_OP_AND arg_expr
+      { ast(:and,  val[1], val[0], val[2]) }
+  | arg_expr T_OP_OR arg_expr
+      { ast(:or,   val[1], val[0], val[2]) }
   ;
   
   ##

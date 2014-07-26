@@ -269,6 +269,8 @@
     '**'       => { emit :T_OP_EXP };
     ('<'|'>'|'<='|'>='|'=='|'==='|'<=>'|'=~')
                => { emit :T_OP_COMPARE };
+    '&&'       => { emit :T_OP_AND };
+    '||'       => { emit :T_OP_OR };
     
     symbol     => { emit_notes :symbol };
     string     => { emit_notes :string };
