@@ -150,7 +150,7 @@
   # Top level machine
   
   main := |*
-    c_space_nl;
+    c_space;
     
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
@@ -163,9 +163,10 @@
     
     ':' => { fcall pre_bind; };
     
-    '}' => { emit :T_DECLARE_END; fret; };
+    ';'  => { emit :T_EXPR_SEP };
+    c_nl => { emit :T_EXPR_SEP };
     
-    c_eof;
+    c_eof => { emit :T_DECLARE_END };
     any => { error :main };
   *|;
   

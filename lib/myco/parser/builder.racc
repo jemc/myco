@@ -16,6 +16,7 @@ class CodeTools::Builder
         T_ARGS_BEGIN     T_ARGS_END
         T_PAREN_BEGIN    T_PAREN_END
         T_ARRAY_BEGIN    T_ARRAY_END
+        T_FILE_END
 
 options no_result_var
 
@@ -34,7 +35,7 @@ preclow
 
 rule
   main:
-    declobj_expr
+    declobj_expr_body
   ;
   
   

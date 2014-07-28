@@ -7,6 +7,7 @@ module SpecHelpers
       describe expected do
         it "is lexed from code: \n\n#{string}\n\n" do
           tokens = Myco::ToolSet::Parser::Lexer.new(string).lex
+          tokens.pop # Get rid of final T_DECLARE_END
           (puts; pp tokens) if print
           tokens.map{|x| x[0..1]}.should eq expected if expected
         end
@@ -30,7 +31,7 @@ module SpecHelpers
         it "is parsed from code: \n\n#{string}\n\n" do
           ast = Myco::ToolSet::Parser.new('(eval)', 1, []).parse_string string
           (puts; pp ast) if print
-          ast.to_sexp.should eq expected if expected
+          ast.to_sexp.last.should eq expected if expected
         end
       end
     end
