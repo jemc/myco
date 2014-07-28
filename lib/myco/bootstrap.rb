@@ -94,10 +94,4 @@ module Myco
   BasicObject = Component.new do
   end
   
-  RubyEval = Component.new do
-    def from_string string
-      eval string
-    end
-  end
-  
 end

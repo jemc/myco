@@ -1,5 +1,11 @@
 
-Decorator < BasicObject { }
+RubyEval < BasicObject {
+  from_string: |string| ::Kernel.instance_method(:eval).bind(self).call(string)
+}
+
+Decorator < BasicObject {
+  apply: |binding| { }
+}
 
 Object < BasicObject {
   
