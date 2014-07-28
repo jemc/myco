@@ -99,13 +99,12 @@ module CodeTools::AST
     end
     
     def implementation
-      # Binding.new(self, @name, @decorations, &@body)
+      # __binding__ @name, @decorations, &@body
       
-      const = ConstantAccess.new @line, :Binding
       rcvr  = Self.new @line
-      bargs = ArrayLiteral.new @line, [rcvr, @name, @decorations]
+      bargs = ArrayLiteral.new @line, [@name, @decorations]
       iter  = Iter.new @line, @args, @body
-      bind  = SendWithArguments.new @line, const, :new, bargs
+      bind  = SendWithArguments.new @line, rcvr, :__binding__, bargs
       bind.instance_variable_set :@block, iter
       bind
     end
@@ -128,13 +127,11 @@ module CodeTools::AST
     end
     
     def implementation
-      # Category.new(self, @name).embed
+      # __category__ @name
       
-      const = ConstantAccess.new @line, :Category
       rcvr  = Self.new @line
-      cargs = ArrayLiteral.new @line, [rcvr, @name]
-      categ = SendWithArguments.new @line, const, :new, cargs
-      Send.new @line, categ, :embed
+      cargs = ArrayLiteral.new @line, [@name]
+      SendWithArguments.new @line, rcvr, :__category__, cargs
     end
     
     def bytecode g

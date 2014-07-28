@@ -1,0 +1,21 @@
+
+Decorator < BasicObject { }
+
+Object < BasicObject {
+  
+  __signal__: |name| {
+    name = "__on_" name.to_s "__"
+    STDOUT.puts(respond_to?(name.to_sym))
+    respond_to?(name.to_sym) && send(name.to_sym)
+  }
+  
+  [decorators]
+  
+  on: Decorator {
+    apply: |binding| {
+      name = "__on_" binding.name.to_s "__"
+      binding.name = name.to_sym
+    }
+  }
+  
+}

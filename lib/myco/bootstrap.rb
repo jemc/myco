@@ -1,31 +1,26 @@
 
 module Myco
-  class Instance < Object
-    def from_string string
-    end
-    
-    def __component_init__
-    end
-    
-    def __signal__ signal, *args
-      sym = :"__on_#{signal}__"
-      send sym, *args
-    end
+  class Instance
   end
   
   class Binding
-    attr_reader :component
-    attr_reader :name
-    attr_reader :decorators
-    attr_reader :body
+    attr_accessor :target
+    attr_accessor :name
+    attr_accessor :body
     
-    def initialize component, name, decorators, &body
-      @component  = component
-      @name       = name
-      @decorators = decorators
-      @body       = body
+    def initialize target, name, &body
+      @target = target
+      @name   = name
+      @body   = body
+    end
+    
+    def apply
+      binding = self
       
-      @component.send :__bind__, name, decorators, self
+      target.instance_eval {
+        instance_variable_get(:"@#{@__category__}")[binding.name] = binding
+        define_method binding.name, &binding.body if @__category__ == :bindings
+      }
     end
   end
   
@@ -37,10 +32,6 @@ module Myco
       @component  = component
       @name       = name
       @hash       = {}
-    end
-    
-    def embed
-      @component.send :__category__, self
     end
     
     def [] key
@@ -55,42 +46,52 @@ module Myco
   end
   
   class Component < Module
+    attr_accessor :__definition__
+    
     def self.new components=[], &block
       super() {}.tap do |this|
+        this.send :__category__, :bindings
+        
         components.each do |other|
           this.include other
+          this.instance_eval &(other.send :__definition__)
         end
         
-        Category.new(this, :bindings).embed
+        this.send :__category__, :bindings
         
+        this.send :__definition__=, block
         this.instance_eval &block
       end
     end
     
-    def __category__ cat
-      @__category__ = cat.name
-      attr_name = :"@#{cat.name}"
-      instance_variable_set(attr_name, instance_variable_get(attr_name) || cat)
-      define_method(cat.name) { cat }
+    def __category__ name
+      ivar_name = :"@#{name}"
+      @__category__ = name
+      
+      category = instance_variable_get(ivar_name) || Category.new(self, name)
+      instance_variable_set(ivar_name, category)
+      define_method(category.name) { category }
     end
     
-    def __bind__ name, decorators, binding
-      name = :"__on_#{name}__" if decorators.include? :on
-      
-      instance_variable_get(:"@#{@__category__}")[name] = binding
-      
-      define_method name, &binding.body if @__category__ == :bindings
+    def __binding__ name, decorations, &block
+      binding = Binding.new self, name, &block
+      decorations.each do |decoration|
+        decorator = (@decorators || {})[decoration]
+        raise KeyError, "Unknown decorator: #{decoration}." unless decorator
+        decorator.body.call.apply binding
+      end
+      binding.apply
     end
     
     def new
       obj = Instance.new
       obj.extend self
-      obj.__signal__ :creation
+      obj.__signal__ :creation if obj.respond_to? :__signal__
       obj
     end
   end
   
-  Object = Component.new do
+  BasicObject = Component.new do
   end
   
   RubyEval = Component.new do
