@@ -9,10 +9,13 @@ Decorator < BasicObject {
 
 Object < BasicObject {
   
+  if:     |cond, &blk| cond && blk.call
+  unless: |cond, &blk| cond || blk.call
+  
   __signal__: |name| {
     name = "__on_" name.to_s "__"
     STDOUT.puts(respond_to?(name.to_sym))
-    respond_to?(name.to_sym) && send(name.to_sym)
+    if(respond_to?(name.to_sym)) { send(name.to_sym) }
   }
   
   [decorators]
