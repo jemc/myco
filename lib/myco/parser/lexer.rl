@@ -252,6 +252,7 @@
     '['        => { emit :T_ARRAY_BEGIN;    bpush :array; fcall bind_body; };
     '{'        => { emit :T_BINDING_BEGIN;  bpush :bind;  fcall bind_body; };
     
+    'self'     => { emit :T_SELF };
     'nil'      => { emit :T_NIL };
     'true'     => { emit :T_TRUE };
     'false'    => { emit :T_FALSE };

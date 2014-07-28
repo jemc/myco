@@ -22,6 +22,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
       str  : "string"
       sym  :  :bol
       ssym : :"with spaces"
+      s  :  self
       t:    true
       f:    false
       "x y" : z
@@ -39,6 +40,7 @@ describe Myco::ToolSet::Parser, "Bindings" do
       [:bind, :str,   [:array], [:args], [:block, [:lit, "string"]]],
       [:bind, :sym,   [:array], [:args], [:block, [:lit, :bol]]],
       [:bind, :ssym,  [:array], [:args], [:block, [:lit, :"with spaces"]]],
+      [:bind, :s,     [:array], [:args], [:block, [:self]]],
       [:bind, :t,     [:array], [:args], [:block, [:true]]],
       [:bind, :f,     [:array], [:args], [:block, [:false]]],
       [:bind, :"x y", [:array], [:args], [:block, [:lambig, :z]]],

@@ -2,6 +2,7 @@ class CodeTools::Builder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
         T_NIL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
+        T_SELF
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP
         T_OP_COMPARE T_OP_AND T_OP_OR
         T_OP_TOPROC
@@ -68,6 +69,7 @@ rule
   | lit_symstr
   | dyn_string
   | dyn_symstr
+  | lit_self
   ;
   
   # Expressions allowable as function arguments and in string juxtapositions
@@ -127,6 +129,10 @@ rule
   lit_symstr:
     T_SYMSTR_BEGIN T_SYMSTR_BODY T_SYMSTR_END
       { ast(:lit, val[1], encode_escapes(val[1][1]).to_sym) }
+  ;
+  
+  lit_self:
+    T_SELF { ast(:self, val[0]) }
   ;
   
   ##
