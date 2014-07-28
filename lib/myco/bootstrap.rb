@@ -1,12 +1,23 @@
 
 module Myco
   class Instance
+    def self.to_s
+      "#{super}(#{ancestors[1]})"
+    end
   end
   
   class Binding
     attr_accessor :target
     attr_accessor :name
     attr_accessor :body
+    
+    def to_s
+      "#<#{self.class}:#{self.name.to_s}>"
+    end
+    
+    def inspect
+      to_s
+    end
     
     def initialize target, name, &body
       @target = target
@@ -18,46 +29,29 @@ module Myco
       binding = self
       
       target.instance_eval {
-        instance_variable_get(:"@#{@__category__}")[binding.name] = binding
-        define_method binding.name, &binding.body if @__category__ == :bindings
+        @bindings ||= {}
+        @bindings[binding.name] = binding
+        define_method binding.name, &binding.body if binding.target.is_a? Module
       }
-    end
-  end
-  
-  class Category
-    attr_reader :component
-    attr_reader :name
-    
-    def initialize component, name
-      @component  = component
-      @name       = name
-      @hash       = {}
-    end
-    
-    def [] key
-      @hash[key]
-    end
-    
-    def []= key, val
-      @hash[key] = val
-      define_singleton_method(key) { |*a,&b| @hash[key].body.call *a, &b }
-      @hash[key]
     end
   end
   
   class Component < Module
     attr_accessor :__definition__
+    attr_reader :bindings
     
     def self.new components=[], &block
       super() {}.tap do |this|
-        this.send :__category__, :bindings
+        this.instance_eval {
+          @bindings   = { }
+          @categories = { nil=>this }
+        }
         
         components.each do |other|
           this.include other
           this.instance_eval &(other.send :__definition__)
+          this.send :__category__, nil # category nil refers to self
         end
-        
-        this.send :__category__, :bindings
         
         this.send :__definition__=, block
         this.instance_eval &block
@@ -68,16 +62,24 @@ module Myco
       ivar_name = :"@#{name}"
       @__category__ = name
       
-      category = instance_variable_get(ivar_name) || Category.new(self, name)
-      instance_variable_set(ivar_name, category)
-      define_method(category.name) { category }
+      category = @categories[name]
+      unless category
+        category = Component.new([Category]){}
+        @categories[name] = category
+      end
+      unless name.nil? # category nil refers to self
+        category_instance = category.new
+        define_method(name) { category_instance }
+      end
     end
     
     def __binding__ name, decorations, &block
-      binding = Binding.new self, name, &block
+      target = @categories[@__category__] || self
+      binding = Binding.new target, name, &block
+      
       decorations.each do |decoration|
-        decorator = (@decorators || {})[decoration]
-        raise KeyError, "Unknown decorator: #{decoration}." unless decorator
+        decorator = (@categories[:decorators] || {}).bindings[decoration]
+        raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
         decorator.body.call.apply binding
       end
       binding.apply
@@ -92,6 +94,9 @@ module Myco
   end
   
   BasicObject = Component.new do
+  end
+  
+  Category = Component.new([BasicObject]) do
   end
   
 end
