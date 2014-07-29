@@ -475,7 +475,8 @@ rule
   #   eventually be passed to the AST::Node's constructor.
   #
   def ast type, locator, *args
-    line = locator.is_a?(Array) ? locator[2] : locator.line
+    # TODO: integrate columns from location instead of just rows
+    line = locator.is_a?(Array) ? locator[2].first : locator.line
     @processor.send :"process_#{type}", line, *args
   end
   
