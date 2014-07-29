@@ -77,7 +77,7 @@ rule
     paren_expr
   | call_iter
   | call_with_args
-  | nest_call
+  | nest_call_without_args
   | constant
   | id_as_lambig
   | lit_nil
@@ -216,18 +216,22 @@ rule
       { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, nil),    val[1]) }
   | T_IDENTIFIER arg_list call_iter_body
       { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, val[1]), val[2]) }
+  | arg_expr T_DOT T_IDENTIFIER call_iter_body
+      { ast(:iter, val[2], ast(:call, val[2], val[0],             val[2][1].to_sym, nil),    val[3]) }
+  | arg_expr T_DOT T_IDENTIFIER arg_list call_iter_body
+      { ast(:iter, val[2], ast(:call, val[2], val[0],             val[2][1].to_sym, val[3]), val[4]) }
   ;
   
   call_with_args:
     T_IDENTIFIER arg_list
       { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  | arg_expr T_DOT T_IDENTIFIER arg_list
+      { ast(:call, val[3], val[0],             val[2][1].to_sym, val[3]) }
   ;
   
-  nest_call:
+  nest_call_without_args:
     arg_expr T_DOT T_IDENTIFIER
       { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
-  | arg_expr T_DOT T_IDENTIFIER arg_list
-      { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
   ;
   
   ##
