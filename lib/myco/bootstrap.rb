@@ -4,6 +4,12 @@ module Myco
     def self.to_s
       "#{super}(#{ancestors[1]})"
     end
+    
+    attr_reader :component
+    
+    def initialize component
+      @component = component
+    end
   end
   
   class Binding
@@ -23,73 +29,98 @@ module Myco
       @target = target
       @name   = name
       @body   = body
+      
+      @memos  = {} # TODO: use weak map to avoid consuming endless memory
+      @new_result_name = :"__binding_new_result_#{name}__" # TODO: do better...
     end
     
-    def apply
+    def bind
       binding = self
       
-      target.instance_eval {
+      lmemos = @memos
+      lbody  = @body
+      lname  = @name
+      lnname = @new_result_name
+      
+      target.instance_eval do
         @bindings ||= {}
-        @bindings[binding.name] = binding
-        define_method binding.name, &binding.body if binding.target.is_a? Module
-      }
+        @bindings[lname] = binding
+        
+        define_method(lnname, &lbody)
+        define_method(lname) do |*args, &blk|
+          lmemos[[self.hash, args.hash]] ||= send(lnname, *args, &blk)
+        end
+      end
     end
+    
+    def result *args, &blk
+      target.instance.send(@name, *args, &blk)
+    end
+    
   end
   
   class Component < Module
     attr_accessor :__definition__
     attr_reader :bindings
     
-    def self.new components=[], &block
+    def self.new super_components=[], &block
       super() {}.tap do |this|
         this.instance_eval {
+          @super_components = super_components
           @bindings   = { }
-          @categories = { nil=>this }
+          @categories = { }
         }
         
-        components.each do |other|
+        super_components.each do |other|
+          this.send :__category__, nil # category nil refers to self
           this.include other
           this.instance_eval &(other.send :__definition__)
-          this.send :__category__, nil # category nil refers to self
         end
         
+        this.send :__category__, nil # category nil refers to self
         this.send :__definition__=, block
         this.instance_eval &block
       end
     end
     
     def __category__ name
-      ivar_name = :"@#{name}"
-      @__category__ = name
-      
-      category = @categories[name]
-      unless category
-        category = Component.new([Category]){}
-        @categories[name] = category
-      end
-      unless name.nil? # category nil refers to self
-        category_instance = category.new
-        define_method(name) { category_instance }
+      if name == nil
+        @__current_category__ = self
+      else
+        @categories[name] ||= (
+          category = Component.new([Category]) { }
+          category_instance = category.instance
+          __binding__(name, []) { category_instance }
+          @__current_category__ = category
+          @__decorators__ = category_instance if name == :decorators
+          category
+        )
       end
     end
     
     def __binding__ name, decorations, &block
-      target = @categories[@__category__] || self
-      binding = Binding.new target, name, &block
+      binding = Binding.new @__current_category__, name, &block
       
       decorations.each do |decoration|
-        decorator = (@categories[:decorators] || {}).bindings[decoration]
-        raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
-        decorator.body.call.apply binding
+        decorator = @__decorators__.send(decoration)
+        # raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
+        
+        decorator.apply binding
       end
-      binding.apply
+      binding.bind
+    end
+    
+    def instance
+      if !@instance
+        @instance = Instance.new(self)
+        @instance.extend self
+        @instance.__signal__ :creation if @instance.respond_to? :__signal__
+      end
+      @instance
     end
     
     def new
-      obj = Instance.new
-      obj.extend self
-      obj.__signal__ :creation if obj.respond_to? :__signal__
-      obj
+      instance
     end
   end
   

@@ -13,17 +13,18 @@ Object < BasicObject {
   unless: |cond, &blk| cond || blk.call
   
   __signal__: |name| {
-    name = "__on_" name.to_s "__"
-    STDOUT.puts(respond_to?(name.to_sym))
-    if(respond_to?(name.to_sym)) { send(name.to_sym) }
+    decorators.on.signal_handlers.fetch(name, []).each |b| { b.result }
   }
   
   [decorators]
   
   on: Decorator {
+    signal_handlers: Hash.new
+    
     apply: |binding| {
-      name = "__on_" binding.name.to_s "__"
-      binding.name = name.to_sym
+      list = self.signal_handlers.fetch(binding.name, Array.new)
+      list.push(binding)
+      signal_handlers.send("[]=".to_sym, binding.name, list)
     }
   }
   
