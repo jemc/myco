@@ -13,11 +13,11 @@ describe Myco::ToolSet::Parser, "Decorations" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:bind, :foo,   [:array, [:lit, :on]],
+      [:meme, :foo,   [:array, [:lit, :on]],
         [:args], [:block, [:nil]]],
-      [:bind, :three, [:array, [:lit, :two], [:lit, :one]],
+      [:meme, :three, [:array, [:lit, :two], [:lit, :one]],
         [:args], [:block, [:nil]]],
-      [:bind, :"str.ng", [:array, [:lit, :sym]],
+      [:meme, :"str.ng", [:array, [:lit, :sym]],
         [:args], [:block, [:nil]]]
     ]]
   end

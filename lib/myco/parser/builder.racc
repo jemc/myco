@@ -12,7 +12,7 @@ class CodeTools::Builder
         T_STRING_BEGIN   T_STRING_END   T_STRING_BODY
         T_SYMSTR_BEGIN   T_SYMSTR_END   T_SYMSTR_BODY
         T_CATEGORY_BEGIN T_CATEGORY_END T_CATEGORY_BODY
-        T_BINDING_BEGIN  T_BINDING_END
+        T_MEME_BEGIN     T_MEME_END
         T_PARAMS_BEGIN   T_PARAMS_END
         T_ARGS_BEGIN     T_ARGS_END
         T_PAREN_BEGIN    T_PAREN_END
@@ -43,8 +43,8 @@ rule
   # Expressions allowable inside object declarations
   declobj_expr:
     cdefn
-  | cbind
-  | bind
+  | cmeme
+  | meme
   | deco
   | declobj
   | declstr
@@ -52,8 +52,8 @@ rule
   | constant
   ;
   
-  # Expressions allowable inside bindings
-  bind_expr:
+  # Expressions allowable inside memes
+  meme_expr:
     declobj
   | declstr
   | arg_expr
@@ -205,9 +205,9 @@ rule
   # Function calls
   
   call_iter_body:
-    T_BINDING_BEGIN bind_expr_body
+    T_MEME_BEGIN meme_expr_body
       { ast(:scope, val[0], nil, val[1], nil) }
-  | param_list T_BINDING_BEGIN bind_expr_body
+  | param_list T_MEME_BEGIN meme_expr_body
       { ast(:scope, val[1], val[0], val[2], nil) }
   ;
   
@@ -382,29 +382,29 @@ rule
   ;
   
   ##
-  # Bindings and etc..
+  # Memes and etc..
   
-  bind_sepd_expr:
-    T_EXPR_SEP bind_expr           { val[1] }
+  meme_sepd_expr:
+    T_EXPR_SEP meme_expr           { val[1] }
   | T_EXPR_SEP                     { nil }
   ;
   
-  bind_sepd_exprs:
-    bind_sepd_exprs bind_sepd_expr { [*val[0], val[1]].compact }
-  | bind_sepd_expr                 { val.compact }
+  meme_sepd_exprs:
+    meme_sepd_exprs meme_sepd_expr { [*val[0], val[1]].compact }
+  | meme_sepd_expr                 { val.compact }
   ;
   
-  bind_expr_body:
-    bind_expr bind_sepd_exprs T_BINDING_END  { ast(:block, val[0], [val[0], *val[1]]) }
-  | bind_sepd_exprs T_BINDING_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
-  | bind_expr T_BINDING_END                  { ast(:block, val[0], [val[0]]) }
-  | T_BINDING_END                            { ast(:nil, val[0]) }
+  meme_expr_body:
+    meme_expr meme_sepd_exprs T_MEME_END  { ast(:block, val[0], [val[0], *val[1]]) }
+  | meme_sepd_exprs T_MEME_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
+  | meme_expr T_MEME_END                  { ast(:block, val[0], [val[0]]) }
+  | T_MEME_END                            { ast(:nil, val[0]) }
   ;
   
   paren_expr_body:
-    bind_expr bind_sepd_exprs T_PAREN_END  { ast(:block, val[0], [val[0], *val[1]]) }
-  | bind_sepd_exprs T_PAREN_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
-  | bind_expr T_PAREN_END                  { val[0] }
+    meme_expr meme_sepd_exprs T_PAREN_END  { ast(:block, val[0], [val[0], *val[1]]) }
+  | meme_sepd_exprs T_PAREN_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
+  | meme_expr T_PAREN_END                  { val[0] }
   | T_PAREN_END                            { ast(:nil, val[0]) }
   ;
   
@@ -412,28 +412,28 @@ rule
     T_PAREN_BEGIN paren_expr_body { val[1] }
   ;
   
-  cbind:
-    constant T_BINDING_BEGIN bind_expr_body
+  cmeme:
+    constant T_MEME_BEGIN meme_expr_body
       { ast(:cdecl, val[1], val[0], val[2]) }
   ;
   
-  bind_name:
+  meme_name:
     id_as_symbol
   | lit_string_as_symbol
   ;
   
-  bind:
-    bind_name param_list T_BINDING_BEGIN bind_expr_body
-      { ast(:bind, val[1], val[0], nil, val[1], val[3]) }
-  | bind_name T_BINDING_BEGIN bind_expr_body
+  meme:
+    meme_name param_list T_MEME_BEGIN meme_expr_body
+      { ast(:meme, val[1], val[0], nil, val[1], val[3]) }
+  | meme_name T_MEME_BEGIN meme_expr_body
       {
         args = ast(:args, val[0], [], nil, false, nil, nil, nil, nil)
-        ast(:bind, val[1], val[0], nil, args, val[2])
+        ast(:meme, val[1], val[0], nil, args, val[2])
       }
   ;
   
   deco_able:
-    bind
+    meme
   | deco
   ;
   

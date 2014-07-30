@@ -161,7 +161,7 @@
     constant   => { emit :T_CONSTANT };
     '::'       => { emit :T_SCOPE };
     
-    ':' => { fcall pre_bind; };
+    ':' => { fcall pre_meme; };
     
     ';'  => { emit :T_EXPR_SEP };
     c_nl => { emit :T_EXPR_SEP };
@@ -187,7 +187,7 @@
     constant   => { emit :T_CONSTANT };
     '::'       => { emit :T_SCOPE };
     
-    ':' => { fcall pre_bind; };
+    ':' => { fcall pre_meme; };
     
     '}' => { emit :T_DECLARE_END; fret; };
     
@@ -195,20 +195,20 @@
   *|;
   
   ##
-  # Pre-binding body sub-machines
+  # Pre-meme body sub-machines
   
-  pre_bind := |*
+  pre_meme := |*
     c_space_nl+;
     
     # Parameters are specified within '|'s
-    '|'   => { emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body; };
+    '|'   => { emit :T_PARAMS_BEGIN; bpush :param; fcall meme_body; };
     
-    # A binding begins with either a '{' or some other item for inline
+    # A meme begins with either a '{' or some other item for inline
     ^(c_space_nl|'{'|'|') =>
-      { fhold; emit :T_BINDING_BEGIN, @ts, @ts; bpush :binl; fgoto bind_body; };
-    '{'   => { emit :T_BINDING_BEGIN;           bpush :bind; fgoto bind_body; };
+      { fhold; emit :T_MEME_BEGIN, @ts, @ts; bpush :meml; fgoto meme_body; };
+    '{'   => { emit :T_MEME_BEGIN;           bpush :meme; fgoto meme_body; };
     
-    any => { error :pre_bind };
+    any => { error :pre_meme };
   *|;
   
   ##
@@ -239,18 +239,18 @@
   *|;
   
   ##
-  # Binding body machine
+  # Meme body machine
   
-  bind_body := |*
+  meme_body := |*
     c_space+;
     
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
     
-    args_begin => { emit_notes :args_begin; bpush :args;  fcall bind_body; };
-    '('        => { emit :T_PAREN_BEGIN;    bpush :paren; fcall bind_body; };
-    '['        => { emit :T_ARRAY_BEGIN;    bpush :array; fcall bind_body; };
-    '{'        => { emit :T_BINDING_BEGIN;  bpush :bind;  fcall bind_body; };
+    args_begin => { emit_notes :args_begin; bpush :args;  fcall meme_body; };
+    '('        => { emit :T_PAREN_BEGIN;    bpush :paren; fcall meme_body; };
+    '['        => { emit :T_ARRAY_BEGIN;    bpush :array; fcall meme_body; };
+    '{'        => { emit :T_MEME_BEGIN;     bpush :meme;  fcall meme_body; };
     
     'self'     => { emit :T_SELF };
     'nil'      => { emit :T_NIL };
@@ -283,7 +283,7 @@
     '&' => {
       case bthis
       when :param; emit :T_OP_TOPROC
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
@@ -292,35 +292,35 @@
       when :args;  emit :T_ARG_SEP
       when :param; emit :T_ARG_SEP
       when :array; emit :T_ARG_SEP
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
     ';' => {
       case bthis
-      when :bind;  emit :T_EXPR_SEP
-      when :binl;  emit :T_EXPR_SEP
+      when :meme;  emit :T_EXPR_SEP
+      when :meml;  emit :T_EXPR_SEP
       when :paren; emit :T_EXPR_SEP
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
     c_eol => {
       case bthis
-      when :bind;  emit :T_EXPR_SEP
-      when :binl;  emit :T_BINDING_END, @ts, @ts; fhold; bpop; fret;
+      when :meme;  emit :T_EXPR_SEP
+      when :meml;  emit :T_MEME_END, @ts, @ts; fhold; bpop; fret;
       when :paren; emit :T_EXPR_SEP
       when :args;  emit :T_ARG_SEP
       when :param; emit :T_ARG_SEP
       when :array; emit :T_ARG_SEP
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
     '}' => {
       case bthis
-      when :bind;  emit :T_BINDING_END; bpop; fret;
-      else;        error :bind_body
+      when :meme;  emit :T_MEME_END; bpop; fret;
+      else;        error :meme_body
       end
     };
     
@@ -328,28 +328,28 @@
       case bthis
       when :args;  emit :T_ARGS_END;  bpop; fret;
       when :paren; emit :T_PAREN_END; bpop; fret;
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
     ']' => {
       case bthis
       when :array; emit :T_ARRAY_END; bpop; fret;
-      else;        error :bind_body
+      else;        error :meme_body
       end
     };
     
     '|' => {
       case bthis
       when :param; emit :T_PARAMS_END; bpop; fret;
-      when :bind;  emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
-      when :binl;  emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
-      when :paren; emit :T_PARAMS_BEGIN; bpush :param; fcall bind_body;
-      else;        error :bind_body
+      when :meme;  emit :T_PARAMS_BEGIN; bpush :param; fcall meme_body;
+      when :meml;  emit :T_PARAMS_BEGIN; bpush :param; fcall meme_body;
+      when :paren; emit :T_PARAMS_BEGIN; bpush :param; fcall meme_body;
+      else;        error :meme_body
       end
     };
     
-    any => { error :bind_body };
+    any => { error :meme_body };
   *|;
   
 }%%

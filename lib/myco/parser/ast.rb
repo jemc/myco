@@ -83,7 +83,7 @@ module CodeTools::AST
     end
   end
   
-  class DeclareBinding < Node
+  class DeclareMeme < Node
     attr_accessor :name, :decorations, :args, :body
     
     def initialize line, name, decorations, args, body
@@ -95,18 +95,18 @@ module CodeTools::AST
     end
     
     def to_sexp
-      [:bind, @name.value, @decorations.to_sexp, @args.to_sexp, @body.to_sexp]
+      [:meme, @name.value, @decorations.to_sexp, @args.to_sexp, @body.to_sexp]
     end
     
     def implementation
-      # __binding__ @name, @decorations, &@body
+      # __meme__ @name, @decorations, &@body
       
       rcvr  = Self.new @line
       bargs = ArrayLiteral.new @line, [@name, @decorations]
       iter  = Iter.new @line, @args, @body
-      bind  = SendWithArguments.new @line, rcvr, :__binding__, bargs
-      bind.instance_variable_set :@block, iter
-      bind
+      meme  = SendWithArguments.new @line, rcvr, :__meme__, bargs
+      meme.instance_variable_set :@block, iter
+      meme
     end
     
     def bytecode g
@@ -182,8 +182,8 @@ module CodeTools::AST
       ConstantDefine.new line, name, object
     end
     
-    def process_bind line, name, decorations, args, body
-      DeclareBinding.new line, name, decorations, args, body
+    def process_meme line, name, decorations, args, body
+      DeclareMeme.new line, name, decorations, args, body
     end
     
     def process_category line, name

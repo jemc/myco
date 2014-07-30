@@ -11,7 +11,7 @@ describe Myco::ToolSet::Parser, "Strings" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:bind, :str, [:array], [:args], [:block, 
+      [:meme, :str, [:array], [:args], [:block, 
         [:lit, "foo'\"bar\\\"'baz\\"]]]
     ]]
   end
@@ -22,7 +22,7 @@ describe Myco::ToolSet::Parser, "Strings" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block, 
-      [:bind, :foo, [:array], [:args], [:block,
+      [:meme, :foo, [:array], [:args], [:block,
         [:dstr, "foo '",
           [:lit, 88], [:lit, "' bar \""], [:nil], [:lit, "\" baz"]
         ]
@@ -36,7 +36,7 @@ describe Myco::ToolSet::Parser, "Strings" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block, 
-      [:bind, :foo, [:array], [:args], [:block,
+      [:meme, :foo, [:array], [:args], [:block,
         [:dsym, "foo '",
           [:lit, 88], [:lit, "' bar \""], [:nil], [:lit, "\" baz"]
         ]
@@ -50,7 +50,7 @@ describe Myco::ToolSet::Parser, "Strings" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:bind, :foo, [:array], [:args], [:block,
+      [:meme, :foo, [:array], [:args], [:block,
         [:call, [:self], :bar, [:arglist,
           [:dstr, "x", [:lit, 99], [:lit, "X"]],
           [:dsym, "y", [:block, [:lit, 1], [:lit, 2], [:lit, 3]], [:lit, "Y"]]

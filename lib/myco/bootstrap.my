@@ -4,7 +4,7 @@ RubyEval < BasicObject {
 }
 
 Decorator < BasicObject {
-  apply: |binding| { }
+  apply: |meme| { }
 }
 
 Object < BasicObject {
@@ -21,10 +21,10 @@ Object < BasicObject {
   on: Decorator {
     signal_handlers: Hash.new
     
-    apply: |binding| {
-      list = self.signal_handlers.fetch(binding.name, Array.new)
-      list.push(binding)
-      signal_handlers.send("[]=".to_sym, binding.name, list)
+    apply: |meme| {
+      list = self.signal_handlers.fetch(meme.name, Array.new)
+      list.push(meme)
+      signal_handlers.send("[]=".to_sym, meme.name, list)
     }
   }
   

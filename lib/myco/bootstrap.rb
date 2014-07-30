@@ -12,7 +12,7 @@ module Myco
     end
   end
   
-  class Binding
+  class Meme
     attr_accessor :target
     attr_accessor :name
     attr_accessor :body
@@ -31,11 +31,11 @@ module Myco
       @body   = body
       
       @memos  = {} # TODO: use weak map to avoid consuming endless memory
-      @new_result_name = :"__binding_new_result_#{name}__" # TODO: do better...
+      @new_result_name = :"__meme_new_result_#{name}__" # TODO: do better...
     end
     
     def bind
-      binding = self
+      meme = self
       
       lmemos = @memos
       lbody  = @body
@@ -43,8 +43,8 @@ module Myco
       lnname = @new_result_name
       
       target.instance_eval do
-        @bindings ||= {}
-        @bindings[lname] = binding
+        @memes ||= {}
+        @memes[lname] = meme
         
         define_method(lnname, &lbody)
         define_method(lname) do |*args, &blk|
@@ -61,13 +61,13 @@ module Myco
   
   class Component < Module
     attr_accessor :__definition__
-    attr_reader :bindings
+    attr_reader :memes
     
     def self.new super_components=[], &block
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
-          @bindings   = { }
+          @memes   = { }
           @categories = { }
         }
         
@@ -90,7 +90,7 @@ module Myco
         @categories[name] ||= (
           category = Component.new([Category]) { }
           category_instance = category.instance
-          __binding__(name, []) { category_instance }
+          __meme__(name, []) { category_instance }
           @__current_category__ = category
           @__decorators__ = category_instance if name == :decorators
           category
@@ -98,16 +98,16 @@ module Myco
       end
     end
     
-    def __binding__ name, decorations, &block
-      binding = Binding.new @__current_category__, name, &block
+    def __meme__ name, decorations, &block
+      meme = Meme.new @__current_category__, name, &block
       
       decorations.each do |decoration|
         decorator = @__decorators__.send(decoration)
         # raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
         
-        decorator.apply binding
+        decorator.apply meme
       end
-      binding.bind
+      meme.bind
     end
     
     def instance
