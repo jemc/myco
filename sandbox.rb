@@ -7,7 +7,12 @@ require_relative 'lib/myco/bootstrap'
 
 module Myco
   def self.myco_open path
-    Myco.eval File.read(path), nil, path
+    begin
+      Myco.eval File.read(path), nil, path
+    rescue Exception=>e
+      puts e.message
+      puts e.awesome_backtrace.show
+    end
   end
   
   myco_open './lib/myco/bootstrap.my'
