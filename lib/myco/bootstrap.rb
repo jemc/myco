@@ -25,7 +25,7 @@ module Myco
       to_s
     end
     
-    def initialize target, name, &body
+    def initialize target, name, body
       @target = target
       @name   = name
       @body   = body
@@ -41,13 +41,21 @@ module Myco
       lbody  = @body
       lname  = @name
       lnname = @new_result_name
+      ltarget = @target
+      ltarget = @target.component if @target.is_a? Instance
+      
       
       target.instance_eval do
         @memes ||= {}
         @memes[lname] = meme
         
-        define_method(lnname, &lbody)
-        define_method(lname) do |*args, &blk|
+        if lbody.is_a? Rubinius::Executable
+          Rubinius.add_method lnname, lbody, ltarget, :public
+        else
+          define_method lnname, &lbody
+        end
+        
+        define_method lname do |*args, &blk|
           lmemos[[self.hash, args.hash]] ||= send(lnname, *args, &blk)
         end
       end
@@ -60,26 +68,23 @@ module Myco
   end
   
   class Component < Module
-    attr_accessor :__definition__
     attr_reader :memes
     
-    def self.new super_components=[], &block
+    def self.new super_components=[], scope=nil
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
-          @memes   = { }
+          @memes      = { }
           @categories = { }
         }
         
         super_components.each do |other|
           this.send :__category__, nil # category nil refers to self
-          this.include other
-          this.instance_eval &(other.send :__definition__)
+          this.include other if other
+          other.instance # TODO: merge super_components categories instead
         end
         
         this.send :__category__, nil # category nil refers to self
-        this.send :__definition__=, block
-        this.instance_eval &block
       end
     end
     
@@ -90,19 +95,22 @@ module Myco
         @categories[name] ||= (
           category = Component.new([Category]) { }
           category_instance = category.instance
-          __meme__(name, []) { category_instance }
+          category_instance_proc = Proc.new { category_instance }
+          __meme__(name, [], category_instance_proc)
+          
           @__current_category__ = category
-          @__decorators__ = category_instance if name == :decorators
+          @@__decorators__ = category_instance if name == :decorators # TODO: remove
           category
         )
       end
     end
     
-    def __meme__ name, decorations, &block
-      meme = Meme.new @__current_category__, name, &block
+    def __meme__ name, decorations, body, scope=nil, varscope=nil
+      body.scope = scope if scope && body.respond_to?(:scope=)
+      meme = Meme.new @__current_category__, name, body
       
       decorations.each do |decoration|
-        decorator = @__decorators__.send(decoration)
+        decorator = @@__decorators__.send(decoration) # TODO: don't use cvar
         # raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
         
         decorator.apply meme

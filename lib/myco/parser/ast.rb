@@ -1,6 +1,20 @@
 
 module CodeTools::AST
   
+  class DeclareObjectScope < ModuleScope
+    def initialize(line, body)
+      @line = line
+      @name = :DeclObjTest
+      @body = body
+    end
+    
+    def bytecode(g)
+      pos(g)
+      
+      attach_and_call g, :__component_init__, true
+    end
+  end
+  
   class DeclareObject < Node
     attr_accessor :types, :body
     attr_accessor :create
@@ -10,28 +24,38 @@ module CodeTools::AST
       @types  = types
       @body   = body
       @create = true
+      @scope  = DeclareObjectScope.new @line, @body
     end
     
     def to_sexp
       [:declobj, @types.to_sexp, @body.to_sexp]
     end
     
-    def implementation
-      # comp = Component.new(@types, &@body)
-      # obj  = (@create ? comp.new : comp)
-      # return obj
-      
-      const = ConstantAccess.new @line, :Component
-      itera = Parameters.new line, nil, nil, nil, nil, nil, nil, nil
-      iter  = Iter.new @line, itera, @body
-      args  = ArrayLiteral.new @types.line, [@types]
-      comp  = SendWithArguments.new @line, const, :new, args
-      comp.instance_variable_set :@block, iter
-      @create ? Send.new(@line, comp, :new) : comp
-    end
-    
     def bytecode g
-      implementation.bytecode g
+      pos(g)
+      
+      ##
+      # Component.new types, scope
+      #
+      ConstantAccess.new(@line, :Component).bytecode g
+        @types.bytecode g
+        g.push_scope
+      g.send :new, 2
+      
+      # The return value of Component.new at the top of the stack
+      # will be consumed by @body.bytecode, so save a copy of it.
+      g.dup_top
+      
+      # Compile the inner scope
+      @scope.bytecode g
+      
+      # Pop the return value of @body.bytecode,
+      # so that the earlier duped value is the item left on the stack.
+      g.pop
+      
+      # If @create is set, return the Component's
+      # instance instead of the Component itself.
+      g.send :instance, 0 if @create
     end
   end
   
@@ -83,14 +107,14 @@ module CodeTools::AST
     end
   end
   
-  class DeclareMeme < Node
+  class DeclareMeme < Define
     attr_accessor :name, :decorations, :args, :body
     
     def initialize line, name, decorations, args, body
       @line        = line
-      @name        = name
+      @name        = name.value
       @decorations = decorations || ArrayLiteral.new(line, [])
-      @args        = args
+      @arguments   = args
       @body        = body
     end
     
@@ -98,19 +122,22 @@ module CodeTools::AST
       [:meme, @name.value, @decorations.to_sexp, @args.to_sexp, @body.to_sexp]
     end
     
-    def implementation
-      # __meme__ @name, @decorations, &@body
+    def bytecode(g)
+      pos(g)
       
-      rcvr  = Self.new @line
-      bargs = ArrayLiteral.new @line, [@name, @decorations]
-      iter  = Iter.new @line, @args, @body
-      meme  = SendWithArguments.new @line, rcvr, :__meme__, bargs
-      meme.instance_variable_set :@block, iter
-      meme
-    end
-    
-    def bytecode g
-      implementation.bytecode g
+      ##
+      # module = scope.for_method_definition
+      # module.send :__meme__, @name, @decorations,
+      #   CompiledCode(@body), const_scope, var_scope
+      #
+      g.push_scope
+      g.send :for_method_definition, 0
+        g.push_literal @name
+        @decorations.bytecode g
+        g.push_generator compile_body(g)
+        g.push_scope
+        g.push_variables
+      g.send :__meme__, 5
     end
   end
   
