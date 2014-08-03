@@ -119,7 +119,7 @@ module CodeTools::AST
     end
     
     def to_sexp
-      [:meme, @name.value, @decorations.to_sexp, @args.to_sexp, @body.to_sexp]
+      [:meme, @name, @decorations.to_sexp, @arguments.to_sexp, @body.to_sexp]
     end
     
     def bytecode(g)
