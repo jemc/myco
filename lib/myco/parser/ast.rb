@@ -107,7 +107,7 @@ module CodeTools::AST
     end
   end
   
-  class DeclareMeme < Define
+  class DefineMeme < Define
     attr_accessor :name, :decorations, :args, :body
     
     def initialize line, name, decorations, args, body
@@ -209,7 +209,7 @@ module CodeTools::AST
     end
     
     def process_meme line, name, decorations, args, body
-      DeclareMeme.new line, name, decorations, args, body
+      DefineMeme.new line, name, decorations, args, body
     end
     
     def process_category line, name
