@@ -146,23 +146,22 @@ module CodeTools::AST
     
     def initialize line, name
       @line = line
-      @name = name
+      @name = name.value
     end
     
     def to_sexp
       [:category, @name]
     end
     
-    def implementation
-      # __category__ @name
-      
-      rcvr  = Self.new @line
-      cargs = ArrayLiteral.new @line, [@name]
-      SendWithArguments.new @line, rcvr, :__category__, cargs
-    end
-    
     def bytecode g
-      implementation.bytecode g
+      pos(g)
+      
+      ##
+      # self.__category__ @name
+      #
+      g.push_self
+        g.push_literal @name
+      g.send :__category__, 1
     end
   end
   
