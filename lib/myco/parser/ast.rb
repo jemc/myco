@@ -1,20 +1,6 @@
 
 module CodeTools::AST
   
-  class DeclareObjectScope < ModuleScope
-    def initialize(line, body)
-      @line = line
-      @name = :DeclObjTest
-      @body = body
-    end
-    
-    def bytecode(g)
-      pos(g)
-      
-      attach_and_call g, :__component_init__, true
-    end
-  end
-  
   class DeclareObject < Node
     attr_accessor :types, :body
     attr_accessor :create
@@ -59,6 +45,20 @@ module CodeTools::AST
     end
   end
   
+  class DeclareObjectScope < ModuleScope
+    def initialize(line, body)
+      @line = line
+      @name = :DeclareObjectScope # TODO: remove/fix
+      @body = body
+    end
+    
+    def bytecode(g)
+      pos(g)
+      
+      attach_and_call g, :__component_init__, true
+    end
+  end
+  
   class DeclareString < Node
     attr_accessor :types, :string
     
@@ -80,6 +80,8 @@ module CodeTools::AST
     end
     
     def bytecode g
+      pos(g)
+      
       implementation.bytecode g
     end
   end
@@ -103,6 +105,8 @@ module CodeTools::AST
     end
     
     def bytecode g
+      pos(g)
+      
       implementation.bytecode g
     end
   end
@@ -174,6 +178,8 @@ module CodeTools::AST
     end
     
     def bytecode g
+      pos(g)
+      
       implementation(g).bytecode(g)
     end
     
