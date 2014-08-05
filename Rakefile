@@ -2,7 +2,7 @@
 require 'rspec/core/rake_task'
 
 
-task :default => :sandbox
+task :default => :test
 
 
 file 'lib/myco/parser/lexer.rb' => 'lib/myco/parser/lexer.rl' do
