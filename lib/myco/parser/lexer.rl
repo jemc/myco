@@ -6,6 +6,8 @@
   constant   = c_upper c_alnum* ;
   identifier = c_lower c_alnum* ('?' | '!')?;
   
+  comment    = '#' (any - c_eol)*; # end-of-line comment
+  
   integer    = [0-9]+ ;
   float      = [0-9]+ '.' [0-9]+ ;
   
@@ -151,6 +153,7 @@
   
   main := |*
     c_space;
+    comment;
     
     decl_begin  => { fcall decl_body; };
     dstr_begin  => { fcall dstr_body; };
@@ -175,6 +178,7 @@
   
   decl_body := |*
     c_space;
+    comment;
     
     (c_eol|';') => { emit :T_EXPR_SEP };
     
@@ -199,6 +203,7 @@
   
   pre_meme := |*
     c_space_nl+;
+    comment;
     
     # Parameters are specified within '|'s
     '|'   => { emit :T_PARAMS_BEGIN; bpush :param; fcall meme_body; };
@@ -243,6 +248,7 @@
   
   meme_body := |*
     c_space+;
+    comment;
     
     decl_begin => { fcall decl_body; };
     dstr_begin => { fcall dstr_body; };
