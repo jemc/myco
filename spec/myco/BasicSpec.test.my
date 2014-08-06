@@ -1,0 +1,11 @@
+
+BasicSpec {
+  name: "BasicSpec"
+  
+  [tests]
+  
+  "assert and refute": {
+    assert(true)
+    refute(false)
+  }
+}

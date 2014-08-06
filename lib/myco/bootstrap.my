@@ -1,4 +1,11 @@
 
+Category < BasicObject {
+  # Forward unknown methods to parent
+  method_missing: |sym, arg| {
+    instance_variable_get("@__parent_component__").instance.send(sym, arg)
+  }
+}
+
 RubyEval < BasicObject {
   from_string: |string| ::Kernel.instance_method(:eval).bind(self).call(string)
 }

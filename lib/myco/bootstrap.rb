@@ -10,6 +10,10 @@ module Myco
     def initialize component
       @component = component
     end
+    
+    def memes
+      component.memes
+    end
   end
   
   class Meme
@@ -95,6 +99,7 @@ module Myco
         @categories[name] ||= (
           category = Component.new([Category]) { }
           category_instance = category.instance
+          category_instance.instance_variable_set(:@__parent_component__, self)
           category_instance_proc = Proc.new { category_instance }
           __meme__(name, [], category_instance_proc)
           
@@ -118,6 +123,10 @@ module Myco
       meme.bind
     end
     
+    def memes
+      @memes
+    end
+    
     def instance
       if !@instance
         @instance = Instance.new(self)
@@ -128,10 +137,6 @@ module Myco
     end
   end
   
-  BasicObject = Component.new do
-  end
-  
-  Category = Component.new([BasicObject]) do
-  end
+  BasicObject = Component.new
   
 end
