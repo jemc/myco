@@ -126,10 +126,6 @@ module Myco
       end
       @instance
     end
-    
-    def new
-      instance
-    end
   end
   
   BasicObject = Component.new do
