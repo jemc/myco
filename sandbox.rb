@@ -3,6 +3,7 @@ require_relative 'lib/myco/toolset'
 require_relative 'lib/myco/parser'
 require_relative 'lib/myco/eval'
 require_relative 'lib/myco/bootstrap'
+require_relative 'lib/myco/backtrace'
 
 
 module Myco
@@ -10,8 +11,10 @@ module Myco
     begin
       Myco.eval File.read(path), nil, path
     rescue Exception=>e
-      puts e.message
       puts e.awesome_backtrace.show
+      puts e.awesome_backtrace.first_color + e.message + "\033[0m"
+      puts
+      exit(1)
     end
   end
   

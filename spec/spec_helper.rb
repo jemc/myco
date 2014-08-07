@@ -27,6 +27,7 @@ require 'myco/toolset'
 require 'myco/parser'
 require 'myco/eval'
 require 'myco/bootstrap'
+require 'myco/backtrace'
 
 
 require_relative 'helpers/parser_helper'
