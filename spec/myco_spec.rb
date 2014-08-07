@@ -16,7 +16,7 @@ end
 Myco.myco_open 'lib/myco/bootstrap.my'
 Myco.myco_open 'spec/myco/BasicSpec.my'
 [
-  'spec/myco/basic_spec.my',
+  'spec/myco/BasicSpec.test.my',
 ].each do |path|
   group = Myco.myco_open path
   
