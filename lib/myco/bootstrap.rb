@@ -1,6 +1,6 @@
 
 module Myco
-  class VoidClass
+  class VoidClass < ::BasicObject
     def self.new
       @singleton ||= super
     end
@@ -165,6 +165,7 @@ module Myco
         raise KeyError, "Unknown decorator for #{self}##{name}: '#{decoration}'" \
           unless decorator
         
+        decorator.result.transforms.apply meme
         decorator.result.apply meme
       end
       meme.bind

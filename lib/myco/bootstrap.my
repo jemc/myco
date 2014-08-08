@@ -23,15 +23,26 @@ BasicObject < EmptyObject {
   # 2) TODO: prohibiting sending of any arguments
   # 3) TODO: creating a "writer" function in addition to the "reader"
   var: Decorator {
-    apply: |meme| meme.memoize = true
+    [transforms]
+    memoize: true
   }
 }
 
 Decorator < BasicObject {
-  # Implement the apply meme to decorate (mutate) the incoming meme
+  # Implement the apply meme to mutate the incoming meme in more custom ways.
+  # This is run after transforms.apply has already mutated the meme.
   apply: |meme| { }
   
-  # TODO: Add vars to make basic transformations easy without implementing apply
+  [transforms]
+  # Implement one of the recognized transform memes to
+  # set the corresponding property of the incoming meme.
+  apply: |meme| {
+    # TODO: make order-agnostic by waiting to assign until all have run
+    self ? target(meme)  .tap |x| { meme.target  = x }
+    self ? name(meme)    .tap |x| { meme.name    = x }
+    self ? body(meme)    .tap |x| { meme.body    = x }
+    self ? memoize(meme) .tap |x| { meme.memoize = x }
+  }
 }
 
 Object < BasicObject {
