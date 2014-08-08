@@ -4,7 +4,7 @@
 %%{
 # %
   constant   = c_upper c_alnum* ;
-  identifier = c_lower c_alnum* ('?' | '!')?;
+  identifier = c_lower c_alnum* ;
   
   comment    = '#' (any - c_eol)*; # end-of-line comment
   
@@ -268,6 +268,7 @@
     constant   => { emit :T_CONSTANT };
     identifier => { emit :T_IDENTIFIER };
     '.'        => { emit :T_DOT };
+    '?'        => { emit :T_QUEST };
     '::'       => { emit :T_SCOPE };
     '='        => { emit :T_ASSIGN };
     '+'        => { emit :T_OP_PLUS };

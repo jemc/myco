@@ -21,7 +21,7 @@ class Myco::Backtrace < Rubinius::Backtrace
     ebullet = "}"
     
     @locations.map do |loc|
-      file = loc.position(Dir.getwd).sub /(\:\d+)$/, ' \1'
+      file = (loc.position(Dir.getwd) || "").sub /(\:\d+)$/, ' \1'
       color = show_color ? color_from_loc(file, false) : ""
       color = @gem_color if try_gem_path file
       file_width = file.length + 1 + sbullet.length

@@ -6,7 +6,8 @@ class CodeTools::Builder
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP
         T_OP_COMPARE T_OP_AND T_OP_OR
         T_OP_TOPROC
-        T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_DOT T_SCOPE T_ASSIGN
+        T_DOT T_QUEST
+        T_DEFINE T_CONST_SEP T_EXPR_SEP T_ARG_SEP T_SCOPE T_ASSIGN
         T_DECLARE_BEGIN  T_DECLARE_END
         T_DECLSTR_BEGIN  T_DECLSTR_END  T_DECLSTR_BODY
         T_STRING_BEGIN   T_STRING_END   T_STRING_BODY
@@ -24,7 +25,7 @@ options no_result_var
 
 prechigh
   left T_SCOPE
-  left T_DOT
+  left T_DOT T_QUEST
   left T_OP_EXP
   left T_OP_MULT T_OP_DIV T_OP_MOD
   left T_OP_PLUS T_OP_MINUS
@@ -75,9 +76,8 @@ rule
   # Expressions allowable as function arguments and in string juxtapositions
   arg_expr_atom:
     paren_expr
-  | call_iter
-  | call_with_args
-  | nest_call_without_args
+  | call
+  | quest
   | constant
   | id_as_lambig
   | lit_null
@@ -207,7 +207,30 @@ rule
   
   
   ##
-  # Function calls
+  # Method calls
+  
+  call:
+    nest_call
+  | call_with_args
+  | nest_call_with_args
+  | call_iter
+  | nest_call_iter
+  ;
+  
+  nest_call:
+    arg_expr T_DOT T_IDENTIFIER
+      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  ;
+  
+  call_with_args:
+    T_IDENTIFIER arg_list
+      { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
+  ;
+  
+  nest_call_with_args:
+    arg_expr T_DOT T_IDENTIFIER arg_list
+      { ast(:call, val[3], val[0], val[2][1].to_sym, val[3]) }
+  ;
   
   call_iter_body:
     T_MEME_BEGIN meme_expr_body
@@ -221,22 +244,25 @@ rule
       { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, nil),    val[1]) }
   | T_IDENTIFIER arg_list call_iter_body
       { ast(:iter, val[0], ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, val[1]), val[2]) }
-  | arg_expr T_DOT T_IDENTIFIER call_iter_body
-      { ast(:iter, val[2], ast(:call, val[2], val[0],             val[2][1].to_sym, nil),    val[3]) }
+  ;
+  
+  nest_call_iter:
+    arg_expr T_DOT T_IDENTIFIER call_iter_body
+      { ast(:iter, val[2], ast(:call, val[2], val[0], val[2][1].to_sym, nil),    val[3]) }
   | arg_expr T_DOT T_IDENTIFIER arg_list call_iter_body
-      { ast(:iter, val[2], ast(:call, val[2], val[0],             val[2][1].to_sym, val[3]), val[4]) }
+      { ast(:iter, val[2], ast(:call, val[2], val[0], val[2][1].to_sym, val[3]), val[4]) }
   ;
   
-  call_with_args:
-    T_IDENTIFIER arg_list
-      { ast(:call, val[1], ast(:self, val[0]), val[0][1].to_sym, val[1]) }
-  | arg_expr T_DOT T_IDENTIFIER arg_list
-      { ast(:call, val[3], val[0],             val[2][1].to_sym, val[3]) }
-  ;
+  ##
+  # Method quests
   
-  nest_call_without_args:
-    arg_expr T_DOT T_IDENTIFIER
-      { ast(:call, val[2], val[0], val[2][1].to_sym, ast(:array, val[2], [])) }
+  quest:
+    arg_expr T_QUEST T_IDENTIFIER
+      { ast(:quest, val[2], val[0], ast(:call, val[2], ast(:self, val[2]), val[2][1].to_sym, nil)) }
+  | arg_expr T_QUEST call_with_args
+      { ast(:quest, val[2], val[0], val[2]) }
+  | arg_expr T_QUEST call_iter
+      { ast(:quest, val[2], val[0], val[2]) }
   ;
   
   ##

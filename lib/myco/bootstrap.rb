@@ -9,8 +9,16 @@ module Myco
       "void"
     end
     
+    def to_s
+      ""
+    end
+    
     def false?
       true
+    end
+    
+    def method_missing *args
+      self
     end
   end
   
