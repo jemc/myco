@@ -20,6 +20,10 @@ module Myco
     def method_missing *args
       self
     end
+    
+    def hash
+      nil.hash
+    end
   end
   
   Void = VoidClass.new
