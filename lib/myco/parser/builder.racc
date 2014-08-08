@@ -66,11 +66,11 @@ rule
   | two_term_expr
   | assignment
   | nest_assignment
+  | quest_self
   | lit_string
   | lit_symstr
   | dyn_string
   | dyn_symstr
-  | lit_self
   ;
   
   # Expressions allowable as function arguments and in string juxtapositions
@@ -88,6 +88,7 @@ rule
   | lit_float
   | lit_symbol
   | lit_array
+  | lit_self
   ;
   
   ##
@@ -256,13 +257,21 @@ rule
   ##
   # Method quests
   
+  questable:
+    T_IDENTIFIER
+      { ast(:quest, val[0], ast(:self, val[0]), ast(:call, val[0], ast(:self, val[0]), val[0][1].to_sym, nil)) }
+  | call_with_args
+      { ast(:quest, val[0], ast(:self, val[0]), val[0]) }
+  | call_iter
+      { ast(:quest, val[0], ast(:self, val[0]), val[0]) }
+  ;
+  
+  quest_self:
+    T_QUEST questable { val[1] }
+  ;
+  
   quest:
-    arg_expr T_QUEST T_IDENTIFIER
-      { ast(:quest, val[2], val[0], ast(:call, val[2], ast(:self, val[2]), val[2][1].to_sym, nil)) }
-  | arg_expr T_QUEST call_with_args
-      { ast(:quest, val[2], val[0], val[2]) }
-  | arg_expr T_QUEST call_iter
-      { ast(:quest, val[2], val[0], val[2]) }
+    arg_expr_atom T_QUEST questable { val[2].receiver = val[0]; val[2] }
   ;
   
   ##

@@ -33,4 +33,31 @@ describe Myco::ToolSet::Parser, "Quests" do
     ]]
   end
   
+  parse <<-'code' do
+    Object {
+      a: ?bar
+      b: ? bar
+      c: ?bar(2,3)
+      d: ? bar(2,3) { 66 }
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:meme, :a, [:array], [:args], [:block,
+        [:quest, [:self], [:call, [:qrcvr], :bar, [:arglist]]]
+      ]],
+      [:meme, :b, [:array], [:args], [:block,
+        [:quest, [:self], [:call, [:qrcvr], :bar, [:arglist]]]
+      ]],
+      [:meme, :c, [:array], [:args], [:block,
+        [:quest, [:self],
+                 [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3]]]]
+      ]],
+      [:meme, :d, [:array], [:args], [:block,
+        [:quest, [:self],
+                 [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3],
+                   [:iter, [:args], [:lit, 66]]]]]
+      ]],
+    ]]
+  end
+  
 end

@@ -38,10 +38,10 @@ Decorator < BasicObject {
   # set the corresponding property of the incoming meme.
   apply: |meme| {
     # TODO: make order-agnostic by waiting to assign until all have run
-    self ? target(meme)  .tap |x| { meme.target  = x }
-    self ? name(meme)    .tap |x| { meme.name    = x }
-    self ? body(meme)    .tap |x| { meme.body    = x }
-    self ? memoize(meme) .tap |x| { meme.memoize = x }
+    ? target(meme)  .tap |x| { meme.target  = x }
+    ? name(meme)    .tap |x| { meme.name    = x }
+    ? body(meme)    .tap |x| { meme.body    = x }
+    ? memoize(meme) .tap |x| { meme.memoize = x }
   }
 }
 
