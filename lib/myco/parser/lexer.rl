@@ -259,7 +259,7 @@
     '{'        => { emit :T_MEME_BEGIN;     bpush :meme;  fcall meme_body; };
     
     'self'     => { emit :T_SELF };
-    'nil'      => { emit :T_NIL };
+    'null'     => { emit :T_NULL };
     'true'     => { emit :T_TRUE };
     'false'    => { emit :T_FALSE };
     integer    => { emit :T_INTEGER };

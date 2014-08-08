@@ -197,6 +197,15 @@ module CodeTools::AST
     end
   end
   
+  class NullLiteral < NilLiteral
+    def to_sexp
+      [:null]
+    end
+  end
+  
+  # Replace NilLiteral with NullLiteral (its subclass)
+  NilLiteral = NullLiteral
+  
   module ProcessorMethods
     ##
     # AST building methods
@@ -224,6 +233,10 @@ module CodeTools::AST
     
     def process_lambig line, name
       LocalVariableAccessAmbiguous.new line, name
+    end
+    
+    def process_null line
+      NullLiteral.new line
     end
   end
 end

@@ -1,6 +1,6 @@
 class CodeTools::Builder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
-        T_NIL T_TRUE T_FALSE
+        T_NULL T_TRUE T_FALSE
         T_INTEGER T_FLOAT
         T_SELF
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP
@@ -80,7 +80,7 @@ rule
   | nest_call_without_args
   | constant
   | id_as_lambig
-  | lit_nil
+  | lit_null
   | lit_true
   | lit_false
   | lit_integer
@@ -92,8 +92,8 @@ rule
   ##
   # Simple literals
   
-  lit_nil:
-    T_NIL      { ast(:nil, val[0]) }
+  lit_null:
+    T_NULL     { ast(:null, val[0]) }
   ;
   
   lit_true:
@@ -249,7 +249,7 @@ rule
   
   arg_list_:
     arg_expr arg_sepd_exprs T_ARGS_END  { ast(:array, val[0], [val[0], *val[1]]) }
-  | arg_sepd_exprs T_ARGS_END           { val[0].empty? ? ast(:nil, val[1]) : ast(:array, val[0][0], val[0]) }
+  | arg_sepd_exprs T_ARGS_END           { val[0].empty? ? ast(:null, val[1]) : ast(:array, val[0][0], val[0]) }
   | arg_expr T_ARGS_END                 { ast(:array, val[0], [val[0]]) }
   | T_ARGS_END                          { ast(:array, val[0], []) }
   ;
@@ -305,7 +305,7 @@ rule
   
   lit_array_:
     arg_expr arg_sepd_exprs T_ARRAY_END  { ast(:array, val[0], [val[0], *val[1]]) }
-  | arg_sepd_exprs T_ARRAY_END           { val[0].empty? ? ast(:nil, val[1]) : ast(:array, val[0][0], val[0]) }
+  | arg_sepd_exprs T_ARRAY_END           { val[0].empty? ? ast(:null, val[1]) : ast(:array, val[0][0], val[0]) }
   | arg_expr T_ARRAY_END                 { ast(:array, val[0], [val[0]]) }
   | T_ARRAY_END                          { ast(:array, val[0], []) }
   ;
@@ -353,9 +353,9 @@ rule
   
   declobj_expr_body:
     declobj_expr declobj_sepd_exprs T_DECLARE_END  { ast(:block, val[0], [val[0], *val[1]]) }
-  | declobj_sepd_exprs T_DECLARE_END               { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
+  | declobj_sepd_exprs T_DECLARE_END               { val[0].empty? ? ast(:null, val[1]) : ast(:block, val[0][0], val[0]) }
   | declobj_expr T_DECLARE_END                     { ast(:block, val[0], [val[0]]) }
-  | T_DECLARE_END                                  { ast(:nil, val[0]) }
+  | T_DECLARE_END                                  { ast(:null, val[0]) }
   ;
   
   declobj:
@@ -396,16 +396,16 @@ rule
   
   meme_expr_body:
     meme_expr meme_sepd_exprs T_MEME_END  { ast(:block, val[0], [val[0], *val[1]]) }
-  | meme_sepd_exprs T_MEME_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
+  | meme_sepd_exprs T_MEME_END            { val[0].empty? ? ast(:null, val[1]) : ast(:block, val[0][0], val[0]) }
   | meme_expr T_MEME_END                  { ast(:block, val[0], [val[0]]) }
-  | T_MEME_END                            { ast(:nil, val[0]) }
+  | T_MEME_END                            { ast(:null, val[0]) }
   ;
   
   paren_expr_body:
     meme_expr meme_sepd_exprs T_PAREN_END  { ast(:block, val[0], [val[0], *val[1]]) }
-  | meme_sepd_exprs T_PAREN_END            { val[0].empty? ? ast(:nil, val[1]) : ast(:block, val[0][0], val[0]) }
+  | meme_sepd_exprs T_PAREN_END            { val[0].empty? ? ast(:null, val[1]) : ast(:block, val[0][0], val[0]) }
   | meme_expr T_PAREN_END                  { val[0] }
-  | T_PAREN_END                            { ast(:nil, val[0]) }
+  | T_PAREN_END                            { ast(:null, val[0]) }
   ;
   
   paren_expr:

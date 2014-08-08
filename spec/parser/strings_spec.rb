@@ -18,13 +18,13 @@ describe Myco::ToolSet::Parser, "Strings" do
   
   parse <<-'code' do
     Object {
-      foo: "foo '"88"' bar \""nil"\" baz"
+      foo: "foo '"88"' bar \""null"\" baz"
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block, 
       [:meme, :foo, [:array], [:args], [:block,
         [:dstr, "foo '",
-          [:lit, 88], [:lit, "' bar \""], [:nil], [:lit, "\" baz"]
+          [:lit, 88], [:lit, "' bar \""], [:null], [:lit, "\" baz"]
         ]
       ]]
     ]]
@@ -32,13 +32,13 @@ describe Myco::ToolSet::Parser, "Strings" do
   
   parse <<-'code' do
     Object {
-      foo: :"foo '"88"' bar \""nil"\" baz"
+      foo: :"foo '"88"' bar \""null"\" baz"
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block, 
       [:meme, :foo, [:array], [:args], [:block,
         [:dsym, "foo '",
-          [:lit, 88], [:lit, "' bar \""], [:nil], [:lit, "\" baz"]
+          [:lit, 88], [:lit, "' bar \""], [:null], [:lit, "\" baz"]
         ]
       ]]
     ]]

@@ -11,15 +11,15 @@ describe Myco::ToolSet::Parser, "Declarations" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block, 
-             [:declobj, [:array, [:const, :Object]], [:nil]]]]
+             [:declobj, [:array, [:const, :Object]], [:null]]]]
   end
   
   parse "Object { }" do
-    [:declobj, [:array, [:const, :Object]], [:nil]]
+    [:declobj, [:array, [:const, :Object]], [:null]]
   end
   
   parse "Object{}" do
-    [:declobj, [:array, [:const, :Object]], [:nil]]
+    [:declobj, [:array, [:const, :Object]], [:null]]
   end
   
   parse <<-'code' do
@@ -27,7 +27,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
       
     }
   code
-    [:declobj, [:array, [:const, :Object]], [:nil]]
+    [:declobj, [:array, [:const, :Object]], [:null]]
   end
   
   parse <<-'code' do
@@ -36,11 +36,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
       
     }
   code
-    [:declobj, [:array, [:const, :Object]], [:nil]]
+    [:declobj, [:array, [:const, :Object]], [:null]]
   end
   
   parse "Foo,Bar,Baz { }" do
-    [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:nil]]
+    [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:null]]
   end
   
   parse <<-'code' do
@@ -50,15 +50,15 @@ describe Myco::ToolSet::Parser, "Declarations" do
       
     }
   code
-    [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:nil]]
+    [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:null]]
   end
   
   parse "Foo: Object { }" do
-    [:cdecl, :Foo, [:block, [:declobj, [:array, [:const, :Object]], [:nil]]]]
+    [:cdecl, :Foo, [:block, [:declobj, [:array, [:const, :Object]], [:null]]]]
   end
   
   parse "Foo < Object { }" do
-    [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:nil]]]
+    [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   
   parse <<-'code' do

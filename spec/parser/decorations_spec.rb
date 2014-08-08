@@ -7,18 +7,18 @@ describe Myco::ToolSet::Parser, "Decorations" do
   
   parse <<-'code' do
     Object {
-      on foo: nil
-      one two three: nil
-      sym "str.ng": nil
+      on foo: null
+      one two three: null
+      sym "str.ng": null
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo,   [:array, [:lit, :on]],
-        [:args], [:block, [:nil]]],
+        [:args], [:block, [:null]]],
       [:meme, :three, [:array, [:lit, :two], [:lit, :one]],
-        [:args], [:block, [:nil]]],
+        [:args], [:block, [:null]]],
       [:meme, :"str.ng", [:array, [:lit, :sym]],
-        [:args], [:block, [:nil]]]
+        [:args], [:block, [:null]]]
     ]]
   end
   
