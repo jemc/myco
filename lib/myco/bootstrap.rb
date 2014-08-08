@@ -12,7 +12,7 @@ module Myco
     end
     
     def memes
-      component.memes
+      @component.memes
     end
   end
   
@@ -35,40 +35,32 @@ module Myco
       @body   = body
       
       @memos  = {} # TODO: use weak map to avoid consuming endless memory
-      @new_result_name = :"__meme_new_result_#{name}__" # TODO: do better...
     end
     
     def bind
       meme = self
+      target.memes[@name] = meme
       
-      lmemos = @memos
-      lbody  = @body
-      lname  = @name
-      lnname = @new_result_name
-      ltarget = @target
-      ltarget = @target.component if @target.is_a? Instance
-      
-      
-      target.instance_eval do
-        @memes ||= {}
-        @memes[lname] = meme
-        
-        if lbody.is_a? Rubinius::Executable
-          Rubinius.add_method lnname, lbody, ltarget, :public
+      target.send :define_method, @name do |*args, &blk|
+        meme.call_on(self, *args, &blk)
+      end
+    end
+    
+    def call_on obj, *args, &blk
+      @memos[[obj.hash, args.hash]] ||= begin
+        if @body.is_a? Rubinius::Executable
+          @body.invoke @name, @target, obj, args, blk
+        elsif @body.respond_to? :call
+          @body.call *args, &blk
         else
-          define_method lnname, &lbody
-        end
-        
-        define_method lname do |*args, &blk|
-          lmemos[[self.hash, args.hash]] ||= send(lnname, *args, &blk)
+          raise "The body of #{self} is not executable"
         end
       end
     end
     
     def result *args, &blk
-      target.instance.send(@name, *args, &blk)
+      call_on target.instance, *args, &blk
     end
-    
   end
   
   class Component < Module
@@ -115,10 +107,11 @@ module Myco
       meme = Meme.new @__current_category__, name, body
       
       decorations.each do |decoration|
-        decorator = @@__decorators__.send(decoration) # TODO: don't use cvar
-        # raise KeyError, "Unknown decorator: '#{decoration}'" unless decorator
+        decorators = @@__decorators__ # TODO: don't use cvar
+        raise KeyError, "Unknown decorator in #{self}: '#{decoration}'" \
+          unless decorators.respond_to? decoration
         
-        decorator.apply meme
+        decorators.send(decoration).apply meme
       end
       meme.bind
     end
