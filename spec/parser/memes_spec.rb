@@ -19,6 +19,7 @@ describe Myco::ToolSet::Parser, "Memes" do
               7,
              ]
       all:null
+      none:void
       str  : "string"
       sym  :  :bol
       ssym : :"with spaces"
@@ -37,6 +38,7 @@ describe Myco::ToolSet::Parser, "Memes" do
         [:lit, 1], [:lit, 2], [:lit, 3], [:lit, 4],
         [:lit, 5], [:lit, 6], [:lit, 7]]]],
       [:meme, :all,   [:array], [:args], [:block, [:null]]],
+      [:meme, :none,  [:array], [:args], [:block, [:void]]],
       [:meme, :str,   [:array], [:args], [:block, [:lit, "string"]]],
       [:meme, :sym,   [:array], [:args], [:block, [:lit, :bol]]],
       [:meme, :ssym,  [:array], [:args], [:block, [:lit, :"with spaces"]]],

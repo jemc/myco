@@ -1,12 +1,12 @@
 
 BasicSpec < BasicObject {
-  assert: |arg, message=null| {
-    instance_variable_get("@harness").expect(arg).to(
+  assert: |arg, message="expected "arg" to be truthy"| {
+    instance_variable_get("@harness").expect(arg && true).to(
       instance_variable_get("@harness").be, message
     )
   }
-  refute: |arg, message=null| {
-    instance_variable_get("@harness").expect(arg).not_to(
+  refute: |arg, message="expected "arg" to be falsey"| {
+    instance_variable_get("@harness").expect(arg || false).not_to(
       instance_variable_get("@harness").be, message
     )
   }

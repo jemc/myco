@@ -1,5 +1,28 @@
 
 module Myco
+  class VoidClass
+    def self.new
+      @singleton ||= super
+    end
+    
+    def inspect
+      "void"
+    end
+    
+    def false?
+      true
+    end
+  end
+  
+  Void = VoidClass.new
+  
+  # Patch the base classes to make them respond_to :false?
+  class ::NilClass;    def false?; true  end end
+  class ::TrueClass;   def false?; false end end
+  class ::FalseClass;  def false?; true  end end
+  class ::BasicObject; def false?; false end end
+  
+  
   class Instance < ::BasicObject
     include ::Kernel
     

@@ -1,6 +1,6 @@
 class CodeTools::Builder
   token T_CONSTANT T_IDENTIFIER T_SYMBOL
-        T_NULL T_TRUE T_FALSE
+        T_NULL T_VOID T_TRUE T_FALSE
         T_INTEGER T_FLOAT
         T_SELF
         T_OP_PLUS T_OP_MINUS T_OP_MULT T_OP_DIV T_OP_MOD T_OP_EXP
@@ -81,6 +81,7 @@ rule
   | constant
   | id_as_lambig
   | lit_null
+  | lit_void
   | lit_true
   | lit_false
   | lit_integer
@@ -94,6 +95,10 @@ rule
   
   lit_null:
     T_NULL     { ast(:null, val[0]) }
+  ;
+  
+  lit_void:
+    T_VOID     { ast(:void, val[0]) }
   ;
   
   lit_true:

@@ -260,6 +260,7 @@
     
     'self'     => { emit :T_SELF };
     'null'     => { emit :T_NULL };
+    'void'     => { emit :T_VOID };
     'true'     => { emit :T_TRUE };
     'false'    => { emit :T_FALSE };
     integer    => { emit :T_INTEGER };

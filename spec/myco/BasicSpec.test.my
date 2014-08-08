@@ -4,8 +4,8 @@ BasicSpec {
   
   [tests]
   
-  "assert and refute": {
-    assert(true)
-    refute(false)
-  }
+  "asserts true":  assert(true)
+  "refutes false": refute(false)
+  "refutes null":  refute(null)
+  "refutes void":  refute(void)
 }
