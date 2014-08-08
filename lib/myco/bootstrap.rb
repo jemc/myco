@@ -1,8 +1,12 @@
 
 module Myco
   class Instance
-    def self.to_s
-      "#{super}(#{ancestors[1]})"
+    def to_s
+      "#<Instance(#{component})>"
+    end
+    
+    def inspect
+      to_s
     end
     
     attr_reader :component
@@ -20,6 +24,7 @@ module Myco
     attr_accessor :target
     attr_accessor :name
     attr_accessor :body
+    attr_accessor :memoize
     
     def to_s
       "#<#{self.class}:#{self.name.to_s}>"
@@ -47,15 +52,20 @@ module Myco
     end
     
     def call_on obj, *args, &blk
-      @memos[[obj.hash, args.hash]] ||= begin
-        if @body.is_a? Rubinius::Executable
-          @body.invoke @name, @target, obj, args, blk
-        elsif @body.respond_to? :call
-          @body.call *args, &blk
-        else
-          raise "The body of #{self} is not executable"
-        end
+      memo_key = [obj.hash, args.hash, blk.hash]
+      if @memoize && result = @memos[memo_key]
+        return result
       end
+      
+      result = if @body.is_a? Rubinius::Executable
+        @body.invoke @name, @target, obj, args, blk
+      elsif @body.respond_to? :call
+        @body.call *args, &blk
+      else
+        raise "The body of #{self} is not executable"
+      end
+      
+      @memos[memo_key] = result
     end
     
     def result *args, &blk
@@ -66,12 +76,17 @@ module Myco
   class Component < Module
     attr_reader :memes
     
+    # def to_s
+    #   id = "0x#{object_id.to_s 16}"
+    #   "#<Component(#{@super_components.join ','}):#{id}>"
+    # end
+    
     def self.new super_components=[], scope=nil
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
           @memes      = { }
-          @categories = { }
+          @@categories ||= { }
         }
         
         super_components.each do |other|
@@ -88,15 +103,14 @@ module Myco
       if name == nil
         @__current_category__ = self
       else
-        @categories[name] ||= (
+        @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
           category = Component.new([Category]) { }
           category_instance = category.instance
           category_instance.instance_variable_set(:@__parent_component__, self)
           category_instance_proc = Proc.new { category_instance }
           __meme__(name, [], category_instance_proc)
+          @memes[name].memoize = true
           
-          @__current_category__ = category
-          @@__decorators__ = category_instance if name == :decorators # TODO: remove
           category
         )
       end
@@ -107,17 +121,15 @@ module Myco
       meme = Meme.new @__current_category__, name, body
       
       decorations.each do |decoration|
-        decorators = @@__decorators__ # TODO: don't use cvar
-        raise KeyError, "Unknown decorator in #{self}: '#{decoration}'" \
-          unless decorators.respond_to? decoration
+        decorator = @@categories[:decorators].memes[decoration] # TODO: don't use cvar
+        raise KeyError, "Unknown decorator for #{self}##{name}: '#{decoration}'" \
+          unless decorator
         
-        decorators.send(decoration).apply meme
+        decorator.result.apply meme
       end
       meme.bind
-    end
-    
-    def memes
-      @memes
+      
+      meme
     end
     
     def instance
@@ -130,6 +142,6 @@ module Myco
     end
   end
   
-  BasicObject = Component.new
+  EmptyObject = Component.new
   
 end
