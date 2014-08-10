@@ -1,0 +1,21 @@
+
+Object < BasicObject {
+  # Send the named signal to this object
+  # TODO: support sending arguments with the signal
+  __signal__: |name|
+    decorators.on.signal_handlers.fetch(name, []).each |b| { b.result }
+  
+  [decorators]
+  
+  # Register a named signal handler
+  # TODO: set meme.target to null
+  var on: Decorator {
+    var signal_handlers: Hash.new
+    
+    apply: |meme| {
+      list = self.signal_handlers.fetch(meme.name, Array.new)
+      list.push(meme)
+      signal_handlers.send("[]=".to_sym, meme.name, list)
+    }
+  }
+}

@@ -1,0 +1,18 @@
+
+BasicObject < EmptyObject {
+  # Basic conditional handling
+  if:     |cond, &blk| cond && blk.call
+  unless: |cond, &blk| cond || blk.call
+  
+  [decorators]
+  
+  # The 'var' decorator creates what is effectively an instance variable by:
+  # 1) enabling memoization, keeping the given block from being re-run,
+  #    unless run from an inheriting object (which would get its own "copy")
+  # 2) TODO: prohibiting sending of any arguments
+  # 3) TODO: creating a "writer" function in addition to the "reader"
+  var: Decorator {
+    [transforms]
+    memoize: true
+  }
+}

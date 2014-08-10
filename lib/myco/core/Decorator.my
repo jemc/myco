@@ -1,0 +1,17 @@
+
+Decorator < BasicObject {
+  # Implement the apply meme to mutate the incoming meme in more custom ways.
+  # This is run after transforms.apply has already mutated the meme.
+  apply: |meme| { }
+  
+  [transforms]
+  # Implement one of the recognized transform memes to
+  # set the corresponding property of the incoming meme.
+  apply: |meme| {
+    # TODO: make order-agnostic by waiting to assign until all have run
+    ? target(meme)  .tap |x| { meme.target  = x }
+    ? name(meme)    .tap |x| { meme.name    = x }
+    ? body(meme)    .tap |x| { meme.body    = x }
+    ? memoize(meme) .tap |x| { meme.memoize = x }
+  }
+}

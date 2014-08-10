@@ -1,67 +1,11 @@
 
-Category < EmptyObject {
-  # Forward unknown methods to parent
-  method_missing: |sym, *args| { # TODO: forward block arguments
-    instance_variable_get("@__parent_component__").instance.send(sym, *args)
-  }
-}
-
 RubyEval < EmptyObject {
   from_string: |string| ::Kernel.instance_method(:eval).bind(self).call(string)
 }
 
-BasicObject < EmptyObject {
-  # Basic conditional handling
-  if:     |cond, &blk| cond && blk.call
-  unless: |cond, &blk| cond || blk.call
-  
-  [decorators]
-  
-  # The 'var' decorator creates what is effectively an instance variable by:
-  # 1) enabling memoization, keeping the given block from being re-run,
-  #    unless run from an inheriting object (which would get its own "copy")
-  # 2) TODO: prohibiting sending of any arguments
-  # 3) TODO: creating a "writer" function in addition to the "reader"
-  var: Decorator {
-    [transforms]
-    memoize: true
-  }
-}
-
-Decorator < BasicObject {
-  # Implement the apply meme to mutate the incoming meme in more custom ways.
-  # This is run after transforms.apply has already mutated the meme.
-  apply: |meme| { }
-  
-  [transforms]
-  # Implement one of the recognized transform memes to
-  # set the corresponding property of the incoming meme.
-  apply: |meme| {
-    # TODO: make order-agnostic by waiting to assign until all have run
-    ? target(meme)  .tap |x| { meme.target  = x }
-    ? name(meme)    .tap |x| { meme.name    = x }
-    ? body(meme)    .tap |x| { meme.body    = x }
-    ? memoize(meme) .tap |x| { meme.memoize = x }
-  }
-}
-
-Object < BasicObject {
-  # Send the named signal to this object
-  # TODO: support sending arguments with the signal
-  __signal__: |name|
-    decorators.on.signal_handlers.fetch(name, []).each |b| { b.result }
-  
-  [decorators]
-  
-  # Register a named signal handler
-  # TODO: set meme.target to null
-  var on: Decorator {
-    var signal_handlers: Hash.new
-    
-    apply: |meme| {
-      list = self.signal_handlers.fetch(meme.name, Array.new)
-      list.push(meme)
-      signal_handlers.send("[]=".to_sym, meme.name, list)
-    }
-  }
-}
+RubyEval @@@
+  Myco.eval_file("lib/myco/core/Category.my")
+  Myco.eval_file("lib/myco/core/BasicObject.my")
+  Myco.eval_file("lib/myco/core/Decorator.my")
+  Myco.eval_file("lib/myco/core/Object.my")
+@@@
