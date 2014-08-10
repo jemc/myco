@@ -304,39 +304,7 @@ rule
   ;
   
   arg_list:
-    T_ARGS_BEGIN arg_list_ {
-      # TODO: move this logic elsewhere
-      # TODO: write tests (for final behavior, not sexp/AST tree)
-      
-      orig = val[1].body
-      loc  = val[0]
-      tmp  = []
-      
-      splat_check = Proc.new { |x|
-        case x
-        when AST::SplatValue; :splat
-        when AST::ConcatArgs; :argscat
-        when AST::PushArgs;   :argspush
-        else; nil
-        end
-      }
-      
-      # Get the original value in the reduction
-      tmp << orig.shift until orig.empty? or splat_check.call(orig.first)
-      reduction = tmp.empty? ? orig.shift : ast(:array, loc, tmp)
-      
-      # Continue to reduce until all elements have been used
-      until orig.empty?
-        arg = orig.shift
-        if splat_check.call(arg)
-          reduction = ast(:argscat, loc, reduction, arg)
-        else
-          reduction = ast(:argspush, loc, reduction, arg)
-        end
-      end
-      
-      reduction || val[1]
-    }
+    T_ARGS_BEGIN arg_list_ { splat_assemble(val[0], val[1]) }
   ;
   
   ##
@@ -396,7 +364,7 @@ rule
   ;
   
   lit_array:
-    T_ARRAY_BEGIN lit_array_  { val[1] }
+    T_ARRAY_BEGIN lit_array_ { splat_assemble(val[0], val[1]) }
   ;
   
   ##
@@ -567,4 +535,36 @@ rule
   
   def encode_escapes str
     str.gsub /\\(.)/ do "#{$1}" end
+  end
+  
+  # Given a locator and an ast(:array) node, refactor the splat-related nodes
+  # in a copy of the original node body and return a replacement for the node.
+  def splat_assemble loc, orig_node
+    list = orig_node.body.dup
+    tmp  = []
+    
+    splat_check = Proc.new { |x|
+      case x
+      when AST::SplatValue;   :splat
+      when AST::ConcatArgs;   :argscat
+      when AST::PushArgs;     :argspush
+      else; nil
+      end
+    }
+    
+    # Get the original value in the new_node
+    tmp << list.shift until list.empty? or splat_check.call(list.first)
+    new_node = tmp.empty? ? list.shift : ast(:array, loc, tmp)
+    
+    # Continue to reduce until all elements have been used
+    until list.empty?
+      arg = list.shift
+      if splat_check.call(arg)
+        new_node = ast(:argscat, loc, new_node, arg)
+      else
+        new_node = ast(:argspush, loc, new_node, arg)
+      end
+    end
+    
+    new_node || orig_node
   end

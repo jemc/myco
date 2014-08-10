@@ -10,11 +10,7 @@ BasicSpec {
   [sem_tests]
   
   "splats arguments in function calls": {
-    a = [1,2]
-    b = [3,4]
-    c = [5,6]
-    d = [7,8]
-    e = [9,0]
+    a = [1,2]; b = [3,4]; c = [5,6]; d = [7,8]; e = [9,0]
     
     assert_equal(unsplat( a, b, c, d, e), [[1,2],[3,4],[5,6],[7,8],[9,0]])
     assert_equal(unsplat( a, b, c, d,*e), [[1,2],[3,4],[5,6],[7,8], 9,0 ])
@@ -24,5 +20,19 @@ BasicSpec {
     assert_equal(unsplat(*a,*b, c, d, e), [ 1,2,  3,4, [5,6],[7,8],[9,0]])
     assert_equal(unsplat(*a, b, c, d, e), [ 1,2, [3,4],[5,6],[7,8],[9,0]])
     assert_equal(unsplat(*a, b, c, d,*e), [ 1,2, [3,4],[5,6],[7,8], 9,0 ])
+  }
+  
+  "splats arguments in array literals": {
+    a = [1,2]; b = [3,4]; c = [5,6]; d = [7,8]; e = [9,0]
+    
+    # TODO: fix for case of array argument inline
+    x = [ a, b, c, d, e]; assert_equal(x, [[1,2],[3,4],[5,6],[7,8],[9,0]])
+    x = [ a, b, c, d,*e]; assert_equal(x, [[1,2],[3,4],[5,6],[7,8], 9,0 ])
+    x = [ a, b, c,*d,*e]; assert_equal(x, [[1,2],[3,4],[5,6], 7,8,  9,0 ])
+    x = [*a, b,*c, d,*e]; assert_equal(x, [ 1,2, [3,4], 5,6, [7,8], 9,0 ])
+    x = [ a,*b, c,*d, e]; assert_equal(x, [[1,2], 3,4, [5,6], 7,8, [9,0]])
+    x = [*a,*b, c, d, e]; assert_equal(x, [ 1,2,  3,4, [5,6],[7,8],[9,0]])
+    x = [*a, b, c, d, e]; assert_equal(x, [ 1,2, [3,4],[5,6],[7,8],[9,0]])
+    x = [*a, b, c, d,*e]; assert_equal(x, [ 1,2, [3,4],[5,6],[7,8], 9,0 ])
   }
 }
