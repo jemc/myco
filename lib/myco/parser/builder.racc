@@ -303,11 +303,13 @@ rule
   
   param:
     T_IDENTIFIER
-      { [0, val[0][1].to_sym] }
+      { [:required, val[0][1].to_sym] }
   | T_IDENTIFIER T_ASSIGN arg_expr
-      { [1, ast(:lasgn, val[1], val[0][1].to_sym, val[2])] }
+      { [:optional, ast(:lasgn, val[1], val[0][1].to_sym, val[2])] }
+  | T_OP_MULT T_IDENTIFIER
+      { [:rest,  val[1][1].to_sym] }
   | T_OP_TOPROC T_IDENTIFIER
-      { [4, val[1][1].to_sym] }
+      { [:block, val[1][1].to_sym] }
   ;
   
   param_sepd:
@@ -330,13 +332,15 @@ rule
   param_list:
     T_PARAMS_BEGIN param_list_
       {
-        required, optional, block = [], [], []
+        required, optional, rest, block = 4.times.map { Array.new }
         
-        required << val[1].shift[1] while val[1][0] && val[1][0][0] == 0
-        optional << val[1].shift[1] while val[1][0] && val[1][0][0] == 1
+        required << val[1].shift[1] while val[1][0] && val[1][0][0] == :required
+        optional << val[1].shift[1] while val[1][0] && val[1][0][0] == :optional
         optional = optional.empty? ? nil : ast(:block, val[0], optional)
-        block    << val[1].shift[1] while val[1][0] && val[1][0][0] == 4
-        ast(:args, val[0], required, optional, false, nil, nil, nil, block.first)
+        rest     << val[1].shift[1] while val[1][0] && val[1][0][0] == :rest
+        block    << val[1].shift[1] while val[1][0] && val[1][0][0] == :block
+        
+        ast(:args, val[0], required, optional, rest.first, nil, nil, nil, block.first)
       }
   ;
   

@@ -120,7 +120,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     Object {
       foo:  |a|one
       bar  :  ||  Two  
-      baz    :|c,d,e|  3
+      baz    :|c,d,*e|  3
       all:
       |a|
       null
@@ -129,7 +129,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo, [:array], [:args, :a], [:block, [:lambig, :one]]],
       [:meme, :bar, [:array], [:args], [:block, [:const, :Two]]],
-      [:meme, :baz, [:array], [:args, :c, :d, :e], [:block, [:lit, 3]]],
+      [:meme, :baz, [:array], [:args, :c, :d, :"*e"], [:block, [:lit, 3]]],
       [:meme, :all, [:array], [:args, :a], [:block, [:null]]]
     ]]
   end
@@ -138,7 +138,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     Object {
       foo:  |a|{one}
       bar  :  ||{  Two  }
-      baz    :|c,d,e|  {  3
+      baz    :|c,d,*e|  {  3
       }
       all:
       |a|
@@ -150,7 +150,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo, [:array], [:args, :a], [:block, [:lambig, :one]]],
       [:meme, :bar, [:array], [:args], [:block, [:const, :Two]]],
-      [:meme, :baz, [:array], [:args, :c, :d, :e], [:block, [:lit, 3]]],
+      [:meme, :baz, [:array], [:args, :c, :d, :"*e"], [:block, [:lit, 3]]],
       [:meme, :all, [:array], [:args, :a], [:block, [:null]]]
     ]]
   end
