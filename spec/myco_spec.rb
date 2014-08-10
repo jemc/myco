@@ -7,6 +7,7 @@ Myco.eval_file 'spec/myco/BasicSpec.my'
 
 [
   'spec/myco/BasicSpec.test.my',
+  'spec/myco/Semantics.test.my',
 ].each do |path|
   group = Myco.eval_file path
   

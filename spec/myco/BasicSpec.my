@@ -10,4 +10,9 @@ BasicSpec < BasicObject {
       instance_variable_get("@harness").be, message
     )
   }
+  assert_equal: |a, b, message="expected "a" and "b" to be equal"| {
+    instance_variable_get("@harness").expect(a).to(
+      instance_variable_get("@harness").eq(b), message
+    )
+  }
 }

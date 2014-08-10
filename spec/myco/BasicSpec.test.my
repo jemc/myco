@@ -8,4 +8,7 @@ BasicSpec {
   "refutes false": refute(false)
   "refutes null":  refute(null)
   "refutes void":  refute(void)
+  
+  "asserts two literals are equal":
+    assert_equal(:foo, :foo)
 }
