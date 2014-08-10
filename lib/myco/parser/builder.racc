@@ -304,7 +304,39 @@ rule
   ;
   
   arg_list:
-    T_ARGS_BEGIN arg_list_  { val[1] }
+    T_ARGS_BEGIN arg_list_ {
+      # TODO: move this logic elsewhere
+      # TODO: write tests (for final behavior, not sexp/AST tree)
+      
+      orig = val[1].body
+      loc  = val[0]
+      tmp  = []
+      
+      splat_check = Proc.new { |x|
+        case x
+        when AST::SplatValue; :splat
+        when AST::ConcatArgs; :argscat
+        when AST::PushArgs;   :argspush
+        else; nil
+        end
+      }
+      
+      # Get the original value in the reduction
+      tmp << orig.shift until orig.empty? or splat_check.call(orig.first)
+      reduction = tmp.empty? ? orig.shift : ast(:array, loc, tmp)
+      
+      # Continue to reduce until all elements have been used
+      until orig.empty?
+        arg = orig.shift
+        if splat_check.call(arg)
+          reduction = ast(:argscat, loc, reduction, arg)
+        else
+          reduction = ast(:argspush, loc, reduction, arg)
+        end
+      end
+      
+      reduction || val[1]
+    }
   ;
   
   ##
