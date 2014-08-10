@@ -1,8 +1,8 @@
 
 Category < EmptyObject {
   # Forward unknown methods to parent
-  method_missing: |sym, arg| { # TODO: use splat, handle any number of arguments
-    instance_variable_get("@__parent_component__").instance.send(sym, arg)
+  method_missing: |sym, *args| { # TODO: forward block arguments
+    instance_variable_get("@__parent_component__").instance.send(sym, *args)
   }
 }
 
