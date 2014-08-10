@@ -24,7 +24,8 @@ describe Myco::ToolSet::Parser, "Strings" do
     [:declobj, [:array, [:const, :Object]], [:block, 
       [:meme, :foo, [:array], [:args], [:block,
         [:dstr, "foo '",
-          [:lit, 88], [:lit, "' bar \""], [:null], [:lit, "\" baz"]
+          [:evstr, [:lit, 88]], [:lit, "' bar \""],
+          [:evstr, [:null]],    [:lit, "\" baz"],
         ]
       ]]
     ]]
@@ -38,7 +39,8 @@ describe Myco::ToolSet::Parser, "Strings" do
     [:declobj, [:array, [:const, :Object]], [:block, 
       [:meme, :foo, [:array], [:args], [:block,
         [:dsym, "foo '",
-          [:lit, 88], [:lit, "' bar \""], [:null], [:lit, "\" baz"]
+          [:evstr, [:lit, 88]], [:lit, "' bar \""],
+          [:evstr, [:null]],    [:lit, "\" baz"],
         ]
       ]]
     ]]
@@ -52,8 +54,9 @@ describe Myco::ToolSet::Parser, "Strings" do
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo, [:array], [:args], [:block,
         [:call, [:self], :bar, [:arglist,
-          [:dstr, "x", [:lit, 99], [:lit, "X"]],
-          [:dsym, "y", [:block, [:lit, 1], [:lit, 2], [:lit, 3]], [:lit, "Y"]]
+          [:dstr, "x", [:evstr, [:lit, 99]], [:lit, "X"]],
+          [:dsym, "y",
+            [:evstr, [:block, [:lit, 1], [:lit, 2], [:lit, 3]]], [:lit, "Y"]]
         ]]
       ]]
     ]]

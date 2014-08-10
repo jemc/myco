@@ -145,7 +145,7 @@ rule
   # String interpolations / juxtapositions
   
   dyn_string_part:
-    arg_expr_atom lit_string      { val }
+    arg_expr_atom lit_string { [ast(:evstr, val[0], val[0]), val[1]] }
   ;
   
   dyn_string_parts:
