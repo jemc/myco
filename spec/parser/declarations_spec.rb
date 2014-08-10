@@ -43,6 +43,15 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:null]]
   end
   
+  parse "Foo, ::Bar, Foo::Bar, ::Foo::Bar::Baz { }" do
+    [:declobj, [:array,
+     [:const, :Foo],
+     [:colon3, :Bar],
+     [:colon2, [:const, :Foo], :Bar],
+     [:colon2, [:colon2, [:colon3, :Foo], :Bar], :Baz]
+    ], [:null]]
+  end
+  
   parse <<-'code' do
     Foo  ,  Bar,
     Baz

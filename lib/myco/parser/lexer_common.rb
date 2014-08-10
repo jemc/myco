@@ -25,7 +25,7 @@ class CodeTools::Parser
     end
     
     def note_begin queue_name, pos=@p
-      queue = @marks[queue_name] = [@p]
+      queue = @marks[queue_name] = (pos ? [pos] : [])
     end
     
     def note queue_name, type=nil, pos=@p
@@ -45,6 +45,13 @@ class CodeTools::Parser
       queue = (@marks[queue_name] || [])
       queue.each_slice(3) { |a,b,c| emit c,a,b if a && b && c }
       queue.clear
+    end
+    
+    def xfer_notes queue_name_a, queue_name_b
+      queue_a = (@marks[queue_name_a] || [])
+      queue_b = (@marks[queue_name_b] ||= [])
+      queue_b << queue_a.shift until queue_a.empty?
+      queue_b
     end
     
     def bpush name

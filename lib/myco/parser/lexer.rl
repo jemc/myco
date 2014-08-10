@@ -51,17 +51,32 @@
     )
   );
   
+  # Foo
+  # ::Bar
+  # Foo::Bar
+  # ::Foo::Bar::Baz
+  #
+  sconstant = (
+    zlen         % { note_begin :sconstant }
+    (
+      '::'       % { note :sconstant, :T_SCOPE;    note :sconstant }
+    )? (
+      constant   % { note :sconstant, :T_CONSTANT; note :sconstant }
+      '::'       % { note :sconstant, :T_SCOPE;    note :sconstant }
+    )*
+    constant     % { note :sconstant, :T_CONSTANT }
+  );
   
   # Foo,Bar,Baz
   #
   constant_list = (
-    zlen           % { note_begin :constant_list }
-    constant       % { note :constant_list, :T_CONSTANT }
+    zlen           % { note_begin :constant_list, nil }
+    sconstant      % { xfer_notes :sconstant, :constant_list }
     (
       c_space*     % { note :constant_list }
       ','          % { note :constant_list, :T_CONST_SEP }
-      c_space_nl*  % { note :constant_list }
-      constant     % { note :constant_list, :T_CONSTANT }
+      c_space_nl*
+      sconstant    % { xfer_notes :sconstant, :constant_list }
     )*
   );
   
