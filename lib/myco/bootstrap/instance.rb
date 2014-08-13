@@ -4,8 +4,7 @@ module Myco
     include ::Kernel
     
     def to_s
-      id = self.id || "0x#{component.object_id.to_s 16}"
-      "#<Instance:#{id}>"
+      @component.to_s.sub 'Component', 'Instance'
     end
     
     def inspect

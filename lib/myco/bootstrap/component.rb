@@ -12,16 +12,17 @@ module Myco
     
     def to_s
       id = self.id || "0x#{object_id.to_s 16}"
-      "#<Component:#{id}>"
-      # "#<Component(#{@super_components.join ','}):#{id}>"
+      "#<Component:#{@basename}:#{id}>"
     end
     
-    def self.new super_components=[], parent=nil
+    def self.new super_components=[], parent=nil, filename="(dynamic)"
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
           @memes            = { }
           @parent           = parent
+          @filename         = filename
+          @basename         = File.basename @filename
           @@categories    ||= { }
         }
         
@@ -58,7 +59,7 @@ module Myco
         @__current_category__ = self
       else
         @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
-          category = Component.new [Category], self
+          category = Component.new [Category], self, @basename
           category.__id__ = :"#{self.id}.#{name}"
           category_instance = category.instance
           category_instance_proc = Proc.new { category_instance }
