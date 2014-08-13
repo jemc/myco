@@ -15,6 +15,11 @@ BasicSpec {
     assert_equal(root.tests, self)
   }
   
+  "introspects the id itself as a symbol": {
+    assert_equal(root.id, :root)
+    assert_equal(self.id, :"root.con_tests")
+  }
+  
   "accesses the null category as its parent": {
     assert_equal(parent, root)
     assert(parent.parent.send("is_a?", FileToplevel))

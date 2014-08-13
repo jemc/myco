@@ -6,10 +6,11 @@ module Myco
     
     attr_reader :memes
     
-    # def to_s
-    #   id = "0x#{object_id.to_s 16}"
-    #   "#<Component(#{@super_components.join ','}):#{id}>"
-    # end
+    def to_s
+      id = self.id || "0x#{object_id.to_s 16}"
+      "#<Component:#{id}>"
+      # "#<Component(#{@super_components.join ','}):#{id}>"
+    end
     
     def self.new super_components=[], scope=nil
       super() {}.tap do |this|
@@ -29,9 +30,8 @@ module Myco
       end
     end
     
-    def __id__ name
-      @__id__ = name
-    end
+    attr_accessor :__id__
+    alias_method :id, :__id__
     
     def __category__ name
       if name == nil
@@ -40,6 +40,7 @@ module Myco
         @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
           category = Component.new([Category]) { }
           category.parent = self
+          category.__id__ = :"#{self.id}.#{name}"
           category_instance = category.instance
           category_instance_proc = Proc.new { category_instance }
           __meme__(name, [], category_instance_proc)

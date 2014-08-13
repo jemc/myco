@@ -4,21 +4,26 @@ module Myco
     include ::Kernel
     
     def to_s
-      "#<Instance(#{component})>"
+      id = self.id || "0x#{component.object_id.to_s 16}"
+      "#<Instance:#{id}>"
     end
     
     def inspect
       to_s
     end
     
+    def initialize component
+      @component = component
+    end
+    
     attr_reader :component
     
     def parent
-      component.parent && component.parent.instance
+      @component.parent && @component.parent.instance
     end
     
-    def initialize component
-      @component = component
+    def id
+      @component.id
     end
     
     def memes

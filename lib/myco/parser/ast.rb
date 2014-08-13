@@ -206,7 +206,7 @@ module CodeTools::AST
       
       ##
       # module = scope.for_method_definition
-      # module.send :__id__, @name
+      # module.send :__id__=, @name
       #
       
       # TODO: don't use globals
@@ -218,7 +218,7 @@ module CodeTools::AST
         g.send :for_method_definition, 0
         g.dup_top
           g.push_literal @name
-        g.send :__id__, 1
+        g.send :__id__=, 1
         g.pop
       
       # TODO: don't use globals
