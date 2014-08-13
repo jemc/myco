@@ -1,5 +1,5 @@
 
-Object < BasicObject {
+::Myco::Object < ::Myco::BasicObject {
   # Send the named signal to this object
   # TODO: support sending arguments with the signal
   __signal__: |name|

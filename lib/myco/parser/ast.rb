@@ -16,10 +16,16 @@ module CodeTools::AST
       [:declfile, @body.to_sexp]
     end
     
+    def implementation
+      type = ConstantAccess.new @line, :FileToplevel
+      types = ArrayLiteral.new @line, [type]
+      DeclareObject.new @line, types, @body
+    end
+    
     def bytecode g
       pos(g)
       
-      @body.bytecode g
+      implementation.bytecode g
     end
     
     attr_reader :seen_ids
@@ -45,27 +51,26 @@ module CodeTools::AST
     def bytecode g
       pos(g)
       
-      ##
       # Component.new types, scope
-      #
       ConstantAccess.new(@line, :Component).bytecode g
         @types.bytecode g
         g.push_scope
       g.send :new, 2
       
       # The return value of Component.new at the top of the stack
-      # will be consumed by @body.bytecode, so save a copy of it.
-      g.dup_top
+      # will be consumed by @scope.bytecode, so save two copies of it.
+      g.dup_top # One for sending :__last__= to
+      g.dup_top # One for sending :instance to (or returning, if !@create)
       
-      # Compile the inner scope
+      # Compile the inner scope,
+      # leaving the last object in the scope at the top of the stack.
       @scope.bytecode g
       
-      # Pop the return value of @body.bytecode,
-      # so that the earlier duped value is the item left on the stack.
+      # component.__last__ = (value left on stack from @scope.bytecode)
+      g.send :__last__=, 1
       g.pop
       
-      # If @create is set, return the Component's
-      # instance instead of the Component itself.
+      # return (@create ? component.instance : component)
       g.send :instance, 0 if @create
     end
   end

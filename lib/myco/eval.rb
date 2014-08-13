@@ -36,7 +36,8 @@ module Myco
   # TODO: replace with proper import set of functions
   def self.eval_file path
     begin
-      Myco.eval File.read(path), nil, path
+      file_toplevel = Myco.eval File.read(path), nil, path
+      file_toplevel.component.__last__
     rescue Exception=>e
       puts e.awesome_backtrace.show
       puts e.awesome_backtrace.first_color + e.message + "\033[0m"

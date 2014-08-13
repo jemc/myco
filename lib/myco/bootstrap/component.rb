@@ -3,6 +3,8 @@ module Myco
   class Component < Module
     attr_reader :memes
     
+    attr_accessor :__last__
+    
     # def to_s
     #   id = "0x#{object_id.to_s 16}"
     #   "#<Component(#{@super_components.join ','}):#{id}>"

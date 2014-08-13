@@ -1,5 +1,5 @@
 
-BasicSpec < BasicObject {
+::Myco::BasicSpec < ::Myco::BasicObject {
   assert: |arg, message="expected "arg" to be truthy"| {
     instance_variable_get("@harness").expect(arg && true).to(
       instance_variable_get("@harness").be, message

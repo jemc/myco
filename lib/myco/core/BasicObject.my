@@ -1,5 +1,5 @@
 
-BasicObject < EmptyObject {
+::Myco::BasicObject < ::Myco::EmptyObject {
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
