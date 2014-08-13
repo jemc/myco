@@ -152,8 +152,13 @@ module CodeTools::AST
       @line = line
       @name = name.value
       
-      # TODO: raise error for reassignment of an existing id
-      AccessById.seen_ids << @name
+      # TODO: don't use global
+      @script = $current_myco_script
+      
+      raise KeyError, "Cannot redefine id: #{@name} on line: #{@line}" \
+        if @script.seen_ids.include? @name
+      
+      @script.seen_ids << @name
     end
     
     def to_sexp
@@ -211,9 +216,6 @@ module CodeTools::AST
   end
   
   class AccessById < Define
-    # TODO: make local to each script
-    class << self;  attr_reader :seen_ids;  end;  @seen_ids = []
-    
     attr_accessor :name
     
     def initialize line, name
@@ -243,6 +245,9 @@ module CodeTools::AST
     def initialize line, name
       @line = line
       @name = name
+      
+      # TODO: don't use global
+      @script = $current_myco_script
     end
     
     def bytecode g
@@ -258,7 +263,7 @@ module CodeTools::AST
     def implementation g
       if g.state.scope.variables.has_key? @name
         LocalVariableAccess.new @line, @name
-      elsif AccessById.seen_ids.include? @name
+      elsif @script && @script.seen_ids.include?(@name)
         AccessById.new @line, @name
       else
         rcvr = Self.new @line
@@ -385,6 +390,19 @@ module CodeTools::AST
       lbl.set!
     end
   end
+  
+  
+  # Patch the Script nodes to hold script-local ids
+  module ScriptPatch
+    attr_reader :seen_ids
+    
+    def initialize *args
+      super
+      @seen_ids = []
+      $current_myco_script = self
+    end
+  end
+  class Container;  prepend ScriptPatch;  end
   
   
   module ProcessorMethods
