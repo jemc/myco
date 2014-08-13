@@ -28,4 +28,10 @@ BasicSpec {
   "accesses its id_scope": {
     assert_equal(id_scope, parent.parent.component)
   }
+  
+  "uses its id_scope to access instances by id": {
+    # TODO: add id_scope.id_get("root")
+    assert_equal(id_scope.const_get("id:"root.id"").instance, root)
+    assert_equal(id_scope.const_get("id:"id"").instance,      self)
+  }
 }

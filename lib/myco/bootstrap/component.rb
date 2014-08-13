@@ -35,8 +35,16 @@ module Myco
       end
     end
     
-    attr_accessor :__id__
+    attr_reader :__id__
     alias_method :id, :__id__
+    
+    def __id__= id
+      @__id__ = id
+      id_scope.const_set :"id:#{id}", self
+    end
+    # Shadow Symbol#is_constant? to allow any symbol as constant name
+    # TODO: relocate to a monkey-patch file somewhere
+    class ::Symbol; def is_constant?; true; end; end
     
     def __category__ name
       if name == nil

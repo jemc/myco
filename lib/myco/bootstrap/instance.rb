@@ -12,6 +12,11 @@ module Myco
       to_s
     end
     
+    # TODO: remove (for now it makes debugging easier with RSpec)
+    def pretty_print str
+      p str
+    end
+    
     def initialize component
       @component = component
     end

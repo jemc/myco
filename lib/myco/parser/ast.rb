@@ -197,26 +197,13 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
-      ##
-      # module = scope.for_method_definition
-      # module.send :__id__=, @name
-      #
-      
-      # TODO: don't use globals
-      g.push_rubinius
-      g.find_const :Globals
-        g.push_literal :"Myco id #{@name}"
-        
-        g.push_scope
-        g.send :for_method_definition, 0
-        g.dup_top
-          g.push_literal @name
-        g.send :__id__=, 1
-        g.pop
-      
-      # TODO: don't use globals
-      g.send :[]=, 2
-      
+      # component = scope.for_method_definition
+      # component.__id__ = @name
+      g.push_scope
+      g.send :for_method_definition, 0
+      g.dup_top
+        g.push_literal @name
+      g.send :__id__=, 1
     end
   end
   
@@ -259,11 +246,11 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
-      # TODO: don't use globals
-      g.push_rubinius
-      g.find_const :Globals
-        g.push_literal :"Myco id #{@name}"
-      g.send :[], 1
+      # id_scope.const_get :"id #{@name}"
+      g.push_scope; g.send :for_method_definition, 0
+      g.send :id_scope, 0
+        g.push_literal :"id:#{@name}"
+      g.send :const_get, 1
       g.send :instance, 0
     end
   end
