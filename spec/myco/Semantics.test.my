@@ -1,13 +1,11 @@
 
 BasicSpec {
   name: "Semantics"
-  tests: sem_tests  # TODO: remove and use [tests] as category name
-                    #       (category inheritance bug preventing)
   
   # Convenience function to return all passed arguments as an array
   unsplat: |*args| args
   
-  [sem_tests]
+  [tests]
   
   "splats arguments in function calls": {
     a = [1,2]; b = [3,4]; c = [5,6]; d = [7,8]; e = [9,0]

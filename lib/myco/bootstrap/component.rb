@@ -5,6 +5,7 @@ module Myco
     
     attr_reader :parent
     attr_reader :memes
+    attr_reader :categories
     
     def id_scope
       @id_scope ||= (self < FileToplevel) ? self : parent.id_scope
@@ -19,17 +20,26 @@ module Myco
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
-          @memes            = { }
-          @parent           = parent
-          @filename         = filename
-          @basename         = File.basename @filename
-          @@categories    ||= { }
+          @memes      = { }
+          @parent     = parent
+          @filename   = filename
+          @basename   = File.basename @filename
+          @categories = Hash.new { |h,name|
+            # category nil refers to self
+            name.nil? ? self : h[name] = __new_category__(name)
+          }
         }
+        
+        all_categories = Hash.new { |h,k| h[k] = Array.new }
         
         super_components.each do |other|
           this.send :__category__, nil # category nil refers to self
           this.include other if other
-          other.instance # TODO: merge super_components categories instead
+          other.categories.each { |name, cat| all_categories[name] << cat }
+        end
+        
+        all_categories.each do |name, supers|
+          this.categories[name] = this.__new_category__ name, supers
         end
         
         this.send :__category__, nil # category nil refers to self
@@ -55,20 +65,18 @@ module Myco
     
     
     def __category__ name
-      if name == nil
-        @__current_category__ = self
-      else
-        @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
-          category = Component.new [Category], self, @basename
-          category.__id__ = :"#{self.id}.#{name}"
-          category_instance = category.instance
-          category_instance_proc = Proc.new { category_instance }
-          __meme__(name, [], category_instance_proc)
-          @memes[name].memoize = true
-          
-          category
-        )
-      end
+      @__current_category__ = @categories[name]
+    end
+    
+    def __new_category__ name, super_cats=[Category]
+      category = Component.new super_cats, self, @basename
+      category.__id__ = :"#{self.id}.#{name}"
+      category_instance = category.instance
+      category_instance_proc = Proc.new { category_instance }
+      __meme__(name, [], category_instance_proc)
+      @memes[name].memoize = true
+      
+      category
     end
     
     def __meme__ name, decorations, body, scope=nil, varscope=nil
@@ -76,12 +84,13 @@ module Myco
       meme = Meme.new @__current_category__, name, body
       
       decorations.each do |decoration|
-        decorator = @@categories[:decorators].memes[decoration] # TODO: don't use cvar
+        decorators = @categories[:decorators].instance
         raise KeyError, "Unknown decorator for #{self}##{name}: '#{decoration}'" \
-          unless decorator
+          unless decorators.respond_to? decoration
         
-        decorator.result.transforms.apply meme
-        decorator.result.apply meme
+        decorator = decorators.send decoration
+        decorator.transforms.apply meme
+        decorator.apply meme
       end
       meme.bind
       

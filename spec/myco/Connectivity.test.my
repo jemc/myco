@@ -1,14 +1,11 @@
 
 BasicSpec {
   id: root
-  
   name: "Connectivity"
-  tests: con_tests  # TODO: remove and use [tests] as category name
-                    #       (category inheritance bug preventing)
   
   root_self: self
   
-  [con_tests]
+  [tests]
   
   "accesses the null category by the overall id": {
     assert_equal(root, root_self)
@@ -17,7 +14,7 @@ BasicSpec {
   
   "introspects the id itself as a symbol": {
     assert_equal(root.id, :root)
-    assert_equal(self.id, :"root.con_tests")
+    assert_equal(self.id, :"root.tests")
   }
   
   "accesses the null category as its parent": {
@@ -31,6 +28,6 @@ BasicSpec {
   
   "accesses instances by dynamic id": {
     assert_equal(get_by_id(:root),             root)
-    assert_equal(get_by_id(:"root.con_tests"), self)
+    assert_equal(get_by_id(:"root.tests"), self)
   }
 }
