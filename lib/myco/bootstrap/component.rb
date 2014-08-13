@@ -3,8 +3,7 @@ module Myco
   class Component < Module
     attr_accessor :__last__
     
-    attr_accessor :parent
-    
+    attr_reader :parent
     attr_reader :memes
     
     def id_scope
@@ -17,11 +16,12 @@ module Myco
       # "#<Component(#{@super_components.join ','}):#{id}>"
     end
     
-    def self.new super_components=[], scope=nil
+    def self.new super_components=[], parent=nil
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
           @memes            = { }
+          @parent           = parent
           @@categories    ||= { }
         }
         
@@ -43,8 +43,7 @@ module Myco
         @__current_category__ = self
       else
         @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
-          category = Component.new([Category]) { }
-          category.parent = self
+          category = Component.new [Category], self
           category.__id__ = :"#{self.id}.#{name}"
           category_instance = category.instance
           category_instance_proc = Proc.new { category_instance }
