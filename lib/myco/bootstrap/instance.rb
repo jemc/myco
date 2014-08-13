@@ -13,6 +13,10 @@ module Myco
     
     attr_reader :component
     
+    def parent
+      component.parent && component.parent.instance
+    end
+    
     def initialize component
       @component = component
     end

@@ -1,9 +1,10 @@
 
 module Myco
   class Component < Module
-    attr_reader :memes
-    
     attr_accessor :__last__
+    attr_accessor :parent
+    
+    attr_reader :memes
     
     # def to_s
     #   id = "0x#{object_id.to_s 16}"
@@ -38,8 +39,8 @@ module Myco
       else
         @__current_category__ = @@categories[name] ||= ( # TODO: don't use cvar
           category = Component.new([Category]) { }
+          category.parent = self
           category_instance = category.instance
-          category_instance.instance_variable_set(:@__parent_component__, self)
           category_instance_proc = Proc.new { category_instance }
           __meme__(name, [], category_instance_proc)
           @memes[name].memoize = true

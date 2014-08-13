@@ -14,4 +14,9 @@ BasicSpec {
     assert_equal(root, root_self)
     assert_equal(root.tests, self)
   }
+  
+  "accesses the null category as its parent": {
+    assert_equal(parent, root)
+    assert(parent.parent.send("is_a?", FileToplevel))
+  }
 }

@@ -58,8 +58,9 @@ module CodeTools::AST
       g.send :new, 2
       
       # The return value of Component.new at the top of the stack
-      # will be consumed by @scope.bytecode, so save two copies of it.
+      # will be consumed by @scope.bytecode, so save three copies of it.
       g.dup_top # One for sending :__last__= to
+      g.dup_top # One for sending :parent= to
       g.dup_top # One for sending :instance to (or returning, if !@create)
       
       # Compile the inner scope,
@@ -68,6 +69,12 @@ module CodeTools::AST
       
       # component.__last__ = (value left on stack from @scope.bytecode)
       g.send :__last__=, 1
+      g.pop
+      
+      # component.parent = scope.for_method_definition
+        g.push_scope
+        g.send :for_method_definition, 0
+      g.send :parent=, 1
       g.pop
       
       # return (@create ? component.instance : component)
