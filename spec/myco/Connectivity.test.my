@@ -24,4 +24,8 @@ BasicSpec {
     assert_equal(parent, root)
     assert(parent.parent.send("is_a?", FileToplevel))
   }
+  
+  "accesses its id_scope": {
+    assert_equal(id_scope, parent.parent.component)
+  }
 }

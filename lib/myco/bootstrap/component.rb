@@ -2,9 +2,14 @@
 module Myco
   class Component < Module
     attr_accessor :__last__
+    
     attr_accessor :parent
     
     attr_reader :memes
+    
+    def id_scope
+      @id_scope ||= (self < FileToplevel) ? self : parent.id_scope
+    end
     
     def to_s
       id = self.id || "0x#{object_id.to_s 16}"
@@ -16,8 +21,8 @@ module Myco
       super() {}.tap do |this|
         this.instance_eval {
           @super_components = super_components
-          @memes      = { }
-          @@categories ||= { }
+          @memes            = { }
+          @@categories    ||= { }
         }
         
         super_components.each do |other|

@@ -22,6 +22,10 @@ module Myco
       @component.parent && @component.parent.instance
     end
     
+    def id_scope
+      @component.id_scope
+    end
+    
     def id
       @component.id
     end
