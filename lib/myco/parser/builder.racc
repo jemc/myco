@@ -12,6 +12,7 @@ class CodeTools::Builder
         T_DECLSTR_BEGIN  T_DECLSTR_END  T_DECLSTR_BODY
         T_STRING_BEGIN   T_STRING_END   T_STRING_BODY
         T_SYMSTR_BEGIN   T_SYMSTR_END   T_SYMSTR_BODY
+        T_DECLID_TAG     T_DECLID_VALUE
         T_CATEGORY_BEGIN T_CATEGORY_END T_CATEGORY_BODY
         T_MEME_BEGIN     T_MEME_END
         T_PARAMS_BEGIN   T_PARAMS_END
@@ -49,6 +50,7 @@ rule
   | deco
   | declobj
   | declstr
+  | declid
   | category
   | constant
   ;
@@ -496,6 +498,11 @@ rule
         val[1].decorations.body.push ast(:lit, val[0], val[0][1].to_sym)
         val[1]
       }
+  ;
+  
+  declid:
+    T_DECLID_TAG T_DECLID_VALUE
+      { ast(:declid, val[0], ast(:lit, val[1], val[1][1].to_sym)) }
   ;
   
   category:

@@ -23,6 +23,17 @@
     '"'      % { note :string, :T_STRING_END }
   );
   
+  # id: foo
+  #
+  declid = (
+    zlen       % { note_begin :declid }
+    'id'       % { note :declid, :T_DECLID_TAG }
+    c_space*
+    ':'
+    c_space*   % { note :declid }
+    identifier % { note :declid, :T_DECLID_VALUE }
+  );
+  
   # [foo]
   #
   category = (
@@ -174,6 +185,7 @@
     dstr_begin  => { fcall dstr_body; };
     
     string     => { emit_notes :string };
+    declid     => { emit_notes :declid };
     category   => { emit_notes :category };
     identifier => { emit :T_IDENTIFIER };
     constant   => { emit :T_CONSTANT };
@@ -201,6 +213,7 @@
     dstr_begin  => { fcall dstr_body; };
     
     string     => { emit_notes :string };
+    declid     => { emit_notes :declid };
     category   => { emit_notes :category };
     identifier => { emit :T_IDENTIFIER };
     constant   => { emit :T_CONSTANT };

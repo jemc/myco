@@ -26,6 +26,10 @@ module Myco
       end
     end
     
+    def __id__ name
+      @__id__ = name
+    end
+    
     def __category__ name
       if name == nil
         @__current_category__ = self

@@ -1,0 +1,17 @@
+
+BasicSpec {
+  id: root
+  
+  name: "Connectivity"
+  tests: con_tests  # TODO: remove and use [tests] as category name
+                    #       (category inheritance bug preventing)
+  
+  root_self: self
+  
+  [con_tests]
+  
+  "accesses the null category by the overall id": {
+    assert_equal(root, root_self)
+    assert_equal(root.tests, self)
+  }
+}

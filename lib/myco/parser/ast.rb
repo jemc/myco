@@ -145,6 +145,47 @@ module CodeTools::AST
     end
   end
   
+  class DeclareId < Define
+    attr_accessor :name
+    
+    def initialize line, name
+      @line = line
+      @name = name.value
+      
+      # TODO: raise error for reassignment of an existing id
+      AccessById.seen_ids << @name
+    end
+    
+    def to_sexp
+      [:declid, @name]
+    end
+    
+    def bytecode(g)
+      pos(g)
+      
+      ##
+      # module = scope.for_method_definition
+      # module.send :__id__, @name
+      #
+      
+      # TODO: don't use globals
+      g.push_rubinius
+      g.find_const :Globals
+        g.push_literal :"Myco id #{@name}"
+        
+        g.push_scope
+        g.send :for_method_definition, 0
+        g.dup_top
+          g.push_literal @name
+        g.send :__id__, 1
+        g.pop
+      
+      # TODO: don't use globals
+      g.send :[]=, 2
+      
+    end
+  end
+  
   class DeclareCategory < Node
     attr_accessor :name
     
@@ -169,6 +210,33 @@ module CodeTools::AST
     end
   end
   
+  class AccessById < Define
+    # TODO: make local to each script
+    class << self;  attr_reader :seen_ids;  end;  @seen_ids = []
+    
+    attr_accessor :name
+    
+    def initialize line, name
+      @line = line
+      @name = name
+    end
+    
+    def to_sexp
+      [:declid, @name]
+    end
+    
+    def bytecode(g)
+      pos(g)
+      
+      # TODO: don't use globals
+      g.push_rubinius
+      g.find_const :Globals
+        g.push_literal :"Myco id #{@name}"
+      g.send :[], 1
+      g.send :instance, 0
+    end
+  end
+  
   class LocalVariableAccessAmbiguous < Node
     attr_accessor :name
     
@@ -190,6 +258,8 @@ module CodeTools::AST
     def implementation g
       if g.state.scope.variables.has_key? @name
         LocalVariableAccess.new @line, @name
+      elsif AccessById.seen_ids.include? @name
+        AccessById.new @line, @name
       else
         rcvr = Self.new @line
         Send.new @line, rcvr, @name, true, true
@@ -336,6 +406,10 @@ module CodeTools::AST
     
     def process_meme line, name, decorations, args, body
       DefineMeme.new line, name, decorations, args, body
+    end
+    
+    def process_declid line, name
+      DeclareId.new line, name
     end
     
     def process_category line, name

@@ -1,6 +1,6 @@
 
 BasicSpec {
-  name: "Code Semantics"
+  name: "Semantics"
   tests: sem_tests  # TODO: remove and use [tests] as category name
                     #       (category inheritance bug preventing)
   
