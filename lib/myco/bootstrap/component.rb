@@ -35,6 +35,7 @@ module Myco
       end
     end
     
+    
     attr_reader :__id__
     alias_method :id, :__id__
     
@@ -42,9 +43,15 @@ module Myco
       @__id__ = id
       id_scope.const_set :"id:#{id}", self
     end
+    
+    def get_by_id id
+      id_scope.const_get(:"id:#{id}").instance
+    end
+    
     # Shadow Symbol#is_constant? to allow any symbol as constant name
     # TODO: relocate to a monkey-patch file somewhere
     class ::Symbol; def is_constant?; true; end; end
+    
     
     def __category__ name
       if name == nil

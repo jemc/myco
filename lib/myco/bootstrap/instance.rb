@@ -31,6 +31,10 @@ module Myco
       @component.id_scope
     end
     
+    def get_by_id id
+      @component.get_by_id id
+    end
+    
     def id
       @component.id
     end

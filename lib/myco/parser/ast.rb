@@ -246,12 +246,11 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
-      # id_scope.const_get :"id #{@name}"
+      # component = scope.for_method_definition
+      # component.get_by_id @name
       g.push_scope; g.send :for_method_definition, 0
-      g.send :id_scope, 0
-        g.push_literal :"id:#{@name}"
-      g.send :const_get, 1
-      g.send :instance, 0
+        g.push_literal @name
+      g.send :get_by_id, 1
     end
   end
   
