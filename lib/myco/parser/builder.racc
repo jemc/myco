@@ -38,7 +38,7 @@ preclow
 
 rule
   main:
-    declobj_expr_body
+    declobj_expr_body { ast(:declfile, val[0], val[0]) }
   ;
   
   

@@ -30,6 +30,7 @@ module SpecHelpers
       describe expected do
         it "is parsed from code: \n\n#{string}\n\n" do
           ast = Myco::ToolSet::Parser.new('(eval)', 1, []).parse_string string
+          ast = ast.body # Get rid of toplevel DeclareFile node
           (puts; pp ast) if print
           ast.to_sexp.last.should eq expected if expected
         end

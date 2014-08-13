@@ -1,6 +1,31 @@
 
 module CodeTools::AST
   
+  class DeclareFile < Node
+    attr_accessor :body
+    
+    def initialize line, body
+      @line = line
+      @body = body
+      
+      @seen_ids = []
+      DeclareFile.current = self
+    end
+    
+    def to_sexp
+      [:declfile, @body.to_sexp]
+    end
+    
+    def bytecode g
+      pos(g)
+      
+      @body.bytecode g
+    end
+    
+    attr_reader :seen_ids
+    class << self; attr_accessor :current; end
+  end
+  
   class DeclareObject < Node
     attr_accessor :types, :body
     attr_accessor :create
@@ -152,13 +177,12 @@ module CodeTools::AST
       @line = line
       @name = name.value
       
-      # TODO: don't use global
-      @script = $current_myco_script
+      @declfile = DeclareFile.current
       
       raise KeyError, "Cannot redefine id: #{@name} on line: #{@line}" \
-        if @script.seen_ids.include? @name
+        if @declfile.seen_ids.include? @name
       
-      @script.seen_ids << @name
+      @declfile.seen_ids << @name
     end
     
     def to_sexp
@@ -246,8 +270,7 @@ module CodeTools::AST
       @line = line
       @name = name
       
-      # TODO: don't use global
-      @script = $current_myco_script
+      @declfile = DeclareFile.current
     end
     
     def bytecode g
@@ -263,7 +286,7 @@ module CodeTools::AST
     def implementation g
       if g.state.scope.variables.has_key? @name
         LocalVariableAccess.new @line, @name
-      elsif @script && @script.seen_ids.include?(@name)
+      elsif @declfile && @declfile.seen_ids.include?(@name)
         AccessById.new @line, @name
       else
         rcvr = Self.new @line
@@ -392,23 +415,14 @@ module CodeTools::AST
   end
   
   
-  # Patch the Script nodes to hold script-local ids
-  module ScriptPatch
-    attr_reader :seen_ids
-    
-    def initialize *args
-      super
-      @seen_ids = []
-      $current_myco_script = self
-    end
-  end
-  class Container;  prepend ScriptPatch;  end
-  
-  
   module ProcessorMethods
     ##
     # AST building methods
     # (supplementing those inherited from rubinius/processor)
+    
+    def process_declfile line, body
+      DeclareFile.new line, body
+    end
     
     def process_declobj line, types, body
       DeclareObject.new line, types, body
