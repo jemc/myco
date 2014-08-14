@@ -481,10 +481,9 @@ rule
     meme_name param_list T_MEME_BEGIN meme_expr_body
       { ast(:meme, val[1], val[0], nil, val[1], val[3]) }
   | meme_name T_MEME_BEGIN meme_expr_body
-      {
-        args = ast(:args, val[0], [], nil, false, nil, nil, nil, nil)
-        ast(:meme, val[1], val[0], nil, args, val[2])
-      }
+      { ast(:meme, val[1], val[0], nil, nil, val[2]) }
+  | meme_name
+      { ast(:meme, val[0], val[0], nil, nil, nil) }
   ;
   
   deco_able:

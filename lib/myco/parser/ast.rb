@@ -149,8 +149,8 @@ module CodeTools::AST
       @line        = line
       @name        = name.value
       @decorations = decorations || ArrayLiteral.new(line, [])
-      @arguments   = args
-      @body        = body
+      @arguments   = args || Parameters.new(line, [], nil, false, nil, nil, nil, nil)
+      @body        = body || NilLiteral.new(line)
     end
     
     def to_sexp
