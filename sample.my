@@ -1,7 +1,0 @@
-
-Object {
-  foo: 88
-  bar: RubyEval @@@
-    puts "hello world"
-  @@@
-}
