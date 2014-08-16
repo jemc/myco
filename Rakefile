@@ -38,7 +38,7 @@ task :build => [:build_peg_parser]
 
 
 RSpec::Core::RakeTask.new :test => :build do |t|
-  test_group = 'strings'
+  test_group = 'comments'
   t.pattern = "spec/**/#{test_group}_spec.rb"
 end
 

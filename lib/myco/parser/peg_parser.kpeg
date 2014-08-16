@@ -116,9 +116,13 @@ expr_atom_not_string =
 ##
 # Character Classes
 
+eof_comment = '#' (!c_eol .)*
+eol_comment = '#' (!c_eol .)* c_eol
+comment_nl = eof_comment | eol_comment
+
 c_nl     = "\n"
-c_spc    = /[ \t\r\f\v]/ | "\\\n"
-c_spc_nl = c_spc | c_nl
+c_spc    = /[ \t\r\f\v]/ | "\\\n" | eol_comment
+c_spc_nl = c_spc | c_nl | comment_nl
 
 c_eof    = !.
 c_eol    = c_nl | c_eof
