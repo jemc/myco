@@ -14,10 +14,24 @@ module Myco
       to_s
     end
     
-    def initialize target, name, body
+    def initialize target, name, body=nil, &blk
       @target = target
       @name   = name
       @body   = body
+      
+      if body
+        raise TypeError, "Meme body must be a Rubinius::Executable" \
+          unless body.is_a? Rubinius::Executable
+        @body = body
+      elsif blk
+        block_env = blk.block.dup
+        block_env.change_name name
+        @body = Rubinius::BlockEnvironment::AsMethod.new block_env
+        blk = blk.dup
+        blk.lambda_style!
+      else
+        raise ArgumentError, "Meme must be passed a body or block argument"
+      end
       
       @memos  = {} # TODO: use weak map to avoid consuming endless memory
     end

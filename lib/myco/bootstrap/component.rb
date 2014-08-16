@@ -72,16 +72,15 @@ module Myco
       category = Component.new super_cats, self, @basename
       category.__id__ = :"#{self.id}.#{name}"
       category_instance = category.instance
-      category_instance_proc = Proc.new { category_instance }
-      __meme__(name, [], category_instance_proc)
+      __meme__(name) { category_instance }
       @memes[name].memoize = true
       
       category
     end
     
-    def __meme__ name, decorations, body, scope=nil, varscope=nil
+    def __meme__ name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
       body.scope = scope if scope && body.respond_to?(:scope=)
-      meme = Meme.new @__current_category__, name, body
+      meme = Meme.new @__current_category__, name, body, &blk
       
       decorations.each do |decoration|
         decorators = @categories[:decorators].instance
