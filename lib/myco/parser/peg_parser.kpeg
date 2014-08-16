@@ -90,22 +90,26 @@ arg_expr =
   assignment
 | nest_assignment
 | left_chained_atoms
-| lit_string
-| lit_symstr
+| dyn_string
+| dyn_symstr
 | expr_atom
 
 # | quest_self
-# | dyn_string
-# | dyn_symstr
 
-# Expressions allowable as function arguments and in other assemblies
+# Expressions atoms
 expr_atom =
-  constant
+  lit_string
+| lit_symstr
+| expr_atom_not_string
+
+# Expressions atoms that are not strings
+expr_atom_not_string =
+  paren_expr
+| constant
 | lit_simple
 | lit_array
 | invoke
 
-#   paren_expr
 # | quest
 
 
@@ -137,6 +141,8 @@ t_DECLARE_END   = < '}' | c_eof >             ~token(:t_DECLARE_END,   text)
 t_MEME_MARK     = < ':' >                     ~token(:t_MEME_MARK,     text)
 t_MEME_BEGIN    = < '{' >                     ~token(:t_MEME_BEGIN,    text)
 t_MEME_END      = < '}' >                     ~token(:t_MEME_END,      text)
+t_PAREN_BEGIN   = < '(' >                     ~token(:t_PAREN_BEGIN,   text)
+t_PAREN_END     = < ')' >                     ~token(:t_PAREN_END,     text)
 t_DEFINE        = < '<' >                     ~token(:t_DEFINE,        text)
 t_PARAMS_BEGIN  = < '|' >                     ~token(:t_PARAMS_BEGIN,  text)
 t_PARAMS_END    = < '|' >                     ~token(:t_PARAMS_END,    text)
@@ -210,25 +216,24 @@ lit_symstr =
   t_SYMSTR_BEGIN t_STRING_BODY:tb t_STRING_END
     ~node(:lit, tb, encode_escapes(tb.text).to_sym)
 
-# ##
-# # String interpolations / juxtapositions
+##
+# String interpolations / juxtapositions
 
-# dyn_string_part =
-#   expr_atom lit_string { [node(:evstr, val[0], val[0]), val[1]] }
-# ;
+expr_atom_evstr =
+  expr_atom_not_string:n0
+    ~node(:evstr, n0, n0)
 
-# dyn_string_parts =
-#   dyn_string_parts dyn_string_part { [*val[0], *val[1]] }
-# | dyn_string_part                  { val[0] }
-# ;
+dyn_string_parts =
+  (c_spc* expr_atom_evstr:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist
+    { nlist.flatten }
 
-# dyn_string =
-#   lit_string dyn_string_parts { node(:dstr, val[0], val[0].value, val[1]) }
-# ;
+dyn_string =
+  lit_string:n0 dyn_string_parts:nrest
+    ~node(:dstr, n0, n0.value, nrest)
 
-# dyn_symstr =
-#   lit_symstr dyn_string_parts { node(:dsym, val[0], val[0].value.to_s, val[1])}
-# ;
+dyn_symstr =
+  lit_symstr:n0 dyn_string_parts:nrest
+    ~node(:dsym, n0, n0.value.to_s, nrest)
 
 ##
 # Constants
@@ -428,18 +433,18 @@ meme_expr_body =
 | expr_sep_opt t_MEME_END:te
     ~node(:null, te)
 
+paren_expr_body =
+  expr_sep_opt meme_sepd_exprs:nlist t_PAREN_END:te
+    { nlist.count==1 ? nlist.first : node(:block, nlist.first, nlist) }
+| expr_sep_opt t_PAREN_END:te
+    ~node(:null, te)
+
+paren_expr =
+  t_PAREN_BEGIN paren_expr_body:n0 { n0 }
+
 meme_either_body =
   c_spc_nl* t_MEME_BEGIN:tb meme_expr_body:n0  { n0 }
 | meme_inline_expr_body:n0                     { n0 }
-
-# paren_expr_body =
-#   expr_sep_opt meme_sepd_exprs:nlist expr_sep_opt t_PAREN_END:te
-#     ~node(:block, nlist.first, nlist)
-# | expr_sep_opt t_PAREN_END:te
-#     ~node(:null, te)
-
-# paren_expr =
-#   t_PAREN_BEGIN paren_expr_body:n0 { n0 }
 
 cmeme =
   constant:n0 c_spc* t_MEME_MARK:tm meme_inline_expr_body:n1
