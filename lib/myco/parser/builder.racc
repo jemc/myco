@@ -279,13 +279,18 @@ rule
   ##
   # Argument lists
   
-  splat:
+  arg_to_proc:
+    T_OP_TOPROC arg_expr_atom { ast(:block_pass, val[0], nil, val[1]) }
+  ;
+  
+  arg_splat:
     T_OP_MULT arg_expr_atom { ast(:splat, val[0], val[1]) }
   ;
   
   in_arg_expr:
     arg_expr
-  | splat
+  | arg_splat
+  | arg_to_proc
   ;
   
   in_arg_sepd_expr:
@@ -306,7 +311,7 @@ rule
   ;
   
   arg_list:
-    T_ARGS_BEGIN arg_list_ { splat_assemble(val[0], val[1]) }
+    T_ARGS_BEGIN arg_list_ { args_assemble(val[0], val[1]) }
   ;
   
   ##
@@ -366,7 +371,7 @@ rule
   ;
   
   lit_array:
-    T_ARRAY_BEGIN lit_array_ { splat_assemble(val[0], val[1]) }
+    T_ARRAY_BEGIN lit_array_ { args_assemble(val[0], val[1]) }
   ;
   
   ##
@@ -545,27 +550,31 @@ rule
   
   # Given a locator and an ast(:array) node, refactor the splat-related nodes
   # in a copy of the original node body and return a replacement for the node.
-  def splat_assemble loc, orig_node
+  def args_assemble loc, orig_node
     list = orig_node.body.dup
     tmp  = []
     
-    splat_check = Proc.new { |x|
+    special_type_check = Proc.new { |x|
       case x
       when AST::SplatValue;   :splat
       when AST::ConcatArgs;   :argscat
       when AST::PushArgs;     :argspush
+      when AST::BlockPass;    :block_pass
       else; nil
       end
     }
     
     # Get the original value in the new_node
-    tmp << list.shift until list.empty? or splat_check.call(list.first)
+    tmp << list.shift until list.empty? or special_type_check.call(list.first)
     new_node = tmp.empty? ? list.shift : ast(:array, loc, tmp)
     
     # Continue to reduce until all elements have been used
     until list.empty?
       arg = list.shift
-      if splat_check.call(arg)
+      type = special_type_check.call(arg)
+      if type == :block_pass
+        new_node = arg.tap { |n| n.arguments = new_node }
+      elsif type != nil
         new_node = ast(:argscat, loc, new_node, arg)
       else
         new_node = ast(:argspush, loc, new_node, arg)

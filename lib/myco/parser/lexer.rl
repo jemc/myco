@@ -319,6 +319,7 @@
     '&' => {
       case bthis
       when :param; emit :T_OP_TOPROC
+      when :args;  emit :T_OP_TOPROC
       else;        error :meme_body
       end
     };

@@ -266,12 +266,14 @@ describe Myco::ToolSet::Parser, "Memes" do
   
   parse <<-'code' do
     Object {
-      foo: |*a| bar(*a)
+      foo: |*a, &b| bar(*a, &b)
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:meme, :foo, [:array], [:args, :"*a"], [:block,
-        [:call, [:self], :bar, [:arglist, [:splat, [:lambig, :a]]]]
+      [:meme, :foo, [:array], [:args, :"*a", :"&b"], [:block,
+        [:call, [:self], :bar, [:arglist,
+          [:splat, [:lambig, :a]], [:block_pass, [:lambig, :b]]
+        ]]
       ]]
     ]]
   end

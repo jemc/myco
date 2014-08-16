@@ -4,10 +4,14 @@ BasicSpec {
   
   # Convenience function to return all passed arguments as an array
   unsplat: |*args| args
+  # Convenience function to return the passed block
+  unblock: |*args, &block| block
+  # Convenience function to return all passed arguments including the block
+  unsplat_w_block: |*args, &block| args.push(block)
   
   [tests]
   
-  "splats arguments in function calls": {
+  "splats arguments in method calls": {
     a = [1,2]; b = [3,4]; c = [5,6]; d = [7,8]; e = [9,0]
     
     assert_equal(unsplat( a, b, c, d, e), [[1,2],[3,4],[5,6],[7,8],[9,0]])
@@ -32,5 +36,18 @@ BasicSpec {
     x = [*a,*b, c, d, e]; assert_equal(x, [ 1,2,  3,4, [5,6],[7,8],[9,0]])
     x = [*a, b, c, d, e]; assert_equal(x, [ 1,2, [3,4],[5,6],[7,8],[9,0]])
     x = [*a, b, c, d,*e]; assert_equal(x, [ 1,2, [3,4],[5,6],[7,8], 9,0 ])
+  }
+  
+  "passes a block to a method": {
+    a = [1,2]; b = [3,4]; c = Proc.new { }
+    
+    refute(unblock)
+    assert(unblock{})
+    assert_equal(unblock(),      null)
+    assert_equal(unblock(&null), null)
+    assert_equal(unblock(&c),    c)
+    assert_equal(unsplat_w_block(a,*b),       [[1,2], 3,4, null])
+    assert_equal(unsplat_w_block(a,*b,&null), [[1,2], 3,4, null])
+    assert_equal(unsplat_w_block(a,*b,&c),    [[1,2], 3,4, c])
   }
 }
