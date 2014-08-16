@@ -219,7 +219,7 @@ module CodeTools::AST
     
     def initialize line, name
       @line = line
-      @name = name.value
+      @name = name
     end
     
     def to_sexp

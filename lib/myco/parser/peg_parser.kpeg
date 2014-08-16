@@ -69,14 +69,13 @@ root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 declobj_expr =
   declobj
 | declid
+| category
 | cdefn
 | cmeme
 | constant
 | meme
 
-# | deco
 # | declstr
-# | category
 
 # Expressions allowable inside memes
 meme_expr =
@@ -184,12 +183,18 @@ t_OP_OR         = < '||' >                    ~token(:t_OP_OR,         text)
 t_OP_COMPARE    = < ('<=>'|'=~'|'=='|'<='|'>='|'<'|'>') >
                                               ~token(:t_OP_COMPARE,    text)
 
-str_norm = /[^\\\"]/
-t_STRING_BODY   = < str_norm* ("\\" c_any str_norm*)* >
+string_norm = /[^\\\"]/
+t_STRING_BODY   = < string_norm* ("\\" c_any string_norm*)* >
                                               ~token(:t_STRING_BODY,   text)
 t_STRING_BEGIN  = < '"' >                     ~token(:t_STRING_BEGIN,  text)
 t_STRING_END    = < '"' >                     ~token(:t_STRING_END,    text)
 t_SYMSTR_BEGIN  = < ':"' >                    ~token(:t_SYMSTR_BEGIN,  text)
+
+catgry_norm = /[^\\\[\]]/
+t_CATGRY_BODY   = < catgry_norm* ("\\" c_any catgry_norm*)* >
+                                              ~token(:t_CATGRY_BODY,   text)
+t_CATGRY_BEGIN  = < '[' >                     ~token(:t_CATGRY_BEGIN,  text)
+t_CATGRY_END    = < ']' >                     ~token(:t_CATGRY_END,    text)
 
 
 ##
@@ -219,6 +224,10 @@ lit_string_as_symbol = # Used in contexts where a bare string is a symbol
 lit_symstr =
   t_SYMSTR_BEGIN t_STRING_BODY:tb t_STRING_END
     ~node(:lit, tb, encode_escapes(tb.text).to_sym)
+
+category = # Used only in declobj body
+  t_CATGRY_BEGIN t_CATGRY_BODY:tb t_CATGRY_END
+    ~node(:category, tb, encode_escapes(tb.text).to_sym)
 
 ##
 # String interpolations / juxtapositions
@@ -458,29 +467,19 @@ meme_name =
   id_as_symbol
 | lit_string_as_symbol
 
+meme_names =
+  meme_name:n0 (c_spc* meme_name:n)*:nrest
+    ~node(:array, n0, [n0, *nrest].reverse)
+
 meme =
-  meme_name:nm c_spc* t_MEME_MARK:tm c_spc_nl* param_list:np meme_either_body:nb
-    ~node(:meme, tm, nm, nil, np,  nb)
-| meme_name:nm c_spc* t_MEME_MARK:tm meme_either_body:nb
-    ~node(:meme, tm, nm, nil, nil, nb)
-| meme_name:nm
-    ~node(:meme, tm, nm, nil, nil, nil)
-
-# deco_able =
-#   meme
-# | deco
-
-# deco =
-#   t_IDENTIFIER:ti deco_able:n1
-#     { n1.decorations.body.push(node(:lit, ti, ti.sym)); n1 }
+  meme_names:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np meme_either_body:nb
+    ~node(:meme, tm, nd.body.shift, nd, np,  nb)
+| meme_names:nd
+    ~node(:meme, tm, nd.body.shift, nd, nil, nil)
 
 declid =
   t_DECLID_TAG c_spc* t_MEME_MARK:tm c_spc_nl* id_as_symbol:ni
     ~node(:declid, tm, ni)
-
-# category:
-#   T_CATEGORY_BEGIN T_CATEGORY_BODY T_CATEGORY_END
-#     { node(:category, val[0], node(:lit, val[1], val[1][1].to_sym)) }
 
 
 %% {
