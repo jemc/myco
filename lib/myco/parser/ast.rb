@@ -293,6 +293,59 @@ module CodeTools::AST
     end
   end
   
+  class Invoke < Node
+    attr_accessor :receiver, :name, :arguments, :block
+    
+    def initialize line, receiver, name, arguments, block
+      block_arg = nil
+      if arguments.is_a? BlockPass
+        block_arg = arguments
+        arguments = block_arg.arguments
+        block_arg.arguments = nil
+      end
+      
+      @line      = line
+      @receiver  = receiver
+      @name      = name
+      @arguments = arguments
+      @block     = block
+      @block_arg = block_arg
+      
+      @declfile  = DeclareFile.current
+    end
+    
+    def bytecode g
+      pos(g)
+      
+      implementation.bytecode(g)
+    end
+    
+    def to_sexp
+      implementation.to_sexp
+    end
+    
+    def implementation
+      if @block.nil?
+        if @arguments.nil?
+          if @receiver.nil?
+            LocalVariableAccessAmbiguous.new @line, @name
+          else
+            Send.new @line, @receiver, @name
+          end
+        else
+          rcvr = @receiver || Self.new(@line)
+          send = SendWithArguments.new @line, rcvr, @name, @arguments
+          send.block = @block_arg
+          send
+        end
+      else
+        rcvr = @receiver || Self.new(@line)
+        send = SendWithArguments.new @line, rcvr, @name, @arguments
+        Iter.new @line, send, @block
+      end
+    end
+  end
+  
   class Quest < Node
     attr_accessor :receiver
     attr_accessor :questable
@@ -448,6 +501,10 @@ module CodeTools::AST
     
     def process_lambig line, name
       LocalVariableAccessAmbiguous.new line, name
+    end
+    
+    def process_invoke line, receiver, name, args, body
+      Invoke.new line, receiver, name, args, body
     end
     
     def process_quest line, receiver, questable

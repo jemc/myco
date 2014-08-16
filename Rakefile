@@ -38,10 +38,8 @@ task :build => [:build_peg_parser]
 
 
 RSpec::Core::RakeTask.new :test => :build do |t|
-  tests = %w{
-    constants
-  }
-  t.pattern = "spec/**/#{tests.join '|'}_spec.rb"
+  test_group = 'memes'
+  t.pattern = "spec/**/#{test_group}_spec.rb"
 end
 
 task :sandbox => :build do

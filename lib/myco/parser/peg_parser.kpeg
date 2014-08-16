@@ -18,7 +18,7 @@
   
   # A token is a lightweight unit of text with type and location info
   # as well as some convenience function for common conversion operations.
-  class Token < BasicObject
+  class Token
     attr_accessor :type
     attr_accessor :text
     attr_accessor :line
@@ -35,69 +35,200 @@
       @line = row_col.first
     end
     
-    def sym
-      @text.to_sym
-    end
+    def sym;      @text.to_sym    end
+    def float;    Float(@text)    end
+    def integer;  Integer(@text)  end
   end
 }
+
+##
+# Things to remember about PEG:
+#
+# Given the choice (a | b | c),
+#   PEG will consume the first matching choice, not the longest.
+# There is no ambiguity in PEG because all rule choices are order-dependent.
+#   This means that you should avoid changing the order of choices
+#   in a rule without being mindful of the consequences.
+#
+# Given a left-recursive set of rules such as
+#   x = a | b | c
+#   a = x "+" x
+# PEG will silently ignore the 'a' rule when trying to contruct 'x' and
+#   not even try to pursue it because it would result in infinite recursion.
+#   To avoid left-recursion while retaining left-associativity,
+#   use an iteration rule instead of a recursion rule.
+#   (see the chained_left_atoms rule)
+
 
 ##
 # Toplevel Terminal Categorizations
 
 root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 
+# Expressions allowable inside object declarations
 declobj_expr =
+  declobj
+| declid
+| cdefn
+| cmeme
+| constant
+| meme
+
+# | deco
+# | declstr
+# | category
+
+# Expressions allowable inside memes
+meme_expr =
+  declobj
+| arg_expr
+
+# | declstr
+
+# Expressions allowable as function arguments
+arg_expr =
+  assignment
+| nest_assignment
+| left_chained_atoms
+| lit_string
+| lit_symstr
+| expr_atom
+
+# | quest_self
+# | dyn_string
+# | dyn_symstr
+
+# Expressions allowable as function arguments and in other assemblies
+expr_atom =
   constant
+| lit_simple
+| lit_array
+| invoke
+
+#   paren_expr
+# | quest
 
 
 ##
 # Character Classes
 
 c_nl     = "\n"
-c_spc    = /[ \t\r\f\v]/
+c_spc    = /[ \t\r\f\v]/ | "\\\n"
 c_spc_nl = c_spc | c_nl
-c_ = c_spc
 
-c_eof      = !.
-c_eol      = c_nl | c_eof
-c_any      = .
+c_eof    = !.
+c_eol    = c_nl | c_eof
+c_any    = .
 
-c_upper    = /[[:upper:]]/
-c_lower    = /[[:lower:]]/ | "_"
-c_alpha    = c_lower | c_upper
-c_alnum    = c_alpha | /[0-9]/
+c_upper  = /[[:upper:]]/
+c_lower  = /[[:lower:]]/ | "_"
+c_alpha  = c_lower | c_upper
+c_alnum  = c_alpha | /[0-9]/
 
 
 ##
 # Tokens
 
-t_EXPR_SEP    = < c_spc* (";" | c_nl) c_spc* >  ~token(:t_EXPR_SEP,    text)
-t_DECLARE_END = < "}" | c_eof >                 ~token(:t_DECLARE_END, text)
-t_SCOPE       = < "::" >                        ~token(:t_SCOPE,       text)
+t_CONST_SEP     = < ',' >                     ~token(:t_CONST_SEP,     text)
+t_EXPR_SEP      = < ';' | c_nl >              ~token(:t_EXPR_SEP,      text)
+t_ARG_SEP       = < ',' | c_nl >              ~token(:t_ARG_SEP,      text)
+t_DECLARE_BEGIN = < '{' >                     ~token(:t_DECLARE_BEGIN, text)
+t_DECLARE_END   = < '}' | c_eof >             ~token(:t_DECLARE_END,   text)
+t_MEME_MARK     = < ':' >                     ~token(:t_MEME_MARK,     text)
+t_MEME_BEGIN    = < '{' >                     ~token(:t_MEME_BEGIN,    text)
+t_MEME_END      = < '}' >                     ~token(:t_MEME_END,      text)
+t_DEFINE        = < '<' >                     ~token(:t_DEFINE,        text)
+t_PARAMS_BEGIN  = < '|' >                     ~token(:t_PARAMS_BEGIN,  text)
+t_PARAMS_END    = < '|' >                     ~token(:t_PARAMS_END,    text)
+t_ARGS_BEGIN    = < '(' >                     ~token(:t_ARGS_BEGIN,    text)
+t_ARGS_END      = < ')' >                     ~token(:t_ARGS_END,      text)
+t_ARRAY_BEGIN   = < '[' >                     ~token(:t_ARRAY_BEGIN,   text)
+t_ARRAY_END     = < ']' >                     ~token(:t_ARRAY_END,     text)
 
-t_CONSTANT    = < (c_upper c_alnum*) >          ~token(:t_CONSTANT,    text)
+t_CONSTANT      = < (c_upper c_alnum*) >      ~token(:t_CONSTANT,      text)
+t_IDENTIFIER    = < (c_lower c_alnum*) >      ~token(:t_IDENTIFIER,    text)
+t_SYMBOL        = ':' < (c_lower c_alnum*) >  ~token(:t_SYMBOL,        text)
+t_DECLID_TAG    = < 'id' >                    ~token(:t_DECLID_TAG,    text)
+
+t_NULL          = < 'null' >                  ~token(:t_NULL,          text)
+t_VOID          = < 'void' >                  ~token(:t_VOID,          text)
+t_TRUE          = < 'true' >                  ~token(:t_TRUE,          text)
+t_FALSE         = < 'false' >                 ~token(:t_FALSE,         text)
+t_SELF          = < 'self' >                  ~token(:t_SELF,          text)
+t_FLOAT         = < /[0-9]+/ '.' /[0-9]+/ >   ~token(:t_FLOAT,         text)
+t_INTEGER       = < /[0-9]+/ >                ~token(:t_INTEGER,       text)
+
+t_DOT           = < '.' >                     ~token(:t_DOT,           text)
+t_QUEST         = < '?' >                     ~token(:t_QUEST,         text)
+t_SCOPE         = < '::' >                    ~token(:t_SCOPE,         text)
+t_ASSIGN        = < '=' >                     ~token(:t_ASSIGN,        text)
+t_OP_TOPROC     = < '&' >                     ~token(:t_OP_TOPROC,     text)
+t_OP_PLUS       = < '+' >                     ~token(:t_OP_PLUS,       text)
+t_OP_MINUS      = < '-' >                     ~token(:t_OP_MINUS,      text)
+t_OP_MULT       = < '*' >                     ~token(:t_OP_MULT,       text)
+t_OP_DIV        = < '/' >                     ~token(:t_OP_DIV,        text)
+t_OP_MOD        = < '%' >                     ~token(:t_OP_MOD,        text)
+t_OP_EXP        = < '**' >                    ~token(:t_OP_EXP,        text)
+t_OP_AND        = < '&&' >                    ~token(:t_OP_AND,        text)
+t_OP_OR         = < '||' >                    ~token(:t_OP_OR,         text)
+t_OP_COMPARE    = < ('<=>'|'=~'|'=='|'<='|'>='|'<'|'>') >
+                                              ~token(:t_OP_COMPARE,    text)
+
+str_norm = /[^\\\"]/
+t_STRING_BODY   = < str_norm* ("\\" c_any str_norm*)* >
+                                              ~token(:t_STRING_BODY,   text)
+t_STRING_BEGIN  = < '"' >                     ~token(:t_STRING_BEGIN,  text)
+t_STRING_END    = < '"' >                     ~token(:t_STRING_END,    text)
+t_SYMSTR_BEGIN  = < ':"' >                    ~token(:t_SYMSTR_BEGIN,  text)
 
 
 ##
-# Object declarations
+# Simple literals
 
-declobj_sepd_expr =
-  t_EXPR_SEP:t_sep declobj_expr:n0  { n0 }
-| t_EXPR_SEP:t_sep                  { nil }
+lit_simple =
+  t_NULL:t0     ~node(:null,  t0)
+| t_VOID:t0     ~node(:void,  t0)
+| t_TRUE:t0     ~node(:true,  t0)
+| t_FALSE:t0    ~node(:false, t0)
+| t_SELF:t0     ~node(:self,  t0)
+| t_FLOAT:t0    ~node(:lit,   t0, t0.float)
+| t_INTEGER:t0  ~node(:lit,   t0, t0.integer)
+| t_SYMBOL:t0   ~node(:lit,   t0, t0.sym)
 
-declobj_sepd_exprs =
-  declobj_sepd_exprs:nrest declobj_sepd_expr:n0  { [*nrest, n0].compact }
-| declobj_sepd_expr:n0                           { [n0].compact }
+##
+# Enclosed literals
 
-declobj_expr_body =
-  declobj_expr:n0 declobj_sepd_exprs:nrest t_DECLARE_END:t_end
-      { node(:block, n0, [n0, *nrest]) }
-| declobj_sepd_exprs:nrest t_DECLARE_END:t_end
-      { nrest.empty? ? node(:null, t_end) : node(:block, nrest, nrest) }
-| declobj_expr:n0 t_DECLARE_END:t_end
-      { node(:block, n0, [n0]) }
-| t_DECLARE_END:t_end
-      { node(:null, t_end) }
+lit_string =
+  t_STRING_BEGIN t_STRING_BODY:tb t_STRING_END
+    ~node(:lit, tb, encode_escapes(tb.text))
+
+lit_string_as_symbol = # Used in contexts where a bare string is a symbol
+  t_STRING_BEGIN t_STRING_BODY:tb t_STRING_END
+    ~node(:lit, tb, encode_escapes(tb.text).to_sym)
+
+lit_symstr =
+  t_SYMSTR_BEGIN t_STRING_BODY:tb t_STRING_END
+    ~node(:lit, tb, encode_escapes(tb.text).to_sym)
+
+# ##
+# # String interpolations / juxtapositions
+
+# dyn_string_part =
+#   expr_atom lit_string { [node(:evstr, val[0], val[0]), val[1]] }
+# ;
+
+# dyn_string_parts =
+#   dyn_string_parts dyn_string_part { [*val[0], *val[1]] }
+# | dyn_string_part                  { val[0] }
+# ;
+
+# dyn_string =
+#   lit_string dyn_string_parts { node(:dstr, val[0], val[0].value, val[1]) }
+# ;
+
+# dyn_symstr =
+#   lit_symstr dyn_string_parts { node(:dsym, val[0], val[0].value.to_s, val[1])}
+# ;
 
 ##
 # Constants
@@ -106,3 +237,340 @@ constant =
   constant:n0 t_SCOPE:ts t_CONSTANT:tc  ~node(:colon2, ts, n0, tc.sym)
 | t_SCOPE:ts t_CONSTANT:tc              ~node(:colon3, ts, tc.sym)
 | t_CONSTANT:tc                         ~node(:const,  tc, tc.sym)
+
+const_sep     = (c_spc_nl* t_CONST_SEP c_spc_nl*)+
+
+sepd_constant =
+  const_sep constant:n0  { n0 }
+
+constant_list =
+  constant:n0 sepd_constant*:nrest  ~node(:array, n0, [n0, *nrest])
+
+##
+# Bare identifiers
+
+# Used in contexts where a bare identifier is a symbol
+id_as_symbol =  t_IDENTIFIER:t0  ~node(:lit, t0, t0.sym)
+# Ambiguous - could be local variable or call without args
+id_as_lambig =  t_IDENTIFIER:t0  ~node(:lambig, t0, t0.sym)
+
+##
+# Object declarations
+
+expr_sep     = (c_spc* t_EXPR_SEP c_spc*)+
+expr_sep_opt = (c_spc | t_EXPR_SEP)*
+
+declobj_sepd_expr =
+  expr_sep declobj_expr:n0  { n0 }
+
+declobj_sepd_exprs =
+  declobj_expr:n0 declobj_sepd_expr*:nrest  { [n0, *nrest] }
+
+declobj_expr_body =
+  expr_sep_opt declobj_sepd_exprs:nlist expr_sep_opt t_DECLARE_END:te
+    ~node(:block, nlist.first, nlist)
+| expr_sep_opt t_DECLARE_END:te
+    ~node(:null, te)
+
+declobj =
+  constant_list:n0 c_spc_nl* t_DECLARE_BEGIN:t declobj_expr_body:n1
+    ~node(:declobj, t, n0, n1)
+
+cdefn =
+  constant:n0 c_spc_nl* t_DEFINE:t c_spc_nl* declobj:n1
+    ~node(:cdefn, t, n0, n1)
+
+##
+# Assignment
+
+assignment =
+  t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
+    ~node(:lasgn, to, ti.sym, rhs)
+
+# TODO: implement for general case of deep-nested chain of dots or quests
+# but ensure that a chain of any other left_chaining operator is not used
+nest_assignment =
+  expr_atom:nr c_spc_nl* t_DOT c_spc_nl* t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
+    ~node(:call, to, nr, :"#{ti.sym}=", node(:array, rhs, [rhs]))
+
+
+##
+# Invoke - Results in a :lambig, :call, or :iter with a :call within
+
+invoke =
+  t_IDENTIFIER:tn (c_spc_nl* arg_list:na)?:na
+    ~node(:invoke, tn, nil, tn.sym, na, nil)
+
+# ##
+# # Method quests
+
+# questable =
+#   t_IDENTIFIER
+#     ~node(:quest, val[0], node(:self, val[0]), node(:call, val[0], node(:self, val[0]), val[0][1].to_sym, nil))
+# | call_with_args
+#     ~node(:quest, val[0], node(:self, val[0]), val[0])
+# | call_iter
+#     ~node(:quest, val[0], node(:self, val[0]), val[0])
+
+# quest_self =
+#   T_QUEST questable { val[1] }
+
+# quest =
+#   expr_atom T_QUEST questable { tn.receiver = val[0]; tn }
+
+##
+# Argument lists
+
+arg_sep     = (c_spc* t_ARG_SEP c_spc*)+
+arg_sep_opt = (c_spc | t_ARG_SEP)*
+
+in_arg_expr =
+  arg_expr
+| t_OP_MULT:to   expr_atom:n0  ~node(:splat, to, n0)
+| t_OP_TOPROC:to expr_atom:n0  ~node(:block_pass, to, nil, n0)
+
+in_arg_sepd_expr =
+  arg_sep in_arg_expr:n0  { n0 }
+
+in_arg_sepd_exprs =
+  in_arg_expr:n0 in_arg_sepd_expr*:nrest  { [n0, *nrest] }
+
+arg_list =
+  t_ARGS_BEGIN:tb arg_sep_opt t_ARGS_END
+    ~args_assemble(tb, node(:array, tb, []))
+| t_ARGS_BEGIN:tb arg_sep_opt in_arg_sepd_exprs:nlist arg_sep_opt t_ARGS_END
+    ~args_assemble(tb, node(:array, tb, nlist))
+
+lit_array =
+  t_ARRAY_BEGIN:tb arg_sep_opt t_ARRAY_END
+    ~args_assemble(tb, node(:array, tb, []))
+| t_ARRAY_BEGIN:tb arg_sep_opt in_arg_sepd_exprs:nlist arg_sep_opt t_ARRAY_END
+    ~args_assemble(tb, node(:array, tb, nlist))
+
+##
+# Parameter lists
+
+param =
+  t_IDENTIFIER:ti c_spc_nl* t_ASSIGN c_spc_nl* arg_expr:nv
+    { [:optional, node(:lasgn, ti, ti.sym, nv)] }
+| t_OP_TOPROC c_spc_nl* t_IDENTIFIER:ti  { [:block,    ti.sym] }
+| t_OP_MULT c_spc_nl* t_IDENTIFIER:ti    { [:rest,     ti.sym] }
+| t_IDENTIFIER:ti                        { [:required, ti.sym] }
+
+param_sepd =
+  arg_sep param:n0  { n0 }
+
+param_sepds =
+  param:n0 param_sepd*:nrest arg_sep_opt  { [n0, *nrest] }
+
+param_list =
+  t_PARAMS_BEGIN:tb t_PARAMS_END
+    { node(:args, tb, nil, nil, nil, nil, nil, nil, nil) }
+| t_PARAMS_BEGIN:tb param_sepds:plist t_PARAMS_END
+    {
+      required, optional, rest, block = 4.times.map { Array.new }
+      
+      required << plist.shift[1] while plist[0] && plist[0][0] == :required
+      optional << plist.shift[1] while plist[0] && plist[0][0] == :optional
+      optional = optional.empty? ? nil : node(:block, tb, optional)
+      rest     << plist.shift[1] while plist[0] && plist[0][0] == :rest
+      block    << plist.shift[1] while plist[0] && plist[0][0] == :block
+      
+      node(:args, tb, required, optional, rest.first, nil, nil, nil, block.first)
+    }
+
+##
+# Two-term operators
+
+left_op =
+  t_DOT     | t_QUEST
+| t_OP_EXP
+| t_OP_MULT | t_OP_DIV | t_OP_MOD
+| t_OP_PLUS | t_OP_MINUS
+| t_OP_COMPARE
+
+# two_term_expr =
+#   arg_expr:lhs c_spc_nl* left_op:to c_spc_nl* arg_expr:rhs
+#     ~node(:call, to, lhs, to.sym, node(:array, rhs, [rhs]))
+# | arg_expr:lhs c_spc_nl* t_OP_AND:to           c_spc_nl* arg_expr:rhs
+#     ~node(:and, to, lhs, rhs)
+# | arg_expr:lhs c_spc_nl* t_OP_OR:to            c_spc_nl* arg_expr:rhs
+#     ~node(:or, to, lhs, rhs)
+
+# Achieve left-associativity through iteration.
+#
+# PEG parsers get tripped up by left recursion
+# (in contrast to LALR parsers, which prefer left recursion).
+# This is a well-understood limitation, but refer to:
+# http://www.dalnefre.com/wp/2011/05/parsing-expression-grammars-part-4/
+# for an easy-to-understand explanation of this problem and this solution.
+#
+left_chained_atoms =
+  expr_atom:n0 (c_spc_nl* left_op:to c_spc_nl* expr_atom:n1 { [to, n1] })+:list
+    {
+  list.unshift n0
+  
+  # Collapse each association in order of precedence
+  collapse(list, :t_DOT, :t_QUEST) do |n0,op,n1|
+    op.type==:t_DOT ? (n1.receiver=n0; n1) : node(:quest, op, n0, n1)
+  end
+  collapse(list, :t_OP_EXP)
+  collapse(list, :t_OP_MULT, :t_OP_DIV, :t_OP_MOD)
+  collapse(list, :t_OP_PLUS, :t_OP_MINUS)
+  collapse(list, :t_OP_COMPARE)
+  # collapse(list, :t_OP_AND, :t_OP_OR)
+  # collapse(list, :t_ASSIGN)
+  
+  # There should only be one resulting node left
+  raise "Failed to fully collapse left_chained_atoms: #{list}" \
+    unless list.count == 1
+  
+  list.first
+}
+
+##
+# Memes and etc..
+
+meme_sepd_expr =
+  expr_sep meme_expr:n0  { n0 }
+
+meme_sepd_exprs =
+  meme_expr:n0 meme_sepd_expr*:nrest  { [n0, *nrest] }
+
+meme_inline_expr_body =
+  c_spc_nl* meme_expr:n0
+    ~node(:block, n0, [n0])
+
+meme_expr_body =
+  expr_sep_opt meme_sepd_exprs:nlist expr_sep_opt t_MEME_END:te
+    ~node(:block, nlist.first, nlist)
+| expr_sep_opt t_MEME_END:te
+    ~node(:null, te)
+
+meme_either_body =
+  c_spc_nl* t_MEME_BEGIN:tb meme_expr_body:n0  { n0 }
+| meme_inline_expr_body:n0                     { n0 }
+
+# paren_expr_body =
+#   expr_sep_opt meme_sepd_exprs:nlist expr_sep_opt t_PAREN_END:te
+#     ~node(:block, nlist.first, nlist)
+# | expr_sep_opt t_PAREN_END:te
+#     ~node(:null, te)
+
+# paren_expr =
+#   t_PAREN_BEGIN paren_expr_body:n0 { n0 }
+
+cmeme =
+  constant:n0 c_spc* t_MEME_MARK:tm meme_inline_expr_body:n1
+    ~node(:cdecl, tm, n0, n1)
+
+meme_name =
+  id_as_symbol
+| lit_string_as_symbol
+
+meme =
+  meme_name:nm c_spc* t_MEME_MARK:tm c_spc_nl* param_list:np meme_either_body:nb
+    ~node(:meme, tm, nm, nil, np,  nb)
+| meme_name:nm c_spc* t_MEME_MARK:tm meme_either_body:nb
+    ~node(:meme, tm, nm, nil, nil, nb)
+| meme_name:nm
+    ~node(:meme, tm, nm, nil, nil, nil)
+
+# deco_able =
+#   meme
+# | deco
+
+# deco =
+#   t_IDENTIFIER:ti deco_able:n1
+#     { n1.decorations.body.push(node(:lit, ti, ti.sym)); n1 }
+
+declid =
+  t_DECLID_TAG c_spc* t_MEME_MARK:tm c_spc_nl* id_as_symbol:ni
+    ~node(:declid, tm, ni)
+
+# category:
+#   T_CATEGORY_BEGIN T_CATEGORY_BODY T_CATEGORY_END
+#     { node(:category, val[0], node(:lit, val[1], val[1][1].to_sym)) }
+
+
+%% {
+#%
+  # Encode escape characters in string literals
+  # TODO: rigorously test and refine
+  #
+  def encode_escapes str
+    str.gsub /\\(.)/ do "#{$1}" end
+  end
+  
+  # Given a node,op list ([node, op, node, op, ... node]) and operator types,
+  # collapse the (node, op, node) groups where the operator is one of the types
+  #
+  # This function is meant to be called several times on the same list,
+  # with a different set of operator types each time, in order of precedence.
+  #
+  def collapse input, *types
+    input.flatten!
+    output = []
+    
+    # Scan through, reducing or shifting based on the operator
+    while input.count > 2
+      n0 = input.shift
+      op = input.shift
+      
+      if types.include? op.type
+        n1 = input.shift
+        
+        result = block_given? ?
+          yield(n0,op,n1) :
+          node(:call, op, n0, op.sym, node(:array, n1, [n1])) 
+        input.unshift result
+      else
+        output.push n0
+        output.push op
+      end
+    end
+    
+    # Push the last item remaining
+    output.push input.shift
+    
+    input.replace output
+  end
+  
+  # Given a locator and an node(:array), refactor the splat-related nodes
+  # in a copy of the original node body and return a replacement for the node.
+  #
+  def args_assemble loc, orig_node
+    list = orig_node.body.dup
+    tmp  = []
+    
+    special_type_check = Proc.new { |x|
+      case x
+      when Myco::ToolSet::AST::SplatValue;   :splat
+      when Myco::ToolSet::AST::ConcatArgs;   :argscat
+      when Myco::ToolSet::AST::PushArgs;     :argspush
+      when Myco::ToolSet::AST::BlockPass;    :block_pass
+      else; nil
+      end
+    }
+    
+    # Get the original value in the new_node
+    tmp << list.shift until list.empty? or special_type_check.call(list.first)
+    new_node = tmp.empty? ? list.shift : node(:array, loc, tmp)
+    
+    # Continue to reduce until all elements have been used
+    until list.empty?
+      arg = list.shift
+      type = special_type_check.call(arg)
+      if type == :block_pass
+        new_node = arg.tap { |n| n.arguments = new_node }
+      elsif type != nil
+        new_node = node(:argscat, loc, new_node, arg)
+      else
+        new_node = node(:argspush, loc, new_node, arg)
+      end
+    end
+    
+    new_node || orig_node
+  end
+  
+}
