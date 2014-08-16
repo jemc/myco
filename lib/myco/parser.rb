@@ -16,21 +16,23 @@ module CodeTools
   end
 end
 
-require_relative 'parser/lexer'
-require_relative 'parser/lexer_common'
 require_relative 'parser/ast'
-require_relative 'parser/builder'
+require_relative 'parser/peg_parser'
 
 module CodeTools
   class Parser
     include CodeTools::AST::ProcessorMethods
     
     def parse_string string
-      @builder ||= Myco::ToolSet::Builder.new.tap do |b|
-        b.processor = self
-      end
+      @peg_parser = Myco::ToolSet::PegParser.new string
+      @peg_parser.processor = self
       
-      @builder.parse string
+      if @peg_parser.parse
+        return @peg_parser.root_node
+      else
+        @peg_parser.show_error(io=StringIO.new)
+        raise SyntaxError, io.string
+      end
     end
     
   end

@@ -1,6 +1,7 @@
 
 source 'https://rubygems.org'
 
+gem 'kpeg',               '~> 1.0'
 gem 'racc',               '~> 1.4'
 gem 'rubinius-bridge',    '~> 1.1'
 gem 'rubinius-toolset',   '~> 2.3'

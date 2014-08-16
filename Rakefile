@@ -23,13 +23,26 @@ file 'lib/myco/parser/builder.rb' => 'lib/myco/parser/builder.racc' do
   print "\033[0m" # End terminal coloring
 end
 
+file 'lib/myco/parser/peg_parser.rb' => 'lib/myco/parser/peg_parser.kpeg' do
+  puts "Building PEG Parser..."
+  raise "kpeg failed to build PEG Parser..." unless \
+    system "kpeg -f lib/myco/parser/peg_parser.kpeg -s" \
+               " -o lib/myco/parser/peg_parser.rb"
+end
+
 
 task :build_lexer => 'lib/myco/parser/lexer.rb'
 task :build_builder => 'lib/myco/parser/builder.rb'
-task :build => [:build_lexer, :build_builder]
+task :build_peg_parser => 'lib/myco/parser/peg_parser.rb'
+task :build => [:build_peg_parser]
 
 
-RSpec::Core::RakeTask.new :test => :build
+RSpec::Core::RakeTask.new :test => :build do |t|
+  tests = %w{
+    constants
+  }
+  t.pattern = "spec/**/#{tests.join '|'}_spec.rb"
+end
 
 task :sandbox => :build do
   require_relative 'sandbox.rb'
