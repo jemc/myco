@@ -4,6 +4,12 @@ module CodeTools::AST
   class DeclareFile < Node
     attr_accessor :body
     
+    # Use minimal inspect to avoid huge inspect output for inner AST nodes
+    # that store a reference to a DeclareFile in an instance variable. 
+    def inspect
+      to_s
+    end
+    
     def initialize line, body
       @line = line
       @body = body
