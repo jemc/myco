@@ -26,36 +26,9 @@ describe Myco::ToolSet::Parser, "Quests" do
       ]],
       [:meme, :d, [:array], [:args], [:block,
         [:quest, [:call, [:self], :foo, [:arglist, [:lit, 1],
-                   [:iter, [:args], [:lit, 55]]]],
+                   [:iter, [:args], [:block, [:lit, 55]]]]],
                  [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3],
-                   [:iter, [:args], [:lit, 66]]]]]
-      ]],
-    ]]
-  end
-  
-  parse <<-'code' do
-    Object {
-      a: ?bar
-      b: ? bar
-      c: ?bar(2,3)
-      d: ? bar(2,3) { 66 }
-    }
-  code
-    [:declobj, [:array, [:const, :Object]], [:block,
-      [:meme, :a, [:array], [:args], [:block,
-        [:quest, [:self], [:call, [:qrcvr], :bar, [:arglist]]]
-      ]],
-      [:meme, :b, [:array], [:args], [:block,
-        [:quest, [:self], [:call, [:qrcvr], :bar, [:arglist]]]
-      ]],
-      [:meme, :c, [:array], [:args], [:block,
-        [:quest, [:self],
-                 [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3]]]]
-      ]],
-      [:meme, :d, [:array], [:args], [:block,
-        [:quest, [:self],
-                 [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3],
-                   [:iter, [:args], [:lit, 66]]]]]
+                   [:iter, [:args], [:block, [:lit, 66]]]]]]
       ]],
     ]]
   end

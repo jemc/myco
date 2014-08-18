@@ -22,13 +22,13 @@ describe Myco::ToolSet::Parser, "Procs" do
       [:meme, :bar, [:array],
         [:args], [:block,
           [:call, [:lit, 5], :+, [:arglist, [:call, [:self],
-            :foo, [:arglist, [:iter, [:args], [:lit, 3]]]]]]
+            :foo, [:arglist, [:iter, [:args], [:block, [:lit, 3]]]]]]]
           ]
         ],
       [:meme, :baz, [:array],
         [:args], [:block,
           [:call, [:self],
-            :foo, [:arglist, [:lit, 1], [:iter, [:args], [:lit, 5]]]]
+            :foo, [:arglist, [:lit, 1], [:iter, [:args], [:block, [:lit, 5]]]]]
         ]
       ]
     ]]
@@ -43,13 +43,13 @@ describe Myco::ToolSet::Parser, "Procs" do
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo, [:array], [:args], [:block,
         [:call, [:self], :baz, [:arglist,
-          [:iter, [:args, :a, :b, :c], [:lambig, :a]]
+          [:iter, [:args, :a, :b, :c], [:block, [:lambig, :a]]]
         ]]
       ]],
       [:meme, :baz, [:array], [:args], [:block,
         [:call, [:self], :baz, [:arglist,
           [:lit, 1], [:lit, 2], [:lit, 3],
-          [:iter, [:args, :a, :b, :c], [:lambig, :b]]
+          [:iter, [:args, :a, :b, :c], [:block, [:lambig, :b]]]
         ]]
       ]]
     ]]

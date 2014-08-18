@@ -149,13 +149,13 @@ module CodeTools::AST
   end
   
   class DefineMeme < Define
-    attr_accessor :name, :decorations, :args, :body
+    attr_accessor :name, :decorations, :arguments, :body
     
-    def initialize line, name, decorations, args, body
+    def initialize line, name, decorations, arguments, body
       @line        = line
       @name        = name.value
       @decorations = decorations || ArrayLiteral.new(line, [])
-      @arguments   = args || Parameters.new(line, [], nil, false, nil, nil, nil, nil)
+      @arguments   = arguments || Parameters.new(line, [], nil, false, nil, nil, nil, nil)
       @body        = body || NilLiteral.new(line)
     end
     
@@ -263,12 +263,11 @@ module CodeTools::AST
   
   class LocalVariableAccessAmbiguous < Node
     attr_accessor :name
+    attr_accessor :declfile
     
     def initialize line, name
       @line = line
       @name = name
-      
-      @declfile = DeclareFile.current
     end
     
     def bytecode g
@@ -294,9 +293,9 @@ module CodeTools::AST
   end
   
   class Invoke < Node
-    attr_accessor :receiver, :name, :arguments, :block
+    attr_accessor :receiver, :name, :arguments, :block_params, :block
     
-    def initialize line, receiver, name, arguments, block
+    def initialize line, receiver, name, arguments, block_params=nil, block=nil
       block_arg = nil
       if arguments.is_a? BlockPass
         block_arg = arguments
@@ -304,14 +303,15 @@ module CodeTools::AST
         block_arg.arguments = nil
       end
       
-      @line      = line
-      @receiver  = receiver
-      @name      = name
-      @arguments = arguments
-      @block     = block
-      @block_arg = block_arg
+      @line         = line
+      @receiver     = receiver
+      @name         = name
+      @arguments    = arguments
+      @block_params = block_params
+      @block        = block
+      @block_arg    = block_arg
       
-      @declfile  = DeclareFile.current
+      @declfile     = DeclareFile.current
     end
     
     def bytecode g
@@ -325,23 +325,29 @@ module CodeTools::AST
     end
     
     def implementation
-      if @block.nil?
+      if @block.nil? && @block_arg.nil?
         if @arguments.nil?
           if @receiver.nil?
-            LocalVariableAccessAmbiguous.new @line, @name
+            node = LocalVariableAccessAmbiguous.new @line, @name
+            node.declfile = @declfile
+            node
           else
             Send.new @line, @receiver, @name
           end
         else
           rcvr = @receiver || Self.new(@line)
           send = SendWithArguments.new @line, rcvr, @name, @arguments
-          send.block = @block_arg
           send
         end
       else
         rcvr = @receiver || Self.new(@line)
         send = SendWithArguments.new @line, rcvr, @name, @arguments
-        Iter.new @line, send, @block
+        if @block
+          send.block = Iter.new @line, @block_params, @block
+        elsif @block_arg
+          send.block = @block_arg
+        end
+        send
       end
     end
   end
@@ -487,8 +493,8 @@ module CodeTools::AST
       ConstantDefine.new line, name, object
     end
     
-    def process_meme line, name, decorations, args, body
-      DefineMeme.new line, name, decorations, args, body
+    def process_meme line, name, decorations, arguments, body
+      DefineMeme.new line, name, decorations, arguments, body
     end
     
     def process_declid line, name
@@ -503,8 +509,8 @@ module CodeTools::AST
       LocalVariableAccessAmbiguous.new line, name
     end
     
-    def process_invoke line, receiver, name, args, body
-      Invoke.new line, receiver, name, args, body
+    def process_invoke line, receiver, name, arguments, *rest
+      Invoke.new line, receiver, name, arguments, *rest
     end
     
     def process_quest line, receiver, questable

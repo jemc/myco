@@ -154,7 +154,7 @@
     }
     
     # Calculate the ending delimiter to look for and store it
-    @dstr_delim = text(start, stop) \
+    @dstr_destrlim = text(start, stop) \
       .split(/(?<=[^a-zA-Z])|(?=[^a-zA-Z])/)
       .map { |str|
         idx = @dstr_replace_table.find_index(str)

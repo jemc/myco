@@ -68,6 +68,7 @@ root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 # Expressions allowable inside object declarations
 declobj_expr =
   declobj
+| declstr
 | declid
 | category
 | cdefn
@@ -75,14 +76,11 @@ declobj_expr =
 | constant
 | meme
 
-# | declstr
-
 # Expressions allowable inside memes
 meme_expr =
   declobj
+| declstr
 | arg_expr
-
-# | declstr
 
 # Expressions allowable as function arguments
 arg_expr =
@@ -93,23 +91,36 @@ arg_expr =
 | dyn_symstr
 | expr_atom
 
-# | quest_self
-
-# Expressions atoms
+# TODO: make expr_atom not redundant with below rules
+# Expression atoms
 expr_atom =
-  lit_string
+  left_chained_invocations
+| lit_string
 | lit_symstr
-| expr_atom_not_string
-
-# Expressions atoms that are not strings
-expr_atom_not_string =
-  paren_expr
+| paren_expr
 | constant
 | lit_simple
 | lit_array
 | invoke
 
-# | quest
+# Expression atoms that are not invocation chains
+expr_atom_not_chained =
+  lit_string
+| lit_symstr
+| paren_expr
+| constant
+| lit_simple
+| lit_array
+| invoke
+
+# Expression atoms that are not strings
+expr_atom_not_string =
+  left_chained_invocations
+| paren_expr
+| constant
+| lit_simple
+| lit_array
+| invoke
 
 
 ##
@@ -267,8 +278,6 @@ constant_list =
 
 # Used in contexts where a bare identifier is a symbol
 id_as_symbol =  t_IDENTIFIER:t0  ~node(:lit, t0, t0.sym)
-# Ambiguous - could be local variable or call without args
-id_as_lambig =  t_IDENTIFIER:t0  ~node(:lambig, t0, t0.sym)
 
 ##
 # Object declarations
@@ -294,42 +303,80 @@ cdefn =
     ~node(:cdefn, t, n0, n1)
 
 ##
+# String object declarations
+
+t_DECLSTR_BEGIN =
+  < /[^\s{:,<][^\s]+/ >
+    {
+  
+  # Table of replacement characters to use when calculating
+  # the ending delimiter from the starting delimiter.
+  # Directional characters are replaced with their opposite.
+  @declstr_replace_tbl ||= %w{
+    < > ( ) { } [ ]
+  }
+  
+  # Calculate the ending delimiter to look for and store it
+  @declstr_destrlim = text \
+    .split(/(?<=[^a-zA-Z])|(?=[^a-zA-Z])/)
+    .map { |str|
+      idx = @declstr_replace_tbl.find_index(str)
+      idx.nil? ? str : 
+        (idx.odd? ? @declstr_replace_tbl[idx-1] : @declstr_replace_tbl[idx+1])
+    }
+    .reverse
+    .join ''
+  
+  token(:t_DECLSTR_BEGIN, text)
+}
+
+t_DECLSTR_END =
+  c_spc_nl* < (< /\S+/ > &{text == @declstr_destrlim}) >
+    ~token(:t_DECLSTR_END, text)
+
+s_DECLSTR_BODYLINE =
+  < /[^\n]*\n/ >
+    &{ text =~ /^(\s*)(\S+)/; $2!=@declstr_destrlim }
+    { text }
+
+s_DECLSTR_BODY =
+  s_DECLSTR_BODYLINE*:slist
+    { slist[1..-1].join('') }
+
+declstr_body =
+  t_DECLSTR_BEGIN:tb s_DECLSTR_BODY:st c_spc_nl* t_DECLSTR_END
+    ~node(:str, tb, st)
+
+declstr =
+  constant_list:nc c_spc+ declstr_body:nb
+    ~node(:declstr, nc, nc, nb)
+
+##
 # Assignment
 
 assignment =
   t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
     ~node(:lasgn, to, ti.sym, rhs)
 
-# TODO: implement for general case of deep-nested chain of dots or quests
-# but ensure that a chain of any other left_chaining operator is not used
 nest_assignment =
-  expr_atom:nr c_spc_nl* t_DOT c_spc_nl* t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
-    ~node(:call, to, nr, :"#{ti.sym}=", node(:array, rhs, [rhs]))
+  left_chained_invocations:lhs c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
+    {
+  lhs.name = :"#{lhs.name}="
+  lhs.arguments = node(:array, rhs, [rhs])
+  lhs
+}
 
 
 ##
 # Invoke - Results in a :lambig, :call, or :iter with a :call within
 
+invoke_body =
+  (c_spc_nl* param_list:n)?:np meme_enclosed_expr_body:nb
+    { [np, nb] }
+
 invoke =
-  t_IDENTIFIER:tn (c_spc_nl* arg_list:na)?:na
-    ~node(:invoke, tn, nil, tn.sym, na, nil)
-
-# ##
-# # Method quests
-
-# questable =
-#   t_IDENTIFIER
-#     ~node(:quest, val[0], node(:self, val[0]), node(:call, val[0], node(:self, val[0]), val[0][1].to_sym, nil))
-# | call_with_args
-#     ~node(:quest, val[0], node(:self, val[0]), val[0])
-# | call_iter
-#     ~node(:quest, val[0], node(:self, val[0]), val[0])
-
-# quest_self =
-#   T_QUEST questable { val[1] }
-
-# quest =
-#   expr_atom T_QUEST questable { tn.receiver = val[0]; tn }
+  t_IDENTIFIER:tn (c_spc_nl* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
+    ~node(:invoke, tn, nil, tn.sym, na, *nlist)
 
 ##
 # Argument lists
@@ -393,11 +440,11 @@ param_list =
 # Two-term operators
 
 left_op =
-  t_DOT     | t_QUEST
-| t_OP_EXP
+  t_OP_EXP
 | t_OP_MULT | t_OP_DIV | t_OP_MOD
 | t_OP_PLUS | t_OP_MINUS
 | t_OP_COMPARE
+| t_OP_AND  | t_OP_OR
 
 # Achieve left-associativity through iteration.
 #
@@ -411,20 +458,46 @@ left_chained_atoms =
   expr_atom:n0 (c_spc_nl* left_op:to c_spc_nl* expr_atom:n1 { [to, n1] })+:list
     {
   list.unshift n0
+  list.flatten!
   
-  # Collapse each association in order of precedence
-  collapse(list, :t_DOT, :t_QUEST) do |n0,op,n1|
-    op.type==:t_DOT ? (n1.receiver=n0; n1) : node(:quest, op, n0, n1)
-  end
   collapse(list, :t_OP_EXP)
   collapse(list, :t_OP_MULT, :t_OP_DIV, :t_OP_MOD)
   collapse(list, :t_OP_PLUS, :t_OP_MINUS)
   collapse(list, :t_OP_COMPARE)
-  # collapse(list, :t_OP_AND, :t_OP_OR)
-  # collapse(list, :t_ASSIGN)
+  collapse(list, :t_OP_AND, :t_OP_OR) do |n0,op,n1|
+    type = { :t_OP_AND=>:and, :t_OP_OR=>:or }[op.type]
+    node(type, op, n0, n1)
+  end
   
   # There should only be one resulting node left
   raise "Failed to fully collapse left_chained_atoms: #{list}" \
+    unless list.count == 1
+  
+  list.first
+}
+
+##
+# Invocations and Quests (soft-failing invocations)
+
+left_invoke_op =
+  t_DOT
+| t_QUEST
+
+# Achieve left-associativity through iteration.
+# (see left_chained_atoms).
+#
+left_chained_invocations =
+  expr_atom_not_chained:n0 (c_spc_nl* left_invoke_op:to c_spc_nl* expr_atom_not_chained:n1 { [to, n1] })+:list
+    {
+  list.unshift n0
+  list.flatten!
+  
+  collapse(list, :t_DOT, :t_QUEST) do |n0,op,n1|
+    op.type==:t_DOT ? (n1.receiver=n0; n1) : node(:quest, op, n0, n1)
+  end
+  
+  # There should only be one resulting node left
+  raise "Failed to fully collapse left_chained_invocations: #{list}" \
     unless list.count == 1
   
   list.first
@@ -455,9 +528,12 @@ paren_expr_body =
 paren_expr =
   t_PAREN_BEGIN paren_expr_body:n0 { n0 }
 
+meme_enclosed_expr_body =
+  c_spc_nl* t_MEME_BEGIN meme_expr_body:n0  { n0 }
+
 meme_either_body =
-  c_spc_nl* t_MEME_BEGIN:tb meme_expr_body:n0  { n0 }
-| meme_inline_expr_body:n0                     { n0 }
+  meme_enclosed_expr_body
+| meme_inline_expr_body
 
 cmeme =
   constant:n0 c_spc* t_MEME_MARK:tm meme_inline_expr_body:n1
@@ -498,7 +574,6 @@ declid =
   # with a different set of operator types each time, in order of precedence.
   #
   def collapse input, *types
-    input.flatten!
     output = []
     
     # Scan through, reducing or shifting based on the operator
