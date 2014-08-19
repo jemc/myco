@@ -9,6 +9,7 @@ describe Myco::ToolSet::Parser, "Decorations" do
     Object {
       on foo: null
       one two three: null
+      four "five" six: null
       sym "str.ng": null
     }
   code
@@ -16,6 +17,8 @@ describe Myco::ToolSet::Parser, "Decorations" do
       [:meme, :foo,   [:array, [:lit, :on]],
         [:args], [:block, [:null]]],
       [:meme, :three, [:array, [:lit, :two], [:lit, :one]],
+        [:args], [:block, [:null]]],
+      [:meme, :six, [:array, [:lit, :five], [:lit, :four]],
         [:args], [:block, [:null]]],
       [:meme, :"str.ng", [:array, [:lit, :sym]],
         [:args], [:block, [:null]]]
@@ -26,6 +29,7 @@ describe Myco::ToolSet::Parser, "Decorations" do
     Object {
       on foo
       one two three
+      four "five" six
       sym "str.ng"
     }
   code
@@ -33,6 +37,8 @@ describe Myco::ToolSet::Parser, "Decorations" do
       [:meme, :foo,   [:array, [:lit, :on]],
         [:args], [:null]],
       [:meme, :three, [:array, [:lit, :two], [:lit, :one]],
+        [:args], [:null]],
+      [:meme, :six, [:array, [:lit, :five], [:lit, :four]],
         [:args], [:null]],
       [:meme, :"str.ng", [:array, [:lit, :sym]],
         [:args], [:null]]
