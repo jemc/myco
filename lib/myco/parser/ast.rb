@@ -148,7 +148,32 @@ module CodeTools::AST
     end
   end
   
-  class DefineMeme < Define
+  class DeclareDecorator < Node
+    attr_accessor :line, :name, :arguments
+    
+    def initialize line, name, arguments
+      @line      = line
+      @name      = name
+      @arguments = arguments || ArrayLiteral.new(@line, [])
+    end
+    
+    def to_sexp
+      args_sexp = @arguments.to_sexp
+      args_sexp[0] = :arglist
+      sexp = [:deco, @name.value]
+      sexp.push args_sexp unless @arguments.body.empty?
+      sexp
+    end
+    
+    def bytecode g
+      pos(g)
+      
+      ary = ArrayLiteral.new @line, [@name, @arguments]
+      ary.bytecode g
+    end
+  end
+  
+  class DeclareMeme < Define
     attr_accessor :name, :decorations, :arguments, :body
     
     def initialize line, name, decorations, arguments, body
@@ -363,7 +388,7 @@ module CodeTools::AST
       
       @void_literal = VoidLiteral.new @line
       
-      @questable.receiver = Quest::FakeReceiver.new @line
+      @questable.receiver = FakeReceiver.new @line
     end
     
     def bytecode g
@@ -493,8 +518,12 @@ module CodeTools::AST
       ConstantDefine.new line, name, object
     end
     
+    def process_deco line, name, arguments
+      DeclareDecorator.new line, name, arguments
+    end
+    
     def process_meme line, name, decorations, arguments, body
-      DefineMeme.new line, name, decorations, arguments, body
+      DeclareMeme.new line, name, decorations, arguments, body
     end
     
     def process_declid line, name

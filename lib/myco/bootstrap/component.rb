@@ -82,14 +82,14 @@ module Myco
       body.scope = scope if scope && body.respond_to?(:scope=)
       meme = Meme.new @__current_category__, name, body, &blk
       
-      decorations.each do |decoration|
+      decorations.each do |decoration, arguments|
         decorators = @categories[:decorators].instance
-        raise KeyError, "Unknown decorator for #{self}##{name}: '#{decoration}'" \
-          unless decorators.respond_to? decoration
         
-        decorator = decorators.send decoration
-        decorator.transforms.apply meme
-        decorator.apply meme
+        raise KeyError, "Unknown decorator for #{self}##{name}: #{decoration}" \
+          unless decorators.respond_to?(decoration)
+        decorator = decorators.send(decoration)
+        decorator.transforms.apply meme, *arguments
+        decorator.apply meme, *arguments
       end
       meme.bind
       

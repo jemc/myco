@@ -543,15 +543,19 @@ meme_name =
   id_as_symbol
 | lit_string_as_symbol
 
-meme_names =
-  meme_name:n0 (c_spc* meme_name:n)*:nrest
+decorator =
+  meme_name:ni arg_list?:na
+    ~node(:deco, ni, ni, na)
+
+decorators_and_meme_name =
+  decorator:n0 (c_spc* decorator:n)*:nrest
     ~node(:array, n0, [n0, *nrest].reverse)
 
 meme =
-  meme_names:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np meme_either_body:nb
-    ~node(:meme, tm, nd.body.shift, nd, np,  nb)
-| meme_names:nd
-    ~node(:meme, tm, nd.body.shift, nd, nil, nil)
+  decorators_and_meme_name:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np meme_either_body:nb
+    ~node(:meme, tm, nd.body.shift.name, nd, np,  nb)
+| decorators_and_meme_name:nd
+    ~node(:meme, tm, nd.body.shift.name, nd, nil, nil)
 
 declid =
   t_DECLID_TAG c_spc* t_MEME_MARK:tm c_spc_nl* id_as_symbol:ni
