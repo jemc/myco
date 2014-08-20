@@ -80,6 +80,7 @@ declobj_expr =
 meme_expr =
   declobj
 | declstr
+| return_arg_expr
 | arg_expr
 
 # Expressions allowable as function arguments
@@ -126,13 +127,11 @@ expr_atom_not_string =
 ##
 # Character Classes
 
-eof_comment = '#' (!c_eol .)*
-eol_comment = '#' (!c_eol .)* c_eol
-comment_nl = eof_comment | eol_comment
+eol_comment = '#' (!c_eol .)*
 
 c_nl     = "\n"
 c_spc    = /[ \t\r\f\v]/ | "\\\n" | eol_comment
-c_spc_nl = c_spc | c_nl | comment_nl
+c_spc_nl = c_spc | c_nl
 
 c_eof    = !.
 c_eol    = c_nl | c_eof
@@ -178,6 +177,7 @@ t_SELF          = < 'self' >                  ~token(:t_SELF,          text)
 t_FLOAT         = < /[0-9]+/ '.' /[0-9]+/ >   ~token(:t_FLOAT,         text)
 t_INTEGER       = < /[0-9]+/ >                ~token(:t_INTEGER,       text)
 
+t_JUMP          = < '->' >                    ~token(:t_JUMP,          text)
 t_DOT           = < '.' >                     ~token(:t_DOT,           text)
 t_QUEST         = < '?' >                     ~token(:t_QUEST,         text)
 t_SCOPE         = < '::' >                    ~token(:t_SCOPE,         text)
@@ -350,6 +350,13 @@ declstr_body =
 declstr =
   constant_list:nc c_spc+ declstr_body:nb
     ~node(:declstr, nc, nc, nb)
+
+##
+# Jumps
+
+return_arg_expr =
+  arg_expr:n0 c_spc* t_JUMP:to
+    ~node(:return, to, n0)
 
 ##
 # Assignment
