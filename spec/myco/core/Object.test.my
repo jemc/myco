@@ -1,0 +1,21 @@
+
+
+BasicSpec {
+  name: "core/Object"
+  
+  subject: Object {
+    on creation: instance_variable_set("@creation_signal_handled", true)
+  }
+  
+  [tests]
+  
+  "inherits from BasicObject": {
+    assert(subject.send("is_a?", BasicObject))
+  }
+  
+  "emits the creation signal on creation": {
+    # TODO: don't use instance_variable to test
+    assert(subject.instance_variable_get("@creation_signal_handled"))
+  }
+}
+
