@@ -17,5 +17,10 @@ BasicSpec {
     # TODO: don't use instance_variable to test
     assert(subject.instance_variable_get("@creation_signal_handled"))
   }
+  
+  "does not expose its signal handler memes": {
+    refute(subject.memes.fetch(:creation, null))
+    refute(subject.send("respond_to?", :creation))
+  }
 }
 

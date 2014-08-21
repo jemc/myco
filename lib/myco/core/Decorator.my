@@ -13,5 +13,6 @@
     self ? name(meme)    .tap |x| { meme.name    = x }
     self ? body(meme)    .tap |x| { meme.body    = x }
     self ? memoize(meme) .tap |x| { meme.memoize = x }
+    self ? expose(meme)  .tap |x| { meme.expose  = x }
   }
 }

@@ -5,6 +5,7 @@ module Myco
     attr_accessor :name
     attr_accessor :body
     attr_accessor :memoize
+    attr_accessor :expose
     
     def to_s
       "#<#{self.class}:#{self.name.to_s}>"
@@ -34,9 +35,13 @@ module Myco
       end
       
       @memos  = {} # TODO: use weak map to avoid consuming endless memory
+      
+      @expose = true
     end
     
     def bind
+      return if not @expose
+      
       meme = self
       target.memes[@name] = meme
       

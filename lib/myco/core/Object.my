@@ -17,5 +17,8 @@
       list.push(meme)
       signal_handlers.send("[]=".to_sym, meme.name, list)
     }
+    
+    [transforms]
+    expose: false
   }
 }
