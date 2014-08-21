@@ -12,7 +12,8 @@ module Myco
     end
     
     def to_s
-      id = self.id || "0x#{object_id.to_s 16}"
+      id = "0x#{object_id.to_s 16}"
+      id = "#{self.id}:#{id}" if self.id
       "#<Component:#{@basename}:#{id}>"
     end
     
@@ -24,6 +25,7 @@ module Myco
           @parent     = parent
           @filename   = filename
           @basename   = File.basename @filename
+          @dirname    = File.dirname  @filename
           @categories = Hash.new { |h,name|
             # category nil refers to self
             name.nil? ? self : h[name] = __new_category__(name)

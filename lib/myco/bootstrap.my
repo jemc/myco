@@ -8,4 +8,5 @@ RubyEval @@@
   Myco.eval_file("lib/myco/core/BasicObject.my")
   Myco.eval_file("lib/myco/core/Decorator.my")
   Myco.eval_file("lib/myco/core/Object.my")
+  Myco.eval_file("lib/myco/core/FileToplevel.my")
 @@@
