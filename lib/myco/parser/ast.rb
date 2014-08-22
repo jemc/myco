@@ -47,7 +47,6 @@ module CodeTools::AST
       @types  = types
       @body   = body
       @create = true
-      @scope  = DeclareObjectScope.new @line, @body
     end
     
     def to_sexp
@@ -56,6 +55,8 @@ module CodeTools::AST
     
     def bytecode g
       pos(g)
+      
+      scope = DeclareObjectScope.new @line, @body
       
       # Component.new types, parent, filename
       ConstantAccess.new(@line, :Component).bytecode g
@@ -71,7 +72,7 @@ module CodeTools::AST
       
       # Compile the inner scope,
       # leaving the last object in the scope at the top of the stack.
-      @scope.bytecode g
+      scope.bytecode g
       
       # component.__last__ = (value left on stack from @scope.bytecode)
       g.send :__last__=, 1
@@ -222,6 +223,11 @@ module CodeTools::AST
       @declfile.seen_ids << @name
     end
     
+    # TODO: fix/replace CodeTools::AST::AsciiGrapher to not infinitely recurse
+    def instance_variables
+      super - [:@declfile]
+    end
+    
     def to_sexp
       [:declid, @name]
     end
@@ -295,6 +301,11 @@ module CodeTools::AST
       @name = name
     end
     
+    # TODO: fix/replace CodeTools::AST::AsciiGrapher to not infinitely recurse
+    def instance_variables
+      super - [:@declfile]
+    end
+    
     def bytecode g
       pos(g)
       
@@ -337,6 +348,11 @@ module CodeTools::AST
       @block_arg    = block_arg
       
       @declfile     = DeclareFile.current
+    end
+    
+    # TODO: fix/replace CodeTools::AST::AsciiGrapher to not infinitely recurse
+    def instance_variables
+      super - [:@declfile]
     end
     
     def bytecode g

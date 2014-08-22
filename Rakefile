@@ -2,7 +2,7 @@
 require 'rspec/core/rake_task'
 
 
-task :default => :test
+task :default => :mycompile
 
 
 file 'lib/myco/parser/lexer.rb' => 'lib/myco/parser/lexer.rl' do
@@ -37,11 +37,8 @@ task :build_peg_parser => 'lib/myco/parser/peg_parser.rb'
 task :build => [:build_peg_parser]
 
 
-RSpec::Core::RakeTask.new :test => :build do |t|
-  # test_group = 'memes'
-  # t.pattern = "spec/**/#{test_group}_spec.rb"
-end
+RSpec::Core::RakeTask.new :test => :build
 
-task :sandbox => :build do
-  require_relative 'sandbox.rb'
+task :mycompile => :build do
+  require_relative 'mycompile'
 end

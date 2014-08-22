@@ -35,7 +35,7 @@ module Myco
   
   # TODO: replace with proper import set of functions
   def self.eval_file path, load_paths=[], get_last=true
-    begin
+    self.rescue do
       tmp_path = File.expand_path(path)
       use_path = File.file?(tmp_path) && tmp_path
       load_paths.each do |load_path|
@@ -50,6 +50,12 @@ module Myco
       
       file_toplevel = Myco.eval File.read(use_path), nil, use_path
       get_last ? file_toplevel.component.__last__ : file_toplevel.component
+    end
+  end
+  
+  def self.rescue
+    begin
+      yield
     rescue Exception=>e
       puts e.awesome_backtrace.show
       puts e.awesome_backtrace.first_color + e.message + "\033[0m"
@@ -57,5 +63,4 @@ module Myco
       exit(1)
     end
   end
-  
 end

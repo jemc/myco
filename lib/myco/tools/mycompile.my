@@ -1,0 +1,52 @@
+
+import "OptionParser.my"
+
+Object {
+  var options: OptionParser {
+    # TODO: don't use ruby-style hash
+    var result: Hash.new
+    
+    [options]
+    
+    "-A": Option {
+      description: "Print an ascii graph of the AST"
+      long_form: "--print-ast"
+      do: result.store(:print_ast, Myco::ToolSet::Compiler::ASTPrinter)
+    }
+    
+    "-S": Option {
+      description: "Print the AST as an S-expression"
+      long_form: "--print-sexp"
+      do: result.store(:print_ast, Myco::ToolSet::Compiler::SexpPrinter)
+    }
+    
+    "-B": Option {
+      description: "Print bytecode for compiled methods"
+      long_form: "--print-bytecode"
+      do: result.store(:print_bytecode, true)
+    }
+    
+    "-e": Option {
+      argument: "STRING"
+      description: "Compile STRING"
+      long_form: "--evaluate"
+      do: |arg| result.store(:string, arg)
+    }
+  }
+  
+  run: |*argv| {
+    options.parse(argv)
+    print_ast = options.result.fetch(:print_ast, false)
+    string    = options.result.fetch(:string, "")
+    
+    compiler = ::Myco::ToolSet::Compiler
+    compiler = compiler.new(:string, :compiled_code)
+    parser = compiler.parser
+    parser.root(::Myco::ToolSet::AST::Script)
+    parser.input(string, "(mycompile)", 1)
+    
+    if(print_ast) { compiler.parser.print(print_ast) }
+    
+    compiler.run
+  }
+}
