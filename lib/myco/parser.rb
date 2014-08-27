@@ -4,15 +4,14 @@ module CodeTools
   end
   
   class Compiler
-    class Parser
-      
-      old_init = instance_method :initialize
-      
-      define_method :initialize do |*args|
-        old_init.bind(self).call *args
+    module ParserPatch
+      def initialize *args
+        super
         @processor = Myco::ToolSet::Parser
       end
     end
+    
+    Parser.prepend ParserPatch
   end
 end
 
