@@ -1,33 +1,13 @@
 
 BasicSpec {
-  id: root
   name: "Connectivity"
   
   root_self: self
   
   [tests]
   
-  "accesses the null category by the overall id": {
-    assert_equal(root, root_self)
-    assert_equal(root.tests, self)
-  }
-  
-  "introspects the id itself as a symbol": {
-    assert_equal(root.id, :root)
-    assert_equal(self.id, :"root.tests")
-  }
-  
   "accesses the null category as its parent": {
-    assert_equal(parent, root)
+    assert_equal(parent, root_self)
     assert(parent.parent.send("is_a?", FileToplevel))
-  }
-  
-  "accesses its id_scope": {
-    assert_equal(id_scope, parent.parent.component)
-  }
-  
-  "accesses instances by dynamic id": {
-    assert_equal(get_by_id(:root),             root)
-    assert_equal(get_by_id(:"root.tests"), self)
   }
 }

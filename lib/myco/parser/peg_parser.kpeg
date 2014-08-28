@@ -69,7 +69,6 @@ root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 declobj_expr =
   declobj
 | declstr
-| declid
 | category
 | cdefn
 | cmeme
@@ -167,7 +166,6 @@ t_ARRAY_END     = < ']' >                     ~token(:t_ARRAY_END,     text)
 t_CONSTANT      = < (c_upper c_alnum*) >      ~token(:t_CONSTANT,      text)
 t_IDENTIFIER    = < (c_lower c_alnum*) >      ~token(:t_IDENTIFIER,    text)
 t_SYMBOL        = ':' < (c_lower c_alnum*) >  ~token(:t_SYMBOL,        text)
-t_DECLID_TAG    = < 'id' >                    ~token(:t_DECLID_TAG,    text)
 
 t_NULL          = < 'null' >                  ~token(:t_NULL,          text)
 t_VOID          = < 'void' >                  ~token(:t_VOID,          text)
@@ -563,10 +561,6 @@ meme =
     ~node(:meme, tm, nd.body.shift.name, nd, np,  nb)
 | decorators_and_meme_name:nd
     ~node(:meme, tm, nd.body.shift.name, nd, nil, nil)
-
-declid =
-  t_DECLID_TAG c_spc* t_MEME_MARK:tm c_spc_nl* id_as_symbol:ni
-    ~node(:declid, tm, ni)
 
 
 %% {

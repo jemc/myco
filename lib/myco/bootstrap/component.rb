@@ -7,13 +7,8 @@ module Myco
     attr_reader :memes
     attr_reader :categories
     
-    def id_scope
-      @id_scope ||= (self < FileToplevel) ? self : parent.id_scope
-    end
-    
     def to_s
       id = "0x#{object_id.to_s 16}"
-      id = "#{self.id}:#{id}" if self.id
       "#<Component:#{@basename}:#{id}>"
     end
     
@@ -48,31 +43,12 @@ module Myco
       end
     end
     
-    
-    attr_reader :__id__
-    alias_method :id, :__id__
-    
-    def __id__= id
-      @__id__ = id
-      id_scope.const_set :"id:#{id}", self
-    end
-    
-    def get_by_id id
-      id_scope.const_get(:"id:#{id}").instance
-    end
-    
-    # Shadow Symbol#is_constant? to allow any symbol as constant name
-    # TODO: relocate to a monkey-patch file somewhere
-    class ::Symbol; def is_constant?; true; end; end
-    
-    
     def __category__ name
       @__current_category__ = @categories[name]
     end
     
     def __new_category__ name, super_cats=[Category]
       category = Component.new super_cats, self, @basename
-      category.__id__ = :"#{self.id}.#{name}"
       category_instance = category.instance
       __meme__(name) { category_instance }
       @memes[name].memoize = true

@@ -278,14 +278,4 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   
-  parse <<-'code' do
-    Object {
-      id: foo_bar
-    }
-  code
-    [:declobj, [:array, [:const, :Object]], [:block,
-      [:declid, :foo_bar]
-    ]]
-  end
-  
 end

@@ -25,13 +25,6 @@ module CodeTools::AST
       @block_params = block_params
       @block        = block
       @block_arg    = block_arg
-      
-      @declfile     = DeclareFile.current
-    end
-    
-    # TODO: fix/replace CodeTools::AST::AsciiGrapher to not infinitely recurse
-    def instance_variables
-      super - [:@declfile]
     end
     
     def bytecode g
@@ -48,9 +41,7 @@ module CodeTools::AST
       if @block.nil? && @block_arg.nil?
         if @arguments.nil?
           if @receiver.nil?
-            node = LocalVariableAccessAmbiguous.new @line, @name
-            node.declfile = @declfile
-            node
+            LocalVariableAccessAmbiguous.new @line, @name
           else
             Send.new @line, @receiver, @name
           end

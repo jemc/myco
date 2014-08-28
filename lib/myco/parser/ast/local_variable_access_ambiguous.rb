@@ -9,16 +9,10 @@ module CodeTools::AST
   
   class LocalVariableAccessAmbiguous < Node
     attr_accessor :name
-    attr_accessor :declfile
     
     def initialize line, name
       @line = line
       @name = name
-    end
-    
-    # TODO: fix/replace CodeTools::AST::AsciiGrapher to not infinitely recurse
-    def instance_variables
-      super - [:@declfile]
     end
     
     def bytecode g
@@ -34,8 +28,6 @@ module CodeTools::AST
     def implementation g
       if g.state.scope.variables.has_key? @name
         LocalVariableAccess.new @line, @name
-      elsif @declfile && @declfile.seen_ids.include?(@name)
-        AccessById.new @line, @name
       else
         rcvr = Self.new @line
         Send.new @line, rcvr, @name, true, true

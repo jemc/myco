@@ -1,10 +1,8 @@
 
-require_relative "ast/access_by_id"
 require_relative "ast/constant_define"
 require_relative "ast/declare_category"
 require_relative "ast/declare_decorator"
 require_relative "ast/declare_file"
-require_relative "ast/declare_id"
 require_relative "ast/declare_meme"
 require_relative "ast/declare_object"
 require_relative "ast/declare_string"

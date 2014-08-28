@@ -26,18 +26,6 @@ module Myco
       @component.parent && @component.parent.instance
     end
     
-    def id_scope
-      @component.id_scope
-    end
-    
-    def get_by_id id
-      @component.get_by_id id
-    end
-    
-    def id
-      @component.id
-    end
-    
     def memes
       @component.memes
     end
