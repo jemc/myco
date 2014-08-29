@@ -1,0 +1,29 @@
+
+BasicSpec {
+  name: "core/BasicObject"
+  
+  new_subject: BasicObject {
+    var foo: Object { }
+  }
+  
+  [tests]
+  
+  "var decorator allows cached storage of a value": {
+    subject = new_subject
+    a = subject.foo
+    b = subject.foo
+    assert_equal(a, b)
+  }
+  
+  "var decorator also declares a writer meme": {
+    subject = new_subject
+    a = ::Object.new # TODO: Object { }
+    b = subject.foo
+    refute_equal(a, b)
+    
+    subject.foo = a
+    b = subject.foo
+    assert_equal(a, b)
+  }
+}
+

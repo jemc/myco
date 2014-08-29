@@ -4,7 +4,7 @@ module Myco
     attr_accessor :target
     attr_accessor :name
     attr_accessor :body
-    attr_accessor :memoize
+    attr_accessor :cache
     attr_accessor :expose
     
     def to_s
@@ -34,7 +34,7 @@ module Myco
         raise ArgumentError, "Meme must be passed a body or block argument"
       end
       
-      @memos  = {} # TODO: use weak map to avoid consuming endless memory
+      @caches = {}
       
       @expose = true
     end
@@ -46,29 +46,28 @@ module Myco
       target.memes[@name] = meme
       
       target.send :define_method, @name do |*args, &blk|
-        meme.call_on(self, *args, &blk)
+        meme.result_for(self, *args, &blk)
       end
-    end
-    
-    def call_on obj, *args, &blk
-      memo_key = [obj.hash, args.hash, blk.hash]
-      if @memoize && result = @memos[memo_key]
-        return result
-      end
-      
-      result = if @body.is_a? Rubinius::Executable
-        @body.invoke @name, @target, obj, args, blk
-      elsif @body.respond_to? :call
-        @body.call *args, &blk
-      else
-        raise "The body of #{self} is not executable"
-      end
-      
-      @memos[memo_key] = result
     end
     
     def result *args, &blk
-      call_on target.instance, *args, &blk
+      result_for target.instance, *args, &blk
+    end
+    
+    def result_for obj, *args, &blk
+      cache_key = [obj.hash, args.hash, blk.hash]
+      if @cache && @caches.has_key?(cache_key)
+        return @caches[cache_key]
+      end
+      
+      result = @body.invoke @name, @target, obj, args, blk
+      
+      @caches[cache_key] = result
+    end
+    
+    def set_result_for obj, result, *args, &blk
+      cache_key = [obj.hash, args.hash, blk.hash]
+      @caches[cache_key] = result
     end
   end
 end

@@ -27,7 +27,7 @@ module CodeTools::AST
       
       ##
       # module = scope.for_method_definition
-      # module.send :__meme__, @name, @decorations,
+      # module.send :declare_meme, @name, @decorations,
       #   CompiledCode(@body), const_scope, var_scope
       #
       g.push_scope
@@ -37,7 +37,7 @@ module CodeTools::AST
         g.push_generator compile_body(g)
         g.push_scope
         g.push_variables
-      g.send :__meme__, 5
+      g.send :declare_meme, 5
     end
   end
   

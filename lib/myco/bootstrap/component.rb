@@ -50,13 +50,13 @@ module Myco
     def __new_category__ name, super_cats=[Category]
       category = Component.new super_cats, self, @basename
       category_instance = category.instance
-      __meme__(name) { category_instance }
-      @memes[name].memoize = true
+      declare_meme(name) { category_instance }
+      @memes[name].cache = true
       
       category
     end
     
-    def __meme__ name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
+    def declare_meme name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
       body.scope = scope if scope && body.respond_to?(:scope=)
       meme = Meme.new @__current_category__, name, body, &blk
       
