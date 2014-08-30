@@ -65,10 +65,14 @@
 
 root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 
-# Expressions allowable inside object declarations
-declobj_expr =
+# Declarations
+decl =
   declobj
 | declstr
+
+# Expressions allowable inside object declarations
+declobj_expr =
+  decl
 | category
 | cdefn
 | cmeme
@@ -77,8 +81,7 @@ declobj_expr =
 
 # Expressions allowable inside memes
 meme_expr =
-  declobj
-| declstr
+  decl
 | return_arg_expr
 | arg_expr
 
@@ -359,8 +362,12 @@ return_arg_expr =
 ##
 # Assignment
 
+assign_rhs =
+  decl
+| arg_expr
+
 assignment =
-  t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
+  t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* assign_rhs:rhs
     ~node(:lasgn, to, ti.sym, rhs)
 
 nest_assignment =
