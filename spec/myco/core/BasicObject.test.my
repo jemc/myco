@@ -17,7 +17,7 @@ BasicSpec {
   
   "var decorator also declares a writer meme": {
     subject = new_subject
-    a = ::Object.new # TODO: Object { }
+    a = Object { }
     b = subject.foo
     refute_equal(a, b)
     
