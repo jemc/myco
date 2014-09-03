@@ -88,7 +88,6 @@ meme_expr =
 # Expressions allowable as function arguments
 arg_expr =
   assignment
-| nest_assignment
 | left_chained_atoms
 | dyn_string
 | dyn_symstr
@@ -362,19 +361,28 @@ return_arg_expr =
 ##
 # Assignment
 
+assignment =
+  local_assignment
+| invoke_assignment
+
 assign_rhs =
   decl
 | arg_expr
 
-assignment =
+local_assignment =
   t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* assign_rhs:rhs
     ~node(:lasgn, to, ti.sym, rhs)
 
-nest_assignment =
-  left_chained_invocations:lhs c_spc_nl* t_ASSIGN:to c_spc_nl* arg_expr:rhs
+invoke_assignment_lhs =
+  left_chained_invocations
+| invoke
+
+invoke_assignment =
+  invoke_assignment_lhs:lhs c_spc_nl* t_ASSIGN:to c_spc_nl* assign_rhs:rhs
     {
   lhs.name = :"#{lhs.name}="
-  lhs.arguments = node(:array, rhs, [rhs])
+  orig_arguments = lhs.arguments && lhs.arguments.body || []
+  lhs.arguments = node(:array, rhs, [rhs, *orig_arguments])
   lhs
 }
 
