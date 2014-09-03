@@ -7,7 +7,7 @@ BasicSpec {
   
   [tests]
   
-  "when executes a block if it matches (and returns itself)": {
+  "#when executes a block if it matches": {
     ary = []
     switch(88)
       .when(11) { ary.push(:foo) }
@@ -18,7 +18,7 @@ BasicSpec {
     assert_equal(ary, [:baz])
   }
   
-  "when will not match more than once": {
+  "#when will not match more than once": {
     ary = []
     switch(88)
       .when(11) { ary.push(:foo) }
@@ -27,5 +27,45 @@ BasicSpec {
       .when(88) { ary.push(0) }
     
     assert_equal(ary, [:bar])
+  }
+  
+  "#else executes a block if nothing else matched so far": {
+    ary = []
+    switch(88)
+      .when(11) { ary.push(:foo) }
+      .when(22) { ary.push(:bar) }
+      .else     { ary.push(:baz) }
+      .else     { ary.push(0) }
+    
+    assert_equal(ary, [:baz])
+  }
+  
+  "#output returns the result of the block that was executed": {
+    assert_equal(
+      switch(88)
+        .when(11) { :foo }
+        .when(88) { :bar }
+        .when(88) { :baz }
+        .else     { 0 }
+        .output, :bar)
+    
+    assert_equal(
+      switch(88)
+        .when(11) { :foo }
+        .when(22) { :bar }
+        .else     { :baz }
+        .else     { 0 }
+        .output, :baz)
+  }
+  
+  "#output returns void if no block executed": {
+    assert_equal(
+      switch(88)
+        .when(11) { :foo }
+        .when(22) { :bar }
+        .when(33) { :baz }
+        .output, void)
+    
+    assert_equal(switch(88).output, void)
   }
 }
