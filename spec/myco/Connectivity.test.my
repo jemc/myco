@@ -8,6 +8,6 @@ BasicSpec {
   
   "accesses the null category as its parent": {
     assert_equal(parent, root_self)
-    assert(parent.parent.send("is_a?", FileToplevel))
+    assert_is_a(parent.parent, FileToplevel)
   }
 }

@@ -7,10 +7,11 @@ describe Myco::ToolSet::Parser, "Quests" do
   
   parse <<-'code' do
     Object {
-      a: foo?bar
-      b: foo ? bar
-      c: foo(1)?bar(2,3)
-      d: foo(1) { 55 } ? bar(2,3) { 66 }
+      a: foo.?bar
+      b: foo .
+             ? bar
+      c: foo(1).?bar(2,3)
+      d: foo(1) { 55 } .? bar(2,3) { 66 }
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,

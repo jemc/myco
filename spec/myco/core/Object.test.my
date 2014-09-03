@@ -9,7 +9,7 @@ BasicSpec {
   [tests]
   
   "inherits from BasicObject": {
-    assert(new_subject.send("is_a?", BasicObject))
+    assert_is_a(new_subject, BasicObject)
   }
   
   "emits the creation signal on creation": {
@@ -19,7 +19,7 @@ BasicSpec {
   
   "does not expose its signal handler memes": {
     refute(new_subject.memes.fetch(:creation, null))
-    refute(new_subject.send("respond_to?", :creation))
+    refute(new_subject.respond_to?(:creation))
   }
 }
 

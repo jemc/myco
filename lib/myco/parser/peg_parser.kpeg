@@ -142,6 +142,7 @@ c_upper  = /[[:upper:]]/
 c_lower  = /[[:lower:]]/ | "_"
 c_alpha  = c_lower | c_upper
 c_alnum  = c_alpha | /[0-9]/
+c_suffix = '!' | '?'
 
 
 ##
@@ -166,7 +167,8 @@ t_ARRAY_BEGIN   = < '[' >                     ~token(:t_ARRAY_BEGIN,   text)
 t_ARRAY_END     = < ']' >                     ~token(:t_ARRAY_END,     text)
 
 t_CONSTANT      = < (c_upper c_alnum*) >      ~token(:t_CONSTANT,      text)
-t_IDENTIFIER    = < (c_lower c_alnum*) >      ~token(:t_IDENTIFIER,    text)
+t_IDENTIFIER    = < (c_lower c_alnum*) c_suffix? >
+                                              ~token(:t_IDENTIFIER,    text)
 t_SYMBOL        = ':' < (c_lower c_alnum*) >  ~token(:t_SYMBOL,        text)
 
 t_NULL          = < 'null' >                  ~token(:t_NULL,          text)
@@ -179,7 +181,7 @@ t_INTEGER       = < /[0-9]+/ >                ~token(:t_INTEGER,       text)
 
 t_JUMP          = < '->' >                    ~token(:t_JUMP,          text)
 t_DOT           = < '.' >                     ~token(:t_DOT,           text)
-t_QUEST         = < '?' >                     ~token(:t_QUEST,         text)
+t_QUEST         = < '.' c_spc_nl* '?' >       ~token(:t_QUEST,         text)
 t_SCOPE         = < '::' >                    ~token(:t_SCOPE,         text)
 t_ASSIGN        = < '=' >                     ~token(:t_ASSIGN,        text)
 t_OP_TOPROC     = < '&' >                     ~token(:t_OP_TOPROC,     text)
@@ -500,8 +502,8 @@ left_chained_atoms =
 # Invocations and Quests (soft-failing invocations)
 
 left_invoke_op =
-  t_DOT
-| t_QUEST
+  t_QUEST
+| t_DOT
 
 # Achieve left-associativity through iteration.
 # (see left_chained_atoms).

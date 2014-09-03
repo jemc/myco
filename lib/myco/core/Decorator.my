@@ -9,10 +9,10 @@
   # set the corresponding property of the incoming meme.
   apply: |meme, *args| {
     # TODO: make order-agnostic by waiting to assign until all have run
-    self ? target(meme) .tap |x| { meme.target  = x }
-    self ? name(meme)   .tap |x| { meme.name    = x }
-    self ? body(meme)   .tap |x| { meme.body    = x }
-    self ? cache(meme)  .tap |x| { meme.cache   = x }
-    self ? expose(meme) .tap |x| { meme.expose  = x }
+    self .? target(meme) .tap |x| { meme.target  = x }
+    self .? name(meme)   .tap |x| { meme.name    = x }
+    self .? body(meme)   .tap |x| { meme.body    = x }
+    self .? cache(meme)  .tap |x| { meme.cache   = x }
+    self .? expose(meme) .tap |x| { meme.expose  = x }
   }
 }
