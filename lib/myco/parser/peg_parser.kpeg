@@ -150,7 +150,7 @@ c_suffix = '!' | '?'
 
 t_CONST_SEP     = < ',' >                     ~token(:t_CONST_SEP,     text)
 t_EXPR_SEP      = < ';' | c_nl >              ~token(:t_EXPR_SEP,      text)
-t_ARG_SEP       = < ',' | c_nl >              ~token(:t_ARG_SEP,      text)
+t_ARG_SEP       = < ',' | c_nl >              ~token(:t_ARG_SEP,       text)
 t_DECLARE_BEGIN = < '{' >                     ~token(:t_DECLARE_BEGIN, text)
 t_DECLARE_END   = < '}' | c_eof >             ~token(:t_DECLARE_END,   text)
 t_MEME_MARK     = < ':' >                     ~token(:t_MEME_MARK,     text)
@@ -284,16 +284,13 @@ id_as_symbol =  t_IDENTIFIER:t0  ~node(:lit, t0, t0.sym)
 ##
 # Object declarations
 
-expr_sep     = (c_spc* t_EXPR_SEP c_spc*)+
-expr_sep_opt = (c_spc | t_EXPR_SEP)*
-
 declobj_sepd_exprs =
-  declobj_expr:n0 (expr_sep declobj_expr:n)*:nrest expr_sep_opt { [n0, *nrest] }
+  declobj_expr:n0 (arg_sep declobj_expr:n)*:nrest arg_sep_opt { [n0, *nrest] }
 
 declobj_expr_body =
-  expr_sep_opt declobj_sepd_exprs:nlist t_DECLARE_END:te
+  arg_sep_opt declobj_sepd_exprs:nlist t_DECLARE_END:te
     ~node(:block, nlist.first, nlist)
-| expr_sep_opt t_DECLARE_END:te
+| arg_sep_opt t_DECLARE_END:te
     ~node(:null, te)
 
 declobj =
@@ -393,7 +390,7 @@ invoke_assignment =
 # Invoke - Results in a :lambig, :call, or :iter with a :call within
 
 invoke_body =
-  (c_spc_nl* param_list:n)?:np meme_enclosed_expr_body:nb
+  (c_spc_nl* param_list:n)?:np c_spc_nl* meme_enclosed_expr_body:nb
     { [np, nb] }
 
 invoke =
@@ -528,12 +525,23 @@ left_chained_invocations =
 ##
 # Memes and etc..
 
+t_inln_sep   = !t_ARG_SEP t_EXPR_SEP
+
+inln_sep     = (c_spc* t_inln_sep c_spc*)+
+inln_sep_opt = (c_spc | t_inln_sep)*
+
+expr_sep     = (c_spc* t_EXPR_SEP c_spc*)+
+expr_sep_opt = (c_spc | t_EXPR_SEP)*
+
+meme_inline_sepd_exprs =
+  meme_expr:n0 (inln_sep meme_expr:n)*:nrest inln_sep_opt  { [n0, *nrest] }
+
 meme_sepd_exprs =
   meme_expr:n0 (expr_sep meme_expr:n)*:nrest expr_sep_opt  { [n0, *nrest] }
 
 meme_inline_expr_body =
-  c_spc_nl* meme_expr:n0
-    ~node(:block, n0, [n0])
+  inln_sep_opt meme_inline_sepd_exprs:nlist
+    ~node(:block, nlist.first, nlist)
 
 meme_expr_body =
   expr_sep_opt meme_sepd_exprs:nlist t_MEME_END:te
@@ -551,14 +559,14 @@ paren_expr =
   t_PAREN_BEGIN paren_expr_body:n0 { n0 }
 
 meme_enclosed_expr_body =
-  c_spc_nl* t_MEME_BEGIN meme_expr_body:n0  { n0 }
+  t_MEME_BEGIN meme_expr_body:n0   { n0 }
 
 meme_either_body =
   meme_enclosed_expr_body
 | meme_inline_expr_body
 
 cmeme =
-  constant:n0 c_spc* t_MEME_MARK:tm meme_inline_expr_body:n1
+  constant:n0 c_spc* t_MEME_MARK:tm c_spc_nl* meme_inline_expr_body:n1
     ~node(:cdecl, tm, n0, n1)
 
 meme_name =
@@ -574,7 +582,7 @@ decorators_and_meme_name =
     ~node(:array, n0, [n0, *nrest].reverse)
 
 meme =
-  decorators_and_meme_name:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np meme_either_body:nb
+  decorators_and_meme_name:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np c_spc_nl* meme_either_body:nb
     ~node(:meme, tm, nd.body.shift.name, nd, np,  nb)
 | decorators_and_meme_name:nd
     ~node(:meme, tm, nd.body.shift.name, nd, nil, nil)
