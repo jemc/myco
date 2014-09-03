@@ -1,0 +1,31 @@
+
+BasicSpec {
+  name: "core/Switch"
+  
+  var switch_maker: BasicObject { }
+  switch: |v| switch_maker.switch(v)
+  
+  [tests]
+  
+  "when executes a block if it matches (and returns itself)": {
+    ary = []
+    switch(88)
+      .when(11) { ary.push(:foo) }
+      .when(22) { ary.push(:bar) }
+      .when(88) { ary.push(:baz) }
+      .when(0)  { ary.push(0) }
+    
+    assert_equal(ary, [:baz])
+  }
+  
+  "when will not match more than once": {
+    ary = []
+    switch(88)
+      .when(11) { ary.push(:foo) }
+      .when(88) { ary.push(:bar) }
+      .when(88) { ary.push(:baz) }
+      .when(88) { ary.push(0) }
+    
+    assert_equal(ary, [:bar])
+  }
+}

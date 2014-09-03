@@ -11,6 +11,7 @@ Myco.eval_file 'spec/myco/BasicSpec.my'
   'spec/myco/Connectivity.test.my',
   'spec/myco/core/BasicObject.test.my',
   'spec/myco/core/Object.test.my',
+  'spec/myco/core/Switch.test.my',
 ].each do |path|
   group = Myco.eval_file path
   

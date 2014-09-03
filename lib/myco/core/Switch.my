@@ -1,5 +1,14 @@
 
 ::Myco::Switch < ::Myco::Object {
   var value
+  var matched
   
+  when: |expected, &blk| {
+    matched || (
+      (value == expected)
+      && (matched() = true) # TODO: make matched var shadow matched local?
+        && blk.call(value)
+    )
+    self
+  }
 }
