@@ -5,19 +5,15 @@
   var matched: false
   
   when: |expected, &blk| {
-    matched || (
-      (input == expected)
-      && (matched() = true) # TODO: make matched var shadow matched local?
-        && (output() = blk.call(input))
-    )
+    matched || (input==expected && _execute(&blk))
     self
   }
   
   else: |&blk| {
-    matched || (
-      (matched() = true)
-      && (output() = blk.call(input))
-    )
+    matched || _execute(&blk)
     self
   }
+  
+  _execute: |&blk|
+    (matched() = true) && (output() = blk.call(input))
 }
