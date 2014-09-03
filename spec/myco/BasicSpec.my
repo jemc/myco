@@ -20,4 +20,9 @@
       instance_variable_get("@harness").eq(b), message
     )
   }
+  assert_is_a: |a, b, message=null| {
+    instance_variable_get("@harness").expect(a).to(
+      instance_variable_get("@harness").be_a(b), message
+    )
+  }
 }

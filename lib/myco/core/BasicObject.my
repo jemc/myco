@@ -3,6 +3,7 @@
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
+  switch: |v| (Switch { }).tap |s| { s.value=v } # TODO: |>value| Switch { }
   
   [decorators]
   

@@ -25,5 +25,10 @@ BasicSpec {
     b = subject.foo
     assert_equal(a, b)
   }
+  
+  "switch returns a Switch with its value set": {
+    s = new_subject.switch(88)
+    assert_is_a(s, Switch)
+    assert_equal(s.value, 88)
+  }
 }
-

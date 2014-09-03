@@ -9,4 +9,7 @@ RubyEval @@@
   Myco.eval_file("lib/myco/core/Decorator.my")
   Myco.eval_file("lib/myco/core/Object.my")
   Myco.eval_file("lib/myco/core/FileToplevel.my")
+  
+  # Below are not necessary for bootstrapping; TODO: move out of RubyEval
+  Myco.eval_file("lib/myco/core/Switch.my")
 @@@

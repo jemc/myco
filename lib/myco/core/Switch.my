@@ -1,0 +1,5 @@
+
+::Myco::Switch < ::Myco::Object {
+  var value
+  
+}
