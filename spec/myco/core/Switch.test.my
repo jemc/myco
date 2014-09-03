@@ -98,4 +98,19 @@ BasicSpec {
     assert_equal(switch(88).matched, false)
   }
   
+  "when_true executes a block if the input is truthy": {
+    assert(switch(true) .when_true{}.matched)
+    assert(switch(88)   .when_true{}.matched)
+    refute(switch(false).when_true{}.matched)
+    refute(switch(null) .when_true{}.matched)
+    refute(switch(void) .when_true{}.matched)
+  }
+  
+  "when_false executes a block if the input is falsey": {
+    refute(switch(true) .when_false{}.matched)
+    refute(switch(88)   .when_false{}.matched)
+    assert(switch(false).when_false{}.matched)
+    assert(switch(null) .when_false{}.matched)
+    assert(switch(void) .when_false{}.matched)
+  }
 }

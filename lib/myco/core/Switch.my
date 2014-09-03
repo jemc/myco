@@ -9,6 +9,16 @@
     self
   }
   
+  when_true: |&blk| {
+    matched || (input && _execute(&blk))
+    self
+  }
+  
+  when_false: |&blk| {
+    matched || (input || _execute(&blk))
+    self
+  }
+  
   else: |&blk| {
     matched || _execute(&blk)
     self
