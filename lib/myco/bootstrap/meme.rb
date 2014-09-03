@@ -45,8 +45,22 @@ module Myco
       meme = self
       target.memes[@name] = meme
       
-      target.send :define_method, @name do |*args, &blk|
-        meme.result_for(self, *args, &blk)
+      ##
+      # Make the forwarding method as streamlined as possible
+      # by defining with bytecode instead of using define_method
+      # TODO: move this bytecode generation to a helper method 
+      target.dynamic_method @name do |g|
+        g.splat_index = 0 # *args
+        
+        ##
+        # meme.result_for(self, *args, &block)
+        
+        g.push_literal meme
+          g.push_self
+          g.push_local 0 # *args
+          g.push_block
+        g.send_with_splat :result_for, 1
+        g.ret
       end
     end
     
