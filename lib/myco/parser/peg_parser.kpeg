@@ -204,6 +204,12 @@ t_STRING_BEGIN  = < '"' >                     ~token(:t_STRING_BEGIN,  text)
 t_STRING_END    = < '"' >                     ~token(:t_STRING_END,    text)
 t_SYMSTR_BEGIN  = < ':"' >                    ~token(:t_SYMSTR_BEGIN,  text)
 
+sstring_norm = /[^\\\']/
+t_SSTRING_BODY  = < sstring_norm* ("\\" c_any sstring_norm*)* >
+                                              ~token(:t_SSTRING_BODY,  text)
+t_SSTRING_BEGIN = < "'" >                     ~token(:t_SSTRING_BEGIN, text)
+t_SSTRING_END   = < "'" >                     ~token(:t_SSTRING_END,   text)
+
 catgry_norm = /[^\\\[\]]/
 t_CATGRY_BODY   = < catgry_norm* ("\\" c_any catgry_norm*)* >
                                               ~token(:t_CATGRY_BODY,   text)
@@ -228,11 +234,15 @@ lit_simple =
 # Enclosed literals
 
 lit_string =
-  t_STRING_BEGIN t_STRING_BODY:tb t_STRING_END
+  t_STRING_BEGIN  t_STRING_BODY:tb  t_STRING_END
+    ~node(:lit, tb, encode_escapes(tb.text))
+| t_SSTRING_BEGIN t_SSTRING_BODY:tb t_SSTRING_END
     ~node(:lit, tb, encode_escapes(tb.text))
 
 lit_string_as_symbol = # Used in contexts where a bare string is a symbol
-  t_STRING_BEGIN t_STRING_BODY:tb t_STRING_END
+  t_STRING_BEGIN  t_STRING_BODY:tb  t_STRING_END
+    ~node(:lit, tb, encode_escapes(tb.text).to_sym)
+| t_SSTRING_BEGIN t_SSTRING_BODY:tb t_SSTRING_END
     ~node(:lit, tb, encode_escapes(tb.text).to_sym)
 
 lit_symstr =

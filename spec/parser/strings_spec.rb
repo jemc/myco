@@ -18,6 +18,17 @@ describe Myco::ToolSet::Parser, "Strings" do
   
   parse <<-'code' do
     Object {
+      str: 'foo"\'bar\\\'"baz\\'
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:meme, :str, [:array], [:args], [:block, 
+        [:lit, 'foo"\'bar\\\'"baz\\']]]
+    ]]
+  end
+  
+  parse <<-'code' do
+    Object {
       foo: "foo '"88"' bar \""null"\" baz"
     }
   code
