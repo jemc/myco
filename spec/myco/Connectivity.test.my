@@ -3,11 +3,21 @@ BasicSpec {
   name: "Connectivity"
   
   root_self: self
+  helpers_self: helpers.helpers_self
+  
+  [helpers]
+  
+  helpers_self: self
   
   [tests]
   
   "accesses the null category as its parent": {
     assert_equal(parent, root_self)
     assert_is_a(parent.parent, FileToplevel)
+  }
+  
+  "accesses another category by its name": {
+    assert_equal(helpers, helpers_self)
+    assert_is_a(helpers, Category)
   }
 }

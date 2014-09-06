@@ -48,6 +48,8 @@ module Myco
     end
     
     def __new_category__ name, super_cats=[Category]
+      @__current_category__ = @categories[nil]
+      
       category = Component.new super_cats, self, @basename
       category_instance = category.instance
       declare_meme(name) { category_instance }
