@@ -412,6 +412,13 @@ invoke =
   t_IDENTIFIER:tn (c_spc_nl* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
     ~node(:invoke, tn, nil, tn.sym, na, *nlist)
 
+op_invoke = # Allow some binary operators to be invoked with a dot
+  op_invoke_id:tn (c_spc_nl* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
+    ~node(:invoke, tn, nil, tn.sym, na, *nlist)
+
+op_invoke_id =
+  left_op
+
 ##
 # Argument lists
 
@@ -521,7 +528,7 @@ left_invoke_op =
 # (see left_chained_atoms).
 #
 left_chained_invocations =
-  expr_atom_not_chained:n0 (c_spc_nl* left_invoke_op:to c_spc_nl* expr_atom_not_chained:n1 { [to, n1] })+:list
+  expr_atom_not_chained:n0 (c_spc_nl* left_invoke_op:to c_spc_nl* (invoke | op_invoke):n1 { [to, n1] })+:list
     {
   list.unshift n0
   list.flatten!
