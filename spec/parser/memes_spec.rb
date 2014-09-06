@@ -325,4 +325,18 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   
+  parse <<-'code' do
+    Object {
+      foo: a = !b * !!c
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:meme, :foo, [:array], [:args], [:block,
+        [:lasgn, :a, [:call,
+          [:call, [:lambig, :b], :!, [:arglist]], :*, [:arglist,
+            [:call, [:call, [:lambig, :c], :!, [:arglist]], :!, [:arglist]]]]]
+      ]]
+    ]]
+  end
+  
 end

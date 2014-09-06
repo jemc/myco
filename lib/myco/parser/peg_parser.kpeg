@@ -99,6 +99,7 @@ expr_atom =
   left_chained_invocations
 | lit_string
 | lit_symstr
+| unary_operation
 | paren_expr
 | constant
 | lit_simple
@@ -109,6 +110,7 @@ expr_atom =
 expr_atom_not_chained =
   lit_string
 | lit_symstr
+| unary_operation
 | paren_expr
 | constant
 | lit_simple
@@ -118,6 +120,7 @@ expr_atom_not_chained =
 # Expression atoms that are not strings
 expr_atom_not_string =
   left_chained_invocations
+| unary_operation
 | paren_expr
 | constant
 | lit_simple
@@ -186,6 +189,7 @@ t_QUEST         = < '.' c_spc_nl* '?' >       ~token(:t_QUEST,         text)
 t_SCOPE         = < '::' >                    ~token(:t_SCOPE,         text)
 t_ASSIGN        = < '=' >                     ~token(:t_ASSIGN,        text)
 t_OP_TOPROC     = < '&' >                     ~token(:t_OP_TOPROC,     text)
+t_OP_NOT        = < '!' >                     ~token(:t_OP_NOT,        text)
 t_OP_PLUS       = < '+' >                     ~token(:t_OP_PLUS,       text)
 t_OP_MINUS      = < '-' >                     ~token(:t_OP_MINUS,      text)
 t_OP_MULT       = < '*' >                     ~token(:t_OP_MULT,       text)
@@ -534,6 +538,13 @@ left_chained_invocations =
 }
 
 ##
+# Unary operators
+
+unary_operation =
+  t_OP_NOT:to expr_atom:n0
+    ~node(:call, to, n0, :"!", nil)
+
+##
 # Memes and etc..
 
 t_inln_sep   = !t_ARG_SEP t_EXPR_SEP
@@ -627,7 +638,7 @@ meme =
         
         result = block_given? ?
           yield(n0,op,n1) :
-          node(:call, op, n0, op.sym, node(:array, n1, [n1])) 
+          node(:call, op, n0, op.sym, node(:array, n1, [n1]))
         input.unshift result
       else
         output.push n0
