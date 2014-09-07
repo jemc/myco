@@ -81,8 +81,7 @@ declobj_expr =
 
 # Expressions allowable inside memes
 meme_expr =
-  decl
-| return_arg_expr
+  return_arg_expr
 | arg_expr
 
 # Expressions allowable as function arguments
@@ -96,7 +95,8 @@ arg_expr =
 # TODO: make expr_atom not redundant with below rules
 # Expression atoms
 expr_atom =
-  left_chained_invocations
+  decl
+| left_chained_invocations
 | lit_string
 | lit_symstr
 | unary_operation
@@ -108,7 +108,8 @@ expr_atom =
 
 # Expression atoms that are not invocation chains
 expr_atom_not_chained =
-  lit_string
+  decl
+| lit_string
 | lit_symstr
 | unary_operation
 | paren_expr
@@ -119,7 +120,8 @@ expr_atom_not_chained =
 
 # Expression atoms that are not strings
 expr_atom_not_string =
-  left_chained_invocations
+  decl
+| left_chained_invocations
 | unary_operation
 | paren_expr
 | constant
@@ -380,8 +382,7 @@ assignment =
 | invoke_assignment
 
 assign_rhs =
-  decl
-| arg_expr
+  arg_expr
 
 local_assignment =
   t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* assign_rhs:rhs
