@@ -14,7 +14,7 @@ BasicSpec {
   TestComponent < Object { var foo, var bar, var baz }
   
   "creates objects using new with optional keyword arguments": {
-    obj = TestComponent.new(null, foo:1, bar:2)
+    obj = TestComponent.new(foo:1, bar:2)
     assert_equal(obj.foo, 1)
     assert_equal(obj.bar, 2)
     assert_equal(obj.baz, null)
