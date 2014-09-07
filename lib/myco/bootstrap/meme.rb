@@ -16,27 +16,31 @@ module Myco
     end
     
     def initialize target, name, body=nil, &blk
-      @target = target
-      @name   = name
-      @body   = body
-      
-      if body
-        raise TypeError, "Meme body must be a Rubinius::Executable" \
-          unless body.is_a? Rubinius::Executable
-        @body = body
-      elsif blk
-        block_env = blk.block.dup
-        block_env.change_name name
-        @body = Rubinius::BlockEnvironment::AsMethod.new block_env
-        blk = blk.dup
-        blk.lambda_style!
-      else
-        raise ArgumentError, "Meme must be passed a body or block argument"
-      end
+      self.target = target
+      self.name   = name
+      self.body   = body || blk
+      self.cache  = false
+      self.expose = true
       
       @caches = {}
+    end
+    
+    def body= value
+      case value
+      when Rubinius::Executable
+        @body = value
+      when Proc
+        block_env = value.block.dup
+        block_env.change_name name
+        @body = Rubinius::BlockEnvironment::AsMethod.new block_env
+        value = value.dup
+        value.lambda_style!
+      else
+        raise ArgumentError,
+          "Meme body must be a Rubinius::Executable or a Proc"
+      end
       
-      @expose = true
+      @body
     end
     
     def bind
