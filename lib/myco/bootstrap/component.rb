@@ -80,9 +80,20 @@ module Myco
       if !@instance
         @instance = Instance.new(self)
         @instance.extend self
+        yield @instance if block_given?
         @instance.__signal__ :creation if @instance.respond_to? :__signal__
+      else
+        yield @instance if block_given?
       end
+      
       @instance
     end
+    
+    def new parent=nil, **kwargs
+      Component.new([self], parent, @filename).instance { |instance|
+        kwargs.each { |key,val| instance.send :"#{key}=", val }
+      }
+    end
   end
+  
 end
