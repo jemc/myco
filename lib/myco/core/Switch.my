@@ -6,25 +6,26 @@
   var comparator: :"=="
   
   when: |expected, &blk| {
-    matched || (input.send(comparator, expected) && _execute(&blk))
+    matched || (input.send(comparator, expected) &&
+      ((matched() = true) && (output() = blk.call(input))))
     self
   }
   
   when_true: |&blk| {
-    matched || (input && _execute(&blk))
+    matched || (input &&
+      ((matched() = true) && (output() = blk.call(input))))
     self
   }
   
   when_false: |&blk| {
-    matched || (input || _execute(&blk))
+    matched || (input ||
+      ((matched() = true) && (output() = blk.call(input))))
     self
   }
   
   else: |&blk| {
-    matched || _execute(&blk)
+    matched ||
+      ((matched() = true) && (output() = blk.call(input)))
     self
   }
-  
-  _execute: |&blk|
-    (matched() = true) && (output() = blk.call(input))
 }
