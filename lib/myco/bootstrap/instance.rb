@@ -3,6 +3,14 @@ module Myco
   class Instance < ::BasicObject
     include ::Kernel
     
+    # TODO: clean this up
+    prepend (::Module.new {
+      def method_missing name, *args
+        msg = "#{to_s} has no method called '#{name}'"
+        ::Kernel.raise ::NoMethodError.new(msg, name, args)
+      end
+    })
+    
     def to_s
       "#<#{@component.to_s}>"
     end
