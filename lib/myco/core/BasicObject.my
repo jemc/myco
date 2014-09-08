@@ -3,7 +3,8 @@
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
-  switch: |i| (Switch { }).tap |s| { s.input=i } # TODO: |>input| Switch { }
+  switch: |input,comparator=:"=="|
+    Switch.new(input:input, comparator:comparator)
   
   [decorators]
   

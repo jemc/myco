@@ -3,7 +3,7 @@ BasicSpec {
   name: "core/Switch"
   
   var switch_maker: BasicObject { }
-  switch: |v| switch_maker.switch(v)
+  switch: |*args| switch_maker.switch(*args)
   
   [tests]
   
@@ -112,5 +112,15 @@ BasicSpec {
     assert(switch(false).when_false{}.matched)
     assert(switch(null) .when_false{}.matched)
     assert(switch(void) .when_false{}.matched)
+  }
+  
+  "accepts an alternative comparator method": {
+    ary = []
+    switch(9, :"<")
+      .when(5)  { ary.push(:foo) }
+      .when(10) { ary.push(:bar) }
+      .when(20) { ary.push(:baz) }
+    
+    assert_equal(ary, [:bar])
   }
 }

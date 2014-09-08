@@ -3,9 +3,10 @@
   var input: void
   var output: void
   var matched: false
+  var comparator: :"=="
   
   when: |expected, &blk| {
-    matched || (input==expected && _execute(&blk))
+    matched || (input.send(comparator, expected) && _execute(&blk))
     self
   }
   
