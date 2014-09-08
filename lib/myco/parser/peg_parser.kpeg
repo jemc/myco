@@ -69,6 +69,7 @@ root = declobj_expr_body:n0  { @root_node = node(:declfile, n0, n0) }
 decl =
   declobj
 | declstr
+| copen
 
 # Expressions allowable inside object declarations
 declobj_expr =
@@ -169,6 +170,7 @@ t_MEME_END      = < '}' >                     ~token(:t_MEME_END,      text)
 t_PAREN_BEGIN   = < '(' >                     ~token(:t_PAREN_BEGIN,   text)
 t_PAREN_END     = < ')' >                     ~token(:t_PAREN_END,     text)
 t_DEFINE        = < '<' >                     ~token(:t_DEFINE,        text)
+t_REOPEN        = < '<<' >                    ~token(:t_REOPEN,        text)
 t_PARAMS_BEGIN  = < '|' >                     ~token(:t_PARAMS_BEGIN,  text)
 t_PARAMS_END    = < '|' >                     ~token(:t_PARAMS_END,    text)
 t_ARGS_BEGIN    = < '(' >                     ~token(:t_ARGS_BEGIN,    text)
@@ -328,6 +330,10 @@ category =
   category_name:n0 arg_sep category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END))
     ~node(:category, n0, n0,
       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))
+
+copen =
+  constant:n0 c_spc_nl* t_REOPEN:tb c_spc_nl* t_DECLARE_BEGIN declobj_expr_body:n1
+    ~node(:copen, tb, n0, n1)
 
 cdefn =
   constant:n0 c_spc_nl* t_DEFINE:t c_spc_nl* declobj:n1

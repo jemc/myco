@@ -70,6 +70,18 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   
+  parse "Foo << { }" do
+    [:copen, :Foo, [:null]]
+  end
+  
+  parse <<-'code' do
+    Foo << {
+      Bar << { }
+    }
+  code
+    [:copen, :Foo, [:block, [:copen, :Bar, [:null]]]]
+  end
+  
   parse <<-'code' do
     Object @@@
       foo
