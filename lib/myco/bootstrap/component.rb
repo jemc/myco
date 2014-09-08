@@ -44,12 +44,10 @@ module Myco
     end
     
     def __category__ name
-      @__current_category__ = @categories[name]
+      @categories[name]
     end
     
     def __new_category__ name, super_cats=[Category]
-      @__current_category__ = @categories[nil]
-      
       category = Component.new super_cats, self, @basename
       category_instance = category.instance
       declare_meme(name) { category_instance }
@@ -60,10 +58,11 @@ module Myco
     
     def declare_meme name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
       body.scope = scope if scope && body.respond_to?(:scope=)
-      meme = Meme.new @__current_category__, name, body, &blk
+      meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|
-        decorators = @categories[:decorators].instance
+        search_component = self<Category ? parent : self
+        decorators = search_component.categories[:decorators].instance
         
         raise KeyError, "Unknown decorator for #{self}##{name}: #{decoration}" \
           unless decorators.respond_to?(decoration)
