@@ -8,13 +8,34 @@ describe Myco::ToolSet::Parser, "Categories" do
   parse <<-'code' do
     [foo]
   code
-    [:category, :"foo"]
+    [:category, :"foo", [:null]]
   end
   
   parse <<-'code' do
     [foo\[bar\]baz]
   code
-    [:category, :"foo[bar]baz"]
+    [:category, :"foo[bar]baz", [:null]]
+  end
+  
+  parse <<-'code' do
+    Object {
+      Foo
+      [one]
+      Bar
+      Bar
+      Bar
+      [two]
+      Baz
+      Baz
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:const, :Foo],
+      [:category, :one, [:block,
+        [:const, :Bar], [:const, :Bar], [:const, :Bar]]],
+      [:category, :two, [:block,
+        [:const, :Baz], [:const, :Baz]]]
+    ]]
   end
   
 end
