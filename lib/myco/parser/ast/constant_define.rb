@@ -29,6 +29,11 @@ module CodeTools::AST
       pos(g)
       
       implementation.bytecode g
+      
+      g.dup_top
+        g.push_literal @name.name
+      g.send :__name__=, 1
+      g.pop
     end
   end
   

@@ -46,7 +46,8 @@ module CodeTools::AST
         @types.bytecode g
         g.push_scope; g.send :for_method_definition, 0
         g.push_scope; g.send :active_path, 0; g.meta_to_s
-      g.send :new, 3
+        g.push_literal @line
+      g.send :new, 4
       
       # The return value of Component.new at the top of the stack
       # will be consumed by @scope.bytecode, so save two copies of it.

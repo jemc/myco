@@ -4,7 +4,7 @@ module Myco
     include ::Kernel
     
     def to_s
-      @component.to_s.sub 'Component', 'Instance'
+      "#<#{@component.to_s}>"
     end
     
     def inspect

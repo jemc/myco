@@ -2,53 +2,76 @@
 module Myco
   class Component < Module
     attr_accessor :__last__
+    attr_accessor :__name__
     
     attr_reader :parent
     attr_reader :memes
     attr_reader :categories
     
     def to_s
-      id = "0x#{object_id.to_s 16}"
-      "#<Component:#{@basename}:#{id}>"
-    end
-    
-    def self.new super_components=[], parent=nil, filename="(dynamic)"
-      super() {}.tap do |this|
-        this.instance_eval {
-          @super_components = super_components
-          @memes      = { }
-          @parent     = parent
-          @filename   = filename
-          @basename   = File.basename @filename
-          @dirname    = File.dirname  @filename
-          @categories = Hash.new { |h,name|
-            # category nil refers to self
-            name.nil? ? self : h[name] = __new_category__(name)
-          }
-        }
-        
-        all_categories = Hash.new { |h,k| h[k] = Array.new }
-        
-        super_components.each do |other|
-          this.send :__category__, nil # category nil refers to self
-          this.include other if other
-          other.categories.each { |name, cat| all_categories[name] << cat }
-        end
-        
-        all_categories.each do |name, supers|
-          this.categories[name] = this.__new_category__ name, supers
-        end
-        
-        this.send :__category__, nil # category nil refers to self
+      if defined?(::Myco::Category) && (self < ::Myco::Category)
+        "#{parent.to_s}[#{@__name__}]"
+      elsif @__name__
+        @__name__.to_s
+      else
+        "#{@super_components.map(&:to_s).join(',')}" \
+          "(#{@basename}:#{@line.to_s} 0x#{object_id.to_s 16})"
       end
     end
     
-    def __category__ name
-      @categories[name]
+    def self.new super_components=[], parent=nil, filename=nil, line=nil
+      # Get the filename and line from the VM if not specified
+      if !filename || !line
+        location = Rubinius::VM.backtrace(1,false).first
+        filename ||= location.file
+        line     ||= location.line
+      end
+      
+      this = super()
+      
+      this.instance_eval {
+        @super_components = super_components
+        @memes      = { }
+        @parent     = parent
+        @filename   = filename
+        @line       = line
+        @basename   = File.basename @filename
+        @dirname    = File.dirname  @filename
+        @categories = { nil => this }
+      }
+      
+      all_categories = Hash.new { |h,k| h[k] = Array.new }
+      
+      super_components.each do |other|
+        this.include other if other
+        other.categories.each { |name, cat| all_categories[name] << cat }
+      end
+      
+      all_categories.each do |name, supers|
+        if name.nil?
+          this.categories[name] = this
+        else
+          this.categories[name] = this.__new_category__ name, supers, filename, line
+        end
+      end
+      
+      this
     end
     
-    def __new_category__ name, super_cats=[Category]
-      category = Component.new super_cats, self, @basename
+    def __category__ name
+      @categories[name] ||= __new_category__(name)
+    end
+    
+    def __new_category__ name, super_cats=[Category], filename=nil, line=nil
+      # Get the filename and line from the VM if not specified
+      if !filename || !line
+        location = Rubinius::VM.backtrace(2,false).first
+        filename ||= location.file
+        line     ||= location.line
+      end
+      
+      category = Component.new super_cats, self, filename, line
+      category.__name__ = name
       category_instance = category.instance
       declare_meme(name) { category_instance }
       @memes[name].cache = true
@@ -89,7 +112,9 @@ module Myco
     end
     
     def new parent=nil, **kwargs
-      Component.new([self], parent, @filename).instance { |instance|
+      loc = Rubinius::VM.backtrace(1,false).first
+      
+      Component.new([self], parent, loc.file, loc.line).instance { |instance|
         kwargs.each { |key,val| instance.send :"#{key}=", val }
       }
     end
