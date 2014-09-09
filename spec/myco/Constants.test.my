@@ -1,0 +1,22 @@
+
+BasicSpec {
+  name: "Constants"
+  
+  Subject < Object { foo:88, bar:99 }
+  make_subject: Subject { }
+  
+  [tests]
+  
+  "reopens a Component by constant name": {
+    subject = make_subject
+    assert_equal(subject.foo, 88)
+    assert_equal(subject.bar, 99)
+    assert_equal(subject.?baz, void)
+    
+    Subject << { foo:0, baz:101 }
+    
+    assert_equal(subject.foo, 0)
+    assert_equal(subject.bar, 99)
+    assert_equal(subject.baz, 101)
+  }
+}
