@@ -26,7 +26,8 @@ class Myco::Backtrace < Rubinius::Backtrace
       color = @gem_color if try_gem_path file
       file_width = file.length + 1 + sbullet.length
       
-      place = loc.describe
+      place = loc.instance_variable_get(:@method_module).to_s + '#'
+      place += loc.describe_method
       place_width = place.length + 1 + ebullet.length
       
       padding = @width - file_width - place_width
