@@ -1,4 +1,7 @@
 
+require_relative 'myco_module_scope'
+
+
 module CodeTools::AST
   
   module ProcessorMethods
@@ -7,17 +10,13 @@ module CodeTools::AST
     end
   end
   
-  class DeclareObjectScope < ModuleScope
-    def initialize(line, body)
-      @line = line
-      @name = :DeclareObjectScope # TODO: remove/fix
-      @body = body
-    end
-    
-    def bytecode(g)
-      pos(g)
+  class DeclareObjectScope < MycoModuleScope
+    def body_bytecode g
+      g.push_scope
+      g.send :set_myco_component, 0
+      g.pop
       
-      attach_and_call g, :__component_init__, true
+      @body.bytecode g
     end
   end
   
@@ -25,11 +24,15 @@ module CodeTools::AST
     attr_accessor :types, :body
     attr_accessor :create
     
+    attr_accessor :scope_type
+    
     def initialize line, types, body
       @line   = line
       @types  = types
       @body   = body
+      
       @create = true
+      @scope_type = DeclareObjectScope
     end
     
     def to_sexp
@@ -39,10 +42,12 @@ module CodeTools::AST
     def bytecode g
       pos(g)
       
-      scope = DeclareObjectScope.new @line, @body
+      scope = @scope_type.new @line, @body
       
-      # Component.new types, parent, filename
-      ConstantAccess.new(@line, :Component).bytecode g
+      # ::Myco::Component.new types, parent, filename
+      g.push_cpath_top
+      g.find_const :Myco
+      g.find_const :Component
         @types.bytecode g
         g.push_scope; g.send :for_method_definition, 0
         g.push_scope; g.send :active_path, 0; g.meta_to_s

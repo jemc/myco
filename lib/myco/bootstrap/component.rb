@@ -118,6 +118,10 @@ module Myco
         kwargs.each { |key,val| instance.send :"#{key}=", val }
       }
     end
+    
+    def const_get(name, inherit=true)
+      ::Myco.const_get self, name, inherit
+    end
   end
   
 end

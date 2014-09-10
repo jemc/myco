@@ -7,6 +7,16 @@ module CodeTools::AST
     end
   end
   
+  class DeclareFileScope < MycoModuleScope
+    def body_bytecode g
+      g.push_scope
+      g.send :set_myco_file, 0
+      g.pop
+      
+      @body.bytecode g
+    end
+  end
+  
   class DeclareFile < Node
     attr_accessor :body
     
@@ -19,9 +29,6 @@ module CodeTools::AST
     def initialize line, body
       @line = line
       @body = body
-      
-      @seen_ids = []
-      DeclareFile.current = self
     end
     
     def to_sexp
@@ -29,9 +36,12 @@ module CodeTools::AST
     end
     
     def implementation
-      type = ConstantAccess.new @line, :FileToplevel
+      myco = ToplevelConstant.new @line, :Myco
+      type = ScopedConstant.new @line, myco, :FileToplevel
       types = ArrayLiteral.new @line, [type]
-      DeclareObject.new @line, types, @body
+      decl = DeclareObject.new @line, types, @body
+      decl.scope_type = DeclareFileScope
+      decl
     end
     
     def bytecode g
@@ -39,9 +49,6 @@ module CodeTools::AST
       
       implementation.bytecode g
     end
-    
-    attr_reader :seen_ids
-    class << self; attr_accessor :current; end
   end
   
 end

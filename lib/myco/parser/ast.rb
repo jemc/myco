@@ -1,4 +1,5 @@
 
+require_relative "ast/constant_access"
 require_relative "ast/constant_define"
 require_relative "ast/constant_reopen"
 require_relative "ast/declare_category"

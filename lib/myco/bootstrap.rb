@@ -1,4 +1,6 @@
 
+require_relative 'bootstrap/find_constant'
+
 require_relative 'bootstrap/void'
 require_relative 'bootstrap/meme'
 require_relative 'bootstrap/instance'
