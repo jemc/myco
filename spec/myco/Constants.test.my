@@ -1,4 +1,7 @@
 
+import 'fixtures/libfoo.my'
+
+
 BasicSpec {
   name: "Constants"
   
@@ -18,5 +21,9 @@ BasicSpec {
     assert_equal(subject.foo, 0)
     assert_equal(subject.bar, 99)
     assert_equal(subject.baz, 101)
+  }
+  
+  "accesses a constant imported into the FileToplevel": {
+    assert_equal(Foo::EightyEight, 88)
   }
 }
