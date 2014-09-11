@@ -11,6 +11,12 @@ BasicSpec {
   
   var inner: Object { }
   
+  var inner_choice: |cond|
+    switch(cond)
+      .when_true  { Object { } }
+      .when_false { Object { } }
+      .output
+  
   [tests]
   
   "accesses the null category as its parent": {
@@ -25,5 +31,14 @@ BasicSpec {
   
   "accesses with parent its containing category if inside one": {
     assert_equal(helpers.inner.parent, helpers)
+  }
+  
+  "accesses with parent_meme its containing meme": {
+    assert_equal(helpers.inner.parent_meme, helpers.memes.fetch(:inner))
+    
+    assert_equal(helpers.inner_choice(true).parent_meme,
+                 helpers.memes.fetch(:inner_choice))
+    assert_equal(helpers.inner_choice(false).parent_meme,
+                 helpers.memes.fetch(:inner_choice))
   }
 }

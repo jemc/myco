@@ -34,6 +34,10 @@ module Myco
       @component.parent && @component.parent.instance
     end
     
+    def parent_meme
+      @component.parent_meme
+    end
+    
     def memes
       @component.memes
     end

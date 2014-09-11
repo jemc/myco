@@ -5,6 +5,7 @@ module Rubinius
     attr_reader :myco_file
     attr_reader :myco_component
     attr_reader :myco_category
+    attr_reader :myco_meme
     
     def set_myco_file
       raise "myco_file already set for thie ConstantScope" \
@@ -26,6 +27,12 @@ module Rubinius
       @myco_category  = self.module
       @myco_component = parent.myco_component
       @myco_file      = parent.myco_file
+    end
+    
+    def set_myco_meme value
+      raise "myco_meme already set for thie ConstantScope" \
+        if @myco_meme
+      @myco_meme      = value
     end
   end
 end

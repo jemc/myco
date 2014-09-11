@@ -5,6 +5,7 @@ module Myco
     attr_accessor :__name__
     
     attr_reader :parent
+    attr_reader :parent_meme
     attr_reader :memes
     attr_reader :categories
     
@@ -20,9 +21,22 @@ module Myco
     end
     
     def self.new super_components=[], parent=nil, filename=nil, line=nil
+      locations = Rubinius::VM.backtrace(1,false)
+      
+      # Walk backwards on the backtrace until a lexical parent meme is found
+      i = 0
+      parent_meme = nil
+      while true
+        current = locations[i]
+        break unless current
+        parent_meme = current.constant_scope.myco_meme
+        break if parent_meme
+        i += 1
+      end
+      
       # Get the filename and line from the VM if not specified
       if !filename || !line
-        location = Rubinius::VM.backtrace(1,false).first
+        location = locations.first
         filename ||= location.file
         line     ||= location.line
       end
@@ -31,13 +45,14 @@ module Myco
       
       this.instance_eval {
         @super_components = super_components
-        @memes      = { }
-        @parent     = parent
-        @filename   = filename
-        @line       = line
-        @basename   = File.basename @filename
-        @dirname    = File.dirname  @filename
-        @categories = { nil => this }
+        @memes       = { }
+        @parent      = parent
+        @filename    = filename
+        @line        = line
+        @basename    = File.basename @filename
+        @dirname     = File.dirname  @filename
+        @categories  = { nil => this }
+        @parent_meme = parent_meme
       }
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
@@ -80,7 +95,7 @@ module Myco
     end
     
     def declare_meme name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
-      body.scope = scope if scope && body.respond_to?(:scope=)
+      body.scope = scope.dup if scope && body.respond_to?(:scope=)
       meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|

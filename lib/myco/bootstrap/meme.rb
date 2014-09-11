@@ -29,6 +29,7 @@ module Myco
       case value
       when Rubinius::Executable
         @body = value
+        @body.scope.set_myco_meme self # Set meme for lexical scope
       when Proc
         block_env = value.block.dup
         block_env.change_name name
