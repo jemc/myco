@@ -7,16 +7,22 @@ module Rubinius
     attr_reader :myco_category
     
     def set_myco_file
+      raise "myco_file already set for thie ConstantScope" \
+        if @myco_file
       @myco_component = self.module
       @myco_file      = self.module
     end
     
     def set_myco_component
+      raise "myco_component already set for thie ConstantScope" \
+        if @myco_component
       @myco_component = self.module
       @myco_file      = parent.myco_file
     end
     
     def set_myco_category
+      raise "myco_category already set for thie ConstantScope" \
+        if @myco_category
       @myco_category  = self.module
       @myco_component = parent.myco_component
       @myco_file      = parent.myco_file
