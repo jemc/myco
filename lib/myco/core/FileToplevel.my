@@ -1,6 +1,7 @@
 
 ::Myco::FileToplevel < ::Myco::Object {
   
+  # TODO: don't use instance_variable_get
   dirname:  component.instance_variable_get("@dirname")
   basename: component.instance_variable_get("@basename")
   filename: component.instance_variable_get("@filename")
