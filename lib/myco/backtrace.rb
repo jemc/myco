@@ -10,7 +10,7 @@ class Myco::Backtrace < Rubinius::Backtrace
   def initialize(*)
     super
     @gem_color = "\033[0;36m"
-    @gem_paths = (ENV['GEM_PATH'] || "").split ':' # TODO: don't use ENV
+    @gem_paths = Gem.paths.path
   end
   
   def show(sep="\n", show_color=true)
