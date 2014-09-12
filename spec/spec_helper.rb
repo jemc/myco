@@ -4,6 +4,8 @@ require 'timeout'
 # require 'pry'
 # require 'pry-rescue/rspec'
 
+require 'myco'
+
 RSpec.configure do |c|
   # Enable 'should' syntax
   c.expect_with(:rspec) { |c| c.syntax = [:should, :expect] }
@@ -21,13 +23,6 @@ RSpec.configure do |c|
   c.formatter = 'Fivemat'
   c.color     = true
 end
-
-
-require 'myco/toolset'
-require 'myco/parser'
-require 'myco/eval'
-require 'myco/bootstrap'
-require 'myco/backtrace'
 
 
 require_relative 'helpers/parser_helper'

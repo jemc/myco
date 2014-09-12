@@ -34,23 +34,23 @@ module Myco
   end
   
   # TODO: replace with proper import set of functions
-  def self.eval_file path, load_paths=[], get_last=true
-    self.rescue do
-      tmp_path = File.expand_path(path)
+  def self.eval_file path, load_paths=nil, get_last=true
+    load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
+    
+    tmp_path = File.expand_path(path)
+    use_path = File.file?(tmp_path) && tmp_path
+    load_paths.each do |load_path|
+      break if use_path
+      tmp_path = File.expand_path(path, load_path)
       use_path = File.file?(tmp_path) && tmp_path
-      load_paths.each do |load_path|
-        break if use_path
-        tmp_path = File.expand_path(path, load_path)
-        use_path = File.file?(tmp_path) && tmp_path
-      end
-      
-      raise ArgumentError, "Couldn't resolve file: #{path.inspect} \n" \
-                           "in load_paths: #{load_paths.inspect}" \
-        unless use_path
-      
-      file_toplevel = Myco.eval File.read(use_path), nil, use_path
-      get_last ? file_toplevel.component.__last__ : file_toplevel.component
     end
+    
+    raise ArgumentError, "Couldn't resolve file: #{path.inspect} \n" \
+                         "in load_paths: #{load_paths.inspect}" \
+      unless use_path
+    
+    file_toplevel = Myco.eval File.read(use_path), nil, use_path
+    get_last ? file_toplevel.component.__last__ : file_toplevel.component
   end
   
   def self.rescue
