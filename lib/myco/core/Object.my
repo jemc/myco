@@ -1,22 +1,19 @@
 
 ::Myco::Object < ::Myco::BasicObject {
   # Send the named signal to this object
-  # TODO: support sending arguments with the signal
-  __signal__: |name|
-    decorators.on.signal_handlers.fetch(name, []).each |b| { b.result }
+  __signal__: |name, *args, &block| {
+    decorators.on.signal_handlers(name).each |b| {
+      b.result_for(self, *args, &block)
+    }
+  }
   
   [decorators]
   
   # Register a named signal handler
-  # TODO: set meme.target to null
   var on: Decorator {
-    var signal_handlers: Hash.new
+    var signal_handlers: Array.new
     
-    apply: |meme| {
-      list = self.signal_handlers.fetch(meme.name, Array.new)
-      list.push(meme)
-      signal_handlers.send("[]=".to_sym, meme.name, list)
-    }
+    apply: |meme| signal_handlers(meme.name).push(meme)
     
     [transforms]
     expose: false
