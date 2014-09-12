@@ -1,4 +1,5 @@
 ^\.git$
+^\pkg$
 ^Gemfile\.lock$
 \.sublime-(workspace|project)$
 ^run.sh
