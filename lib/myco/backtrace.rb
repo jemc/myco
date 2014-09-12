@@ -10,7 +10,7 @@ class Myco::Backtrace < Rubinius::Backtrace
   def initialize(*)
     super
     @gem_color = "\033[0;36m"
-    @gem_paths = Gem.paths.path
+    @gem_paths = [Rubinius::GEMS_PATH, Rubinius::RUNTIME_PATH]
   end
   
   def show(sep="\n", show_color=true)
@@ -44,7 +44,8 @@ class Myco::Backtrace < Rubinius::Backtrace
   def try_gem_path file
     @gem_paths.each do |gem_path|
       if file.start_with? gem_path and not gem_path.empty?
-        file.sub! gem_path+'/gems/', ''
+        file.sub! File.join(gem_path, 'gems'), ''
+        file.sub! %r{/[^/]*/}, ''
         return true
       end
     end
