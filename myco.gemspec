@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |s|
   s.name          = 'myco'
-  s.version       = '0.1.0dev'
+  s.version       = '0.1.0.dev'
   s.date          = '2014-09-11'
   s.summary       = 'A toy language built atop the Rubinius VM'
   s.description   = 'A toy language built atop the Rubinius VM'
@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.email         = 'joe.eli.mac@gmail.com'
   
   s.files         = Dir['{lib}/**/*', 'bin/*', 'LICENSE', '*.md']
+  s.executables   = ['myco']
   
   s.require_path  = 'lib'
   s.homepage      = 'https://github.com/jemc/myco/'

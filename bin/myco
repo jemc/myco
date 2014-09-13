@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/myco'
+
+Myco.rescue do
+  Myco.eval_file("../lib/myco/command.my")
+end

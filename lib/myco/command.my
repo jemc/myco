@@ -1,0 +1,32 @@
+
+import "tools/OptionParser.my"
+
+Object {
+  var options: OptionParser {
+    var results: null
+    
+    banner: "Usage: myco [options]" # TODO: "Usage: myco [options] [files]"
+    
+    [options]
+    
+    "-E": Option {
+      description: "Evaluate a string of declarative Myco"
+      long_form: "--eval"
+      argument: "STRING"
+      do: |arg| Myco.eval(arg)
+    }
+    
+    "-e": Option {
+      description: "Evaluate a string of procedural Myco inside an Object"
+      long_form: "--eval-meme"
+      argument: "STRING"
+      do: |arg| Myco.eval("Object { on creation: "arg" }")
+    }
+  }
+  
+  run: |*argv| {
+    options.parse(argv)
+  }
+  
+  on creation: run(*ARGV)
+}
