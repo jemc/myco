@@ -3,7 +3,8 @@ BasicSpec {
   name: "core/Object"
   
   new_subject: Object {
-    on creation: instance_variable_set("@creation_signal_handled", true)
+    var creation_signal_handled: false
+    on creation: self.creation_signal_handled = true
   }
   
   [tests]
@@ -13,8 +14,7 @@ BasicSpec {
   }
   
   "emits the creation signal on creation": {
-    # TODO: don't use instance_variable to test
-    assert(new_subject.instance_variable_get("@creation_signal_handled"))
+    assert(new_subject.creation_signal_handled)
   }
   
   "does not expose its signal handler memes": {
