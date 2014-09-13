@@ -1,9 +1,11 @@
 
 ::Myco::Object < ::Myco::BasicObject {
-  # Send the named signal to this object
+  # Send the named signal to all handlers for this object
   __signal__: |name, *args, &block| {
-    decorators.on.signal_handlers(name).each |b| {
-      b.result_for(self, *args, &block)
+    component.ancestors.each |other| {
+      other.instance.?decorators.?on.?signal_handlers(name).each |meme| {
+        meme.result_for(self, *args, &block)
+      }
     }
   }
   

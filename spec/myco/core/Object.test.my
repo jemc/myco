@@ -2,7 +2,12 @@
 BasicSpec {
   name: "core/Object"
   
-  new_subject: Object {
+  Subject < Object {
+    var original_creation_signal_handled: false
+    on creation: self.original_creation_signal_handled = true
+  }
+  
+  new_subject: Subject {
     var creation_signal_handled: false
     on creation: self.creation_signal_handled = true
   }
@@ -13,8 +18,10 @@ BasicSpec {
     assert_is_a(new_subject, BasicObject)
   }
   
-  "emits the creation signal on creation": {
-    assert(new_subject.creation_signal_handled)
+  "emits the creation signal to all registered handlers on creation": {
+    subject = new_subject
+    assert(subject.creation_signal_handled)
+    assert(subject.original_creation_signal_handled)
   }
   
   "does not expose its signal handler memes": {
