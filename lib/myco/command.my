@@ -5,7 +5,7 @@ Object {
   var options: OptionParser {
     var results: null
     
-    banner: "Usage: myco [options]" # TODO: "Usage: myco [options] [files]"
+    banner: "Usage: myco [options] [files]"
     
     [options]
     
@@ -25,7 +25,8 @@ Object {
   }
   
   run: |*argv| {
-    options.parse(argv)
+    files = options.parse(argv)
+    files.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
   }
   
   on creation: run(*ARGV)
