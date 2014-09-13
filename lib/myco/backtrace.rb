@@ -36,8 +36,10 @@ class Myco::Backtrace < Rubinius::Backtrace
       file_line  = bold + color + sbullet + ' ' + clear + color + file
       place_line = color + bold + place + ' ' + ebullet + clear
       
-      file_line + ' '*padding + place_line
-    end.reverse.join sep
+      output = file_line + ' '*padding + place_line
+      output = nil if file == "(myco_internal) :1"
+      output
+    end.compact.reverse.join sep
   end
   
   # If file is in one of the GEM_PATHs, mutate the string and return true
