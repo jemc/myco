@@ -1,4 +1,6 @@
 
+require 'stringio'
+
 module CodeTools
   class Parser < Melbourne
   end
