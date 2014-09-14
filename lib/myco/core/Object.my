@@ -2,8 +2,9 @@
 ::Myco::Object < ::Myco::BasicObject {
   # Send the named signal to all handlers for this object
   __signal__: |name, *args, &block| {
-    component.ancestors.each |other| {
-      other.instance.?decorators.?on.?signal_handlers(name).each |meme| {
+    component.ancestors.reverse.each |other| {
+      inst = (component == other) && self || other.instance
+      inst.?decorators.?on.?signal_handlers(name).each |meme| {
         meme.result_for(self, *args, &block)
       }
     }
@@ -13,7 +14,7 @@
   
   # Register a named signal handler
   var on: Decorator {
-    var signal_handlers: Array.new
+    storage signal_handlers: Array.new
     
     apply: |meme| signal_handlers(meme.name).push(meme)
     

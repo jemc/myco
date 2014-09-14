@@ -6,13 +6,20 @@ BasicSpec {
   name: "core/Object"
   
   Subject < Object {
+    var signal_markers: []
     var original_creation_signal_handled: false
-    on creation: self.original_creation_signal_handled = true
+    on creation: {
+      self.original_creation_signal_handled = true
+      self.signal_markers.push(1)
+    }
   }
   
   new_subject: Subject {
     var creation_signal_handled: false
-    on creation: self.creation_signal_handled = true
+    on creation: {
+      self.creation_signal_handled = true
+      self.signal_markers.push(2)
+    }
   }
   
   [tests]
@@ -25,6 +32,7 @@ BasicSpec {
     subject = new_subject
     assert(subject.creation_signal_handled)
     assert(subject.original_creation_signal_handled)
+    assert_equal(subject.signal_markers, [1,2])
   }
   
   "does not expose its signal handler memes": {
