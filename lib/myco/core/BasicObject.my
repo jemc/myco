@@ -24,4 +24,18 @@
     [transforms]
     cache: true # Enable caching of the value to act as storage
   }
+  
+  # The 'storage' decorator acts like a set of var decorators
+  # TODO: consolidate with 'var'
+  storage: Decorator {
+    # Create a corresponding "writer" meme to go with this "reader" meme
+    apply: |meme| {
+      meme.target.declare_meme(:""meme.name"=") |new_value, *args| {
+        meme.set_result_for(self, new_value, *args)
+      }
+    }
+    
+    [transforms]
+    cache: true # Enable caching of the value to act as storage
+  }
 }

@@ -3,7 +3,7 @@ import "tools/OptionParser.my"
 
 Object {
   var options: OptionParser {
-    var results: null
+    storage results: null
     
     banner: "Usage: myco [options] [files]"
     
