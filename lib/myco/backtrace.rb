@@ -1,8 +1,8 @@
 
 class Rubinius::Backtrace
-  def self.backtrace locations
-    ::Myco::Backtrace.new(locations || [Rubinius::Location::Missing.new])
-  end
+  # def self.backtrace locations
+  #   ::Myco::Backtrace.new(locations || [Rubinius::Location::Missing.new])
+  # end
 end
 
 

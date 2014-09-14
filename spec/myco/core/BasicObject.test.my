@@ -1,4 +1,7 @@
 
+import '../BasicSpec.my'
+
+
 BasicSpec {
   name: "core/BasicObject"
   

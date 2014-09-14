@@ -35,11 +35,15 @@ end
 task :build_lexer => 'lib/myco/parser/lexer.rb'
 task :build_builder => 'lib/myco/parser/builder.rb'
 task :build_peg_parser => 'lib/myco/parser/peg_parser.rb'
-task :build => [:build_peg_parser]
+task :build_parser => [:build_peg_parser]
 
 
-RSpec::Core::RakeTask.new :test => :build
+RSpec::Core::RakeTask.new :test_parser => :build_parser
 
-task :mycompile => :build do
+task :test => :build_parser do
+  system "bin/myco spec/**/*.test.my"
+end
+
+task :mycompile => :build_parser do
   require_relative 'mycompile'
 end

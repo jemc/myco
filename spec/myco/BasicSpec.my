@@ -1,28 +1,55 @@
 
-::Myco::BasicSpec < ::Myco::BasicObject {
-  assert: |arg, message="expected "arg" to be truthy"| {
-    instance_variable_get("@harness").expect(arg && true).to(
-      instance_variable_get("@harness").be, message
-    )
+RSpecLoadOnce: Object {
+  on creation: {
+    # TODO: clean this up
+    unless(Object.send(:eval, "defined? RSpec")) {
+      Object.send(:require, 'rspec/autorun')
+      
+      # Hack to keep RSpec from trying to load Myco files as Ruby files
+      RSpec.configuration.define_singleton_method(:files_to_run) { [] }
+      
+      RSpec.configure |c| {
+        # Abort after first failure
+        c.fail_fast = true
+        
+        # Set output formatter and enable color
+        c.formatter = 'Fivemat'
+        c.color     = true
+      }
+    }
   }
-  refute: |arg, message="expected "arg" to be falsey"| {
-    instance_variable_get("@harness").expect(arg || false).not_to(
-      instance_variable_get("@harness").be, message
-    )
-  }
-  assert_equal: |a, b, message=null| {
-    instance_variable_get("@harness").expect(a).to(
-      instance_variable_get("@harness").eq(b), message
-    )
-  }
-  refute_equal: |a, b, message=null| {
-    instance_variable_get("@harness").expect(a).not_to(
-      instance_variable_get("@harness").eq(b), message
-    )
-  }
-  assert_is_a: |a, b, message=null| {
-    instance_variable_get("@harness").expect(a).to(
-      instance_variable_get("@harness").be_a(b), message
-    )
+}
+
+BasicSpec < Object {
+  assert: |arg, message="expected "arg" to be truthy"|
+    rspec.instance_eval { expect(arg && true).to(be, message) }
+  
+  refute: |arg, message="expected "arg" to be falsey"|
+    rspec.instance_eval { expect(arg || false).not_to(be, message) }
+  
+  assert_equal: |a, b, message=null|
+    rspec.instance_eval { expect(a).to(eq(b), message) }
+  
+  refute_equal: |a, b, message=null|
+    rspec.instance_eval { expect(a).not_to(eq(b), message) }
+  
+  assert_is_a: |a, b, message=null|
+    rspec.instance_eval { expect(a).to(be_a(b), message) }
+  
+  
+  var rspec
+  
+  on creation: {
+    group = self
+    
+    group.?name && RSpec.describe(group.name) {
+      group.tests.memes.each |name, test| {
+        it(name) {
+          group.rspec = self
+          
+          test.result
+        }
+      }
+    }
   }
 }

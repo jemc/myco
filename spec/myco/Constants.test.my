@@ -1,4 +1,5 @@
 
+import 'BasicSpec.my'
 import 'fixtures/libfoo.my'
 
 
