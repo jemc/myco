@@ -26,7 +26,7 @@ Object {
   
   run: |*argv| {
     files = options.parse(argv)
-    files.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
+    files.uniq.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
   }
   
   on creation: run(*ARGV)
