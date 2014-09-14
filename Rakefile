@@ -41,7 +41,7 @@ task :build_parser => [:build_peg_parser]
 RSpec::Core::RakeTask.new :test_parser => :build_parser
 
 task :test => :build_parser do
-  system "bin/myco spec/**/*.test.my"
+  system "bin/myco spec/**/*.test.my spec/**/**/*.test.my"
 end
 
 task :mycompile => :build_parser do
