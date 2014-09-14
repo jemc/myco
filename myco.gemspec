@@ -1,7 +1,10 @@
 
+require File.expand_path('lib/myco/version', File.dirname(__FILE__))
+
+
 Gem::Specification.new do |s|
   s.name          = 'myco'
-  s.version       = '0.1.0.dev'
+  s.version       = Myco::MYCO_VERSION
   s.date          = '2014-09-11'
   s.summary       = 'A toy language built atop the Rubinius VM'
   s.description   = 'A toy language built atop the Rubinius VM'
@@ -15,15 +18,10 @@ Gem::Specification.new do |s|
   s.homepage      = 'https://github.com/jemc/myco/'
   s.licenses      = 'Copyright 2013-2014 Joe McIlvain. All rights reserved.'
   
-  s.add_dependency 'kpeg',               '~> 1.0'
-  s.add_dependency 'racc',               '~> 1.4'
-  s.add_dependency 'rubinius-bridge',    '~> 1.1'
-  s.add_dependency 'rubinius-toolset',   '~> 2.3'
-  s.add_dependency 'rubinius-melbourne', '~> 2.2'
-  s.add_dependency 'rubinius-processor', '~> 2.2'
-  s.add_dependency 'rubinius-compiler',  '~> 2.2'
-  s.add_dependency 'rubinius-ast',       '~> 2.2'
-
+  Myco::MYCO_REQUIRED_GEMS.each do |name, version|
+    s.add_dependency name, version
+  end
+  
   s.add_development_dependency 'bundler',    '~>  1.6'
   s.add_development_dependency 'rake',       '~> 10.3'
   s.add_development_dependency 'pry',        '~>  0.9'

@@ -1,4 +1,7 @@
 
+require_relative 'myco/version'
+Myco.activate_required_gems
+
 require_relative 'myco/toolset'
 require_relative 'myco/parser'
 require_relative 'myco/eval'
