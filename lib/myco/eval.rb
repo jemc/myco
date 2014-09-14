@@ -1,24 +1,19 @@
 
 module Myco
   
-  # Stolen from Kernel#eval with one crucial difference - Compiler class
-  def self.eval(string, binding=nil, filename=nil, lineno=nil)
+  # Most of method is stolen from Rubinius implementation of Kernel#eval
+  def self.eval(string, scope=nil, filename=nil, lineno=nil)
     string = StringValue(string)
     filename = StringValue(filename) if filename
     lineno = Rubinius::Type.coerce_to lineno, Fixnum, :to_i if lineno
     lineno = 1 if filename && !lineno
     
-    if binding
-      binding = Rubinius::Type.coerce_to_binding binding
-      filename ||= binding.constant_scope.active_path
-    else
-      binding = ::Binding.setup(Rubinius::VariableScope.of_sender,
-                                Rubinius::CompiledCode.of_sender,
-                                Rubinius::ConstantScope.of_sender,
-                                self)
-      
-      filename ||= "(eval)"
-    end
+    binding = ::Binding.setup(Rubinius::VariableScope.of_sender,
+                              Rubinius::CompiledCode.of_sender,
+                              (scope||Rubinius::ConstantScope.of_sender),
+                              self)
+    
+    filename ||= "(eval)"
     
     lineno ||= binding.line_number
     
@@ -34,7 +29,7 @@ module Myco
   end
   
   # TODO: replace with proper import set of functions
-  def self.eval_file path, load_paths=nil, get_last=true
+  def self.eval_file path, load_paths=nil, get_last=true, scope=nil
     load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
     
     tmp_path = File.expand_path(path)
@@ -49,7 +44,7 @@ module Myco
                          "in load_paths: #{load_paths.inspect}" \
       unless use_path
     
-    file_toplevel = Myco.eval File.read(use_path), nil, use_path
+    file_toplevel = Myco.eval File.read(use_path), scope, use_path, 1
     get_last ? file_toplevel.component.__last__ : file_toplevel.component
   end
   

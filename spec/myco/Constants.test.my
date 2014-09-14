@@ -2,6 +2,7 @@
 import 'BasicSpec.my'
 import 'fixtures/libfoo.my'
 
+NinetyNineGenerator < EmptyObject { generate: 99 }
 
 BasicSpec {
   name: "Constants"
@@ -26,5 +27,9 @@ BasicSpec {
   
   "accesses a constant imported into the FileToplevel": {
     assert_equal(Foo::EightyEight, 88)
+  }
+  
+  "allows imports to access its own top level constants": {
+    assert_equal((Foo{}).ninety_nine, 99)
   }
 }

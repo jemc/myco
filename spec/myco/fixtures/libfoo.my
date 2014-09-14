@@ -1,4 +1,5 @@
 
 Foo < EmptyObject {
   EightyEight: 88
+  ninety_nine: (NinetyNineGenerator { }).generate
 }

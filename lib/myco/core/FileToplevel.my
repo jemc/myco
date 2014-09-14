@@ -1,6 +1,5 @@
 
 ::Myco::FileToplevel < ::Myco::Object {
-  
   # TODO: don't use instance_variable_get
   dirname:  component.instance_variable_get("@dirname")
   basename: component.instance_variable_get("@basename")
@@ -16,7 +15,8 @@
       # should be able to use 'parent' to reach the outer objects
       # while still referring to distinct instances rather than the originals.
       load_paths = [meme.target.instance.dirname]
-      component = Myco.eval_file(meme.name.to_s, load_paths, false)
+      scope = meme.target.constant_scope
+      component = Myco.eval_file(meme.name.to_s, load_paths, false, scope)
       meme.target.include(component)
     }
   }

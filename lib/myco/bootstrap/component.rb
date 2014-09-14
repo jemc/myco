@@ -9,6 +9,8 @@ module Myco
     attr_reader :memes
     attr_reader :categories
     
+    attr_reader :constant_scope
+    
     def to_s
       if defined?(::Myco::Category) && (self < ::Myco::Category)
         "#{parent.to_s}[#{@__name__}]"
@@ -26,6 +28,7 @@ module Myco
       # Walk backwards on the backtrace until a lexical parent meme is found
       i = 0
       parent_meme = nil
+      current = nil
       while true
         current = locations[i]
         break unless current
@@ -33,6 +36,7 @@ module Myco
         break if parent_meme
         i += 1
       end
+      @constant_scope = current.constant_scope if current
       
       # Get the filename and line from the VM if not specified
       if !filename || !line

@@ -7,11 +7,19 @@ module Rubinius
     attr_reader :myco_category
     attr_reader :myco_meme
     
+    def myco_levels
+      @myco_levels ||= (parent ? parent.myco_levels.dup : [])
+    end
+    
     def set_myco_file
       raise "myco_file already set for thie ConstantScope" \
         if @myco_file
       @myco_component = self.module
       @myco_file      = self.module
+      
+      @myco_file.instance_variable_set(:@constant_scope, self)
+      
+      myco_levels << @myco_file
     end
     
     def set_myco_component
@@ -19,6 +27,8 @@ module Rubinius
         if @myco_component
       @myco_component = self.module
       @myco_file      = parent.myco_file
+      
+      myco_levels << @myco_component
     end
     
     def set_myco_category
@@ -27,6 +37,8 @@ module Rubinius
       @myco_category  = self.module
       @myco_component = parent.myco_component
       @myco_file      = parent.myco_file
+      
+      myco_levels << @myco_category
     end
     
     def set_myco_meme value
@@ -46,24 +58,29 @@ module Myco
     component = scope.myco_component
     file      = scope.myco_file
     
-    (category    && find_constant_in_module(category, name))    ||
-      (component && find_constant_in_module(component, name)) ||
-        (file    && find_constant_in_module(file, name))    ||
-          ::Rubinius::Type.const_get(::Myco, name)
+    # TODO: optimize this constant search
+    # (it currently searches each ancestor of each nested component scope)
+    bucket = nil
+    scope.myco_levels.detect { |level|
+      bucket = find_constant_bucket_in_module(level, name)
+    }
+    bucket ? bucket.constant : ::Rubinius::Type.const_get(::Myco, name)
   end
   
-  def self.find_constant_in_module(mod, name, inherit=true)
+  def self.find_constant_bucket_in_module(mod, name, inherit=true)
     current, constant = mod, nil
     
     while current and ::Rubinius::Type.object_kind_of? current, Module
       if bucket = current.constant_table.lookup(name)
-        return bucket.constant
+        return bucket
       end
       
       return nil unless inherit
       
       current = current.direct_superclass
     end
+    
+    return nil
   end
 
 end
