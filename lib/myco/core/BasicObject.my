@@ -9,6 +9,8 @@
   puts: |*args| STDOUT.puts(*args)
   p:    |*args| STDOUT.puts(args.map |a| { a.inspect }.join(', '))
   
+  ruby_require: |arg| Object.send(:require, arg)
+  
   [decorators]
   
   # The 'var' decorator creates what is effectively an instance variable by:
