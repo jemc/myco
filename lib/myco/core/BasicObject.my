@@ -43,4 +43,10 @@
     [transforms]
     cache: true # Enable caching of the value to act as storage
   }
+  
+  # The 'memoize' decorator enables caching of the result
+  memoize: Decorator {
+    [transforms]
+    cache: true # Enable caching of the value to act as storage
+  }
 }
