@@ -7,8 +7,6 @@ module Myco
     attr_accessor :cache
     attr_accessor :expose
     
-    attr_reader :caches # TODO: don't expose; dynamic meth should send privately
-    
     def to_s
       "#<#{self.class}:#{self.name.to_s}>"
     end
