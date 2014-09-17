@@ -79,6 +79,19 @@ describe Myco::ToolSet::Parser, "Memes" do
   
   parse <<-'code' do
     Object {
+      a: -1-2--3.0
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:meme, :a, [:array], [:args], [:block,
+        [:call, [:call, [:lit, -1], :-, [:arglist, [:lit, 2]]],
+                                    :-, [:arglist, [:lit, -3.0]]]
+      ]]
+    ]]
+  end
+  
+  parse <<-'code' do
+    Object {
       foo:  {  one  }
       bar  :{  Two  }
       baz    :{3}  
