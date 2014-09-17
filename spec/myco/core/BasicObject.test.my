@@ -35,4 +35,10 @@ BasicSpec {
     assert_is_a(s, Switch)
     assert_equal(s.input, 88)
   }
+  
+  "loops and can break the loop": {
+    a = 0
+    loop { a=a+1; if(a>5) { break } }
+    assert_equal(a, 6)
+  }
 }

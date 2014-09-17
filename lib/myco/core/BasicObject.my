@@ -6,6 +6,13 @@
   switch: |input,comparator=:"=="|
     Switch.new(input:input, comparator:comparator)
   
+  # TODO: alias more efficiently
+  # alias(::Kernel, :raise) raise
+  # alias(::Kernel, :loop) loop
+  raise: |*args| ::Kernel.instance_method(:raise).bind(self).call(*args)
+  loop: |&block| ::Kernel.instance_method(:loop).bind(self).call(&block)
+  break: raise(::StopIteration)
+  
   puts: |*args| STDOUT.puts(*args)
   p:    |*args| STDOUT.puts(args.map |a| { a.inspect }.join(', '))
   
