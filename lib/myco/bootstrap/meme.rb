@@ -48,7 +48,10 @@ module Myco
       return if not @expose
       
       meme = self
-      target.memes[@name] = meme
+      @target.memes[@name] = meme
+      
+      hidden_name = :"meme.body #{@name}"
+      Rubinius.add_method hidden_name, @body, @target, :public
       
       ##
       # This dynamic method is nearly the same as Meme#result_for
@@ -87,38 +90,33 @@ module Myco
         g.pop
         
         ##
-        # if meme.cache.false? || !caches.has_key?(cache_key)
-        #   return caches[cache_key]
+        # if <meme.cache is true at time of bind>
+        #   if caches.has_key?(cache_key)
+        #     return caches[cache_key]
+        #   end
         # end
         #
-        g.push_local 1 # meme
-        g.send :cache, 0
-        g.send :false?, 0
-        g.goto_if_true invoke
-        
-        g.push_local 2 # caches
-          g.push_local 3 # cache_key
-        g.send :has_key?, 1
-        g.goto_if_false invoke
-        
-        g.push_local 2 # caches
-          g.push_local 3 # cache_key
-        g.send :[], 1
-        g.goto ret
+        if @cache
+          g.push_local 2 # caches
+            g.push_local 3 # cache_key
+          g.send :has_key?, 1
+          g.goto_if_false invoke
+          
+          g.push_local 2 # caches
+            g.push_local 3 # cache_key
+          g.send :[], 1
+          g.goto ret
+        end
         
         ##
         # result = meme.body.invoke meme.name, @target, obj, args, blk
         #
         invoke.set!
         
-        g.push_local 1 # meme
-        g.send :body, 0
-          g.push_local 1; g.send :name, 0   # meme.name
-          g.push_local 1; g.send :target, 0 # meme.target
-          g.push_self
-          g.push_local 0 # args
+        g.push_self
+          g.push_local 0 # *args
           g.push_block
-        g.send :invoke, 5
+        g.send_with_splat hidden_name, 0
         g.set_local 4 # result
         g.pop
         
