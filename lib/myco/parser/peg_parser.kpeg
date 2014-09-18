@@ -418,7 +418,8 @@ invoke_assignment =
     {
   lhs.name = :"#{lhs.name}="
   orig_arguments = lhs.arguments && lhs.arguments.body || []
-  lhs.arguments = node(:array, rhs, [rhs, *orig_arguments])
+  arg_order = lhs.name==:"[]=" ? [*orig_arguments, rhs] : [rhs, *orig_arguments]
+  lhs.arguments = node(:array, rhs, arg_order)
   lhs
 }
 
@@ -431,15 +432,19 @@ invoke_body =
     { [np, nb] }
 
 invoke =
-  t_IDENTIFIER:tn (c_spc_nl* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
-    ~node(:invoke, tn, nil, tn.sym, na, *nlist)
-
-op_invoke = # Allow some binary operators to be invoked with a dot
-  op_invoke_id:tn (c_spc_nl* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
+  t_IDENTIFIER:tn (c_spc* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
     ~node(:invoke, tn, nil, tn.sym, na, *nlist)
 
 op_invoke_id =
   left_op
+
+op_invoke = # Allow some binary operators to be invoked with a dot
+  op_invoke_id:tn (c_spc* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
+    ~node(:invoke, tn, nil, tn.sym, na, *nlist)
+
+elem_invoke =
+  lit_array:na (c_spc_nl* invoke_body:n)?:nlist
+    ~node(:invoke, na, nil, :"[]", na, *nlist)
 
 ##
 # Argument lists
@@ -587,8 +592,12 @@ left_invoke_op =
 # Achieve left-associativity through iteration.
 # (see left_chained_atoms).
 #
+left_chained_invocation = 
+  c_spc_nl* left_invoke_op:to c_spc_nl* (invoke | op_invoke):n1  { [to, n1] }
+| c_spc* elem_invoke:n1                        { [token(:t_DOT, ""), n1] }
+
 left_chained_invocations =
-  expr_atom_not_chained:n0 (c_spc_nl* left_invoke_op:to c_spc_nl* (invoke | op_invoke):n1 { [to, n1] })+:list
+  expr_atom_not_chained:n0 left_chained_invocation+:list
     {
   list.unshift n0
   list.flatten!
