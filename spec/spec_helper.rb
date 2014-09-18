@@ -4,7 +4,8 @@ require 'timeout'
 # require 'pry'
 # require 'pry-rescue/rspec'
 
-require 'myco'
+require 'myco/toolset'
+require 'myco/parser'
 
 RSpec.configure do |c|
   # Enable 'should' syntax
