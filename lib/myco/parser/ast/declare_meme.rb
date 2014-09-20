@@ -53,7 +53,7 @@ module CodeTools::AST
       @line        = line
       @name        = name.value
       @decorations = decorations || ArrayLiteral.new(line, [])
-      @arguments   = arguments || Parameters.new(line, [], nil, false, nil, nil, nil, nil)
+      @arguments   = arguments || Parameters.new(line, [], nil, true, nil, nil, nil, nil)
       @body        = body || NilLiteral.new(line)
     end
     
