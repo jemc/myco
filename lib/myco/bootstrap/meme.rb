@@ -30,6 +30,13 @@ module Myco
       when Rubinius::Executable
         @body = value
         @body.scope.set_myco_meme self # Set meme for lexical scope
+      when Rubinius::BlockEnvironment
+        # TODO: clean this up and don't use instance_variable_set
+        value.compiled_code.scope.set_myco_meme self # Set meme for lexical scope
+        value.instance_variable_set(:@constant_scope, value.compiled_code.scope)
+        block_env = value
+        block_env.change_name name
+        @body = Rubinius::BlockEnvironment::AsMethod.new block_env
       when Proc
         block_env = value.block.dup
         block_env.change_name name

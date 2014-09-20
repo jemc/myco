@@ -14,7 +14,7 @@
   
   # Register a named signal handler
   var on: Decorator {
-    storage signal_handlers: Array.new
+    storage signal_handlers: |*a| Array.new
     
     apply: |meme| signal_handlers(meme.name).push(meme)
     

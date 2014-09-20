@@ -11,6 +11,11 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
+      # Register in the AST as a scope for local variable lookup
+      # Right now, this just sets @parent to g.state.scope
+      # (Necessary to pass local variables from above to memes below)
+      g.state.scope.nest_scope self
+      
       attach_and_call g, :__myco_module_init__, true
     end
     
@@ -52,6 +57,27 @@ module CodeTools::AST
     
     def body_bytecode g
       @body.bytecode g
+    end
+    
+    include CodeTools::Compiler::LocalVariables
+    
+    # Become the AST scope parent of the given AST scope Node .
+    # This is only for the benefit of LocalVariableAccessAmbiguous
+    # being able to call search_local, and has nothing to do with
+    # the scope referenced by g.push_scope or g.add_scope
+    def nest_scope scope
+      scope.parent = self
+    end
+    
+    attr_accessor :parent
+    
+    # This is an abbreviated form of Iter#search_local
+    # because no locals can be assigned within the MycoModuleScope
+    def search_local name
+      if reference = @parent.search_local(name)
+        reference.depth += 1
+        reference
+      end
     end
   end
   

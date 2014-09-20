@@ -18,20 +18,16 @@ module CodeTools::AST
     def bytecode g
       pos(g)
       
-      implementation(g).bytecode(g)
+      local = g.state.scope.search_local @name
+      return local.get_bytecode(g) if local
+      
+      rcvr = Self.new @line
+      send = Send.new @line, rcvr, @name, true, true
+      send.bytecode(g)
     end
     
     def to_sexp
       [:lambig, @name]
-    end
-    
-    def implementation g
-      if g.state.scope.variables.has_key? @name
-        LocalVariableAccess.new @line, @name
-      else
-        rcvr = Self.new @line
-        Send.new @line, rcvr, @name, true, true
-      end
     end
   end
   

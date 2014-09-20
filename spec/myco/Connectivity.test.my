@@ -44,4 +44,12 @@ BasicSpec {
     assert_equal(helpers.inner_choice(false).parent_meme,
                  helpers.memes.fetch(:inner_choice))
   }
+  
+  "accesses locals from the scope containing the object declaration": {
+    foo = 88
+    obj = Object { bar: foo }
+    assert_equal(obj.bar, 88)
+    foo = 99
+    assert_equal(obj.bar, 99)
+  }
 }

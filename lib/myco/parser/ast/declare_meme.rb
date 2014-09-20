@@ -7,7 +7,10 @@ module CodeTools::AST
     end
   end
   
-  class DeclareMeme < Define
+  class DeclareMemeBody < Iter
+  end
+  
+  class DeclareMeme < Node
     attr_accessor :name, :decorations, :arguments, :body
     
     def initialize line, name, decorations, arguments, body
@@ -25,6 +28,8 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
+      meme_body = DeclareMemeBody.new(@line, @arguments, @body)
+      
       ##
       # module = scope.for_method_definition
       # module.send :declare_meme, @name, @decorations,
@@ -34,7 +39,7 @@ module CodeTools::AST
       g.send :for_method_definition, 0
         g.push_literal @name
         @decorations.bytecode g
-        g.push_generator compile_body(g)
+        meme_body.bytecode(g)
         g.push_scope
         g.push_variables
       g.send :declare_meme, 5
