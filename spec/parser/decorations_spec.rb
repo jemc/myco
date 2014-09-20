@@ -15,13 +15,13 @@ describe Myco::ToolSet::Parser, "Decorations" do
   code
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo,   [:array, [:deco, :on]],
-        [:args], [:block, [:null]]],
+        [:args, :*], [:block, [:null]]],
       [:meme, :three, [:array, [:deco, :two], [:deco, :one]],
-        [:args], [:block, [:null]]],
+        [:args, :*], [:block, [:null]]],
       [:meme, :six, [:array, [:deco, :five], [:deco, :four]],
-        [:args], [:block, [:null]]],
+        [:args, :*], [:block, [:null]]],
       [:meme, :"str.ng", [:array, [:deco, :sym]],
-        [:args], [:block, [:null]]]
+        [:args, :*], [:block, [:null]]]
     ]]
   end
   
@@ -35,13 +35,13 @@ describe Myco::ToolSet::Parser, "Decorations" do
   code
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo,   [:array, [:deco, :on]],
-        [:args], [:null]],
+        [:args, :*], [:null]],
       [:meme, :three, [:array, [:deco, :two], [:deco, :one]],
-        [:args], [:null]],
+        [:args, :*], [:null]],
       [:meme, :six, [:array, [:deco, :five], [:deco, :four]],
-        [:args], [:null]],
+        [:args, :*], [:null]],
       [:meme, :"str.ng", [:array, [:deco, :sym]],
-        [:args], [:null]]
+        [:args, :*], [:null]]
     ]]
   end
   
@@ -56,18 +56,18 @@ describe Myco::ToolSet::Parser, "Decorations" do
     [:declobj, [:array, [:const, :Object]], [:block,
       [:meme, :foo, [:array,
         [:deco, :on, [:arglist, [:true]]]
-      ], [:args], [:null]],
+      ], [:args, :*], [:null]],
       [:meme, :three, [:array,
         [:deco, :two, [:arglist, [:lit, 1], [:lit, 2], [:lit, 3]]],
         [:deco, :one]
-      ], [:args], [:block, [:lit, 88]]],
+      ], [:args, :*], [:block, [:lit, 88]]],
       [:meme, :six, [:array,
         [:deco, :five],
         [:deco, :four, [:arglist, [:lit, "fore"]]]
-      ], [:args], [:null]],
+      ], [:args, :*], [:null]],
       [:meme, :"str.ng", [:array,
         [:deco, :sym, [:arglist, [:lit, :bol]]]
-      ], [:args], [:block, [:lit, 99]]]]]
+      ], [:args, :*], [:block, [:lit, 99]]]]]
   end
   
 end

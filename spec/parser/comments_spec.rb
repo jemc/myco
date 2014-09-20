@@ -22,9 +22,9 @@ describe Myco::ToolSet::Parser, "Comments" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:meme, :foo, [:array], [:args], [:block, [:lit, 77], [:lit, 88]]],
-      [:meme, :bar, [:array], [:args], [:block, [:lit, 99]]],
-      [:meme, :baz, [:array], [:args], [:block, [:lit, 100]]],
+      [:meme, :foo, [:array], [:args, :*], [:block, [:lit, 77], [:lit, 88]]],
+      [:meme, :bar, [:array], [:args, :*], [:block, [:lit, 99]]],
+      [:meme, :baz, [:array], [:args, :*], [:block, [:lit, 100]]],
     ]]
   end
   

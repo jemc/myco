@@ -15,17 +15,17 @@ describe Myco::ToolSet::Parser, "Quests" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:meme, :a, [:array], [:args], [:block,
+      [:meme, :a, [:array], [:args, :*], [:block,
         [:quest, [:lambig, :foo], [:call, [:qrcvr], :bar, [:arglist]]]
       ]],
-      [:meme, :b, [:array], [:args], [:block,
+      [:meme, :b, [:array], [:args, :*], [:block,
         [:quest, [:lambig, :foo], [:call, [:qrcvr], :bar, [:arglist]]]
       ]],
-      [:meme, :c, [:array], [:args], [:block,
+      [:meme, :c, [:array], [:args, :*], [:block,
         [:quest, [:call, [:self], :foo, [:arglist, [:lit, 1]]],
                  [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3]]]]
       ]],
-      [:meme, :d, [:array], [:args], [:block,
+      [:meme, :d, [:array], [:args, :*], [:block,
         [:quest, [:call, [:self], :foo, [:arglist, [:lit, 1],
                    [:iter, [:args], [:block, [:lit, 55]]]]],
                  [:call, [:qrcvr], :bar, [:arglist, [:lit, 2], [:lit, 3],

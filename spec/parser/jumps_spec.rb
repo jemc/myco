@@ -15,7 +15,7 @@ describe Myco::ToolSet::Parser, "Jumps" do
     }
   code
     [:declobj, [:array, [:const, :Object]], [:block,
-      [:meme, :foo, [:array], [:args], [:block,
+      [:meme, :foo, [:array], [:args, :*], [:block,
         [:lit, 77], [:return, [:lit, 88]], [:lit, 99]
       ]]
     ]]
