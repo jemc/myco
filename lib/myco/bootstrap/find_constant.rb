@@ -5,10 +5,7 @@ module Rubinius
     attr_reader :myco_file
     attr_reader :myco_component
     attr_reader :myco_category
-    
-    def myco_meme
-      @myco_meme || (parent && parent.myco_meme)
-    end
+    attr_reader :myco_meme
     
     def myco_levels
       @myco_levels ||= (parent ? parent.myco_levels.dup : [])

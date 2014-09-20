@@ -8,6 +8,42 @@ module CodeTools::AST
   end
   
   class DeclareMemeBody < Iter
+    attr_accessor :name
+    
+    def bytecode(g)
+      pos(g)
+      
+      state = g.state
+      state.scope.nest_scope self
+      
+      meth = new_generator g, @name, @arguments
+      
+      meth.push_state self
+      meth.definition_line @line
+      
+      meth.state.push_name meth.name
+      
+      pos(meth)
+      
+      @arguments.bytecode meth
+      
+      @body.bytecode meth
+      
+      meth.ret
+      meth.close
+      
+      meth.local_count = local_count
+      meth.local_names = local_names
+      meth.splat_index = @arguments.splat_index
+      
+      meth.pop_state
+      
+      g.push_scope
+      g.send :for_method_definition, 0
+      g.add_scope
+      
+      g.create_block meth
+    end
   end
   
   class DeclareMeme < Node
@@ -29,6 +65,7 @@ module CodeTools::AST
       pos(g)
       
       meme_body = DeclareMemeBody.new(@line, @arguments, @body)
+      meme_body.name = @name
       
       ##
       # module = scope.for_method_definition

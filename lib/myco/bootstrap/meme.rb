@@ -29,23 +29,20 @@ module Myco
       case value
       when Rubinius::Executable
         @body = value
-        @body.scope.set_myco_meme self # Set meme for lexical scope
+        @body.scope.set_myco_meme self
       when Rubinius::BlockEnvironment
-        # TODO: clean this up and don't use instance_variable_set
-        value.compiled_code.scope.set_myco_meme self # Set meme for lexical scope
-        value.instance_variable_set(:@constant_scope, value.compiled_code.scope)
         block_env = value
         block_env.change_name name
+        block_env.constant_scope.set_myco_meme self
         @body = Rubinius::BlockEnvironment::AsMethod.new block_env
       when Proc
         block_env = value.block.dup
         block_env.change_name name
         @body = Rubinius::BlockEnvironment::AsMethod.new block_env
-        value = value.dup
-        value.lambda_style!
       else
         raise ArgumentError,
-          "Meme body must be a Rubinius::Executable or a Proc"
+          "Meme body must be a Rubinius::Executable, " \
+          "Rubinius::BlockEnvironment or a Proc"
       end
       
       @body

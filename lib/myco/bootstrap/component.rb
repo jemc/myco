@@ -99,7 +99,6 @@ module Myco
     end
     
     def declare_meme name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
-      body.compiled_code.scope = scope.dup if scope && body
       meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|
