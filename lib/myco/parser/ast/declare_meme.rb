@@ -70,16 +70,14 @@ module CodeTools::AST
       ##
       # module = scope.for_method_definition
       # module.send :declare_meme, @name, @decorations,
-      #   CompiledCode(@body), const_scope, var_scope
+      #   BlockEnvironment(meme_body)
       #
       g.push_scope
       g.send :for_method_definition, 0
         g.push_literal @name
         @decorations.bytecode g
         meme_body.bytecode(g)
-        g.push_scope
-        g.push_variables
-      g.send :declare_meme, 5
+      g.send :declare_meme, 3
     end
   end
   

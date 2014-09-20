@@ -98,7 +98,7 @@ module Myco
       category
     end
     
-    def declare_meme name, decorations=[], body=nil, scope=nil, varscope=nil, &blk
+    def declare_meme name, decorations=[], body=nil, &blk
       meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|
