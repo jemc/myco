@@ -5,7 +5,7 @@ import 'BasicSpec.my'
 BasicSpec {
   name: "Connectivity"
   
-  root_self: self
+  main_self: self
   helpers_self: helpers.helpers_self
   
   [helpers]
@@ -20,11 +20,25 @@ BasicSpec {
       .when_false { Object { } }
       .output
   
+  [main]
+  
+  other_main_self: self
+  
   [tests]
   
-  "accesses the null category as its parent": {
-    assert_equal(parent, root_self)
+  "accesses the main category as its parent": {
+    assert_equal(parent, main_self)
     assert_is_a(parent.parent, FileToplevel)
+  }
+  
+  "accesses the main component with component.main": {
+    assert_is_a(component.main, Component)
+    assert_equal(component.main, main_self.component)
+    assert_equal(main_self.component.main, main_self.component)
+  }
+  
+  "reopens the main category with the [main] category tag": {
+    assert_equal(other_main_self, main_self)
   }
   
   "accesses another category by its name": {

@@ -55,7 +55,7 @@ module Myco
         @line        = line
         @basename    = File.basename @filename
         @dirname     = File.dirname  @filename
-        @categories  = { nil => this }
+        @categories  = { main: this }
         @parent_meme = parent_meme
       }
       
@@ -67,7 +67,7 @@ module Myco
       end
       
       all_categories.each do |name, supers|
-        if name.nil?
+        if name == :main
           this.categories[name] = this
         else
           this.categories[name] = this.__new_category__ name, supers, filename, line
@@ -75,6 +75,11 @@ module Myco
       end
       
       this
+    end
+    
+    # Get a reference to the main Component from main or from any inner Category
+    def main
+      self < Category ? parent : self
     end
     
     def __category__ name
@@ -102,8 +107,7 @@ module Myco
       meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|
-        search_component = self<Category ? parent : self
-        decorators = search_component.categories[:decorators].instance
+        decorators = main.categories[:decorators].instance
         
         raise KeyError, "Unknown decorator for #{self}##{name}: #{decoration}" \
           unless decorators.respond_to?(decoration)
