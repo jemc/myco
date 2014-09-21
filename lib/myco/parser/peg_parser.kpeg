@@ -692,7 +692,25 @@ meme =
   # TODO: rigorously test and refine
   #
   def encode_escapes str
-    str.gsub /\\(.)/ do "#{$1}" end
+    str.gsub /\\(.)/ do
+      case $1
+      when "a"; "\a" # \a  0x07  Bell or alert
+      when "b"; "\b" # \b  0x08  Backspace
+      # TODO:        # \cx       Control-x
+      # TODO:        # \C-x      Control-x
+      when "e"; "\e" # \e  0x1b  Escape
+      when "f"; "\f" # \f  0x0c  Formfeed
+      # TODO:        # \M-\C-x   Meta-Control-x
+      when "n"; "\n" # \n  0x0a  Newline
+      # TODO:        # \nnn      Octal notation, where n is a digit
+      when "r"; "\r" # \r  0x0d  Carriage return
+      when "s"; "\s" # \s  0x20  Space
+      when "t"; "\t" # \t  0x09  Tab
+      when "v"; "\v" # \v  0x0b  Vertical tab
+      # TODO:        # \xnn      Hexadecimal notation, where n is a digit
+      else; "#{$1}"
+      end
+    end
   end
   
   # Given a node,op list ([node, op, node, op, ... node]) and operator types,
