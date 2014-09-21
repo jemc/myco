@@ -42,7 +42,7 @@ module Myco
       else
         raise ArgumentError,
           "Meme body must be a Rubinius::Executable, " \
-          "Rubinius::BlockEnvironment or a Proc"
+          "Rubinius::BlockEnvironment or a Proc; got: #{value.inspect}"
       end
       
       @body
