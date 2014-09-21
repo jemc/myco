@@ -324,10 +324,10 @@ category_expr =
   declobj_expr_not_category
 
 category_sepd_exprs =
-  category_expr:n0 (arg_sep category_expr:n)*:nrest { [n0, *nrest] }
+  arg_sep category_expr:n0 (arg_sep category_expr:n)*:nrest { [n0, *nrest] }
 
 category =
-  category_name:n0 arg_sep category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END))
+  category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END))
     ~node(:category, n0, n0,
       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))
 
