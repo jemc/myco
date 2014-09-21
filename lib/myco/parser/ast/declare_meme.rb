@@ -13,35 +13,34 @@ module CodeTools::AST
     def bytecode(g)
       pos(g)
       
-      state = g.state
-      state.scope.nest_scope self
+      g.state.scope.nest_scope self
       
       meth = new_generator g, @name, @arguments
       
       meth.push_state self
+      meth.state.push_super self
       meth.definition_line @line
       
-      meth.state.push_name meth.name
-      
-      pos(meth)
+      meth.state.push_name @name
       
       @arguments.bytecode meth
-      
       @body.bytecode meth
       
-      meth.ret
-      meth.close
+      meth.state.pop_name
       
       meth.local_count = local_count
       meth.local_names = local_names
       meth.splat_index = @arguments.splat_index
       
+      meth.ret
+      meth.close
       meth.pop_state
       
       g.push_scope
       g.send :for_method_definition, 0
       g.add_scope
       
+      # Create the BlockEnvironment from the meth Generator
       g.create_block meth
     end
   end
