@@ -27,7 +27,7 @@ class Myco::Backtrace < Rubinius::Backtrace
       file_width = file.length + 1 + sbullet.length
       
       place = loc.instance_variable_get(:@method_module).to_s + '#'
-      place += loc.describe_method
+      place += loc.method.name.to_s
       place_width = place.length + 1 + ebullet.length
       
       padding = @width - file_width - place_width
