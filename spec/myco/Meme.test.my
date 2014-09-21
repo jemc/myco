@@ -1,0 +1,18 @@
+
+import 'BasicSpec.my'
+
+
+BasicSpec {
+  name: "Meme"
+  
+  foo: 88
+  foo_meme: component.memes[:foo]
+  
+  [tests]
+  
+  "can be converted to a Proc": {
+    assert_is_a(foo_meme.to_proc, Proc)
+    assert_equal(foo_meme.to_proc.call, 88)
+    assert_equal(Proc.new(&foo_meme).call, 88)
+  }
+}

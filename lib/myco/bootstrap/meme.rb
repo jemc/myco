@@ -48,6 +48,10 @@ module Myco
       @body
     end
     
+    def to_proc
+      Proc.__from_block__(@body.block_env)
+    end
+    
     def bind
       return if not @expose
       
