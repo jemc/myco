@@ -25,6 +25,13 @@ BasicSpec {
     assert_equal(subject.baz, 101)
   }
   
+  "reopens a Component inside of a reopened Component": {
+    Subject << { Inner < EmptyObject { } }
+    Subject << { Inner << { Core:true } }
+    
+    assert_equal(Subject::Inner::Core, true)
+  }
+  
   "accesses a constant imported into the FileToplevel": {
     assert_equal(Foo::EightyEight, 88)
   }

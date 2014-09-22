@@ -1,4 +1,7 @@
 
+require_relative 'myco_module_scope'
+
+
 module CodeTools::AST
   
   module ProcessorMethods
@@ -7,17 +10,13 @@ module CodeTools::AST
     end
   end
   
-  class ConstantReopenScope < ModuleScope
-    def initialize(line, body)
-      @line = line
-      @name = :ConstantReopenScope # TODO: remove/fix
-      @body = body
-    end
-    
-    def bytecode(g)
-      pos(g)
+  class ConstantReopenScope < MycoModuleScope
+    def body_bytecode g
+      g.push_scope
+      g.send :set_myco_component, 0
+      g.pop
       
-      attach_and_call g, :__component_init__, true
+      @body.bytecode g
     end
   end
   

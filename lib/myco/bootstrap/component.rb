@@ -61,8 +61,8 @@ module Myco
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
       
-      super_components.each do |other|
-        this.include other if other
+      super_components.compact.each do |other|
+        this.include other
         other.categories.each { |name, cat| all_categories[name] << cat }
       end
       
