@@ -46,7 +46,6 @@ BasicSpec {
   
   # TODO: this is actually a test for Component...
   "can be injected into a Ruby object": {
-    
     obj = ::Object.new
     TestComponent.inject_into(obj)
     
