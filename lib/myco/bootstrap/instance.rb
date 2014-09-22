@@ -1,13 +1,6 @@
 
 module Myco
   module InstanceMethods
-  end
-  
-  class Instance < ::BasicObject
-    include InstanceMethods
-  end
-  
-  module InstanceMethods
     include ::Kernel
     
     # TODO: clean this up
@@ -48,12 +41,9 @@ module Myco
     def memes
       @component.memes
     end
-    
-    # Commandeer a few methods implemented in Kernel
-    %i{ extend respond_to? method_missing hash }.each do |sym|
-      define_method sym do |*args, &blk|
-        ::Kernel.instance_method(sym).bind(self).call(*args)
-      end
-    end
+  end
+  
+  class Instance < ::BasicObject
+    include InstanceMethods
   end
 end

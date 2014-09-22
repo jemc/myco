@@ -141,6 +141,7 @@ module Myco
       object.extend InstanceMethods unless object.is_a? InstanceMethods
       component = Component.new([self], nil, loc.file, loc.line)
       component.instance_variable_set(:@instance, object)
+      object.instance_variable_set(:@component, component)
       object.extend component
       object
     end

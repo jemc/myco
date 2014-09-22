@@ -10,6 +10,8 @@ BasicSpec {
     memoize bar: |x,y,z| x+y-z
   }
   
+  TestComponent < BasicObject { var foo }
+  
   [tests]
   
   "var decorator allows cached storage of a value": {
@@ -44,7 +46,6 @@ BasicSpec {
   
   # TODO: this is actually a test for Component...
   "can be injected into a Ruby object": {
-    TestComponent < BasicObject { var foo }
     
     obj = ::Object.new
     TestComponent.inject_into(obj)
