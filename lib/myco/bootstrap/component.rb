@@ -107,7 +107,8 @@ module Myco
       meme = Meme.new self, name, body, &blk
       
       decorations.each do |decoration, arguments|
-        decorators = main.categories[:decorators].instance
+        decorators = main.categories[:decorators]
+        decorators = decorators && decorators.instance
         
         raise KeyError, "Unknown decorator for #{self}##{name}: #{decoration}" \
           unless decorators.respond_to?(decoration)
