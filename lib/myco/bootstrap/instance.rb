@@ -1,6 +1,13 @@
 
 module Myco
+  module InstanceMethods
+  end
+  
   class Instance < ::BasicObject
+    include InstanceMethods
+  end
+  
+  module InstanceMethods
     include ::Kernel
     
     # TODO: clean this up

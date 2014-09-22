@@ -41,4 +41,20 @@ BasicSpec {
     loop { a=a+1; if(a>5) { break } }
     assert_equal(a, 6)
   }
+  
+  # TODO: this is actually a test for Component...
+  "can be injected into a Ruby object": {
+    TestComponent < BasicObject { var foo }
+    
+    obj = ::Object.new
+    TestComponent.inject_into(obj)
+    
+    refute(obj.component.equal?(TestComponent))
+    assert(obj.component < TestComponent)
+    
+    obj.foo = 88
+    assert_equal(obj.foo, 88)
+    obj.foo = 99
+    assert_equal(obj.foo, 99)
+  }
 }

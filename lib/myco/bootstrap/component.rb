@@ -133,6 +133,20 @@ module Myco
       @instance
     end
     
+    # Create a child component of self to act as the component of the object,
+    # which is allowed to be a Ruby object (not a Myco::Instance).
+    def inject_into object
+      loc = Rubinius::VM.backtrace(1,false).first
+      
+      object.extend InstanceMethods unless object.is_a? InstanceMethods
+      component = Component.new([self], nil, loc.file, loc.line)
+      component.instance_variable_set(:@instance, object)
+      object.extend component
+      object
+    end
+    
+    # Create a child component of self and call setters on the instance
+    # with the values given by kwargs.
     def new parent=nil, **kwargs
       loc = Rubinius::VM.backtrace(1,false).first
       
