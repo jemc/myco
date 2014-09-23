@@ -61,7 +61,11 @@ module Myco
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
       
-      super_components.compact.each do |other|
+      super_components.each do |other|
+        raise TypeError, "Got non-Component in supers for new Component: "\
+          "#{super_components.inspect}" \
+              unless other.is_a? Component
+        
         this.include other
         other.categories.each { |name, cat| all_categories[name] << cat }
       end
@@ -110,8 +114,17 @@ module Myco
         decorators = main.categories[:decorators]
         decorators = decorators && decorators.instance
         
-        raise KeyError, "Unknown decorator for #{self}##{name}: #{decoration}" \
-          unless decorators.respond_to?(decoration)
+        unless decorators.respond_to?(decoration)
+          reason = if decorators.nil?
+            "#{self} has no [decorators] category."
+          else
+            "Known decorators in #{decorators}: " \
+            "#{decorators.component.memes.keys.inspect}."
+          end
+          raise KeyError,
+            "Unknown decorator for #{self}##{name}: '#{decoration}'. #{reason}" 
+        end
+        
         decorator = decorators.send(decoration)
         decorator.transforms.apply meme, *arguments
         decorator.apply meme, *arguments
