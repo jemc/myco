@@ -3,8 +3,6 @@ module Myco
   MYCO_VERSION = '0.1.0.dev'
   
   MYCO_REQUIRED_GEMS = [
-    ['kpeg',               '~> 1.0'],
-    ['racc',               '~> 1.4'],
     ['rubinius-bridge',    '~> 1.1'],
     ['rubinius-toolset',   '~> 2.3'],
     ['rubinius-melbourne', '~> 2.2'],

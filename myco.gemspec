@@ -22,6 +22,8 @@ Gem::Specification.new do |s|
     s.add_dependency name, version
   end
   
+  s.add_development_dependency 'kpeg',       '~>  1.0'
+  s.add_development_dependency 'racc',       '~>  1.4'
   s.add_development_dependency 'bundler',    '~>  1.6'
   s.add_development_dependency 'rake',       '~> 10.3'
   s.add_development_dependency 'pry',        '~>  0.9'
