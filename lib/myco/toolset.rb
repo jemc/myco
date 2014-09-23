@@ -1,5 +1,4 @@
 
-require "rubinius/bridge"
 require "rubinius/toolset"
 
 module Myco; end
