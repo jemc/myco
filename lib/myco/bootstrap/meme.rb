@@ -83,6 +83,12 @@ module Myco
       @body
     end
     
+    def target= value
+      @target = value
+      @target.extend(MemeBindable) unless @target.is_a?(MemeBindable)
+      @target
+    end
+    
     def to_proc
       Proc.__from_block__(@body.block_env)
     end
@@ -90,7 +96,6 @@ module Myco
     def bind
       return if not @expose
       
-      target.extend(MemeBindable) unless target.is_a?(MemeBindable)
       target.memes[@name] = self
       
       ##

@@ -36,6 +36,12 @@
   # The 'memoize' decorator enables caching of the result
   memoize: Decorator {
     [transforms]
-    cache: true # Enable caching of the value to act as storage
+    cache: true
+  }
+  
+  # The 'sclass' decorator makes the component's singleton class the target
+  sclass: Decorator {
+    [transforms]
+    target: |meme| meme.target.singleton_class
   }
 }
