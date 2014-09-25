@@ -67,10 +67,14 @@ module Myco
               unless other.is_a? Component
         
         this.include other
-        other.categories.each { |name, cat| all_categories[name] << cat }
+        other.categories.each do |pair|
+          name, cat = *pair # TODO: remove workaround for rubinius issue #3114
+          all_categories[name] << cat
+        end
       end
       
-      all_categories.each do |name, supers|
+      all_categories.each do |pair|
+        name, supers = *pair # TODO: remove workaround for rubinius issue #3114
         if name == :main
           this.categories[name] = this
         else
@@ -110,7 +114,8 @@ module Myco
     def declare_meme name, decorations=[], body=nil, &blk
       meme = Meme.new self, name, body, &blk
       
-      decorations.each do |decoration, arguments|
+      decorations.each do |pair|
+        decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
         decorators = main.categories[:decorators]
         decorators = decorators && decorators.instance
         
