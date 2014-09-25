@@ -114,7 +114,7 @@ module Myco
     def declare_meme name, decorations=[], body=nil, &blk
       meme = Meme.new self, name, body, &blk
       
-      decorations.each do |pair|
+      decorations = decorations.map do |pair|
         decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
         decorators = main.categories[:decorators]
         decorators = decorators && decorators.instance
@@ -130,10 +130,11 @@ module Myco
             "Unknown decorator for #{self}##{name}: '#{decoration}'. #{reason}" 
         end
         
-        decorator = decorators.send(decoration)
-        decorator.transforms.apply meme, *arguments
-        decorator.apply meme, *arguments
+        [decorators.send(decoration), arguments]
       end
+      decorations.each { |deco, args| deco.transforms.apply meme, *args }
+      decorations.each { |deco, args| deco.apply meme, *args }
+      
       meme.bind
       
       meme
