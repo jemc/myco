@@ -1,12 +1,13 @@
 
 module Myco
   class Component < Module
+    include MemeBindable
+    
     attr_accessor :__last__
     attr_accessor :__name__
     
     attr_reader :parent
     attr_reader :parent_meme
-    attr_reader :memes
     attr_reader :categories
     
     attr_reader :constant_scope
@@ -49,7 +50,6 @@ module Myco
       
       this.instance_eval {
         @super_components = super_components
-        @memes       = { }
         @parent      = parent
         @filename    = filename
         @line        = line
@@ -105,39 +105,10 @@ module Myco
       category = Component.new super_cats, self, filename, line
       category.__name__ = name
       category_instance = category.instance
-      declare_meme(name) { category_instance }
-      @memes[name].cache = true
+      meme = declare_meme(name) { category_instance }
+      meme.cache = true
       
       category
-    end
-    
-    def declare_meme name, decorations=[], body=nil, &blk
-      meme = Meme.new self, name, body, &blk
-      
-      decorations = decorations.map do |pair|
-        decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
-        decorators = main.categories[:decorators]
-        decorators = decorators && decorators.instance
-        
-        unless decorators.respond_to?(decoration)
-          reason = if decorators.nil?
-            "#{self} has no [decorators] category."
-          else
-            "Known decorators in #{decorators}: " \
-            "#{decorators.component.memes.keys.inspect}."
-          end
-          raise KeyError,
-            "Unknown decorator for #{self}##{name}: '#{decoration}'. #{reason}" 
-        end
-        
-        [decorators.send(decoration), arguments]
-      end
-      decorations.each { |deco, args| deco.transforms.apply meme, *args }
-      decorations.each { |deco, args| deco.apply meme, *args }
-      
-      meme.bind
-      
-      meme
     end
     
     def instance

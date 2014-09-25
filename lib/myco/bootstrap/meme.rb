@@ -1,5 +1,40 @@
 
 module Myco
+  module MemeBindable
+    def memes
+      @memes ||= {}
+    end
+    
+    def declare_meme name, decorations=[], body=nil, &blk
+      meme = Meme.new self, name, body, &blk
+      
+      decorations = decorations.map do |pair|
+        decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
+        decorators = main.categories[:decorators]
+        decorators = decorators && decorators.instance
+        
+        unless decorators.respond_to?(decoration)
+          reason = if decorators.nil?
+            "#{self} has no [decorators] category."
+          else
+            "Known decorators in #{decorators}: " \
+            "#{decorators.component.memes.keys.inspect}."
+          end
+          raise KeyError,
+            "Unknown decorator for #{self}##{name}: '#{decoration}'. #{reason}" 
+        end
+        
+        [decorators.send(decoration), arguments]
+      end
+      decorations.each { |deco, args| deco.transforms.apply meme, *args }
+      decorations.each { |deco, args| deco.apply meme, *args }
+      
+      meme.bind
+      
+      meme
+    end
+  end
+  
   class Meme
     attr_accessor :target
     attr_accessor :name
@@ -55,8 +90,8 @@ module Myco
     def bind
       return if not @expose
       
-      meme = self
-      target.memes[@name] = meme
+      target.extend(MemeBindable) unless target.is_a?(MemeBindable)
+      target.memes[@name] = self
       
       ##
       # This dynamic method is nearly the same as Meme#result_for
@@ -64,6 +99,7 @@ module Myco
       # implemented in bytecode to avoid forwarding to another method
       # on the call stack.
       # TODO: move this bytecode generation to a helper method 
+      meme = self
       target.dynamic_method @name, '(myco_internal)' do |g|
         g.splat_index = 0 # *args
         
