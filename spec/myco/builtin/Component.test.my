@@ -1,0 +1,24 @@
+
+import '../BasicSpec.my'
+
+
+BasicSpec {
+  name: "builtin/Component"
+  
+  TestComponent < BasicObject { var foo }
+  
+  [tests]
+  
+  "can be injected into a Ruby object": {
+    obj = ::Object.new
+    TestComponent.inject_into(obj)
+    
+    refute(obj.component.equal?(TestComponent))
+    assert(obj.component < TestComponent)
+    
+    obj.foo = 88
+    assert_equal(obj.foo, 88)
+    obj.foo = 99
+    assert_equal(obj.foo, 99)
+  }
+}

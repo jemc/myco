@@ -1,9 +1,9 @@
 
-import 'BasicSpec.my'
+import '../BasicSpec.my'
 
 
 BasicSpec {
-  name: "Meme"
+  name: "builtin/Meme"
   
   foo: 88
   foo_meme: component.memes[:foo]
