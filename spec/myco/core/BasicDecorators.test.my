@@ -1,0 +1,32 @@
+
+import '../BasicSpec.my'
+
+
+BasicSpec {
+  name: "core/BasicDecorators"
+  
+  new_subject: BasicDecorators {
+    var foo: Object { }
+    memoize bar: |x,y,z| x+y-z
+  }
+  
+  [tests]
+  
+  "var decorator allows cached storage of a value": {
+    subject = new_subject
+    a = subject.foo
+    b = subject.foo
+    assert_equal(a, b)
+  }
+  
+  "var decorator also declares a writer meme": {
+    subject = new_subject
+    a = Object { }
+    b = subject.foo
+    refute_equal(a, b)
+    
+    subject.foo = a
+    b = subject.foo
+    assert_equal(a, b)
+  }
+}

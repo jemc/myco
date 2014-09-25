@@ -1,5 +1,5 @@
 
-::Myco::BasicObject < ::Myco::EmptyObject {
+::Myco::BasicObject < ::Myco::EmptyObject, ::Myco::BasicDecorators {
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
@@ -17,43 +17,4 @@
   p:    |*args| STDOUT.puts(args.map |a| { a.inspect }.join(', '))
   
   ruby_require: |arg| Object.send(:require, arg)
-  
-  [decorators]
-  
-  # The 'var' decorator creates what is effectively an instance variable by:
-  # 1) enabling caching, keeping the given block from being re-run,
-  #    unless run from an inheriting object (which would get its own "copy")
-  # 2) TODO: prohibiting sending of any arguments
-  # 3) creating a "writer" function in addition to the "reader"
-  var: Decorator {
-    # Create a corresponding "writer" meme to go with this "reader" meme
-    apply: |meme| {
-      meme.target.declare_meme(:""meme.name"=") |new_value| {
-        meme.set_result_for(self, new_value)
-      }
-    }
-    
-    [transforms]
-    cache: true # Enable caching of the value to act as storage
-  }
-  
-  # The 'storage' decorator acts like a set of var decorators
-  # TODO: consolidate with 'var'
-  storage: Decorator {
-    # Create a corresponding "writer" meme to go with this "reader" meme
-    apply: |meme| {
-      meme.target.declare_meme(:""meme.name"=") |new_value, *args| {
-        meme.set_result_for(self, new_value, *args)
-      }
-    }
-    
-    [transforms]
-    cache: true # Enable caching of the value to act as storage
-  }
-  
-  # The 'memoize' decorator enables caching of the result
-  memoize: Decorator {
-    [transforms]
-    cache: true # Enable caching of the value to act as storage
-  }
 }
