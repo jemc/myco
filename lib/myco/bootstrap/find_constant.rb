@@ -51,8 +51,9 @@ end
 
 module Myco
   
-  def self.find_constant(name, scope)
+  def self.find_constant(name, scope=nil)
     name = ::Rubinius::Type.coerce_to_constant_name name
+    scope ||= ::Rubinius::ConstantScope.of_sender
     
     category  = scope.myco_category
     component = scope.myco_component
