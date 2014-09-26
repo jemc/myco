@@ -13,9 +13,15 @@ describe Myco::ToolSet::Parser, "Constants" do
   parse "Foo::Bar::Baz" do
     [:colon2, [:colon2, [:const, :Foo], :Bar], :Baz]
   end
+  .to_ruby <<-'RUBY'
+    ::Myco.find_constant(:Foo)::Bar::Baz
+  RUBY
   
   parse "::Foo::Bar" do
     [:colon2, [:colon3, :Foo], :Bar]
   end
+  .to_ruby <<-'RUBY'
+    ::Foo::Bar
+  RUBY
   
 end
