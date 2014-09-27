@@ -31,8 +31,8 @@ module SpecHelpers
       # Remove all indentation for comparison
       string_indent   = /^\s*/.match(string)[0]
       expected_indent = /^\s*/.match(expected)[0]
-      string   = string  .gsub(/(\n?)#{string_indent}/,   '\1').strip
-      expected = expected.gsub(/(\n?)#{expected_indent}/, '\1').strip
+      string   = string  .gsub(/(?<=\n)#{string_indent}/,   '').strip
+      expected = expected.gsub(/(?<=\n)#{expected_indent}/, '').strip
       
       describe expected do
         it "is the Ruby code generated from Myco code: \n\n#{string}\n\n" do

@@ -2,6 +2,9 @@
 class CodeTools::AST::SendWithArguments
   def to_ruby g
     g.add(@receiver); g.add(".#{@name}"); g.add(@arguments)
-    g.add(@block) if @block
+    
+    if @block
+      g.add(" {"); g.add(@block); g.add("}")
+    end
   end
 end

@@ -74,14 +74,34 @@ describe Myco::ToolSet::Parser, "Declarations" do
   parse "Foo: Object { }" do
     [:cdecl, :Foo, [:block, [:declobj, [:array, [:const, :Object]], [:null]]]]
   end
+  .to_ruby <<-'RUBY'
+    Foo = (
+      (__c__ = ::Myco::Component.new([
+        ::Myco.find_constant(:Object)
+      ], self, __FILE__, __LINE__)
+      __c__.__last__ = __c__.module_eval {nil}
+      __c__.instance)
+    )
+  RUBY
   
   parse "Foo < Object { }" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
+  .to_ruby <<-'RUBY'
+    (__d__ = Foo = (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {nil})
+    __d__.__name__=:Foo
+    __d__)
+  RUBY
   
   parse "Foo << { }" do
     [:copen, :Foo, [:null]]
   end
+  .to_ruby <<-'RUBY'
+    ::Myco.find_constant(:Foo).module_eval {nil}
+  RUBY
   
   parse <<-'code' do
     Foo << {
@@ -90,6 +110,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
   code
     [:copen, :Foo, [:block, [:copen, :Bar, [:null]]]]
   end
+  .to_ruby <<-'RUBY'
+    ::Myco.find_constant(:Foo).module_eval {(
+      ::Myco.find_constant(:Bar).module_eval {nil}
+    )}
+  RUBY
   
   parse <<-'code' do
     Object @@@
