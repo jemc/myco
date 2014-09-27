@@ -1,6 +1,6 @@
 
 class CodeTools::AST::ToplevelConstant
-  def to_ruby
-    "::#{@name}"
+  def to_ruby g
+    g.add("::#{@name}")
   end
 end

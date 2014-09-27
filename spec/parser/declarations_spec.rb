@@ -42,6 +42,15 @@ describe Myco::ToolSet::Parser, "Declarations" do
   parse "Foo,Bar,Baz { }" do
     [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:null]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Foo),
+      ::Myco.find_constant(:Bar),
+      ::Myco.find_constant(:Baz)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {nil}
+    __c__.instance)
+  RUBY
   
   parse "Foo, ::Bar, Foo::Bar, ::Foo::Bar::Baz { }" do
     [:declobj, [:array,
@@ -93,6 +102,15 @@ describe Myco::ToolSet::Parser, "Declarations" do
       bar
     DECLSTR
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {nil}
+    __c__.instance).from_string(
+      "  foo\n  bar\n"
+    )
+  RUBY
   
   parse <<-'code' do
     Foo: Object @@@

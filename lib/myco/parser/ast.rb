@@ -14,6 +14,4 @@ require_relative "ast/quest"
 
 require_relative "ast/misc"
 
-require_relative "ast/to_ruby/constant_access"
-require_relative "ast/to_ruby/scoped_constant"
-require_relative "ast/to_ruby/toplevel_constant"
+require_relative "ast/to_ruby"

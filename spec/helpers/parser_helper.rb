@@ -29,14 +29,16 @@ module SpecHelpers
       expected = block.call if block
       
       # Remove all indentation for comparison
-      string   = string  .gsub(/\n\s*/, "\n").strip
-      expected = expected.gsub(/\n\s*/, "\n").strip
+      string_indent   = /^\s*/.match(string)[0]
+      expected_indent = /^\s*/.match(expected)[0]
+      string   = string  .gsub(/(\n?)#{string_indent}/,   '\1').strip
+      expected = expected.gsub(/(\n?)#{expected_indent}/, '\1').strip
       
       describe expected do
         it "is the Ruby code generated from Myco code: \n\n#{string}\n\n" do
           ast = Myco::ToolSet::Parser.new('(eval)', 1, []).parse_string string
           ast = ast.body.array.last # Get rid of toplevel DeclareFile node
-          ast.to_ruby.should eq expected if expected
+          ast.to_ruby_code.should eq expected if expected
         end
       end
     end
