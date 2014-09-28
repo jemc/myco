@@ -84,6 +84,26 @@ describe Myco::ToolSet::Parser, "Declarations" do
     ))
   RUBY
   
+  to_ruby "::Foo: Object { }" do <<-'RUBY' end
+    ::Foo = (
+      (__c__ = ::Myco::Component.new([
+        ::Myco.find_constant(:Object, __cscope__)
+      ], self, __FILE__, __LINE__)
+      __c__.__last__ = __c__.module_eval {nil}
+      __c__.instance)
+    )
+  RUBY
+  
+  to_ruby "Foo::Bar::Baz: Object { }" do <<-'RUBY' end
+    ::Myco.find_constant(:Foo, __cscope__)::Bar::Baz = (
+      (__c__ = ::Myco::Component.new([
+        ::Myco.find_constant(:Object, __cscope__)
+      ], self, __FILE__, __LINE__)
+      __c__.__last__ = __c__.module_eval {nil}
+      __c__.instance)
+    )
+  RUBY
+  
   parse "Foo < Object { }" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
