@@ -163,7 +163,7 @@ describe Myco::ToolSet::Parser, "Memes" do
         )
       )}
       declare_meme(:x, []) { |*| (
-        b.__send__(
+        a.b.__send__(
           :%,
           3
         )
