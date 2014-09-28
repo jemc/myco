@@ -16,7 +16,7 @@ module CodeTools::AST
       
       g.add(@receiver); g.add(".__send__"); g.add(args)
       
-      if @body_block
+      if body_block
         g.add(" {"); g.add(@block); g.add("}")
       end
     end

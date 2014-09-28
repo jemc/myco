@@ -83,5 +83,27 @@ describe Myco::ToolSet::Parser, "Strings" do
       ]]
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object, __cscope__)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
+      __cscope__.set_myco_component
+      declare_meme(:foo, []) { |*| (
+        self.__send__(
+          :bar,
+          "x#{99}X",
+          :"y#{(
+            1
+            2
+            3
+          )}Y"
+        )
+      )}
+      __cscope__ = __cscope__.parent
+    )}
+    __c__.instance)
+  RUBY
   
 end

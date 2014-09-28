@@ -424,6 +424,45 @@ describe Myco::ToolSet::Parser, "Memes" do
   
   parse <<-'code' do
     Object {
+      foo: |&blk| { bar |*yield_args| { blk.call(*yield_args) } }
+    }
+  code
+    [:declobj, [:array, [:const, :Object]], [:block,
+      [:meme, :foo, [:array], [:args, :"&blk"], [:block,
+        [:call, [:self], :bar, [:arglist,
+          [:iter, [:args, :"*yield_args"], [:block,
+            [:call, [:lambig, :blk], :call, [:arglist,
+              [:splat, [:lambig, :yield_args]]
+            ]]
+          ]]
+        ]]
+      ]]
+    ]]
+  end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object, __cscope__)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
+      __cscope__.set_myco_component
+      declare_meme(:foo, []) { |&blk| (
+        self.__send__(
+          :bar
+        ) { |*yield_args| (
+          blk.__send__(
+            :call,
+            *(yield_args)
+          )
+        )}
+      )}
+      __cscope__ = __cscope__.parent
+    )}
+    __c__.instance)
+  RUBY
+  
+  parse <<-'code' do
+    Object {
       foo: |a, b, *c, d: 1, e :2, f:, g :, **h, &i|
         foo(a, b, c, d: 1, e :2, f:3, g:4, &i)
         # TODO: foo(a, b, *c, d: 1, e :2, f:3, g:4, **h, &i)
@@ -482,6 +521,31 @@ describe Myco::ToolSet::Parser, "Memes" do
         [:lasgn, :o, [:declobj, [:array, [:const, :Object]], [:null]]]]]
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object, __cscope__)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
+      __cscope__.set_myco_component
+      declare_meme(:foo, []) { |*| (
+        (__c__ = ::Myco::Component.new([
+          ::Myco.find_constant(:Object, __cscope__)
+        ], self, __FILE__, __LINE__)
+        __c__.__last__ = __c__.module_eval {nil}
+        __c__.instance)
+      )}
+      declare_meme(:bar, []) { |*| (
+        o = (__c__ = ::Myco::Component.new([
+          ::Myco.find_constant(:Object, __cscope__)
+        ], self, __FILE__, __LINE__)
+        __c__.__last__ = __c__.module_eval {nil}
+        __c__.instance)
+      )}
+      __cscope__ = __cscope__.parent
+    )}
+    __c__.instance)
+  RUBY
   
   parse <<-'code' do
     Object {
