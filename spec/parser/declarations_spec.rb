@@ -108,13 +108,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   .to_ruby <<-'RUBY'
-    (__d__ = ::Myco.cscope.for_method_definition.const_set(:Foo, (__c__ = ::Myco::Component.new([
+    ::Myco.cscope.for_method_definition.const_set(:Foo, (__c__ = ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
     __c__.__last__ = __c__.component_eval { |__c__| nil}
-    __c__))
-    __d__.__name__=:Foo
-    __d__)
+    __c__)).tap { |__c__| __c__.__name__ = :Foo }
   RUBY
   
   parse "Foo << { }" do
