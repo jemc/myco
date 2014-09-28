@@ -48,6 +48,64 @@ describe Myco::ToolSet::Parser, "Memes" do
       [:meme, :"x y", [:array], [:args, :*], [:block, [:lambig, :z]]],
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      declare_meme(:foo, []) { |*| (
+        one
+      )}
+      declare_meme(:bar, []) { |*| (
+        ::Myco.find_constant(:Two)
+      )}
+      declare_meme(:baz, []) { |*| (
+        3
+      )}
+      declare_meme(:deci, []) { |*| (
+        3.88
+      )}
+      declare_meme(:ary, []) { |*| (
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      )}
+      declare_meme(:all, []) { |*| (
+        nil
+      )}
+      declare_meme(:none, []) { |*| (
+        ::Myco::Void
+      )}
+      declare_meme(:str, []) { |*| (
+        "string"
+      )}
+      declare_meme(:sym, []) { |*| (
+        :bol
+      )}
+      declare_meme(:ssym, []) { |*| (
+        :"with spaces"
+      )}
+      declare_meme(:s, []) { |*| (
+        self
+      )}
+      declare_meme(:t, []) { |*| (
+        true
+      )}
+      declare_meme(:f, []) { |*| (
+        false
+      )}
+      declare_meme(:"x y", []) { |*| (
+        z
+      )}
+    )}
+    __c__.instance)
+  RUBY
   
   parse <<-'code' do
     Object {
@@ -76,6 +134,47 @@ describe Myco::ToolSet::Parser, "Memes" do
       ]]
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      declare_meme(:a, []) { |*| (
+        1.__send__(
+          :+,
+          2.__send__(
+            :*,
+            3
+          )
+        )
+      )}
+      declare_meme(:b, []) { |*| (
+        1.__send__(
+          :/,
+          2
+        ).__send__(
+          :-,
+          3
+        )
+      )}
+      declare_meme(:x, []) { |*| (
+        b.__send__(
+          :%,
+          3
+        )
+      )}
+      declare_meme(:y, []) { |*| (
+        a.__send__(
+          :**,
+          b
+        ).__send__(
+          :<=>,
+          x
+        )
+      )}
+    )}
+    __c__.instance)
+  RUBY
   
   parse <<-'code' do
     Object {
@@ -290,6 +389,15 @@ describe Myco::ToolSet::Parser, "Memes" do
       [:null]]
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      declare_meme(:foo, []) { |a, b, c=0, d=5| nil}
+    )}
+    __c__.instance)
+  RUBY
   
   parse <<-'code' do
     Object {
@@ -325,6 +433,29 @@ describe Myco::ToolSet::Parser, "Memes" do
       ]
     ]]
   end
+  .to_ruby <<-'RUBY'
+    (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], self, __FILE__, __LINE__)
+    __c__.__last__ = __c__.module_eval {(
+      declare_meme(:foo, []) { |a, b, *c, d:1, e:2, f:, g:, **h, &i| (
+        self.__send__(
+          :foo,
+          a,
+          b,
+          c,
+          {
+            :d => 1,
+            :e => 2,
+            :f => 3,
+            :g => 4
+          },
+          &i
+        )
+      )}
+    )}
+    __c__.instance)
+  RUBY
   
   parse <<-'code' do
     Object {

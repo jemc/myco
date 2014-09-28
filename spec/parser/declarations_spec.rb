@@ -132,7 +132,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
       ::Myco.find_constant(:Object)
     ], self, __FILE__, __LINE__)
     __c__.__last__ = __c__.module_eval {nil}
-    __c__.instance).from_string(
+    __c__.instance).__send__(
+      :from_string,
       "  foo\n  bar\n"
     )
   RUBY
