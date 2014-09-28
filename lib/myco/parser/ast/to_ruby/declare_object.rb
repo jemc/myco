@@ -1,26 +1,17 @@
 
+require_relative 'myco_module_scope'
+
+class CodeTools::AST::DeclareObjectScope
+  def to_ruby_scope_directive g
+    g.line("__cscope__.set_myco_component")
+  end
+end
+
 class CodeTools::AST::DeclareObject
-  def to_ruby g, scope_directive="set_myco_component"
-    scoped_body = @body.dup
-    if @body.respond_to?(:array)
-      cscope_assign = Object.new
-      cscope_revert = Object.new
-      
-      cscope_assign.send(:define_singleton_method, :to_ruby) { |g|
-        g.add("__cscope__ = Rubinius::ConstantScope.new(self, __cscope__)")
-        g.line("__cscope__.#{scope_directive}")
-      }
-      cscope_revert.send(:define_singleton_method, :to_ruby) { |g|
-        g.add("__cscope__ = __cscope__.parent")
-      }
-      
-      scoped_body.array.unshift(cscope_assign)
-      scoped_body.array.push(cscope_revert)
-    end
-    
+  def to_ruby g
     g.add("(")
     g.add("__c__ = ::Myco::Component.new("); g.add(@types); g.add(", self, __FILE__, __LINE__)")
-    g.line("__c__.__last__ = __c__.module_eval {"); g.add(scoped_body); g.add("}")
+    g.line("__c__.__last__ = __c__.module_eval {"); g.add(scope_implementation); g.add("}")
     @create ? g.line("__c__.instance") : g.line("__c__")
     g.add(")")
   end

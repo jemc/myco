@@ -39,10 +39,12 @@ module CodeTools::AST
       [:declobj, @types.to_sexp, @body.to_sexp]
     end
     
+    def scope_implementation
+      @scope_type.new @line, @body
+    end
+    
     def bytecode g
       pos(g)
-      
-      scope = @scope_type.new @line, @body
       
       # ::Myco::Component.new types, parent, filename
       g.push_cpath_top
@@ -61,7 +63,7 @@ module CodeTools::AST
       
       # Compile the inner scope,
       # leaving the last object in the scope at the top of the stack.
-      scope.bytecode g
+      scope_implementation.bytecode g
       
       # component.__last__ = (value left on stack from @scope.bytecode)
       g.send :__last__=, 1

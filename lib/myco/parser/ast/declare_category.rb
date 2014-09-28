@@ -33,10 +33,12 @@ module CodeTools::AST
       [:category, @name.value, @body.to_sexp]
     end
     
+    def scope_implementation
+      DeclareCategoryScope.new @line, @body
+    end
+    
     def bytecode g
       pos(g)
-      
-      scope = DeclareCategoryScope.new @line, @body
       
       ##
       # category = self.__category__ @name
@@ -44,7 +46,7 @@ module CodeTools::AST
         g.push_literal @name.value
       g.send :__category__, 1
       
-      scope.bytecode g
+      scope_implementation.bytecode g
     end
   end
   
