@@ -28,10 +28,7 @@ module Myco
     result
   end
   
-  # TODO: replace with proper import set of functions
-  def self.eval_file path, load_paths=nil, get_last=true, scope=nil
-    load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
-    
+  def self.resolve_file path, load_paths=[]
     tmp_path = File.expand_path(path)
     use_path = File.file?(tmp_path) && tmp_path
     load_paths.each do |load_path|
@@ -44,8 +41,23 @@ module Myco
                          "in load_paths: #{load_paths.inspect}" \
       unless use_path
     
+    use_path
+  end
+  
+  # TODO: deprecate with proper import set of functions
+  def self.eval_file path, load_paths=nil, get_last=true, scope=nil
+    load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
+    use_path = resolve_file path, load_paths
     file_toplevel = Myco.eval File.read(use_path), scope, use_path, 1
     get_last ? file_toplevel.component.__last__ : file_toplevel.component
+  end
+  
+  def self.file_to_ruby path, load_paths=nil
+    load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
+    use_path = resolve_file path, load_paths
+    parser = Myco::ToolSet::Parser.new(use_path, 1, [])
+    ast = parser.parse_string File.read(use_path)
+    ast.to_ruby_code
   end
   
   def self.rescue
