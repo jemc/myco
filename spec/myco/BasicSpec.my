@@ -47,6 +47,7 @@ BasicSpec < Object {
   assert_is_a: |a, b, message=null|
     rspec.instance_eval { expect(a).to(be_a(b), message) }
   
+  skip: rspec.skip
   
   var rspec
   
