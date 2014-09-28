@@ -44,11 +44,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Foo, __cscope__),
-      ::Myco.find_constant(:Bar, __cscope__),
-      ::Myco.find_constant(:Baz, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {nil}
+      ::Myco.find_constant(:Foo),
+      ::Myco.find_constant(:Bar),
+      ::Myco.find_constant(:Baz)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| nil}
     __c__.instance)
   RUBY
   
@@ -75,11 +75,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdecl, :Foo, [:block, [:declobj, [:array, [:const, :Object]], [:null]]]]
   end
   .to_ruby <<-'RUBY'
-    __cscope__.module.const_set(:Foo, (
+    ::Myco.cscope.for_method_definition.const_set(:Foo, (
       (__c__ = ::Myco::Component.new([
-        ::Myco.find_constant(:Object, __cscope__)
-      ], self, __FILE__, __LINE__)
-      __c__.__last__ = __c__.module_eval {nil}
+        ::Myco.find_constant(:Object)
+      ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+      __c__.__last__ = __c__.component_eval { |__c__| nil}
       __c__.instance)
     ))
   RUBY
@@ -87,19 +87,19 @@ describe Myco::ToolSet::Parser, "Declarations" do
   to_ruby "::Foo: Object { }" do <<-'RUBY' end
     ::Foo = (
       (__c__ = ::Myco::Component.new([
-        ::Myco.find_constant(:Object, __cscope__)
-      ], self, __FILE__, __LINE__)
-      __c__.__last__ = __c__.module_eval {nil}
+        ::Myco.find_constant(:Object)
+      ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+      __c__.__last__ = __c__.component_eval { |__c__| nil}
       __c__.instance)
     )
   RUBY
   
   to_ruby "Foo::Bar::Baz: Object { }" do <<-'RUBY' end
-    ::Myco.find_constant(:Foo, __cscope__)::Bar::Baz = (
+    ::Myco.find_constant(:Foo)::Bar::Baz = (
       (__c__ = ::Myco::Component.new([
-        ::Myco.find_constant(:Object, __cscope__)
-      ], self, __FILE__, __LINE__)
-      __c__.__last__ = __c__.module_eval {nil}
+        ::Myco.find_constant(:Object)
+      ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+      __c__.__last__ = __c__.component_eval { |__c__| nil}
       __c__.instance)
     )
   RUBY
@@ -108,10 +108,10 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   .to_ruby <<-'RUBY'
-    (__d__ = __cscope__.module.const_set(:Foo, (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {nil}
+    (__d__ = ::Myco.cscope.for_method_definition.const_set(:Foo, (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| nil}
     __c__))
     __d__.__name__=:Foo
     __d__)
@@ -121,7 +121,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:copen, :Foo, [:null]]
   end
   .to_ruby <<-'RUBY'
-    ::Myco.find_constant(:Foo, __cscope__).module_eval {nil}
+    ::Myco.find_constant(:Foo).component_eval {nil}
   RUBY
   
   parse <<-'code' do
@@ -132,8 +132,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:copen, :Foo, [:block, [:copen, :Bar, [:null]]]]
   end
   .to_ruby <<-'RUBY'
-    ::Myco.find_constant(:Foo, __cscope__).module_eval {(
-      ::Myco.find_constant(:Bar, __cscope__).module_eval {nil}
+    ::Myco.find_constant(:Foo).component_eval {(
+      ::Myco.find_constant(:Bar).component_eval {nil}
     )}
   RUBY
   
@@ -150,9 +150,9 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {nil}
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| nil}
     __c__.instance).__send__(
       :from_string,
       "  foo\n  bar\n"

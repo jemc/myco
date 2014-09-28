@@ -85,12 +85,10 @@ describe Myco::ToolSet::Parser, "Strings" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |*| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
         self.__send__(
           :bar,
           "x#{99}X",
@@ -101,7 +99,6 @@ describe Myco::ToolSet::Parser, "Strings" do
           )}Y"
         )
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY

@@ -5,8 +5,14 @@ module Myco
       @memes ||= {}
     end
     
-    def declare_meme name, decorations=[], body=nil, &blk
-      meme = Meme.new self, name, body, &blk
+    def declare_meme name, decorations=[], body=nil, cscope=nil, &blk
+      meme = Meme.new self, name
+      if cscope && blk
+        body = blk.block.dup
+        blk = nil
+        body.instance_variable_set(:@constant_scope, cscope)
+      end
+      meme.body = body || blk
       
       decorations = decorations.map do |pair|
         decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
@@ -53,7 +59,8 @@ module Myco
     def initialize target, name, body=nil, &blk
       self.target = target
       self.name   = name
-      self.body   = body || blk
+      self.body   = body if body
+      self.body   = blk  if blk
       self.cache  = false
       self.expose = true
       
@@ -73,6 +80,8 @@ module Myco
       when Proc
         block_env = value.block.dup
         block_env.change_name name
+        block_env.constant_scope.set_myco_meme self \
+          unless block_env.constant_scope.myco_meme
         @body = Rubinius::BlockEnvironment::AsMethod.new block_env
       else
         raise ArgumentError,

@@ -51,6 +51,11 @@ end
 
 module Myco
   
+  # Get the "current" ConstantScope (from the caller's perspective)
+  def self.cscope
+    Rubinius::ConstantScope.of_sender
+  end
+  
   def self.find_constant(name, scope=nil)
     name = ::Rubinius::Type.coerce_to_constant_name name
     scope ||= ::Rubinius::ConstantScope.of_sender

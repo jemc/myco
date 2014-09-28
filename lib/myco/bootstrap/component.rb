@@ -146,6 +146,21 @@ module Myco
         kwargs.each { |key,val| instance.send :"#{key}=", val }
       }
     end
+    
+    # Like module_eval, but it also shifts the ConstantScope of the block
+    def component_eval &block
+      block_env = block.block
+      cscope = Rubinius::ConstantScope.new(self, block_env.constant_scope)
+      if defined? ::Myco::FileToplevel && self < ::Myco::FileToplevel
+        cscope.set_myco_file
+      elsif defined? ::Myco::Category && self < ::Myco::Category
+        cscope.set_myco_category
+      else
+        cscope.set_myco_component
+      end
+      result = block_env.call_under(self, cscope, true, self)
+      result
+    end
   end
   
 end

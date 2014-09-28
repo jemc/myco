@@ -50,24 +50,22 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |*| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
         one
       )}
-      declare_meme(:bar, []) { |*| (
-        ::Myco.find_constant(:Two, __cscope__)
+      declare_meme(:bar, [], nil, ::Myco.cscope.dup) { |*| (
+        ::Myco.find_constant(:Two)
       )}
-      declare_meme(:baz, []) { |*| (
+      declare_meme(:baz, [], nil, ::Myco.cscope.dup) { |*| (
         3
       )}
-      declare_meme(:deci, []) { |*| (
+      declare_meme(:deci, [], nil, ::Myco.cscope.dup) { |*| (
         3.88
       )}
-      declare_meme(:ary, []) { |*| (
+      declare_meme(:ary, [], nil, ::Myco.cscope.dup) { |*| (
         [
           1,
           2,
@@ -78,34 +76,33 @@ describe Myco::ToolSet::Parser, "Memes" do
           7
         ]
       )}
-      declare_meme(:all, []) { |*| (
+      declare_meme(:all, [], nil, ::Myco.cscope.dup) { |*| (
         nil
       )}
-      declare_meme(:none, []) { |*| (
+      declare_meme(:none, [], nil, ::Myco.cscope.dup) { |*| (
         ::Myco::Void
       )}
-      declare_meme(:str, []) { |*| (
+      declare_meme(:str, [], nil, ::Myco.cscope.dup) { |*| (
         "string"
       )}
-      declare_meme(:sym, []) { |*| (
+      declare_meme(:sym, [], nil, ::Myco.cscope.dup) { |*| (
         :bol
       )}
-      declare_meme(:ssym, []) { |*| (
+      declare_meme(:ssym, [], nil, ::Myco.cscope.dup) { |*| (
         :"with spaces"
       )}
-      declare_meme(:s, []) { |*| (
+      declare_meme(:s, [], nil, ::Myco.cscope.dup) { |*| (
         self
       )}
-      declare_meme(:t, []) { |*| (
+      declare_meme(:t, [], nil, ::Myco.cscope.dup) { |*| (
         true
       )}
-      declare_meme(:f, []) { |*| (
+      declare_meme(:f, [], nil, ::Myco.cscope.dup) { |*| (
         false
       )}
-      declare_meme(:"x y", []) { |*| (
+      declare_meme(:"x y", [], nil, ::Myco.cscope.dup) { |*| (
         z
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
@@ -139,12 +136,10 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:a, []) { |*| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:a, [], nil, ::Myco.cscope.dup) { |*| (
         1.__send__(
           :+,
           2.__send__(
@@ -153,7 +148,7 @@ describe Myco::ToolSet::Parser, "Memes" do
           )
         )
       )}
-      declare_meme(:b, []) { |*| (
+      declare_meme(:b, [], nil, ::Myco.cscope.dup) { |*| (
         1.__send__(
           :/,
           2
@@ -162,13 +157,13 @@ describe Myco::ToolSet::Parser, "Memes" do
           3
         )
       )}
-      declare_meme(:x, []) { |*| (
+      declare_meme(:x, [], nil, ::Myco.cscope.dup) { |*| (
         a.b.__send__(
           :%,
           3
         )
       )}
-      declare_meme(:y, []) { |*| (
+      declare_meme(:y, [], nil, ::Myco.cscope.dup) { |*| (
         a.__send__(
           :**,
           b
@@ -177,7 +172,6 @@ describe Myco::ToolSet::Parser, "Memes" do
           x
         )
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
@@ -397,13 +391,10 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |a, b, c=0, d=5| nil}
-      __cscope__ = __cscope__.parent
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |a, b, c=0, d=5| nil}
     )}
     __c__.instance)
   RUBY
@@ -441,22 +432,19 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |&blk| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |&blk| (
         self.__send__(
           :bar
         ) { |*yield_args| (
           blk.__send__(
             :call,
-            *(yield_args)
+            *yield_args
           )
         )}
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
@@ -483,12 +471,10 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |a, b, *c, d:1, e:2, f:, g:, **h, &i| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |a, b, *c, d:1, e:2, f:, g:, **h, &i| (
         self.__send__(
           :foo,
           a,
@@ -503,7 +489,6 @@ describe Myco::ToolSet::Parser, "Memes" do
           &i
         )
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
@@ -523,26 +508,23 @@ describe Myco::ToolSet::Parser, "Memes" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      declare_meme(:foo, []) { |*| (
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
         (__c__ = ::Myco::Component.new([
-          ::Myco.find_constant(:Object, __cscope__)
-        ], self, __FILE__, __LINE__)
-        __c__.__last__ = __c__.module_eval {nil}
+          ::Myco.find_constant(:Object)
+        ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+        __c__.__last__ = __c__.component_eval { |__c__| nil}
         __c__.instance)
       )}
-      declare_meme(:bar, []) { |*| (
+      declare_meme(:bar, [], nil, ::Myco.cscope.dup) { |*| (
         o = (__c__ = ::Myco::Component.new([
-          ::Myco.find_constant(:Object, __cscope__)
-        ], self, __FILE__, __LINE__)
-        __c__.__last__ = __c__.module_eval {nil}
+          ::Myco.find_constant(:Object)
+        ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+        __c__.__last__ = __c__.component_eval { |__c__| nil}
         __c__.instance)
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY

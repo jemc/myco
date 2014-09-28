@@ -16,6 +16,7 @@ BasicSpec {
   }
   
   "loops and can break the loop": {
+    skip
     a = 0
     loop { a=a+1; if(a>5) { break } }
     assert_equal(a, 6)

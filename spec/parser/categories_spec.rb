@@ -11,7 +11,7 @@ describe Myco::ToolSet::Parser, "Categories" do
     [:category, :"foo", [:null]]
   end
   .to_ruby <<-'RUBY'
-    __category__(:foo).module_eval {nil}
+    __category__(:foo).component_eval {nil}
   RUBY
   
   parse <<-'code' do
@@ -42,28 +42,19 @@ describe Myco::ToolSet::Parser, "Categories" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
-      ::Myco.find_constant(:Foo, __cscope__)
-      __category__(:one).module_eval {(
-        __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-        __cscope__.set_myco_category
-        ::Myco.find_constant(:Bar, __cscope__)
-        ::Myco.find_constant(:Bar, __cscope__)
-        ::Myco.find_constant(:Bar, __cscope__)
-        __cscope__ = __cscope__.parent
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
+      ::Myco.find_constant(:Foo)
+      __category__(:one).component_eval {(
+        ::Myco.find_constant(:Bar)
+        ::Myco.find_constant(:Bar)
+        ::Myco.find_constant(:Bar)
       )}
-      __category__(:two).module_eval {(
-        __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-        __cscope__.set_myco_category
-        ::Myco.find_constant(:Baz, __cscope__)
-        ::Myco.find_constant(:Baz, __cscope__)
-        __cscope__ = __cscope__.parent
+      __category__(:two).component_eval {(
+        ::Myco.find_constant(:Baz)
+        ::Myco.find_constant(:Baz)
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY

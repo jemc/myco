@@ -60,22 +60,25 @@ module CodeTools::AST
       [:meme, @name, @decorations.to_sexp, @arguments.to_sexp, @body.to_sexp]
     end
     
-    def bytecode(g)
-      pos(g)
-      
+    def body_implementation
       meme_body = DeclareMemeBody.new(@line, @arguments, @body)
       meme_body.name = @name
+      meme_body
+    end
+    
+    def bytecode(g)
+      pos(g)
       
       ##
       # module = scope.for_method_definition
       # module.send :declare_meme, @name, @decorations,
-      #   BlockEnvironment(meme_body)
+      #   BlockEnvironment(body_implementation)
       #
       g.push_scope
       g.send :for_method_definition, 0
         g.push_literal @name
         @decorations.bytecode g
-        meme_body.bytecode(g)
+        body_implementation.bytecode(g)
       g.send :declare_meme, 3
     end
   end

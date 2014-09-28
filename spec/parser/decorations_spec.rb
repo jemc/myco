@@ -71,16 +71,14 @@ describe Myco::ToolSet::Parser, "Decorations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object, __cscope__)
-    ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {(
-      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
-      __cscope__.set_myco_component
+      ::Myco.find_constant(:Object)
+    ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
+    __c__.__last__ = __c__.component_eval { |__c__| (
       declare_meme(:foo, [
         [:on, [
           true
         ]]
-      ]) { |*| nil}
+      ], nil, ::Myco.cscope.dup) { |*| nil}
       declare_meme(:three, [
         [:two, [
           1,
@@ -88,7 +86,7 @@ describe Myco::ToolSet::Parser, "Decorations" do
           3
         ]],
         [:one, []]
-      ]) { |*| (
+      ], nil, ::Myco.cscope.dup) { |*| (
         88
       )}
       declare_meme(:six, [
@@ -96,15 +94,14 @@ describe Myco::ToolSet::Parser, "Decorations" do
         [:four, [
           "fore"
         ]]
-      ]) { |*| nil}
+      ], nil, ::Myco.cscope.dup) { |*| nil}
       declare_meme(:"str.ng", [
         [:sym, [
           :bol
         ]]
-      ]) { |*| (
+      ], nil, ::Myco.cscope.dup) { |*| (
         99
       )}
-      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
