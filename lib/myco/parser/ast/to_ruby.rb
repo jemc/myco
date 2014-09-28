@@ -18,11 +18,11 @@ module CodeTools::AST
       @indents.pop
     end
     
-    def line string
+    def line string=""
       if string.is_a?(String)
         @lines.push(@indents.last + string)
       else
-        @lines.push(@indents.last.dup)
+        line
         string.to_ruby(self)
       end
     end

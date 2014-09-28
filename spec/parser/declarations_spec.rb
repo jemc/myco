@@ -44,9 +44,9 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Foo),
-      ::Myco.find_constant(:Bar),
-      ::Myco.find_constant(:Baz)
+      ::Myco.find_constant(:Foo, __cscope__),
+      ::Myco.find_constant(:Bar, __cscope__),
+      ::Myco.find_constant(:Baz, __cscope__)
     ], self, __FILE__, __LINE__)
     __c__.__last__ = __c__.module_eval {nil}
     __c__.instance)
@@ -75,23 +75,24 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdecl, :Foo, [:block, [:declobj, [:array, [:const, :Object]], [:null]]]]
   end
   .to_ruby <<-'RUBY'
-    Foo = (
+    __cscope__.module.const_set(:Foo, (
       (__c__ = ::Myco::Component.new([
-        ::Myco.find_constant(:Object)
+        ::Myco.find_constant(:Object, __cscope__)
       ], self, __FILE__, __LINE__)
       __c__.__last__ = __c__.module_eval {nil}
       __c__.instance)
-    )
+    ))
   RUBY
   
   parse "Foo < Object { }" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   .to_ruby <<-'RUBY'
-    (__d__ = Foo = (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object)
+    (__d__ = __cscope__.module.const_set(:Foo, (__c__ = ::Myco::Component.new([
+      ::Myco.find_constant(:Object, __cscope__)
     ], self, __FILE__, __LINE__)
-    __c__.__last__ = __c__.module_eval {nil})
+    __c__.__last__ = __c__.module_eval {nil}
+    __c__))
     __d__.__name__=:Foo
     __d__)
   RUBY
@@ -100,7 +101,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:copen, :Foo, [:null]]
   end
   .to_ruby <<-'RUBY'
-    ::Myco.find_constant(:Foo).module_eval {nil}
+    ::Myco.find_constant(:Foo, __cscope__).module_eval {nil}
   RUBY
   
   parse <<-'code' do
@@ -111,8 +112,8 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:copen, :Foo, [:block, [:copen, :Bar, [:null]]]]
   end
   .to_ruby <<-'RUBY'
-    ::Myco.find_constant(:Foo).module_eval {(
-      ::Myco.find_constant(:Bar).module_eval {nil}
+    ::Myco.find_constant(:Foo, __cscope__).module_eval {(
+      ::Myco.find_constant(:Bar, __cscope__).module_eval {nil}
     )}
   RUBY
   
@@ -129,7 +130,7 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object)
+      ::Myco.find_constant(:Object, __cscope__)
     ], self, __FILE__, __LINE__)
     __c__.__last__ = __c__.module_eval {nil}
     __c__.instance).__send__(

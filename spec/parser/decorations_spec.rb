@@ -71,9 +71,11 @@ describe Myco::ToolSet::Parser, "Decorations" do
   end
   .to_ruby <<-'RUBY'
     (__c__ = ::Myco::Component.new([
-      ::Myco.find_constant(:Object)
+      ::Myco.find_constant(:Object, __cscope__)
     ], self, __FILE__, __LINE__)
     __c__.__last__ = __c__.module_eval {(
+      __cscope__ = Rubinius::ConstantScope.new(self, __cscope__)
+      __cscope__.set_myco_component
       declare_meme(:foo, [
         [:on, [
           true
@@ -102,6 +104,7 @@ describe Myco::ToolSet::Parser, "Decorations" do
       ]) { |*| (
         99
       )}
+      __cscope__ = __cscope__.parent
     )}
     __c__.instance)
   RUBY
