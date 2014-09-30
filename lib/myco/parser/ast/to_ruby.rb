@@ -4,20 +4,17 @@ module CodeTools::AST
     def initialize
       @lines = []
       @indents = [""]
+      
+      @var_scopes = []
     end
     
+    # The currently held string of generated ruby code
     def to_s
       @lines.join("\n")
     end
     
-    def push_indent amount=2
-      @indents.push(@indents.last + " "*2)
-    end
-    
-    def pop_indent
-      @indents.pop
-    end
-    
+    # Start a new line, optionally adding a string
+    # or an object that responds to :to_ruby
     def line string=""
       if string.is_a?(String)
         @lines.push(@indents.last + string)
@@ -27,12 +24,54 @@ module CodeTools::AST
       end
     end
     
+    # Add to the current line a string
+    # or an object that responds to :to_ruby
     def add string
       if string.is_a?(String)
         (@lines.last || @lines[0]="").concat(string)
       else
         string.to_ruby(self)
       end
+    end
+    
+    ##
+    # Stack of indent levels (as strings to be prefixed)
+    #
+    def push_indent amount=2
+      @indents.push(@indents.last + " "*2)
+    end
+    
+    def pop_indent
+      @indents.pop
+    end
+    
+    ##
+    # Stack of every AST node in hierarchy that can hold local variables
+    #
+    def var_scope
+      @var_scopes.last
+    end
+    
+    def with_nested_var_scope node
+      @var_scopes.push(node)
+      yield
+    ensure
+      @var_scopes.pop
+    end
+    
+    def var_scope_has_local? name
+      @var_scopes.reverse.each { |scope|
+        return true if scope.variables.has_key?(name)
+      }
+      return false
+    end
+    
+    def var_scope_declare_local name
+      var_scope.variables[name] = true
+    end
+    
+    def var_scope_declare_locals names
+      names.each { |name| var_scope_declare_local(name) }
     end
   end
   
@@ -63,6 +102,7 @@ require_relative "to_ruby/constant_access"
 require_relative "to_ruby/constant_assignment"
 require_relative "to_ruby/constant_define"
 require_relative "to_ruby/constant_reopen"
+require_relative "to_ruby/myco_module_scope"
 require_relative "to_ruby/declare_file"
 require_relative "to_ruby/declare_object"
 require_relative "to_ruby/declare_string"
