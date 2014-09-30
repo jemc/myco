@@ -54,7 +54,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
     __c__.__last__ = __c__.component_eval { |__c__| (
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
-        one
+        self.one
       )}
       declare_meme(:bar, [], nil, ::Myco.cscope.dup) { |*| (
         ::Myco.find_constant(:Two)
@@ -101,7 +101,7 @@ describe Myco::ToolSet::Parser, "Memes" do
         false
       )}
       declare_meme(:"x y", [], nil, ::Myco.cscope.dup) { |*| (
-        z
+        self.z
       )}
     )}
     __c__.instance)
@@ -158,18 +158,18 @@ describe Myco::ToolSet::Parser, "Memes" do
         )
       )}
       declare_meme(:x, [], nil, ::Myco.cscope.dup) { |*| (
-        a.b.__send__(
+        self.a.b.__send__(
           :%,
           3
         )
       )}
       declare_meme(:y, [], nil, ::Myco.cscope.dup) { |*| (
-        a.__send__(
+        self.a.__send__(
           :**,
-          b
+          self.b
         ).__send__(
           :<=>,
-          x
+          self.x
         )
       )}
     )}
