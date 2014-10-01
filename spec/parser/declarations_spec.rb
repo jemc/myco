@@ -43,13 +43,12 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:declobj, [:array, [:const, :Foo], [:const, :Bar], [:const, :Baz]], [:null]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Foo),
       ::Myco.find_constant(:Bar),
       ::Myco.find_constant(:Baz)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| nil}
-    __c__.instance)
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
   RUBY
   
   parse "Foo, ::Bar, Foo::Bar, ::Foo::Bar::Baz { }" do
@@ -76,31 +75,28 @@ describe Myco::ToolSet::Parser, "Declarations" do
   end
   .to_ruby <<-'RUBY'
     ::Myco.cscope.for_method_definition.const_set(:Foo, (
-      (__c__ = ::Myco::Component.new([
+      ::Myco::Component.new([
         ::Myco.find_constant(:Object)
       ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-      __c__.__last__ = __c__.component_eval { |__c__| nil}
-      __c__.instance)
+      .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
     ))
   RUBY
   
   to_ruby "::Foo: Object { }" do <<-'RUBY' end
     ::Foo = (
-      (__c__ = ::Myco::Component.new([
+      ::Myco::Component.new([
         ::Myco.find_constant(:Object)
       ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-      __c__.__last__ = __c__.component_eval { |__c__| nil}
-      __c__.instance)
+      .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
     )
   RUBY
   
   to_ruby "Foo::Bar::Baz: Object { }" do <<-'RUBY' end
     ::Myco.find_constant(:Foo)::Bar::Baz = (
-      (__c__ = ::Myco::Component.new([
+      ::Myco::Component.new([
         ::Myco.find_constant(:Object)
       ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-      __c__.__last__ = __c__.component_eval { |__c__| nil}
-      __c__.instance)
+      .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
     )
   RUBY
   
@@ -108,11 +104,11 @@ describe Myco::ToolSet::Parser, "Declarations" do
     [:cdefn, :Foo, [:declobj, [:array, [:const, :Object]], [:null]]]
   end
   .to_ruby <<-'RUBY'
-    ::Myco.cscope.for_method_definition.const_set(:Foo, (__c__ = ::Myco::Component.new([
+    ::Myco.cscope.for_method_definition.const_set(:Foo, ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| nil}
-    __c__)).tap { |__c__| __c__.__name__ = :Foo }
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}})
+    .tap { |__c__| __c__.__name__ = :Foo }
   RUBY
   
   parse "Foo << { }" do
@@ -147,11 +143,10 @@ describe Myco::ToolSet::Parser, "Declarations" do
     DECLSTR
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| nil}
-    __c__.instance).from_string("  foo\n  bar\n")
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance.from_string("  foo\n  bar\n")
   RUBY
   
   parse <<-'code' do

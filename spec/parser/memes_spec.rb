@@ -49,10 +49,10 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
         self.one
       )}
@@ -103,8 +103,7 @@ describe Myco::ToolSet::Parser, "Memes" do
       declare_meme(:"x y", [], nil, ::Myco.cscope.dup) { |*| (
         self.z
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do
@@ -135,10 +134,10 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:a, [], nil, ::Myco.cscope.dup) { |*| (
         1.__send__(
           :+,
@@ -172,8 +171,7 @@ describe Myco::ToolSet::Parser, "Memes" do
           self.x
         )
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do
@@ -390,13 +388,12 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |a, b, c=0, d=5| nil}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do
@@ -431,17 +428,16 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |&blk| (
         self.bar { |*yield_args| (
           blk.call(*yield_args)
         )}
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do
@@ -465,10 +461,10 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |a, b, *c, d:1, e:2, f:, g:, **h, &i| (
         self.foo(
           a,
@@ -483,8 +479,7 @@ describe Myco::ToolSet::Parser, "Memes" do
           &i
         )
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do
@@ -501,26 +496,23 @@ describe Myco::ToolSet::Parser, "Memes" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
-        (__c__ = ::Myco::Component.new([
+        ::Myco::Component.new([
           ::Myco.find_constant(:Object)
         ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-        __c__.__last__ = __c__.component_eval { |__c__| nil}
-        __c__.instance)
+        .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
       )}
       declare_meme(:bar, [], nil, ::Myco.cscope.dup) { |*| (
-        o = (__c__ = ::Myco::Component.new([
+        o = ::Myco::Component.new([
           ::Myco.find_constant(:Object)
         ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-        __c__.__last__ = __c__.component_eval { |__c__| nil}
-        __c__.instance)
+        .tap { |__c__| __c__.__last__ = __c__.component_eval {nil}}.instance
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do

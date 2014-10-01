@@ -41,10 +41,10 @@ describe Myco::ToolSet::Parser, "Categories" do
     ]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       ::Myco.find_constant(:Foo)
       __category__(:one).component_eval {(
         ::Myco.find_constant(:Bar)
@@ -55,8 +55,7 @@ describe Myco::ToolSet::Parser, "Categories" do
         ::Myco.find_constant(:Baz)
         ::Myco.find_constant(:Baz)
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
   parse <<-'code' do

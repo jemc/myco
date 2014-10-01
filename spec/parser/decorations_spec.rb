@@ -70,10 +70,10 @@ describe Myco::ToolSet::Parser, "Decorations" do
       ], [:args, :*], [:block, [:lit, 99]]]]]
   end
   .to_ruby <<-'RUBY'
-    (__c__ = ::Myco::Component.new([
+    ::Myco::Component.new([
       ::Myco.find_constant(:Object)
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
-    __c__.__last__ = __c__.component_eval { |__c__| (
+    .tap { |__c__| __c__.__last__ = __c__.component_eval {(
       declare_meme(:foo, [
         [:on, [
           true
@@ -102,8 +102,7 @@ describe Myco::ToolSet::Parser, "Decorations" do
       ], nil, ::Myco.cscope.dup) { |*| (
         99
       )}
-    )}
-    __c__.instance)
+    )}}.instance
   RUBY
   
 end
