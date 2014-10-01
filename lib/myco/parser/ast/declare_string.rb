@@ -24,7 +24,7 @@ module CodeTools::AST
       blk   = NilLiteral.new @line
       obj   = DeclareObject.new @line, @types, blk
       args  = ArrayLiteral.new @string.line, [@string]
-      SendWithArguments.new @string.line, obj, :from_string, args
+      InvokeWithArguments.new @string.line, obj, :from_string, args
     end
     
     def bytecode g

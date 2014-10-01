@@ -1,7 +1,11 @@
 
 module CodeTools::AST
   class SendWithArguments
+    def initialize
+      raise NotImplementedError
+    end
     def to_ruby g
+      
       body_block = nil
       
       args = @arguments.dup

@@ -296,7 +296,7 @@ const_sep     = (c_spc_nl* t_CONST_SEP c_spc_nl*)+
 
 constant_list =
   constant:n0 (const_sep constant:n)*:nrest
-    ~node(:array, n0, [n0, *nrest])
+    ~node(:arrass, n0, [n0, *nrest])
 
 ##
 # Bare identifiers
@@ -419,7 +419,7 @@ invoke_assignment =
   lhs.name = :"#{lhs.name}="
   orig_arguments = lhs.arguments && lhs.arguments.body || []
   arg_order = lhs.name==:"[]=" ? [*orig_arguments, rhs] : [rhs, *orig_arguments]
-  lhs.arguments = node(:array, rhs, arg_order)
+  lhs.arguments = node(:arrass, rhs, arg_order)
   lhs
 }
 
@@ -488,15 +488,15 @@ in_arg_list =
 
 arg_list =
   t_ARGS_BEGIN:tb arg_sep_opt t_ARGS_END
-    ~args_assemble(tb, node(:array, tb, []))
+    ~node(:arrass, tb, [])
 | t_ARGS_BEGIN:tb arg_sep_opt in_arg_list:nlist arg_sep_opt t_ARGS_END
-    ~args_assemble(tb, node(:array, tb, nlist))
+    ~node(:arrass, tb, nlist)
 
 lit_array =
   t_ARRAY_BEGIN:tb arg_sep_opt t_ARRAY_END
-    ~args_assemble(tb, node(:array, tb, []))
+    ~node(:arrass, tb, [])
 | t_ARRAY_BEGIN:tb arg_sep_opt in_arg_list:nlist arg_sep_opt t_ARRAY_END
-    ~args_assemble(tb, node(:array, tb, nlist))
+    ~node(:arrass, tb, nlist)
 
 ##
 # Parameter lists
@@ -618,7 +618,7 @@ left_chained_invocations =
 
 unary_operation =
   t_OP_NOT:to expr_atom:n0
-    ~node(:call, to, n0, :"!", nil)
+    ~node(:invoke, to, n0, :"!", nil)
 
 ##
 # Memes and etc..
@@ -677,7 +677,7 @@ decorator =
 
 decorators_and_meme_name =
   decorator:n0 (c_spc* decorator:n)*:nrest
-    ~node(:array, n0, [n0, *nrest].reverse)
+    ~node(:arrass, n0, [n0, *nrest].reverse)
 
 meme =
   decorators_and_meme_name:nd c_spc* t_MEME_MARK:tm (c_spc_nl* param_list:n)?:np c_spc_nl* meme_either_body:nb
@@ -732,7 +732,7 @@ meme =
         
         result = block_given? ?
           yield(n0,op,n1) :
-          node(:call, op, n0, op.sym, node(:array, n1, [n1]))
+          node(:invoke, op, n0, op.sym, node(:arrass, n1, [n1]))
         input.unshift result
       else
         output.push n0
@@ -745,42 +745,4 @@ meme =
     
     input.replace output
   end
-  
-  # Given a locator and an node(:array), refactor the splat-related nodes
-  # in a copy of the original node body and return a replacement for the node.
-  #
-  def args_assemble loc, orig_node
-    list = orig_node.body.dup
-    tmp  = []
-    
-    special_type_check = Proc.new { |x|
-      case x
-      when Myco::ToolSet::AST::SplatValue;   :splat
-      when Myco::ToolSet::AST::ConcatArgs;   :argscat
-      when Myco::ToolSet::AST::PushArgs;     :argspush
-      when Myco::ToolSet::AST::BlockPass;    :block_pass
-      else; nil
-      end
-    }
-    
-    # Get the original value in the new_node
-    tmp << list.shift until list.empty? or special_type_check.call(list.first)
-    new_node = tmp.empty? ? list.shift : node(:array, loc, tmp)
-    
-    # Continue to reduce until all elements have been used
-    until list.empty?
-      arg = list.shift
-      type = special_type_check.call(arg)
-      if type == :block_pass
-        new_node = arg.tap { |n| n.arguments = new_node }
-      elsif type != nil
-        new_node = node(:argscat, loc, new_node, arg)
-      else
-        new_node = node(:argspush, loc, new_node, arg)
-      end
-    end
-    
-    new_node || orig_node
-  end
-  
 }
