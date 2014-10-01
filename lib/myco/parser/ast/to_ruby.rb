@@ -73,6 +73,20 @@ module CodeTools::AST
     def var_scope_declare_locals names
       names.each { |name| var_scope_declare_local(name) }
     end
+    
+    ##
+    # Helper methods
+    
+    # TODO: make comprehensive
+    # Return false if the given indent might be problematic in generated Ruby
+    def easy_ident? sym
+      str = sym.to_s
+      return false if !(str=~/^[a-z_][A-Za-z_]*$/)
+      return false if %i(
+        if unless and or def do class module end break begin rescue ensure
+      ).include?(sym)
+      return true
+    end
   end
   
   class Node

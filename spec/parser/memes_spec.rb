@@ -436,13 +436,8 @@ describe Myco::ToolSet::Parser, "Memes" do
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
     __c__.__last__ = __c__.component_eval { |__c__| (
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |&blk| (
-        self.__send__(
-          :bar
-        ) { |*yield_args| (
-          blk.__send__(
-            :call,
-            *yield_args
-          )
+        self.bar { |*yield_args| (
+          blk.call(*yield_args)
         )}
       )}
     )}
@@ -475,8 +470,7 @@ describe Myco::ToolSet::Parser, "Memes" do
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
     __c__.__last__ = __c__.component_eval { |__c__| (
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |a, b, *c, d:1, e:2, f:, g:, **h, &i| (
-        self.__send__(
-          :foo,
+        self.foo(
           a,
           b,
           c,

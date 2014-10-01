@@ -89,8 +89,7 @@ describe Myco::ToolSet::Parser, "Strings" do
     ], ::Myco.cscope.for_method_definition, __FILE__, __LINE__)
     __c__.__last__ = __c__.component_eval { |__c__| (
       declare_meme(:foo, [], nil, ::Myco.cscope.dup) { |*| (
-        self.__send__(
-          :bar,
+        self.bar(
           "x#{99}X",
           :"y#{(
             1

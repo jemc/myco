@@ -5,12 +5,17 @@ module CodeTools::AST
       list = @arguments ? @arguments.body.dup : []
       list.push(@arguments.block) if @arguments.block.is_a?(BlockPass)
       
-      list.unshift(SymbolLiteral.new(@line, @name))
+      g.add(@receiver)
       
-      g.add(@receiver); g.add(".__send__")
+      if g.easy_ident?(@name)
+        g.add(".#{@name}")
+      else
+        g.add(".__send__")
+        list.unshift(SymbolLiteral.new(@line, @name))
+      end
       
       if list.empty?
-        g.add("()")
+        g.add("")
       elsif list.size == 1
         g.add("("); g.add(list.first); g.add(")")
       else
