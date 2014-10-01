@@ -38,7 +38,7 @@ module CodeTools::AST
     def implementation
       myco = ToplevelConstant.new @line, :Myco
       type = ScopedConstant.new @line, myco, :FileToplevel
-      types = ArrayLiteral.new @line, [type]
+      types = ArrayAssembly.new @line, [type]
       decl = DeclareObject.new @line, types, @body
       decl.scope_type = DeclareFileScope
       decl

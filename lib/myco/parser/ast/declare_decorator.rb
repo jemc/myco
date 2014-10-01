@@ -13,7 +13,7 @@ module CodeTools::AST
     def initialize line, name, arguments
       @line      = line
       @name      = name
-      @arguments = arguments || ArrayLiteral.new(@line, [])
+      @arguments = arguments || ArrayAssembly.new(@line, [])
     end
     
     def to_sexp

@@ -51,7 +51,7 @@ module CodeTools::AST
     def initialize line, name, decorations, arguments, body
       @line        = line
       @name        = name.value
-      @decorations = decorations || ArrayLiteral.new(line, [])
+      @decorations = decorations || ArrayAssembly.new(line, [])
       @arguments   = arguments || Parameters.new(line, [], nil, true, nil, nil, nil, nil)
       @body        = body || NilLiteral.new(line)
     end
