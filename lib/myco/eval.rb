@@ -81,7 +81,7 @@ module Myco
     
     file_toplevel = Myco.eval(ruby_code, scope, use_path, 1, :ruby)
     get_last ? file_toplevel.component.__last__ : file_toplevel.component
-  end
+  end if ENV['MYCO_TO_RUBY']
   
   def self.rescue
     begin
