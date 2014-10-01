@@ -8,21 +8,20 @@ module CodeTools::AST
   end
   
   class Invoke < Node
-    attr_accessor :receiver, :name, :arguments, :block_params, :block
+    attr_accessor :receiver, :name, :arguments
     
     def initialize line, receiver, name, arguments, block_params=nil, block=nil
-      block_arg = nil
-      if arguments && arguments.body.last.is_a?(BlockPass)
-        block_arg = arguments.body.pop
-      end
+      @line      = line
+      @receiver  = receiver
+      @name      = name
+      @arguments = arguments
       
-      @line         = line
-      @receiver     = receiver
-      @name         = name
-      @arguments    = arguments
-      @block_params = block_params
-      @block        = block
-      @block_arg    = block_arg
+      if block
+        # TODO: error if passing both block argument and block literal
+        # Currently, this fails silently and ignores the block argument
+        @arguments ||= ArgumentAssembly.new(line, [])
+        @arguments.block = Iter.new(line, block_params, block)
+      end
     end
     
     def bytecode g
@@ -36,70 +35,13 @@ module CodeTools::AST
     end
     
     def implementation
-      if @block.nil? && @block_arg.nil?
-        if @arguments.nil?
-          if @receiver.nil?
-            LocalVariableAccessAmbiguous.new @line, @name
-          else
-            Send.new @line, @receiver, @name
-          end
-        else
-          rcvr = @receiver || Self.new(@line)
-          send = InvokeWithArguments.new @line, rcvr, @name, @arguments
-          send
-        end
+      if @receiver.nil? && @arguments.nil?
+        LocalVariableAccessAmbiguous.new(@line, @name)
       else
         rcvr = @receiver || Self.new(@line)
-        send = InvokeWithArguments.new @line, rcvr, @name, @arguments
-        if @block
-          send.block = Iter.new @line, @block_params, @block
-        elsif @block_arg
-          send.block = @block_arg
-        end
-        send
+        args = @arguments || ArgumentAssembly.new(line, [])
+        InvokeMethod.new @line, rcvr, @name, args
       end
-    end
-  end
-  
-  class InvokeWithArguments < Node
-    attr_accessor :line, :receiver, :name, :arguments, :privately
-    attr_accessor :block
-    
-    def initialize line, receiver, name, arguments, privately=false
-      @line      = line
-      @receiver  = receiver
-      @name      = name
-      @arguments = arguments
-      @privately = privately
-      @block     = nil
-    end
-    
-    def bytecode(g)
-      @receiver.bytecode(g)
-      
-      if @arguments
-        @arguments.bytecode(g)
-        pos(g)
-        
-        # TODO: don't always send with splat
-        # Right now the arguments are assembled into an ArrayAssembly
-        # and sent as one object as a splat - with the number of arguments
-        # before the splat being zero - but this is not always optimal.
-        @block ? @block.bytecode(g) : g.push_nil
-        g.send_with_splat @name, 0
-      else
-        pos(g)
-        @block ? @block.bytecode(g) : g.push_nil
-        g.send_with_block @name, 0
-      end
-    end
-    
-    def to_sexp
-      arg_sexp = @arguments ? @arguments.to_sexp : [:arglist]
-      arg_sexp[0] = :arglist
-      arg_sexp.push(@block.to_sexp) if @block
-      
-      [:call, @receiver.to_sexp, @name, arg_sexp]
     end
   end
   

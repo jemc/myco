@@ -10,8 +10,10 @@ require_relative "ast/declare_object"
 require_relative "ast/declare_string"
 require_relative "ast/invoke"
 require_relative "ast/local_variable_access_ambiguous"
-require_relative "ast/quest"
+require_relative "ast/invoke_method"
 require_relative "ast/array_assembly"
+require_relative "ast/argument_assembly"
+require_relative "ast/quest"
 
 require_relative "ast/misc"
 

@@ -419,7 +419,7 @@ invoke_assignment =
   lhs.name = :"#{lhs.name}="
   orig_arguments = lhs.arguments && lhs.arguments.body || []
   arg_order = lhs.name==:"[]=" ? [*orig_arguments, rhs] : [rhs, *orig_arguments]
-  lhs.arguments = node(:arrass, rhs, arg_order)
+  lhs.arguments = node(:argass, rhs, arg_order)
   lhs
 }
 
@@ -444,7 +444,7 @@ op_invoke = # Allow some binary operators to be invoked with a dot
 
 elem_invoke =
   lit_array:na (c_spc_nl* invoke_body:n)?:nlist
-    ~node(:invoke, na, nil, :"[]", na, *nlist)
+    ~node(:invoke, na, nil, :"[]", node(:argass, na, na.body), *nlist)
 
 ##
 # Argument lists
@@ -488,9 +488,9 @@ in_arg_list =
 
 arg_list =
   t_ARGS_BEGIN:tb arg_sep_opt t_ARGS_END
-    ~node(:arrass, tb, [])
+    ~node(:argass, tb, [])
 | t_ARGS_BEGIN:tb arg_sep_opt in_arg_list:nlist arg_sep_opt t_ARGS_END
-    ~node(:arrass, tb, nlist)
+    ~node(:argass, tb, nlist)
 
 lit_array =
   t_ARRAY_BEGIN:tb arg_sep_opt t_ARRAY_END
@@ -673,7 +673,7 @@ meme_name =
 
 decorator =
   meme_name:ni arg_list?:na
-    ~node(:deco, ni, ni, na)
+    ~node(:deco, ni, ni, (na ? node(:arrass, na, na.body) : nil))
 
 decorators_and_meme_name =
   decorator:n0 (c_spc* decorator:n)*:nrest
@@ -732,7 +732,7 @@ meme =
         
         result = block_given? ?
           yield(n0,op,n1) :
-          node(:invoke, op, n0, op.sym, node(:arrass, n1, [n1]))
+          node(:invoke, op, n0, op.sym, node(:argass, n1, [n1]))
         input.unshift result
       else
         output.push n0

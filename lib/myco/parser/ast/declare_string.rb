@@ -23,8 +23,8 @@ module CodeTools::AST
     def implementation
       blk   = NilLiteral.new @line
       obj   = DeclareObject.new @line, @types, blk
-      args  = ArrayLiteral.new @string.line, [@string]
-      InvokeWithArguments.new @string.line, obj, :from_string, args
+      args  = ArgumentAssembly.new @string.line, [@string]
+      InvokeMethod.new @string.line, obj, :from_string, args
     end
     
     def bytecode g
