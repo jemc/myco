@@ -4,6 +4,7 @@ Myco.activate_required_gems
 
 require_relative 'myco/toolset'
 require_relative 'myco/parser'
+require_relative 'myco/code_loader'
 require_relative 'myco/eval'
 require_relative 'myco/misc'
 require_relative 'myco/backtrace'
