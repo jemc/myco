@@ -8,3 +8,4 @@
 ^lib/myco/parser/builder.rb$
 ^lib/myco/parser/builder.output$
 ^lib/myco/parser/peg_parser.rb$
+\.my\.rbc?$
