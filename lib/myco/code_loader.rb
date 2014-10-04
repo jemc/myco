@@ -104,6 +104,8 @@ module Myco
       end
       
       def make_ast
+        @string || make_string
+        
         parser = parser_type.new(@filename, @line, [])
         ast = parser.parse_string(@string)
         
@@ -115,6 +117,8 @@ module Myco
       end
       
       def make_generator
+        @ast || make_ast
+        
         g = generator_type.new
         @ast.bytecode(g)
         
@@ -125,6 +129,8 @@ module Myco
       end
       
       def make_compiled_code
+        @generator || make_generator
+        
         code = @generator.package(Rubinius::CompiledCode)
         
         code.scope = @constant_scope
@@ -136,6 +142,8 @@ module Myco
       end
       
       def make_block_environment
+        @compiled_code || make_compiled_code
+        
         be = Rubinius::BlockEnvironment.new
         be.under_context(@variable_scope, @compiled_code)
         
@@ -143,20 +151,12 @@ module Myco
       end
       
       def compile
-        @block_environment  || (
-          @compiled_code    || (
-            @generator      || (
-              @ast          || (
-                @string     || (
-                make_string    )
-              make_ast         )
-            make_generator     )
-          make_compiled_code   )
-        make_block_environment )
+        @block_environment || make_block_environment
       end
       
       def load
-        (@block_environment || compile).call_on_instance(@receiver)
+        compile
+        @block_environment.call_on_instance(@receiver)
       end
       
       def emit_rb! filename=nil
@@ -190,7 +190,6 @@ module Myco
         require 'fileutils'
         FileUtils.mkdir_p(dir)
       end
-      
     end
     
     class MycoLoader < AbstractLoader
