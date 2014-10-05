@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors       = ['Joe McIlvain']
   s.email         = 'joe.eli.mac@gmail.com'
   
-  s.files         = Dir['{lib}/**/*', 'bin/*', 'LICENSE', '*.md']
+  s.files         = Dir['{lib}/**/*{.rb,.my}', 'bin/*', 'LICENSE', '*.md']
   s.executables   = ['myco']
   
   s.require_path  = 'lib'

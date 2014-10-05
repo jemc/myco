@@ -47,28 +47,6 @@ module Myco
     ast.to_ruby_code
   end
   
-  # Override eval_file to go through AST::Node#to_ruby first
-  # TODO: Make this override conditional to only do when bootstrapping
-  def self.eval_file path, load_paths=nil, get_last=true, scope=nil
-    load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
-    use_path = CodeLoader.resolve_file(path, load_paths)
-    ruby_code = file_to_ruby(use_path)
-    
-    # Write the ruby code to a temporary file for viewing/debugging
-    use_path = "#{use_path}.rb"
-    tmp_path = File.join("/tmp/myco_to_ruby", use_path)
-    require 'fileutils'
-    FileUtils.mkdir_p(File.dirname(use_path))
-    File.open(use_path, "w+") { |file| file.write(ruby_code) }
-    
-    # Load the generated Ruby code instead of the original Myco code
-    loader = CodeLoader.loader_for(:rb, use_path)
-    loader.bind_to(cscope:scope, call_depth:2)
-    loader.string = ruby_code
-    file_toplevel = loader.load
-    get_last ? file_toplevel.component.__last__ : file_toplevel.component
-  end if ENV['MYCO_TO_RUBY']
-  
   def self.rescue
     begin
       yield

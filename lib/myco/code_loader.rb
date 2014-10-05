@@ -14,8 +14,13 @@ module Myco
     # Use cached rubinius bytecode files if they are up to date.
     # Use Myco files otherwise.
     # Use generated ruby files only when Myco files cannot be found or loaded.
-    # TODO: self.precedence = [:rbc, :myco, :rb]
-    self.precedence = [:myco]
+    self.precedence = [:rbc, :myco, :rb]
+    
+    # TODO: a more elegant solution than env vars
+    # Emit ruby if env var indicates
+    # Load from ruby exclusively if env var indicates
+    self.emit_rb    = true    if ENV['MYCO_TO_RUBY'] == 'PRE'
+    self.precedence = [:myco] if ENV['MYCO_TO_RUBY'] == 'PRE'
     
     # Try to resolve the given file path
     # in the current working directory or in the given load paths.
@@ -34,20 +39,31 @@ module Myco
     # Select a loader and file path for the given path,
     # considering the currently selected order of precedence for file types.
     def self.loader_for_file path, load_paths=[]
-      use_path = nil
-      use_type = nil
-      precedence.each { |type|
-        use_type = type
-        use_path = (type==:myco) ? path : path+".#{type}"
-        use_path = resolve_file(use_path, load_paths)
-        break if use_path
-      }
+      use_path = resolve_file(path, load_paths)
       
       raise ArgumentError, "Couldn't resolve file: #{path.inspect} \n" \
                            "in load_paths: #{load_paths.inspect}" \
         unless use_path
       
-      loader_for(use_type, use_path)
+      # Try to find an implementation with higher precedence than :myco
+      # With a file that has been modified at least as recently as
+      # the resolved file in use_path.
+      ref_mtime = File.mtime(use_path)
+      precedence.each { |type|
+        begin
+          if type==:myco
+            return loader_for(type, use_path)
+          else
+            alt_path = use_path + ".#{type}"
+            if File.file?(alt_path) && (File.mtime(alt_path) >= ref_mtime)
+              return loader_for(type, alt_path)
+            end
+          end
+        rescue NotImplementedError # Skip loader if not implemented
+        end
+      }
+      
+      return nil
     end
     
     # Return a loader of the given type with the given arguments
@@ -69,7 +85,7 @@ module Myco
       loader = loader_for_file(path, load_paths)
       loader.bind_to(call_depth:call_depth+1, **kwargs)
       loader.compile
-      loader.emit_rb!  if self.emit_rb  and !loader.is_rb?
+      loader.emit_rb!  if self.emit_rb  and !loader.is_rbc? and !loader.is_rb?
       loader.emit_rbc! if self.emit_rbc and !loader.is_rbc?
       loader.load
     end
@@ -133,19 +149,20 @@ module Myco
         
         code = @generator.package(Rubinius::CompiledCode)
         
-        code.scope = @constant_scope
-        script = Rubinius::CompiledCode::Script.new(code, @filename, true)
-        script.eval_source = @string
-        code.scope.script = script
-        
         @compiled_code = code
       end
       
       def make_block_environment
         @compiled_code || make_compiled_code
+        code = @compiled_code
+        
+        code.scope = @constant_scope
+        script = Rubinius::CompiledCode::Script.new(code, @filename, true)
+        script.eval_source = @string
+        code.scope.script = script
         
         be = Rubinius::BlockEnvironment.new
-        be.under_context(@variable_scope, @compiled_code)
+        be.under_context(@variable_scope, code)
         
         @block_environment = be
       end
@@ -178,7 +195,7 @@ module Myco
       def is_rb?;  false end
       def is_rbc?; false end
       
-    private
+      private
       
       # Return @filename, stripped of any .rbc or .rb file extension
       def myco_filename
@@ -193,6 +210,12 @@ module Myco
     end
     
     class MycoLoader < AbstractLoader
+      def initialize *args
+        # TODO: a more elegant solution than env vars
+        raise NotImplementedError if ENV['MYCO_TO_RUBY'] == 'POST'
+        super
+      end
+      
       def ast_root_type
         Myco::ToolSet::AST::EvalExpression
       end
@@ -213,6 +236,10 @@ module Myco
     class RubyLoader < AbstractLoader
       def is_rb?; true end
       
+      def initialize *args
+        super *args
+      end
+      
       def ast_root_type
         Rubinius::ToolSets::Runtime::AST::EvalExpression
       end
@@ -227,6 +254,27 @@ module Myco
       
       def compiled_file_type
         Rubinius::ToolSets::Runtime::CompiledFile
+      end
+    end
+    
+    class BytecodeLoader < AbstractLoader
+      def is_rbc?; true end
+      
+      def initialize *args
+        # TODO: a more elegant solution than env vars
+        raise NotImplementedError if ENV['MYCO_TO_RUBY'] == 'POST'
+        super
+      end
+      
+      def make_compiled_code
+        @compiled_code = primitive_load_file(@filename, Rubinius::Signature, 0)
+      end
+      
+      private
+      
+      def primitive_load_file(path, signature, version)
+        Rubinius.primitive :compiledfile_load
+        raise InvalidRBC, path
       end
     end
   end
