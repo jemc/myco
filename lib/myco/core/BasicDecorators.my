@@ -44,4 +44,30 @@
     [transforms]
     target: |meme| meme.target.singleton_class
   }
+  
+  # The 'before' decorator defines a wrapper that runs before the existing meme
+  before: Decorator {
+    apply: |meme| {
+      orig_meme = meme.target.memes[meme.name]
+      wrap_meme = meme.dup
+      meme.body = Proc.new |*a,&b| {
+        wrap_meme.result_for(self,*a,&b)
+        orig_meme.result_for(self,*a,&b)
+      }
+    }
+  }
+  
+  # The 'after' decorator defines a wrapper that runs after the existing meme
+  after: Decorator {
+    apply: |meme| {
+      orig_meme = meme.target.memes[meme.name]
+      wrap_meme = meme.dup
+      meme.body = Proc.new |*a,&b| {
+        result = \
+        orig_meme.result_for(self,*a,&b)
+        wrap_meme.result_for(self,*a,&b)
+        result
+      }
+    }
+  }
 }

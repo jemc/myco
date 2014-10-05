@@ -31,7 +31,7 @@ BasicSpec {
     assert_equal(a, b)
   }
   
-  "targets the singleton class of the component with the sclass decorator": {
+  "sclass decorator targets the singleton class of the component": {
     comp = new_subject.component
     
     assert_equal(comp.baz, 99)
@@ -39,5 +39,27 @@ BasicSpec {
     assert_equal(comp.baz, 0)
     comp.baz = 99
     assert_equal(comp.baz, 99)
+  }
+  
+  "before decorator declares a wrapper that runs before the original": {
+    collected = []
+    subject = BasicDecorators {
+      foo:        collected.push(88); 88
+      before foo: collected.push(77); 77
+    }
+    
+    assert_equal(subject.foo, 88)
+    assert_equal(collected, [77, 88])
+  }
+  
+  "after decorator declares a wrapper that runs after the original": {
+    collected = []
+    subject = BasicDecorators {
+      foo:       collected.push(88); 88
+      after foo: collected.push(99); 99
+    }
+    
+    assert_equal(subject.foo, 88)
+    assert_equal(collected, [88, 99])
   }
 }
