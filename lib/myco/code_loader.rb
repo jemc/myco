@@ -274,7 +274,7 @@ module Myco
       
       def primitive_load_file(path, signature, version)
         Rubinius.primitive :compiledfile_load
-        raise InvalidRBC, path
+        raise Rubinius::InvalidRBC, "Invalid RBC file: #{path}"
       end
     end
   end
