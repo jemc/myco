@@ -1,8 +1,6 @@
 
 require "rubinius/toolset"
 
-module Myco; end
-
 module Myco
   ToolSet = Rubinius::ToolSets.create :myco do
     require "rubinius/melbourne"
