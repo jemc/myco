@@ -82,12 +82,16 @@ module Myco
     # the given call_depth, corresponding to one of the calling frames.
     # 
     def self.load path, load_paths=[], call_depth:1, **kwargs
-      loader = loader_for_file(path, load_paths)
-      loader.bind_to(call_depth:call_depth+1, **kwargs)
-      loader.compile
-      loader.emit_rb!  if self.emit_rb  and !loader.is_rbc? and !loader.is_rb?
-      loader.emit_rbc! if self.emit_rbc and !loader.is_rbc?
-      loader.load
+      begin
+        loader = loader_for_file(path, load_paths)
+        loader.bind_to(call_depth:call_depth+1, **kwargs)
+        loader.compile
+        loader.emit_rb!  if self.emit_rb  and !loader.is_rbc? and !loader.is_rb?
+        loader.emit_rbc! if self.emit_rbc and !loader.is_rbc?
+        loader.load
+      rescue Rubinius::InvalidRBC
+        retry
+      end
     end
     
     class AbstractLoader
@@ -267,7 +271,12 @@ module Myco
       end
       
       def make_compiled_code
-        @compiled_code = primitive_load_file(@filename, Rubinius::Signature, 0)
+        begin
+          @compiled_code = primitive_load_file @filename, Rubinius::Signature, 0
+        rescue Rubinius::InvalidRBC
+          File.delete @filename
+          raise
+        end
       end
       
       private
