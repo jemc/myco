@@ -15,4 +15,8 @@ BasicSpec {
     assert_equal(foo_meme.to_proc.call, 88)
     assert_equal(Proc.new(&foo_meme).call, 88)
   }
+  
+  "has a metadata property that can be used for storage": {
+    assert_is_a(parent.memes[:foo].metadata, ::Hash)
+  }
 }

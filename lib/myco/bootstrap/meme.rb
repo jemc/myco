@@ -48,6 +48,8 @@ module Myco
     attr_accessor :cache
     attr_accessor :expose
     
+    attr_reader :metadata
+    
     def to_s
       "#<#{self.class}:#{self.name.to_s}>"
     end
@@ -63,6 +65,8 @@ module Myco
       self.body   = blk  if blk
       self.cache  = false
       self.expose = true
+      
+      @metadata = {}
       
       @caches = {}
     end
