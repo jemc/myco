@@ -86,8 +86,8 @@ module Myco
         loader = loader_for_file(path, load_paths)
         loader.bind_to(call_depth:call_depth+1, **kwargs)
         loader.compile
-        loader.emit_rb!  if self.emit_rb  and !loader.is_rbc? and !loader.is_rb?
-        loader.emit_rbc! if self.emit_rbc and !loader.is_rbc?
+        loader.emit_rb!  if self.emit_rb
+        loader.emit_rbc! if self.emit_rbc
         loader.load
       rescue Rubinius::InvalidRBC
         retry
@@ -181,15 +181,15 @@ module Myco
       end
       
       def emit_rb! filename=nil
-        filename ||= myco_filename.concat('.rb')
+        filename = emit_filename('.rb')
+        return nil unless filename
         
-        mkdir_p(File.dirname(filename))
         File.open(filename, "w+") { |file| file.write(@ast.to_ruby_code) }
       end
       
       def emit_rbc! filename=nil
-        filename ||= myco_filename.concat('.rbc')
-        mkdir_p(File.dirname(filename))
+        filename = emit_filename('.rbc')
+        return nil unless filename
         
         compiled_file_type.dump(
           @compiled_code, filename, Rubinius::Signature, 0
@@ -210,6 +210,23 @@ module Myco
         # TODO: do manually, without depending on FileUtils
         require 'fileutils'
         FileUtils.mkdir_p(dir)
+      end
+      
+      # Return the filename to emit, or nil if the file is already current
+      # relative to modification time of the file at the myco_filename.
+      def emit_filename file_ext
+        orig_filename = myco_filename
+        filename ||= orig_filename.concat(file_ext)
+        
+        if File.file?(myco_filename)
+          ref_mtime = File.mtime(myco_filename)
+          if File.file?(filename) && (File.mtime(filename) >= ref_mtime)
+            return nil
+          end
+        end
+        
+        mkdir_p(File.dirname(filename))
+        return filename
       end
     end
     
@@ -240,6 +257,8 @@ module Myco
     class RubyLoader < AbstractLoader
       def is_rb?; true end
       
+      def emit_rb!; nil end
+      
       def initialize *args
         super *args
       end
@@ -263,6 +282,9 @@ module Myco
     
     class BytecodeLoader < AbstractLoader
       def is_rbc?; true end
+      
+      def emit_rb!;  nil end
+      def emit_rbc!; nil end
       
       def initialize *args
         # TODO: a more elegant solution than env vars
