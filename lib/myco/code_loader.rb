@@ -294,10 +294,11 @@ module Myco
       
       def make_compiled_code
         begin
-          @compiled_code = primitive_load_file @filename, Rubinius::Signature, 0
-        rescue Rubinius::InvalidRBC
+          @compiled_code = primitive_load_file \
+            @filename, Rubinius::Signature, Rubinius::RUBY_LIB_VERSION
+        rescue Rubinius::InvalidRBC => e
           File.delete @filename
-          raise
+          raise e
         end
       end
       
