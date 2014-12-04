@@ -7,6 +7,11 @@ module Rubinius
     attr_reader :myco_category
     attr_reader :myco_meme
     
+    # TODO: Can this be more graceful and more eager?
+    def myco_file
+      @myco_file ||= parent.myco_file
+    end
+    
     def myco_levels
       @myco_levels ||= (parent ? parent.myco_levels.dup : [])
     end
