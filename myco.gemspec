@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   
   s.require_path  = 'lib'
   s.homepage      = 'https://github.com/jemc/myco/'
-  s.licenses      = 'Copyright 2013-2014 Joe McIlvain. All rights reserved.'
+  s.licenses      = 'Copyright 2013-2015 Joe McIlvain. All rights reserved.'
   
   Myco::MYCO_REQUIRED_GEMS.each do |name, version|
     s.add_dependency name, version
