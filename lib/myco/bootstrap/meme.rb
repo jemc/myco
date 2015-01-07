@@ -93,13 +93,21 @@ module Myco
           "Rubinius::BlockEnvironment or a Proc; got: #{value.inspect}"
       end
       
+      bind if @bound
       @body
     end
     
     def target= value
       @target = value
       @target.extend(MemeBindable) unless @target.is_a?(MemeBindable)
+      bind if @bound
       @target
+    end
+    
+    def cache= value
+      @cache = value
+      bind if @bound
+      @cache
     end
     
     def to_proc
@@ -107,10 +115,49 @@ module Myco
     end
     
     def bind
+      @bound = true
       return if not @expose
       
-      target.memes[@name] = self
+      @target.memes[@name] = self
       
+      if @cache
+        bind_cache_method
+      else
+        Rubinius.add_method @name, @body, @target, :public
+      end
+    end
+    
+    def result *args, &blk
+      result_for target.instance, *args, &blk
+    end
+    
+    def result_for obj, *args, &blk
+      if @cache
+        cache_key = [obj.hash, args.hash, blk.hash]
+        if @caches.has_key?(cache_key)
+          return @caches[cache_key]
+        end
+        
+        result = @body.invoke @name, @target, obj, args, blk
+        
+        @caches[cache_key] = result
+      else
+        @body.invoke @name, @target, obj, args, blk
+      end
+    end
+    
+    def set_result_for obj, result, *args, &blk
+      if @cache
+        cache_key = [obj.hash, args.hash, blk.hash]
+        @caches[cache_key] = result
+      else
+        
+      end
+    end
+    
+  private
+    
+    def bind_cache_method
       ##
       # This dynamic method is nearly the same as Meme#result_for
       # (but written from the perspective of the receiver)
@@ -118,6 +165,7 @@ module Myco
       # on the call stack.
       # TODO: move this bytecode generation to a helper method 
       meme = self
+      
       target.dynamic_method @name, '(myco_internal)' do |g|
         g.splat_index = 0 # *args
         
@@ -149,15 +197,10 @@ module Myco
         g.pop
         
         ##
-        # if meme.cache.false? || !caches.has_key?(cache_key)
+        # if caches.has_key?(cache_key)
         #   return caches[cache_key]
         # end
         #
-        g.push_local 1 # meme
-        g.send :cache, 0
-        g.send :false?, 0
-        g.goto_if_true invoke
-        
         g.push_local 2 # caches
           g.push_local 3 # cache_key
         g.send :has_key?, 1
@@ -197,24 +240,5 @@ module Myco
       end
     end
     
-    def result *args, &blk
-      result_for target.instance, *args, &blk
-    end
-    
-    def result_for obj, *args, &blk
-      cache_key = [obj.hash, args.hash, blk.hash]
-      if @cache && @caches.has_key?(cache_key)
-        return @caches[cache_key]
-      end
-      
-      result = @body.invoke @name, @target, obj, args, blk
-      
-      @caches[cache_key] = result
-    end
-    
-    def set_result_for obj, result, *args, &blk
-      cache_key = [obj.hash, args.hash, blk.hash]
-      @caches[cache_key] = result
-    end
   end
 end
