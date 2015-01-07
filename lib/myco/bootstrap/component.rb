@@ -67,14 +67,12 @@ module Myco
               unless other.is_a? Component
         
         this.include other
-        other.categories.each do |pair|
-          name, cat = *pair # TODO: remove workaround for rubinius issue #3114
+        other.categories.each do |name, cat|
           all_categories[name] << cat
         end
       end
       
-      all_categories.each do |pair|
-        name, supers = *pair # TODO: remove workaround for rubinius issue #3114
+      all_categories.each do |name, supers|
         if name == :main
           this.categories[name] = this
         else

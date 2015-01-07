@@ -14,8 +14,7 @@ module Myco
       end
       meme.body = body || blk
       
-      decorations = decorations.map do |pair|
-        decoration, arguments = *pair # TODO: remove workaround for rubinius issue #3114
+      decorations = decorations.map do |decoration, arguments|
         decorators = main.categories[:decorators]
         decorators = decorators && decorators.instance
         
