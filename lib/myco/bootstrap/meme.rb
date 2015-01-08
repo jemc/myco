@@ -45,6 +45,7 @@ module Myco
     attr_accessor :name
     attr_accessor :body
     attr_accessor :cache
+    attr_accessor :var
     attr_accessor :expose
     
     attr_reader :metadata
@@ -63,6 +64,7 @@ module Myco
       self.body   = body if body
       self.body   = blk  if blk
       self.cache  = false
+      self.var    = false
       self.expose = true
       
       @metadata = {}
@@ -92,6 +94,8 @@ module Myco
           "Rubinius::BlockEnvironment or a Proc; got: #{value.inspect}"
       end
       
+      @effective_body = @body
+      
       bind if @bound
       @body
     end
@@ -109,6 +113,12 @@ module Myco
       @cache
     end
     
+    def var= value
+      @var = value
+      bind if @bound
+      @var
+    end
+    
     def to_proc
       Proc.__from_block__(@body.block_env)
     end
@@ -119,8 +129,13 @@ module Myco
       
       @target.memes[@name] = self
       
-      if @cache
+      if @var
+        bind_var_getter
+        bind_var_setter
+        @effective_body = @target.instance_method(@name).executable
+      elsif @cache
         bind_cache_method
+        @effective_body = @target.instance_method(@name).executable
       else
         Rubinius.add_method @name, @body, @target, :public
       end
@@ -131,27 +146,13 @@ module Myco
     end
     
     def result_for obj, *args, &blk
-      if @cache
-        cache_key = [obj.hash, args.hash, blk.hash]
-        if @caches.has_key?(cache_key)
-          return @caches[cache_key]
-        end
-        
-        result = @body.invoke @name, @target, obj, args, blk
-        
-        @caches[cache_key] = result
-      else
-        @body.invoke @name, @target, obj, args, blk
-      end
+      result = @effective_body.invoke @name, @target, obj, args, blk
     end
     
     def set_result_for obj, result, *args, &blk
-      if @cache
-        cache_key = [obj.hash, args.hash, blk.hash]
-        @caches[cache_key] = result
-      else
-        
-      end
+      raise "Can't set_result_for this Meme" unless @cache
+      cache_key = [obj.hash, args.hash, blk.hash]
+      @caches[cache_key] = result
     end
     
   private
@@ -235,6 +236,70 @@ module Myco
         g.send :[]=, 2
         
         ret.set!
+        g.ret
+      end
+    end
+    
+    def bind_var_getter
+      # TODO: move this bytecode generation to a helper method 
+      meme = self
+      
+      target.dynamic_method @name, '(myco_internal)' do |g|
+        get = g.new_label
+        ret = g.new_label
+        
+        ##
+        # meme = <this meme>
+        #
+        g.push_literal meme
+        g.set_local 1 # meme
+        g.pop
+        
+        ##
+        # if @#{:"__#{@name}_defined__"}
+        #   @#{name} = meme.body.invoke meme.name, @target, obj, [], nil
+        # end
+        # return @#{name}
+        #
+        g.push_ivar(:"__#{@name}_defined__")
+        g.goto_if_true(get)
+        
+        g.push_local 1 # meme
+        g.send :body, 0
+          g.push_local 1; g.send :name, 0   # meme.name
+          g.push_local 1; g.send :target, 0 # meme.target
+          g.push_self
+          g.make_array 0
+          g.push_nil
+        g.send :invoke, 5
+        g.set_ivar(@name)
+        
+        g.push_true
+        g.set_ivar(:"__#{@name}_defined__")
+        g.pop
+        g.goto(ret)
+        
+        get.set!
+        g.push_ivar(@name)
+        
+        ret.set!
+        g.ret
+      end
+    end
+    
+    def bind_var_setter
+      # TODO: move this bytecode generation to a helper method 
+      target.dynamic_method :"#{@name}=", '(myco_internal)' do |g|
+        g.total_args = 1
+        g.local_count = 1
+        
+        g.push_true
+        g.set_ivar(:"__#{@name}_defined__")
+        g.pop
+        
+        g.push_local 0 # value
+        g.set_ivar @name
+        
         g.ret
       end
     end
