@@ -14,7 +14,7 @@ BasicSpec {
   
   var inner: Object { }
   
-  var inner_choice: |cond|
+  storage inner_choice: |cond|
     switch(cond)
       .when_true  { Object { } }
       .when_false { Object { } }
