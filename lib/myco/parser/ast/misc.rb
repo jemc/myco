@@ -35,27 +35,4 @@ module CodeTools::AST
     end
   end
   
-  
-  # Patch the And (and Or) Node bytecode to use .false? to determine falsehood
-  # This accomodates treating Void (or any other non-builtin) as falsey
-  # TODO: use new branch instruction when it gets added to Rubinius
-  class And
-    def bytecode(g, use_git=true)
-      @left.bytecode(g)
-      g.dup
-      lbl = g.new_label
-      
-      g.send :false?, 0
-      if use_git
-        g.git lbl
-      else
-        g.gif lbl
-      end
-      
-      g.pop
-      @right.bytecode(g)
-      lbl.set!
-    end
-  end
-  
 end

@@ -14,6 +14,7 @@ require_relative "ast/invoke_method"
 require_relative "ast/array_assembly"
 require_relative "ast/argument_assembly"
 require_relative "ast/quest"
+require_relative "ast/branch_operator"
 
 require_relative "ast/misc"
 

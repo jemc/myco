@@ -1,0 +1,94 @@
+
+import 'BasicSpec.my'
+
+
+BasicSpec {
+  name: "BranchOperators"
+  
+  var effects: []
+  
+  verify_expr: |expr, expected_result, expected_effects| {
+    assert_equal(expr, expected_result)
+    assert_equal(effects, expected_effects)
+    effects.clear # TODO: move this to a 'before' meme
+  }
+  
+  do_foo:   effects.push(:do_foo);   :foo
+  do_bar:   effects.push(:do_bar);   :bar
+  do_true:  effects.push(:do_true);  true
+  do_false: effects.push(:do_false); false
+  do_null:  effects.push(:do_null);  null
+  do_void:  effects.push(:do_void);  void
+  
+  [tests]
+  
+  "&&": {
+    verify_expr(do_foo   && do_bar,   :bar,  [:do_foo   , :do_bar])
+    
+    verify_expr(do_true  && do_bar,   :bar,  [:do_true  , :do_bar])
+    verify_expr(do_false && do_bar,   false, [:do_false , ])
+    verify_expr(do_null  && do_bar,   null,  [:do_null  , ])
+    verify_expr(do_void  && do_bar,   void,  [:do_void  , ])
+    
+    verify_expr(do_foo   && do_true,  true,  [:do_foo   , :do_true])
+    verify_expr(do_foo   && do_false, false, [:do_foo   , :do_false])
+    verify_expr(do_foo   && do_null,  null,  [:do_foo   , :do_null])
+    verify_expr(do_foo   && do_void,  void,  [:do_foo   , :do_void])
+  }
+  
+  "||": {
+    verify_expr(do_foo   || do_bar,   :foo,  [:do_foo   , ])
+    
+    verify_expr(do_true  || do_bar,   true,  [:do_true  , ])
+    verify_expr(do_false || do_bar,   :bar,  [:do_false , :do_bar])
+    verify_expr(do_null  || do_bar,   :bar,  [:do_null  , :do_bar])
+    verify_expr(do_void  || do_bar,   :bar,  [:do_void  , :do_bar])
+    
+    verify_expr(do_foo   || do_true,  :foo,  [:do_foo   , ])
+    verify_expr(do_foo   || do_false, :foo,  [:do_foo   , ])
+    verify_expr(do_foo   || do_null,  :foo,  [:do_foo   , ])
+    verify_expr(do_foo   || do_void,  :foo,  [:do_foo   , ])
+  }
+  
+  "??": {
+    verify_expr(do_foo   ?? do_bar,   :foo,  [:do_foo   , ])
+    
+    verify_expr(do_true  ?? do_bar,   true,  [:do_true  , ])
+    verify_expr(do_false ?? do_bar,   false, [:do_false , ])
+    verify_expr(do_null  ?? do_bar,   null,  [:do_null  , ])
+    verify_expr(do_void  ?? do_bar,   :bar,  [:do_void  , :do_bar])
+    
+    verify_expr(do_foo   ?? do_true,  :foo,  [:do_foo   , ])
+    verify_expr(do_foo   ?? do_false, :foo,  [:do_foo   , ])
+    verify_expr(do_foo   ?? do_null,  :foo,  [:do_foo   , ])
+    verify_expr(do_foo   ?? do_void,  :foo,  [:do_foo   , ])
+  }
+  
+  "&?": {
+    verify_expr(do_foo   &? do_bar,   :bar,  [:do_foo   , :do_bar])
+    
+    verify_expr(do_true  &? do_bar,   :bar,  [:do_true  , :do_bar])
+    verify_expr(do_false &? do_bar,   void,  [:do_false , ])
+    verify_expr(do_null  &? do_bar,   void,  [:do_null  , ])
+    verify_expr(do_void  &? do_bar,   void,  [:do_void  , ])
+    
+    verify_expr(do_foo   &? do_true,  true,  [:do_foo   , :do_true])
+    verify_expr(do_foo   &? do_false, false, [:do_foo   , :do_false])
+    verify_expr(do_foo   &? do_null,  null,  [:do_foo   , :do_null])
+    verify_expr(do_foo   &? do_void,  void,  [:do_foo   , :do_void])
+  }
+  
+  "|?": {
+    verify_expr(do_foo   |? do_bar,   void,  [:do_foo   , ])
+    
+    verify_expr(do_true  |? do_bar,   void,  [:do_true  , ])
+    verify_expr(do_false |? do_bar,   :bar,  [:do_false , :do_bar])
+    verify_expr(do_null  |? do_bar,   :bar,  [:do_null  , :do_bar])
+    verify_expr(do_void  |? do_bar,   :bar,  [:do_void  , :do_bar])
+    
+    verify_expr(do_foo   |? do_true,  void,  [:do_foo   , ])
+    verify_expr(do_foo   |? do_false, void,  [:do_foo   , ])
+    verify_expr(do_foo   |? do_null,  void,  [:do_foo   , ])
+    verify_expr(do_foo   |? do_void,  void,  [:do_foo   , ])
+  }
+}
