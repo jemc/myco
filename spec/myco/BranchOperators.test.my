@@ -15,6 +15,7 @@ BasicSpec {
   
   do_foo:   effects.push(:do_foo);   :foo
   do_bar:   effects.push(:do_bar);   :bar
+  do_baz:   effects.push(:do_baz);   :baz
   do_true:  effects.push(:do_true);  true
   do_false: effects.push(:do_false); false
   do_null:  effects.push(:do_null);  null
@@ -90,5 +91,17 @@ BasicSpec {
     verify_expr(do_foo   |? do_false, void,  [:do_foo   , ])
     verify_expr(do_foo   |? do_null,  void,  [:do_foo   , ])
     verify_expr(do_foo   |? do_void,  void,  [:do_foo   , ])
+  }
+  
+  "&? ?? as replacement for ? : ternary operator": {
+    verify_expr(do_true  &? do_bar   ?? do_baz,   :bar,  [:do_true  , :do_bar])
+    verify_expr(do_false &? do_bar   ?? do_baz,   :baz,  [:do_false , :do_baz])
+    
+    verify_expr(do_true  &? do_false ?? do_baz,   false, [:do_true  , :do_false])
+    verify_expr(do_true  &? do_null  ?? do_baz,   null,  [:do_true  , :do_null])
+    
+    verify_expr(do_false &? do_bar   ?? do_true,  true,  [:do_false , :do_true])
+    verify_expr(do_false &? do_bar   ?? do_false, false, [:do_false , :do_false])
+    verify_expr(do_false &? do_bar   ?? do_null,  null,  [:do_false , :do_null])
   }
 }
