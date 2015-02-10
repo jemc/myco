@@ -25,7 +25,7 @@
     register_in_parser: |parser, name| {
       self.parser = parser
       
-      args = [name, (self.?argument || null), long_form, description]
+      args = [name, (self.?argument ?? null), long_form, description]
       args = args.compact
       args = args.map |arg| { arg.to_s }
       
