@@ -11,9 +11,6 @@
   # importing the constants defined therein into the current namespace.
   import: Decorator {
     apply: |meme, *args| {
-      # TODO: shouldn't have to use meme.target here;
-      # should be able to use 'parent' to reach the outer objects
-      # while still referring to distinct instances rather than the originals.
       load_paths = [meme.target.instance.dirname]
       scope = meme.target.constant_scope
       component = Myco.eval_file(meme.name.to_s, load_paths, false, scope)
