@@ -1,5 +1,5 @@
 
-RubyEval < EmptyObject {
+::Myco::RubyEval < EmptyObject {
   from_string: |string| ::Kernel.instance_method(:eval).bind(self).call(string)
 }
 
