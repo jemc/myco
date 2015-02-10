@@ -1,7 +1,5 @@
 
-# TODO: fix constant lookup to make importing of constants from a file work
-# OptionParser < Object {
-::Myco::OptionParser < Object {
+OptionParser < Object {
   banner: ""
   width:  30
   config: null
@@ -16,11 +14,8 @@
     parser
   }
   
-  
   Option < Object {
-    # TODO: don't use an instance_variable
-    "parser":      instance_variable_get("@parser")
-    "parser=": |x| instance_variable_set("@parser", x)
+    var parser
     
     register_in_parser: |parser, name| {
       self.parser = parser
@@ -31,8 +26,5 @@
       
       parser.on(*args) |arg| { do(arg) }
     }
-    
-    # TODO: remove
-    method_missing: |*a,&b| parent.send(*a,&b)
   }
 }
