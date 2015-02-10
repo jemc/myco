@@ -20,14 +20,18 @@ module CodeTools::AST
   # Replace NilLiteral with NullLiteral and let original NilLiteral "disappear"
   NilLiteral = NullLiteral
   
+  class ::CodeTools::Generator
+    def push_void
+      push_cpath_top
+      find_const :Myco
+      find_const :Void
+    end
+  end
+  
   class VoidLiteral < Node
     def bytecode(g)
       pos(g)
-      
-      # TODO: create push_void helper to abstract this out (and elsewhere)
-      g.push_cpath_top
-      g.find_const :Myco
-      g.find_const :Void
+      g.push_void
     end
     
     def to_sexp

@@ -55,7 +55,7 @@ module CodeTools::AST
       end
       
       if otherwise_push_void
-        VoidLiteral.new(line).bytecode(g) # TODO: use g.push_void
+        g.push_void
         g.goto done_label
         
         right_label.set!
