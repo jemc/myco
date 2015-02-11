@@ -39,6 +39,6 @@ BasicBench {
   
   [tasks]
   
-  "Ruby Class.new"     : RubyToken.new(type:'foo', text:'bar', line:88)
-  "Myco Component.new" : MycoToken.new(type:'foo', text:'bar', line:88)
+  "Ruby Class#new"      : RubyToken.new(type:'foo', text:'bar', line:88)
+  "Myco::Component#new" : MycoToken.new(type:'foo', text:'bar', line:88)
 }
