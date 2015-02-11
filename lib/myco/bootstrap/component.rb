@@ -110,13 +110,13 @@ module Myco
     end
     
     def instance
-      if !@instance
+      if @instance
+        yield @instance if block_given?
+      else
         @instance = Instance.new(self)
-        @instance.extend self
+        inject_features_into @instance
         yield @instance if block_given?
         @instance.__signal__ :creation if @instance.respond_to? :__signal__
-      else
-        yield @instance if block_given?
       end
       
       @instance
@@ -131,14 +131,22 @@ module Myco
       component = Component.new([self], nil, loc.file, loc.line)
       component.instance_variable_set(:@instance, object)
       object.instance_variable_set(:@component, component)
-      object.extend component
+      component.inject_features_into object
+      object
+    end
+    
+    # Extend the given object with this component's features
+    def inject_features_into object
+      singleton_class = Rubinius::Type.object_singleton_class(object)
+      Rubinius::Type.include_modules_from(self, singleton_class.origin)
+      Rubinius::Type.infect(singleton_class, self)
       object
     end
     
     # Create a child component of self and call setters on the instance
     # with the values given by kwargs.
     def new parent=nil, **kwargs
-      loc = Rubinius::VM.backtrace(1,false).first
+      loc = ::Rubinius::VM.backtrace(1,false).first
       
       Component.new([self], parent, loc.file, loc.line).instance { |instance|
         kwargs.each { |key,val| instance.send :"#{key}=", val }
