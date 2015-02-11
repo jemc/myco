@@ -2,7 +2,8 @@
 import './BasicBench.my'
 
 BasicBench {
-  MycoToken < Object {
+  # TODO: make Myco's Object __signal__ more efficient and use Object as super
+  MycoToken < BasicObject {
     var type
     var text
     var line
