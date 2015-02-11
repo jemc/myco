@@ -1,0 +1,17 @@
+
+BasicBench < Object {
+  benchmark_ips: |&block|
+    ruby_require('benchmark/ips'); Benchmark.ips(&block)
+  
+  run: benchmark_ips |b| {
+    tasks.memes.each |name, meme| {
+      b.report(name.to_s, &meme)
+    }
+    b.compare!
+  }
+  
+  on creation: tasks.memes.empty? || run
+  
+  [tasks]
+  # Empty category; to be filled by user with benchmarks to compare
+}
