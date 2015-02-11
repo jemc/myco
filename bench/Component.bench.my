@@ -1,0 +1,43 @@
+
+import './BasicBench.my'
+
+BasicBench {
+  MycoToken < Object {
+    var type
+    var text
+    var line
+    
+    inspect: [type, text, line].inspect
+    to_s:    [type, text, line].inspect
+    
+    sym:      text.to_sym
+    float:    send("Float", text)
+    integer:  send("Integer", text)
+  }
+  
+  RubyToken: RubyEval @@@
+    Class.new do
+      attr_accessor :type
+      attr_accessor :text
+      attr_accessor :line
+      
+      def initialize **kwargs
+        kwargs.each do |k,v|
+          __send__(:"#{k}=", v)
+        end
+      end
+      
+      def inspect; [type, text, line].inspect; end
+      def to_s;    [type, text, line].inspect; end
+      
+      def sym;      text.to_sym;               end
+      def float;    __send__("Float", text);   end
+      def integer;  __send__("Integer", text); end
+    end
+  @@@
+  
+  [tasks]
+  
+  "Ruby Class.new"     : RubyToken.new(type:'foo', text:'bar', line:88)
+  "Myco Component.new" : MycoToken.new(type:'foo', text:'bar', line:88)
+}
