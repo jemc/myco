@@ -1,9 +1,13 @@
 
 RSpecLoadOnce: Object {
+  already_has_rspec: RubyEval @@@
+    defined? RSpec
+  @@@
+  
   on creation: {
     # TODO: clean this up
-    unless(Object.send(:eval, "defined? RSpec")) {
-      Object.send(:require, 'rspec/autorun')
+    unless(already_has_rspec) {
+      ruby_require('rspec/autorun')
       
       # Hack to keep RSpec from trying to load Myco files as Ruby files
       RSpec.configuration.define_singleton_method(:files_to_run) { [] }
