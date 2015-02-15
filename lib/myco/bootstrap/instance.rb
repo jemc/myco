@@ -24,10 +24,6 @@ module Myco
       p str
     end
     
-    def initialize component
-      @component = component
-    end
-    
     attr_reader :component
     
     def parent

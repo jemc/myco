@@ -18,3 +18,7 @@
   
   ruby_require: |arg| Object.send(:require, arg)
 }
+
+# Because ::Myco::Instance is a ::BasicObject, we must shadow ::BasicObject here
+::Myco::Instance::BasicObject: ::Myco::BasicObject
+

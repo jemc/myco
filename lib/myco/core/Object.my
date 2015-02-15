@@ -3,10 +3,12 @@
   # Send the named signal to all handlers for this object
   __signal__: |name, *args, &block| {
     component.ancestors.reverse.each |other| {
-      inst = (component == other) &? self ?? other.instance
-      inst.?decorators.?on.?signal_handlers(name).each |meme| {
-        meme.result_for(self, *args, &block)
-      }
+      other.is_a?(Component) && (
+        inst = (component == other) &? self ?? other.instance
+        inst.?decorators.?on.?signal_handlers(name).each |meme| {
+          meme.result_for(self, *args, &block)
+        }
+      )
     }
   }
   

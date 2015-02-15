@@ -15,8 +15,7 @@ BasicSpec {
     obj = ::Object.new
     TestComponent.inject_into(obj)
     
-    refute(obj.component.equal?(TestComponent))
-    assert(obj.component < TestComponent)
+    assert(obj.component == TestComponent)
     
     assert_equal(obj.foo, 88)
     obj.foo = 0

@@ -1,6 +1,6 @@
 
 module Myco
-  class Component < Module
+  module Component
     include MemeBindable
     
     attr_accessor :__last__
@@ -46,7 +46,9 @@ module Myco
         line     ||= location.line
       end
       
-      this = super()
+      this = Class.new Instance
+      # TODO: avoid extending here to avoid touching/making the singleton_class
+      this.extend self
       
       this.instance_eval {
         @super_components = super_components
@@ -113,8 +115,8 @@ module Myco
       if @instance
         yield @instance if block_given?
       else
-        @instance = Instance.new(self)
-        inject_features_into @instance
+        @instance = allocate
+        @instance.instance_variable_set(:@component, self)
         yield @instance if block_given?
         @instance.__signal__ :creation if @instance.respond_to? :__signal__
       end
@@ -122,35 +124,42 @@ module Myco
       @instance
     end
     
-    # Create a child component of self to act as the component of the object,
-    # which is allowed to be a Ruby object (not a Myco::Instance).
-    def inject_into object
-      loc = Rubinius::VM.backtrace(1,false).first
-      
-      object.extend InstanceMethods unless object.is_a? InstanceMethods
-      component = Component.new([self], nil, loc.file, loc.line)
-      component.instance_variable_set(:@instance, object)
-      object.instance_variable_set(:@component, component)
-      component.inject_features_into object
-      object
+    # Override Module#include to bypass type checks of others
+    def include *others
+      others.reverse_each do |other|
+        Rubinius::Type.include_modules_from(other, self.origin)
+        Rubinius::Type.infect(self, other)
+        other.__send__ :included, self
+      end
+      self
     end
     
     # Extend the given object with this component's features
-    def inject_features_into object
+    # Called on object.extend(component)
+    def extend_object object
       singleton_class = Rubinius::Type.object_singleton_class(object)
       Rubinius::Type.include_modules_from(self, singleton_class.origin)
       Rubinius::Type.infect(singleton_class, self)
       object
     end
     
-    # Create a child component of self and call setters on the instance
-    # with the values given by kwargs.
-    def new parent=nil, **kwargs
-      loc = ::Rubinius::VM.backtrace(1,false).first
-      
-      Component.new([self], parent, loc.file, loc.line).instance { |instance|
-        kwargs.each { |key,val| instance.send :"#{key}=", val }
-      }
+    # Create a child component of self to act as the component of the object,
+    # which is allowed to be a Ruby object (not a Myco::Instance).
+    # TODO: re-evaluate usefulness and possibly remove in favor of using extend.
+    def inject_into object
+      object.extend InstanceMethods unless object.is_a? InstanceMethods
+      object.instance_variable_set(:@component, self)
+      extend_object object
+      object
+    end
+    
+    # Create an untracked instance of this component and
+    # call setters on the instance with the values given by kwargs.
+    def new **kwargs
+      instance = allocate
+      instance.instance_variable_set(:@component, self)
+      kwargs.each { |key,val| instance.send :"#{key}=", val }
+      instance
     end
     
     # Like module_eval, but it also shifts the ConstantScope of the block
