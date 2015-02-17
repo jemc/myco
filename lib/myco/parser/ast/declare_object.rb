@@ -4,8 +4,8 @@ require_relative 'myco_module_scope'
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_declobj line, types, body
+  module BuilderMethods
+    def declobj line, types, body
       DeclareObject.new line, types, body
     end
   end

@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_quest line, receiver, questable
+  module BuilderMethods
+    def quest line, receiver, questable
       Quest.new line, receiver, questable
     end
   end

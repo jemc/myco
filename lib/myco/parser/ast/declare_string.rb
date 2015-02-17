@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_declstr line, types, string
+  module BuilderMethods
+    def declstr line, types, string
       DeclareString.new line, types, string
     end
   end

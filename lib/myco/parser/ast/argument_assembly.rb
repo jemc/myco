@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_argass line, body
+  module BuilderMethods
+    def argass line, body
       ArgumentAssembly.new line, body
     end
   end

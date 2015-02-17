@@ -4,8 +4,8 @@ require_relative 'myco_module_scope'
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_category line, name, body
+  module BuilderMethods
+    def category line, name, body
       DeclareCategory.new line, name, body
     end
   end

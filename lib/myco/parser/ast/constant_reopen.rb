@@ -4,8 +4,8 @@ require_relative 'myco_module_scope'
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_copen line, name, body
+  module BuilderMethods
+    def copen line, name, body
       ConstantReopen.new line, name, body
     end
   end

@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_cdefn line, name, object
+  module BuilderMethods
+    def cdefn line, name, object
       ConstantDefine.new line, name, object
     end
   end

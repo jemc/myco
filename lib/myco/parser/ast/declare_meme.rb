@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_meme line, name, decorations, arguments, body
+  module BuilderMethods
+    def meme line, name, decorations, arguments, body
       DeclareMeme.new line, name, decorations, arguments, body
     end
   end

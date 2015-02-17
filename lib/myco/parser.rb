@@ -21,12 +21,15 @@ require_relative 'parser/ast'
 require_relative 'parser/peg_parser'
 
 module CodeTools
+  
+  class AST::Builder
+    include CodeTools::AST::BuilderMethods
+  end
+  
   class Parser
-    include CodeTools::AST::ProcessorMethods
-    
     def parse_string string
       @peg_parser = Myco::ToolSet::PegParser.new string
-      @peg_parser.processor = self
+      @peg_parser.builder = Myco::ToolSet::AST::Builder.new
       
       if @peg_parser.parse
         return @peg_parser.root_node
@@ -35,6 +38,6 @@ module CodeTools
         raise SyntaxError, io.string
       end
     end
-    
   end
+  
 end

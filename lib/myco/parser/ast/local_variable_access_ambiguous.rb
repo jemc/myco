@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_lambig line, name
+  module BuilderMethods
+    def lambig line, name
       LocalVariableAccessAmbiguous.new line, name
     end
   end

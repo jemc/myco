@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_branch_op line, type, left, right
+  module BuilderMethods
+    def branch_op line, type, left, right
       BranchOperator.new line, type, left, right
     end
   end

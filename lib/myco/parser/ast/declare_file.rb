@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_declfile line, body
+  module BuilderMethods
+    def declfile line, body
       DeclareFile.new line, body
     end
   end

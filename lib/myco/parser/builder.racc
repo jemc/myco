@@ -541,7 +541,7 @@ rule
   def ast type, locator, *args
     # TODO: integrate columns from location instead of just rows
     line = locator.is_a?(Array) ? locator[2].first : locator.line
-    @processor.send :"process_#{type}", line, *args
+    @processor.__send__ type, line, *args
   end
   
   def encode_escapes str

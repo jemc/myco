@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_arrass line, body
+  module BuilderMethods
+    def arrass line, body
       ArrayAssembly.new line, body
     end
   end

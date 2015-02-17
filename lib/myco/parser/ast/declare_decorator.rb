@@ -1,8 +1,8 @@
 
 module CodeTools::AST
   
-  module ProcessorMethods
-    def process_deco line, name, arguments
+  module BuilderMethods
+    def deco line, name, arguments
       DeclareDecorator.new line, name, arguments
     end
   end
