@@ -20,7 +20,7 @@ Object {
       description: "Evaluate a string of procedural Myco inside an Object"
       long_form: "--eval-meme"
       argument: "STRING"
-      do: |arg| Myco.eval("Object { on creation: "arg" }")
+      do: |arg| Myco.eval("Object { on creation: { "arg" } }")
     }
   }
   
