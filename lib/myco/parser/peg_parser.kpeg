@@ -439,7 +439,7 @@ invoke =
     ~node(:invoke, tn, nil, tn.sym, na, *nlist)
 
 op_invoke_id =
-  left_op
+  left_op_normal
 
 op_invoke = # Allow some binary operators to be invoked with a dot
   op_invoke_id:tn (c_spc* arg_list:na)?:na (c_spc_nl* invoke_body:n)?:nlist
@@ -548,13 +548,17 @@ param_list =
 ##
 # Two-term operators
 
-left_op =
+left_op_normal =
   t_OP_EXP
 | t_OP_MULT | t_OP_DIV | t_OP_MOD
 | t_OP_PLUS | t_OP_MINUS
 | t_OP_COMPARE
-| t_OP_AND  | t_OP_OR
+
+left_op_branch =
+  t_OP_AND  | t_OP_OR
 | t_OP_AND_Q | t_OP_OR_Q | t_OP_VOID_Q
+
+left_op = left_op_normal | left_op_branch
 
 # Achieve left-associativity through iteration.
 #
