@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def declfile line, body
-      DeclareFile.new line, body
+    def declfile loc, body
+      DeclareFile.new loc.line, body
     end
   end
   

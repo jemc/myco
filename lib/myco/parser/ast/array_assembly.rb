@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def arrass line, body
-      ArrayAssembly.new line, body
+    def arrass loc, body
+      ArrayAssembly.new loc.line, body
     end
   end
   

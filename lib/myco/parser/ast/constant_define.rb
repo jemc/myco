@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def cdefn line, name, object
-      ConstantDefine.new line, name, object
+    def cdefn loc, name, object
+      ConstantDefine.new loc.line, name, object
     end
   end
   

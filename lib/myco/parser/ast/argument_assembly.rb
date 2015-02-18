@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def argass line, body
-      ArgumentAssembly.new line, body
+    def argass loc, body
+      ArgumentAssembly.new loc.line, body
     end
   end
   

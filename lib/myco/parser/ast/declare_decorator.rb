@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def deco line, name, arguments
-      DeclareDecorator.new line, name, arguments
+    def deco loc, name, arguments
+      DeclareDecorator.new loc.line, name, arguments
     end
   end
   

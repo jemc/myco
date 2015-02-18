@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def lambig line, name
-      LocalVariableAccessAmbiguous.new line, name
+    def lambig loc, name
+      LocalVariableAccessAmbiguous.new loc.line, name
     end
   end
   

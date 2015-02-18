@@ -4,124 +4,124 @@ module CodeTools::AST
   # These builder methods are copied directly from rubinius-processor
   # TODO: remove and Myco-ize all dependencies on rubinius-processor and rubinius-ast
   module BuilderMethods
-    def colon2 line, outer, name
+    def colon2 loc, outer, name
       if outer
         if outer.kind_of? ConstantAccess and
            outer.name == :Rubinius
           case name
           when :Type
-            TypeConstant.new line
+            TypeConstant.new loc.line
           when :Mirror
-            MirrorConstant.new line
+            MirrorConstant.new loc.line
           else
-            ScopedConstant.new line, outer, name
+            ScopedConstant.new loc.line, outer, name
           end
         else
-          ScopedConstant.new line, outer, name
+          ScopedConstant.new loc.line, outer, name
         end
       else
-        ConstantAccess.new line, name
+        ConstantAccess.new loc.line, name
       end
     end
     
-    def colon3 line, name
-      ToplevelConstant.new line, name
+    def colon3 loc, name
+      ToplevelConstant.new loc.line, name
     end
     
-    def const line, name
-      ConstantAccess.new line, name
+    def const loc, name
+      ConstantAccess.new loc.line, name
     end
     
-    def lit line, sym
-      SymbolLiteral.new line, sym
+    def lit loc, sym
+      SymbolLiteral.new loc.line, sym
     end
     
-    def args line, required, optional, splat, post, kwargs, kwrest, block
-      Parameters.new line, required, optional, splat, post, kwargs, kwrest, block
+    def args loc, required, optional, splat, post, kwargs, kwrest, block
+      Parameters.new loc.line, required, optional, splat, post, kwargs, kwrest, block
     end
     
-    def self line
-      Self.new line
+    def self loc
+      Self.new loc.line
     end
     
-    def block line, array
-      Block.new line, array
+    def block loc, array
+      Block.new loc.line, array
     end
     
-    def str line, str
-      StringLiteral.new line, str
+    def str loc, str
+      StringLiteral.new loc.line, str
     end
     
-    def splat line, expr
-      SplatValue.new line, expr
+    def splat loc, expr
+      SplatValue.new loc.line, expr
     end
     
-    def block_pass line, arguments, body
-      BlockPass19.new line, arguments, body
+    def block_pass loc, arguments, body
+      BlockPass19.new loc.line, arguments, body
     end
     
-    def evstr line, value
+    def evstr loc, value
       if value
-        ToString.new line, value
+        ToString.new loc.line, value
       else
-        StringLiteral.new line, ""
+        StringLiteral.new loc.line, ""
       end
     end
     
-    def dsym line, str, array
-      DynamicSymbol.new line, str, array
+    def dsym loc, str, array
+      DynamicSymbol.new loc.line, str, array
     end
 
-    def dstr line, str, array
-      DynamicString.new line, str, array
+    def dstr loc, str, array
+      DynamicString.new loc.line, str, array
     end
     
-    def true line
-      TrueLiteral.new line
+    def true loc
+      TrueLiteral.new loc.line
     end
 
-    def false line
-      FalseLiteral.new line
+    def false loc
+      FalseLiteral.new loc.line
     end
 
-    def return line, value
-      Return.new line, value
+    def return loc, value
+      Return.new loc.line, value
     end
     
-    def lasgn line, name, value
-      LocalVariableAssignment.new line, name, value
+    def lasgn loc, name, value
+      LocalVariableAssignment.new loc.line, name, value
     end
     
-    def hash line, array
-      HashLiteral.new line, array
+    def hash loc, array
+      HashLiteral.new loc.line, array
     end
     
-    def cdecl line, expr, value
-      ConstantAssignment.new line, expr, value
+    def cdecl loc, expr, value
+      ConstantAssignment.new loc.line, expr, value
     end
     
-    def op_cdecl line, var, value, op
+    def op_cdecl loc, var, value, op
       op_value = case op
       when :and
-        And.new line, var, value
+        And.new loc.line, var, value
       when :or
-        Or.new line, var, value
+        Or.new loc.line, var, value
       else
-        args = ArrayLiteral.new line, [value]
-        SendWithArguments.new line, var, op, args
+        args = ArrayLiteral.new loc.line, [value]
+        SendWithArguments.new loc.line, var, op, args
       end
-      ConstantAssignment.new line, var, op_value
+      ConstantAssignment.new loc.line, var, op_value
     end
   end
   
   # These builder methods process the null and void literals
   module BuilderMethods
-    def null line
-      NullLiteral.new line
+    def null loc
+      NullLiteral.new loc.line
     end
     
-    def void line
-      VoidLiteral.new line
+    def void loc
+      VoidLiteral.new loc.line
     end
   end
   

@@ -5,8 +5,8 @@ require_relative 'myco_module_scope'
 module CodeTools::AST
   
   module BuilderMethods
-    def declobj line, types, body
-      DeclareObject.new line, types, body
+    def declobj loc, types, body
+      DeclareObject.new loc.line, types, body
     end
   end
   
@@ -53,7 +53,7 @@ module CodeTools::AST
         @types.bytecode g
         g.push_scope; g.send :for_method_definition, 0
         g.push_scope; g.send :active_path, 0; g.meta_to_s
-        g.push_literal @line
+        g.push_int @line
       g.send :new, 4
       
       # The return value of Component.new at the top of the stack

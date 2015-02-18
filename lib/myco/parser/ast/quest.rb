@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def quest line, receiver, questable
-      Quest.new line, receiver, questable
+    def quest loc, receiver, questable
+      Quest.new loc.line, receiver, questable
     end
   end
   

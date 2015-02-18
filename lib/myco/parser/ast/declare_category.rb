@@ -5,8 +5,8 @@ require_relative 'myco_module_scope'
 module CodeTools::AST
   
   module BuilderMethods
-    def category line, name, body
-      DeclareCategory.new line, name, body
+    def category loc, name, body
+      DeclareCategory.new loc.line, name, body
     end
   end
   

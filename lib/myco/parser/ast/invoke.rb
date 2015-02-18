@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def invoke line, receiver, name, arguments, *rest
-      Invoke.new line, receiver, name, arguments, *rest
+    def invoke loc, receiver, name, arguments, *rest
+      Invoke.new loc.line, receiver, name, arguments, *rest
     end
   end
   

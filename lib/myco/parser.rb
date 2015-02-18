@@ -26,17 +26,30 @@ module CodeTools
     include CodeTools::AST::BuilderMethods
   end
   
+  class PegParserWrapper
+    def parse string
+      @parser = Myco::ToolSet::PegParser.new string
+      @parser.builder = Myco::ToolSet::AST::Builder.new
+      @parsed_okay = !!@parser.parse
+    end
+    
+    def result
+      { root: @parser.root_node } if @parsed_okay
+    end
+    
+    def raise_error
+      @parser.show_error(io=StringIO.new)
+      raise SyntaxError, io.string
+    end
+  end
+  
   class Parser
+    Implementation = PegParserWrapper
+    
     def parse_string string
-      @peg_parser = Myco::ToolSet::PegParser.new string
-      @peg_parser.builder = Myco::ToolSet::AST::Builder.new
-      
-      if @peg_parser.parse
-        return @peg_parser.root_node
-      else
-        @peg_parser.show_error(io=StringIO.new)
-        raise SyntaxError, io.string
-      end
+      @parser = Implementation.new
+      @parser.parse(string)
+      @parser.result ? @parser.result.fetch(:root) : @parser.raise_error
     end
   end
   

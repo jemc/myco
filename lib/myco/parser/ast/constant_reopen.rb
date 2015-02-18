@@ -5,8 +5,8 @@ require_relative 'myco_module_scope'
 module CodeTools::AST
   
   module BuilderMethods
-    def copen line, name, body
-      ConstantReopen.new line, name, body
+    def copen loc, name, body
+      ConstantReopen.new loc.line, name, body
     end
   end
   

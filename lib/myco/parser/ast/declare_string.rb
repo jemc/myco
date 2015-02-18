@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def declstr line, types, string
-      DeclareString.new line, types, string
+    def declstr loc, types, string
+      DeclareString.new loc.line, types, string
     end
   end
   

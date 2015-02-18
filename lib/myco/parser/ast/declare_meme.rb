@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def meme line, name, decorations, arguments, body
-      DeclareMeme.new line, name, decorations, arguments, body
+    def meme loc, name, decorations, arguments, body
+      DeclareMeme.new loc.line, name, decorations, arguments, body
     end
   end
   

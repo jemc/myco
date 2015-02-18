@@ -2,8 +2,8 @@
 module CodeTools::AST
   
   module BuilderMethods
-    def branch_op line, type, left, right
-      BranchOperator.new line, type, left, right
+    def branch_op loc, type, left, right
+      BranchOperator.new loc.line, type, left, right
     end
   end
   
