@@ -41,29 +41,39 @@ module Myco
     def self.loader_for_file path, load_paths=[]
       use_path = resolve_file(path, load_paths)
       
-      raise ArgumentError, "Couldn't resolve file: #{path.inspect} \n" \
-                           "in load_paths: #{load_paths.inspect}" \
-        unless use_path
-      
-      # Try to find an implementation with higher precedence than :myco
-      # With a file that has been modified at least as recently as
-      # the resolved file in use_path.
-      ref_mtime = File.mtime(use_path)
-      precedence.each { |type|
-        begin
-          if type==:myco
-            return loader_for(type, use_path)
-          else
-            alt_path = use_path + ".#{type}"
-            if File.file?(alt_path) && (File.mtime(alt_path) >= ref_mtime)
+      # TODO: This logic could be refactored to look cleaner
+      if use_path
+        # Try to find an implementation with higher precedence than :myco
+        # With a file that has been modified at least as recently as
+        # the resolved file in use_path.
+        ref_mtime = File.mtime(use_path)
+        precedence.each { |type|
+          begin
+            if type==:myco
+              return loader_for(type, use_path)
+            else
+              alt_path = use_path + ".#{type}"
+              if File.file?(alt_path) && (File.mtime(alt_path) >= ref_mtime)
+                return loader_for(type, alt_path)
+              end
+            end
+          rescue NotImplementedError # Skip loader if not implemented
+          end
+        }
+      else
+        # Try to find any implementation other than :myco, in precedence order.
+        precedence.each { |type|
+          if type != :myco
+            alt_path = resolve_file(path + ".#{type}", load_paths)
+            if alt_path && File.file?(alt_path)
               return loader_for(type, alt_path)
             end
           end
-        rescue NotImplementedError # Skip loader if not implemented
-        end
-      }
+        }
+      end
       
-      return nil
+      raise ArgumentError, "Couldn't resolve file: #{path.inspect} \n" \
+                           "in load_paths: #{load_paths.inspect}" \
     end
     
     # Return a loader of the given type with the given arguments
@@ -181,14 +191,18 @@ module Myco
       end
       
       def emit_rb! filename=nil
-        filename = emit_filename('.rb')
+        @ast || make_ast
+        
+        filename = emit_filename('.rb', filename)
         return nil unless filename
         
         File.open(filename, "w+") { |file| file.write(@ast.to_ruby_code) }
       end
       
       def emit_rbc! filename=nil
-        filename = emit_filename('.rbc')
+        @compiled_code || make_compiled_code
+        
+        filename = emit_filename('.rbc', filename)
         return nil unless filename
         
         compiled_file_type.dump(
@@ -214,14 +228,18 @@ module Myco
       
       # Return the filename to emit, or nil if the file is already current
       # relative to modification time of the file at the myco_filename.
-      def emit_filename file_ext
-        orig_filename = myco_filename
-        filename ||= orig_filename.concat(file_ext)
-        
-        if File.file?(myco_filename)
-          ref_mtime = File.mtime(myco_filename)
-          if File.file?(filename) && (File.mtime(filename) >= ref_mtime)
-            return nil
+      def emit_filename file_ext, override=nil
+        if override
+          filename = override
+        else
+          orig_filename = myco_filename
+          filename ||= orig_filename.concat(file_ext)
+          
+          if File.file?(myco_filename)
+            ref_mtime = File.mtime(myco_filename)
+            if File.file?(filename) && (File.mtime(filename) >= ref_mtime)
+              return nil
+            end
           end
         end
         
