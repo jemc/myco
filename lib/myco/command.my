@@ -1,33 +1,29 @@
 
-import "tools/OptionParser.my"
+import "tools/BasicCommand.my"
 
-Object {
-  var options: OptionParser {
-    storage results: null
-    
-    banner: "Usage: myco [options] [files]"
-    
-    [options]
-    
-    "-E": Option {
-      description: "Evaluate a string of declarative Myco"
-      long_form: "--eval"
-      argument: "STRING"
-      do: |arg| Myco.eval(arg)
-    }
-    
-    "-e": Option {
-      description: "Evaluate a string of procedural Myco inside an Object"
-      long_form: "--eval-meme"
-      argument: "STRING"
-      do: |arg| Myco.eval("Object { on creation: { "arg" } }")
-    }
-  }
+BasicCommand {
+  banner: "Usage: myco [options] [files]"
+  
+  on creation: run(*ARGV)
   
   run: |*argv| {
-    files = options.parse(argv)
+    files = options_parse(*argv)
     files.uniq.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
   }
   
-  on creation: run(*ARGV)
+  [options]
+  
+  "-E": Option {
+    description: "Evaluate a string of declarative Myco"
+    long_form: "--eval"
+    argument: "STRING"
+    do: |arg| Myco.eval(arg)
+  }
+  
+  "-e": Option {
+    description: "Evaluate a string of procedural Myco inside an Object"
+    long_form: "--eval-meme"
+    argument: "STRING"
+    do: |arg| Myco.eval("Object { on creation: { "arg" } }")
+  }
 }

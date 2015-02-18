@@ -1,12 +1,12 @@
 
-OptionParser < Object {
+BasicCommand < Object {
   banner: ""
   width:  30
-  config: null
+  options_config: null
   
-  parse: |argv=ARGV| parser.parse(argv)
-  parser: {
-    parser = Rubinius::Options.new(banner, width, config)
+  options_parse: |*argv| options_parser.parse(argv)
+  options_parser: {
+    parser = Rubinius::Options.new(banner, width, options_config)
     options.memes.each |name, meme| {
       meme.result.register_in_parser(parser, name)
     }
