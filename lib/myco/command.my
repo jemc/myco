@@ -2,13 +2,13 @@
 import "tools/BasicCommand.my"
 
 BasicCommand {
-  banner: "Usage: myco [options] [files]"
+  banner: "Usage: myco [subcommand] [options] [files]"
   
   on creation: run(*ARGV)
   
   run: |*argv| {
     files = options_parse(*argv)
-    files.uniq.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
+    files && files.uniq.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
   }
   
   [options]
@@ -26,4 +26,8 @@ BasicCommand {
     argument: "STRING"
     do: |arg| Myco.eval("Object { on creation: { "arg" } }")
   }
+  
+  [commands]
+  
+  "inoculate": Myco.eval_file("command/inoculate.my")
 }

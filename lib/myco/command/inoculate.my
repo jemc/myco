@@ -1,0 +1,83 @@
+
+import "../tools/BasicCommand.my"
+
+BasicCommand {
+  banner: "Usage: myco inoculate [options]"
+  
+  # TODO: move this out of here
+  shell: |*a,&b| Kernel.instance_method(:system).bind(self).call(*a,&b)
+  
+  run: |*argv| {
+    destinations = options_parse(*argv)
+    destinations.size == 1
+    |? show_help
+    ?? destinations.each |dest| {
+      config.dest = dest
+      
+      run_operation(:copy, files(config.source, 'bin'))
+      run_operation(:copy, files(config.source, 'lib', '.rb'))
+      run_operation(:copy, files(config.source, 'lib', '.my'))
+      run_operation(:myrb, files(config.dest,   'lib', '.my'))
+      
+      if(config.verbose) {
+        prog = Rubinius::Globals[:"$PROGRAM_NAME"]
+        puts("DONE "prog" "ARGV.join(" ")"")
+      }
+    }
+  }
+  
+  run_operation: |opcode, source_list| {
+    source_list.each |source| {
+      dest = transforms.send(opcode, source)
+      
+      unless(operation_is_unnecessary(source, dest)) {
+        if(config.verbose) {
+          puts(""opcode.upcase" "source"")
+          puts("  => "dest"")
+        }
+        operations.send(opcode, source, dest)
+      }
+    }
+  }
+  
+  operation_is_unnecessary: |source, dest|
+    File.file?(dest) && File.mtime(dest) >= File.mtime(source)
+  
+  files: |prefix, subdir, ext=''| {
+    prefix && (subdir = File.join(prefix, subdir))
+    Dir.glob(File.join(subdir, "**", "*"ext""))
+  }
+  
+  [operations]
+  
+  copy: |source, dest|
+    shell("mkdir -p "File.dirname(dest)" && cp "source" "dest"")
+  myrb: |source, dest|
+    Myco::CodeLoader::MycoLoader.new(source).emit_rb!
+  
+  [transforms]
+  
+  copy: |filename| File.join(config.dest, filename)
+  myrb: |filename| ""filename".rb"
+  
+  [config]
+  
+  var source
+  var dest
+  var verbose
+  
+  [options]
+  
+  "-d": Option {
+    description: "The destination directory to clone material into."
+    long_form: "--dest"
+    argument: "STRING"
+    do: |arg| parent.config.dest = arg
+  }
+  
+  "-v": Option {
+    description: "Show details about material cloning operations."
+    long_form: "--verbose"
+    do: |arg| parent.config.verbose = true
+  }
+}

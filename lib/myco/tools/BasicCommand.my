@@ -4,7 +4,13 @@ BasicCommand < Object {
   width:  30
   options_config: null
   
-  options_parse: |*argv| options_parser.parse(argv)
+  options_parse: |*argv| {
+    command = argv.first && self.commands.memes[argv.first.to_sym]
+    command
+      &? (command.result.run(*argv.slice(::Range.new(1, -1))); null)
+      ?? options_parser.parse(argv)
+  }
+  
   options_parser: {
     parser = Rubinius::Options.new(banner, width, options_config)
     options.memes.each |name, meme| {
@@ -13,6 +19,8 @@ BasicCommand < Object {
     parser.help
     parser
   }
+  
+  show_help: puts(options_parser.to_s)
   
   Option < Object {
     var parser
@@ -27,4 +35,8 @@ BasicCommand < Object {
       parser.on(*args) |arg| { do(arg) }
     }
   }
+  
+  # Empty categories to be filled by the user
+  [options]
+  [commands]
 }
