@@ -10,6 +10,12 @@ BasicSpec {
   Subject < Object { foo:88, bar:99 }
   make_subject: Subject { }
   
+  RubySubject: ::Class.new {
+    __send__(:define_method, :foo){88}
+    __send__(:define_method, :bar){99}
+  }
+  make_ruby_subject: RubySubject.new
+  
   [tests]
   
   "reopens a Component by constant name": {
@@ -25,11 +31,31 @@ BasicSpec {
     assert_equal(subject.baz, 101)
   }
   
+  "reopens a Ruby Class by constant name": {
+    subject = make_ruby_subject
+    assert_equal(subject.foo, 88)
+    assert_equal(subject.bar, 99)
+    assert_equal(subject.?baz, void)
+    
+    RubySubject << { foo:0, baz:101 }
+    
+    assert_equal(subject.foo, 0)
+    assert_equal(subject.bar, 99)
+    assert_equal(subject.baz, 101)
+  }
+  
   "reopens a Component inside of a reopened Component": {
     Subject << { Inner < EmptyObject { } }
     Subject << { Inner << { Core:true } }
     
     assert_equal(Subject::Inner::Core, true)
+  }
+  
+  "reopens a Component inside of a reopened Ruby Class": {
+    RubySubject << { Inner < EmptyObject { } }
+    RubySubject << { Inner << { Core:true } }
+    
+    assert_equal(RubySubject::Inner::Core, true)
   }
   
   "accesses a constant imported into the FileToplevel": {

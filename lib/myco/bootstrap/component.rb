@@ -161,6 +161,11 @@ module Myco
       kwargs.each { |key,val| instance.send :"#{key}=", val }
       instance
     end
+  end
+  
+  # TODO: use a better approach than this monkey-patch
+  class ::Module
+    include ::Myco::MemeBindable
     
     # Like module_eval, but it also shifts the ConstantScope of the block
     def component_eval &block
