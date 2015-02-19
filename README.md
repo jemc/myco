@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/jemc/myco.svg?branch=master)](https://travis-ci.org/jemc/myco)
 
 ```myco
 Myco < Ruby, QML, Ioke {
