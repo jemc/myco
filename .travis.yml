@@ -1,0 +1,12 @@
+language: ruby
+rvm:
+  - rbx-2
+before_script:
+  - bundle install
+script:
+  - myco inoculate --verbose alpha
+  - alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - alpha/bin/myco inoculate --verbose beta
+  - beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+notifications:
+  email: false
