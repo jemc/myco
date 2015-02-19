@@ -1,6 +1,6 @@
 
 module Myco
-  MYCO_VERSION = '0.1.0.dev'
+  MYCO_VERSION = '0.1.0'
   
   MYCO_REQUIRED_GEMS = [
     ['rubinius-toolset',   '~> 2.3'],
