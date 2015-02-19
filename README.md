@@ -4,10 +4,9 @@
 Myco < Ruby, QML, Ioke {
   primary author: "Joe Eli McIlvain"
   
-  latest gem version: 0.1.0
   development status: [:alpha, :experimental]
   
-  dependency "Rubinius VM": git(:master)
+  dependency "Rubinius VM"
   
   development dependency 'bundler':  1.6
   development dependency 'rake':    10.3
