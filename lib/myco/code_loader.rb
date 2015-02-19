@@ -233,7 +233,7 @@ module Myco
           filename = override
         else
           orig_filename = myco_filename
-          filename ||= orig_filename.concat(file_ext)
+          filename ||= orig_filename + file_ext
           
           if File.file?(myco_filename)
             ref_mtime = File.mtime(myco_filename)
