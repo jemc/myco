@@ -11,10 +11,10 @@ Gem::Specification.new do |s|
   s.authors       = ['Joe McIlvain']
   s.email         = 'joe.eli.mac@gmail.com'
   
-  s.files         = Dir['{lib}/**/*{.rb,.my}', 'bin/*', 'LICENSE', '*.md']
-  s.executables   = ['myco']
+  # Release files are managed by the `myco inoculate` command
+  s.files         = Dir['**/*']
+  s.executables   = Dir['bin/*'].map { |x| File.basename(x) }
   
-  s.require_path  = 'lib'
   s.homepage      = 'https://github.com/jemc/myco/'
   s.licenses      = 'Copyright 2013-2015 Joe McIlvain. All rights reserved.'
   
@@ -28,6 +28,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry',        '~>  0.9'
   s.add_development_dependency 'pry-rescue', '~>  1.4'
   s.add_development_dependency 'rspec',      '~>  3.0'
-  s.add_development_dependency 'rspec-its',  '~>  1.0'
   s.add_development_dependency 'fivemat',    '~>  1.3'
 end

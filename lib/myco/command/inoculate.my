@@ -14,10 +14,12 @@ BasicCommand {
     ?? destinations.each |dest| {
       config.dest = dest
       
-      run_operation(:copy, files(config.source, 'bin'))
-      run_operation(:copy, files(config.source, 'lib', '.rb'))
-      run_operation(:copy, files(config.source, 'lib', '.my'))
-      run_operation(:myrb, files(config.dest,   'lib', '.my'))
+      run_operation(:copy, files(config.source, '*.md'))
+      run_operation(:copy, files(config.source, 'LICENSE'))
+      run_operation(:copy, files(config.source, 'bin/*'))
+      run_operation(:copy, files(config.source, 'lib/**/*.rb'))
+      run_operation(:copy, files(config.source, 'lib/**/*.my'))
+      run_operation(:myrb, files(config.dest,   'lib/**/*.my'))
       
       if(config.verbose) {
         prog = Rubinius::Globals[:"$PROGRAM_NAME"]
@@ -43,10 +45,8 @@ BasicCommand {
   operation_is_unnecessary: |source, dest|
     File.file?(dest) && File.mtime(dest) >= File.mtime(source)
   
-  files: |prefix, subdir, ext=''| {
-    prefix && (subdir = File.join(prefix, subdir))
-    Dir.glob(File.join(subdir, "**", "*"ext""))
-  }
+  files: |prefix, glob|
+    Dir.glob(prefix &? File.join(prefix, glob) ?? glob)
   
   [operations]
   
