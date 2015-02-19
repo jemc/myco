@@ -42,7 +42,7 @@ module Myco
       use_path = resolve_file(path, load_paths)
       
       # TODO: This logic could be refactored to look cleaner
-      if use_path
+      if use_path && defined? Myco::ToolSet
         # Try to find an implementation with higher precedence than :myco
         # With a file that has been modified at least as recently as
         # the resolved file in use_path.
