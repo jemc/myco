@@ -196,7 +196,7 @@ CodeTools::AST << {
   }
   
   EvalExpression << { to_ruby: |g| g.add(self.body) }
-  DeclareFile << { to_ruby: |g| implementation.to_ruby(g) }
+  DeclareFile << { to_ruby: |g| g.line; implementation.to_ruby(g); g.line }
   
   DeclareObject << {
     to_ruby: |g| {
