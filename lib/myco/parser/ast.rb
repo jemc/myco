@@ -18,4 +18,4 @@ require_relative "ast/branch_operator"
 
 require_relative "ast/misc"
 
-require_relative "ast/to_ruby"
+Myco.eval_file 'ast/ToRuby.my'

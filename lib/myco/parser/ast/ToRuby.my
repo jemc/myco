@@ -1,0 +1,431 @@
+
+CodeTools::AST << {
+  
+  # A Ruby code generation visitor
+  ToRuby < ::Myco::Object {
+    var lines: []
+    
+    # The currently held string of generated ruby code
+    to_s: lines.join("\n")
+    
+    # Start a new line, optionally adding a string
+    # or an object that responds to :to_ruby
+    line: |string=""| {
+      string.is_a?(String) &? (
+        lines.push(indents.last + string)
+      ) ?? (
+        line
+        string.to_ruby(self)
+      )
+    }
+    
+    # Add to the current line a string
+    # or an object that responds to :to_ruby
+    add: |string| {
+      string.is_a?(String) &? (
+        (lines.last || (lines[0]="")).concat(string)
+      ) ?? (
+        string.to_ruby(self)
+      )
+    }
+    
+    # Stack of indent levels (as strings to be prefixed)
+    var indents: [""]
+    pop_indent: indents.pop
+    push_indent: |amount=2|
+      indents.push(indents.last + " "*2)
+    
+    # Stack of every AST node in hierarchy that can hold local variables
+    var var_scopes: []
+    var_scope: var_scopes.last
+    
+    with_nested_var_scope: |node, &block| {
+      var_scopes.push(node)
+      block.call
+      var_scopes.pop
+    }
+    
+    var_scope_declare_local: |name|
+      var_scope.variables[name] = true
+    
+    var_scope_declare_locals: |*names| {
+      names.each |name| { var_scope_declare_local(name) }
+    }
+    
+    var_scope_has_local?: |name| {
+      !!var_scopes.reverse.detect |scope| {
+        scope.variables.has_key?(name)
+      }
+    }
+    
+    # Helper methods
+    
+    # Return false if the given indent might be problematic in generated Ruby
+    # TODO: make comprehensive
+    easy_ident?: |sym| {
+      str = sym.to_s
+      (str =~ Regexp.new("^[a-z_][A-Za-z_]*$"))
+      && (![:if,:unless,:and,:or,:def,:do,:class,
+            :module,:end,:break,:begin,:rescue,:ensure].include?(sym))
+    }
+  }
+  
+  # Allow any Node to be visited with the to_ruby meme
+  Node << {
+    to_ruby_code: {
+      g = ToRuby.new
+      to_ruby(g)
+      g.to_s
+    }
+  }
+  
+  Self         << { to_ruby: |g| g.add("self") }
+  NullLiteral  << { to_ruby: |g| g.add("nil") }
+  VoidLiteral  << { to_ruby: |g| g.add("::Myco::Void") }
+  TrueLiteral  << { to_ruby: |g| g.add("true") }
+  FalseLiteral << { to_ruby: |g| g.add("false") }
+  
+  StringLiteral << { to_ruby: |g| g.add(self.string.inspect) }
+  SymbolLiteral << { to_ruby: |g| g.add(self.value.inspect) }
+  
+  DynamicString << {
+    to_ruby: |g| {
+      inspect_escape = Proc.new |str| { str.inspect.slice(::Range.new(1, -2)) }
+      
+      g.add('"')
+        g.add(inspect_escape.call(self.string))
+        self.array.each_slice(2) |interpolated, inner_string| {
+          g.add('#{'); g.add(interpolated.value); g.add('}')
+          g.add(inspect_escape.call(inner_string.value))
+        }
+      g.add('"')
+    }
+  }
+  
+  DynamicSymbol << {
+    to_ruby: |g| {
+      g.add(":")
+      # TODO: use super here
+      DynamicString.instance_method(:to_ruby).bind(self).call(g)
+    }
+  }
+  
+  HashLiteral << {
+    to_ruby: |g| {
+      list = self.array.each_slice(2).to_a
+      list.empty? &? (
+        g.add("{}")
+      ) ?? (
+        g.add("{")
+        list = list.dup
+        last = list.pop
+        g.push_indent
+          list.each |key, value| { g.line(key); g.add(" => "); g.add(value); g.add(",") }
+          last.tap  |key, value| { g.line(key); g.add(" => "); g.add(value) }
+        g.pop_indent
+        g.line("}")
+      )
+    }
+  }
+  
+  ArrayAssembly << {
+    to_ruby: |g| {
+      list = self.body
+      list.empty? &? (
+        g.add("[]")
+      ) ?? (
+        g.add("[")
+        list = list.dup
+        last = list.pop
+        g.push_indent
+          list.each |item| { g.line(item); g.add(",") }
+          last.tap  |item| { g.line(item) }
+        g.pop_indent
+        g.line("]")
+      )
+    }
+  }
+  
+  ScopedConstant << {
+    to_ruby: |g|
+      g.add(self.parent); g.add("::"self.name"")
+    
+    to_ruby_assign: |g, value|
+      to_ruby(g); g.add(" = "); g.add(value)
+  }
+  
+  ToplevelConstant << {
+    to_ruby: |g|
+      g.add("::"self.name"")
+    
+    to_ruby_assign: |g, value|
+      to_ruby(g); g.add(" = "); g.add(value)
+  }
+  
+  ConstantAccess << {
+    to_ruby: |g|
+      g.add("::Myco.find_constant("self.name.inspect")")
+    
+    to_ruby_assign: |g, value| {
+      g.add("::Myco.cscope.for_method_definition.const_set("self.name.inspect", ")
+      g.add(value); g.add(")")
+    }
+  }
+  
+  ConstantAssignment << {
+    to_ruby: |g| self.constant.to_ruby_assign(g, self.value)
+  }
+  
+  ConstantDefine << {
+    to_ruby: |g| {
+      g.add(implementation)
+      g.line(".tap { |__c__| __c__.__name__ = ")
+        g.add(self.name.name.inspect)
+      g.add(" }")
+    }
+  }
+  
+  ConstantReopen << {
+    to_ruby: |g| {
+      g.add(self.name); g.add(".component_eval {")
+      g.add(self.body); g.add("}")
+    }
+  }
+  
+  MycoModuleScope << {
+    to_ruby: |g|
+      g.with_nested_var_scope(self) { g.add(self.body) }
+  }
+  
+  EvalExpression << { to_ruby: |g| g.add(self.body) }
+  DeclareFile << { to_ruby: |g| implementation.to_ruby(g) }
+  
+  DeclareObject << {
+    to_ruby: |g| {
+      g.add("::Myco::Component.new("); g.add(self.types); g.add(", ::Myco.cscope.for_method_definition, __FILE__, __LINE__)")
+      g.line(".tap { |__c__| __c__.__last__ = __c__.component_eval {"); g.add(scope_implementation); g.add("}}")
+      self.create && g.add(".instance")
+    }
+  }
+  
+  DeclareString << { to_ruby: |g| g.add(implementation) }
+  
+  DeclareCategory << {
+    to_ruby: |g| {
+      g.add("__category__("self.name.value.inspect")")
+      g.add(".component_eval {"); g.add(self.body); g.add("}")
+    }
+  }
+  
+  DeclareMeme << {
+    to_ruby: |g| {
+      g.with_nested_var_scope(body_implementation) {
+        g.var_scope_declare_locals(*self.arguments.names)
+        
+        g.add("declare_meme(")
+        g.add(""self.name.inspect", ")
+        g.add(self.decorations); g.add(", nil, ::Myco.cscope.dup)")
+        g.add(" { ");
+          g.add(self.arguments); g.add(" ")
+          g.add(self.body);
+        g.add("}")
+      }
+    }
+  }
+  
+  DeclareDecorator << {
+    to_ruby: |g|
+      g.add("["self.name.value.inspect", "); g.add(self.arguments); g.add("]")
+  }
+  
+  Parameters << {
+    to_ruby: |g| {
+      list = []
+      list_add = Proc.new |&blk| { list.push(Proc.new(&blk)) }
+      
+      self.required.each |item| { list_add.call { g.add(item.to_s) } }
+      
+      self.defaults &? (
+        self.defaults.arguments.each |asgn| {
+          name = asgn.name
+          value = asgn.value
+          list_add.call {
+            g.add(""name"=")
+            (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
+          }
+        }
+      )
+      
+      (self.splat == :"*") &? (
+        list_add.call { g.add("*") }
+      ) ?? (self.splat &? ( # TODO: make prettier elsif alternative
+        list_add.call { g.add("*"self.splat"") }
+      ))
+      
+      self.keywords &? (
+        self.keywords.arguments.each |asgn| {
+          name = asgn.name
+          value = asgn.value
+          list_add.call {
+            g.add(""name":")
+            (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
+          }
+        }
+        
+        (self.keywords.kwrest == true) &? (
+          list_add.call { g.add("**") }
+        ) ?? self.keywords.kwrest &? (
+          list_add.call { g.add("**"self.keywords.kwrest.name"") }
+        )
+      )
+      
+      self.block_arg &? (
+        list_add.call { g.add("&"self.block_arg.name"") }
+      )
+      
+      list.empty? &? (
+        g.add("||")
+      ) ?? (
+        list = list.dup
+        last = list.pop
+        g.add("|")
+        g.push_indent
+          list.each |proc| { proc.call; g.add(", ") }
+          last.tap  |proc| { proc.call }
+        g.pop_indent
+        g.add("|")
+      )
+    }
+  }
+  
+  Block << {
+    to_ruby: |g| {
+      self.array.empty? &? (
+        g.add("()")
+      ) ?? (
+        g.add("(")
+        g.push_indent
+          self.array.each |item| { g.line(item) }
+        g.pop_indent
+        g.line(")")
+      )
+    }
+  }
+  
+  Invoke << { to_ruby: |g| g.add(implementation) }
+  
+  InvokeMethod << {
+    to_ruby: |g| {
+      list = self.arguments &? self.arguments.body.dup ?? []
+      self.arguments.block.is_a?(BlockPass) &&
+        list.push(self.arguments.block)
+      
+      g.add(self.receiver)
+      
+      g.easy_ident?(self.name) &? (
+        g.add("."self.name"")
+      ) ?? (
+        g.add(".__send__")
+        list.unshift(SymbolLiteral.new(self.line, self.name))
+      )
+      
+      list.empty? &? (
+        g.add("")
+      ) ?? ((list.size == 1) &? ( # TODO: make prettier elsif alternative
+        g.add("("); g.add(list.first); g.add(")")
+      ) ?? (
+        g.add("(")
+        list = list.dup
+        last = list.pop
+        g.push_indent
+          list.each |item| { g.line(item); g.add(",") }
+          last.tap  |item| { g.line(item) }
+        g.pop_indent
+        g.line(")")
+      ))
+      
+      self.arguments.block.is_a?(Iter) && (
+        g.add(" {"); g.add(self.arguments.block); g.add("}")
+      )
+    }
+  }
+  
+  LocalVariableAssignment << {
+    to_ruby: |g| {
+      g.var_scope_declare_local(self.name)
+      g.var_scope.variables[self.name] = true
+      g.add(self.name.to_s); g.add(" = "); g.add(self.value)
+    }
+  }
+  
+  LocalVariableAccessAmbiguous << {
+    to_ruby: |g| {
+      g.var_scope_has_local?(self.name) &? (
+        g.add(self.name.to_s)
+      ) ?? (
+        g.add("self")
+        
+        g.easy_ident?(self.name) &? (
+          g.add("."self.name"")
+        ) ?? (
+          g.add(".__send__("self.name.inspect")")
+        )
+      )
+    }
+  }
+  
+  SplatValue << {
+    to_ruby: |g| {
+      self.value.is_a?(self.class) &? (
+        self.value.to_ruby(g)
+      ) ?? (
+        g.add("*")
+        self.value.to_ruby(g)
+      )
+    }
+  }
+  CollectSplat << { to_ruby: |g| { } } # TODO
+  ConcatArgs   << { to_ruby: |g| { } } # TODO
+  PushArgs     << { to_ruby: |g| { } } # TODO
+  
+  BlockPass << {
+    to_ruby: |g| g.add("&"); g.add(self.body)
+  }
+  
+  Iter << {
+    to_ruby: |g| {
+      g.with_nested_var_scope(self) {
+        g.var_scope_declare_locals(*self.arguments.names)
+        
+        g.add(" "); g.add(self.arguments); g.add(" "); g.add(self.body)
+      }
+    }
+  }
+  
+  Quest << {
+    to_ruby: |g| {
+      associated_questable = self.questable.dup
+      associated_questable.receiver = self.receiver
+      
+      g.add("(")
+        g.add(self.receiver)
+          g.add(".respond_to?("self.questable.name.inspect").false?")
+        g.add(" ? ::Myco::Void : ")
+        g.add(associated_questable)
+      g.add(")")
+    }
+  }
+  
+  BranchOperator << {
+    to_ruby: |g| {
+      g.add('::Myco.branch_op(')
+        g.add(self.type.inspect); g.add(', ')
+        g.add(self.left); g.add(') {')
+        g.add(self.right); g.add('}')
+    }
+  }
+  
+  Return << {
+    to_ruby: |g| g.add("return "); g.add(self.value)
+  }
+}
