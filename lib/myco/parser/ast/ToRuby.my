@@ -3,37 +3,56 @@ CodeTools::AST << {
   
   # A Ruby code generation visitor
   ToRuby < ::Myco::Object {
-    var lines: []
+    var lines: [""]
     
     # The currently held string of generated ruby code
     to_s: lines.join("\n")
     
-    # Start a new line, optionally adding a string
-    # or an object that responds to :to_ruby
-    line: |string=""| {
-      string.is_a?(String) &? (
-        lines.push(indents.last + string)
-      ) ?? (
-        line
-        string.to_ruby(self)
-      )
+    # Add to the current line the given list of Strings
+    # and/or objects that respond to :to_ruby
+    add: |*strings| strings.each |string| {
+      string.is_a?(String)
+        &? lines.last.concat(string.dup)
+        ?? string.to_ruby(self)
     }
     
-    # Add to the current line a string
-    # or an object that responds to :to_ruby
-    add: |string| {
-      string.is_a?(String) &? (
-        (lines.last || (lines[0]="")).concat(string)
-      ) ?? (
-        string.to_ruby(self)
+    # Start a new line, optionally adding a list of Strings
+    # and/or objects that respond to :to_ruby
+    line: |*strings|
+      lines.push(indents.last.dup); add(*strings)
+    
+    # Add the given items to the current line,
+    # using the given separator between items.
+    # If a block is given, it is called on
+    # each iteration with the item instead.
+    # Returns true if any items were written, else false.
+    list: |items, separator="", auto_lines:false, &block| {
+      items.any? && (
+        items = items.dup
+        last_item = items.pop
+        
+        use_lines = items.any? && auto_lines
+        use_lines && self.push_indent
+        
+        items.each |item| {
+          use_lines && self.line
+          block &? block.call(item) ?? add(item)
+          add(separator)
+        }
+        use_lines && self.line
+        block &? block.call(last_item) ?? add(last_item)
+        
+        use_lines && self.pop_indent
+        use_lines && self.line
       )
     }
     
     # Stack of indent levels (as strings to be prefixed)
     var indents: [""]
+    var indent_amount: 2
     pop_indent: indents.pop
-    push_indent: |amount=2|
-      indents.push(indents.last + " "*2)
+    push_indent: |amount=indent_amount|
+      indents.push(indents.last + " " * amount)
     
     # Stack of every AST node in hierarchy that can hold local variables
     var var_scopes: []
@@ -112,38 +131,17 @@ CodeTools::AST << {
   
   HashLiteral << {
     to_ruby: |g| {
-      list = self.array.each_slice(2).to_a
-      list.empty? &? (
-        g.add("{}")
-      ) ?? (
-        g.add("{")
-        list = list.dup
-        last = list.pop
-        g.push_indent
-          list.each |key, value| { g.line(key); g.add(" => "); g.add(value); g.add(",") }
-          last.tap  |key, value| { g.line(key); g.add(" => "); g.add(value) }
-        g.pop_indent
-        g.line("}")
-      )
+      g.add("{")
+      g.list(self.array.each_slice(2).to_a, ",", auto_lines:true) |pair| {
+        g.add(pair.first, " => ", pair.last)
+      }
+      g.add("}")
     }
   }
   
   ArrayAssembly << {
-    to_ruby: |g| {
-      list = self.body
-      list.empty? &? (
-        g.add("[]")
-      ) ?? (
-        g.add("[")
-        list = list.dup
-        last = list.pop
-        g.push_indent
-          list.each |item| { g.line(item); g.add(",") }
-          last.tap  |item| { g.line(item) }
-        g.pop_indent
-        g.line("]")
-      )
-    }
+    to_ruby: |g|
+      g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
   }
   
   ScopedConstant << {
@@ -283,33 +281,13 @@ CodeTools::AST << {
         list_add.call { g.add("&"self.block_arg.name"") }
       )
       
-      list.empty? &? (
-        g.add("||")
-      ) ?? (
-        list = list.dup
-        last = list.pop
-        g.add("|")
-        g.push_indent
-          list.each |proc| { proc.call; g.add(", ") }
-          last.tap  |proc| { proc.call }
-        g.pop_indent
-        g.add("|")
-      )
+      g.add("|"); g.list(list, ", ") |proc| { proc.call }; g.add("|")
     }
   }
   
   Block << {
-    to_ruby: |g| {
-      self.array.empty? &? (
-        g.add("()")
-      ) ?? (
-        g.add("(")
-        g.push_indent
-          self.array.each |item| { g.line(item) }
-        g.pop_indent
-        g.line(")")
-      )
-    }
+    to_ruby: |g|
+      g.add("("); g.list(self.array, "", auto_lines:true); g.add(")")
   }
   
   Invoke << { to_ruby: |g| g.add(implementation) }
@@ -329,20 +307,11 @@ CodeTools::AST << {
         list.unshift(SymbolLiteral.new(self.line, self.name))
       )
       
-      list.empty? &? (
-        g.add("")
-      ) ?? ((list.size == 1) &? ( # TODO: make prettier elsif alternative
-        g.add("("); g.add(list.first); g.add(")")
-      ) ?? (
+      list.any? && (
         g.add("(")
-        list = list.dup
-        last = list.pop
-        g.push_indent
-          list.each |item| { g.line(item); g.add(",") }
-          last.tap  |item| { g.line(item) }
-        g.pop_indent
-        g.line(")")
-      ))
+          g.list(list, ",", auto_lines:true)
+        g.add(")")
+      )
       
       self.arguments.block.is_a?(Iter) && (
         g.add(" {"); g.add(self.arguments.block); g.add("}")
