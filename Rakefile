@@ -25,7 +25,7 @@ end
 task :release do
   puts("releasing...")
   system("rm -rf release") &&
-  system("bin/myco inoculate --verbose release") &&
+  system("myco inoculate --verbose release") &&
   system("cd release && gem build ../myco.gemspec") &&
   system("cd release && gem install --no-rdoc --no-ri myco-*.gem") &&
   system("cd release && gem push myco-*.gem") &&
