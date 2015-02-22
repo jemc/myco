@@ -1,0 +1,15 @@
+
+CodeTools::AST << {
+  # Monkey patch original to use ::Myco to look up constants
+  ConstantAccess << {
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_cpath_top
+      g.find_const(:"Myco")
+        g.push_literal(self.name)
+        g.push_scope
+      g.send(:find_constant, 2)
+    }
+  }
+}

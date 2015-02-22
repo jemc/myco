@@ -1,5 +1,5 @@
 
-require_relative "ast/constant_access"
+Myco.eval_file 'ast/ConstantAccess.my'
 require_relative "ast/constant_define"
 require_relative "ast/constant_reopen"
 require_relative "ast/declare_category"
