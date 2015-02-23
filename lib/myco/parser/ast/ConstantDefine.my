@@ -1,0 +1,36 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    cdefn: |loc, name, object| {
+      object.create = false
+      ConstantDefine.new(
+        line: loc.line,
+        name: name,
+        object: object
+      )
+    }
+  }
+  
+  ConstantDefine < Node, BasicObject {
+    var name
+    var object
+    
+    to_sexp: [:cdefn, self.name.name, self.object.to_sexp]
+    
+    implementation:
+      ConstantAssignment.new(self.line, self.name, self.object)
+    
+    bytecode: |g| {
+      pos(g)
+      
+      implementation.bytecode(g)
+      
+      g.dup_top
+        g.push_literal(self.name.name)
+      g.send(:"__name__=", 1)
+      g.pop
+    }
+  }
+  
+}

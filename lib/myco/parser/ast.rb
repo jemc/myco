@@ -1,6 +1,10 @@
 
+module CodeTools::AST
+  module BuilderMethods; end
+end
+
 Myco.eval_file 'ast/ConstantAccess.my'
-require_relative "ast/constant_define"
+Myco.eval_file 'ast/ConstantDefine.my'
 require_relative "ast/constant_reopen"
 require_relative "ast/declare_category"
 require_relative "ast/declare_decorator"
