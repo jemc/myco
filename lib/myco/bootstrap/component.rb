@@ -18,7 +18,7 @@ module Myco
       elsif @__name__
         @__name__.to_s
       else
-        "#{@super_components.map(&:to_s).join(',')}" \
+        "#{(@super_components || []).map(&:to_s).join(',')}" \
           "(#{@basename}:#{@line.to_s} 0x#{object_id.to_s 16})"
       end
     end
