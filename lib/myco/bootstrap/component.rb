@@ -64,13 +64,12 @@ module Myco
       all_categories = Hash.new { |h,k| h[k] = Array.new }
       
       super_components.each do |other|
-        raise TypeError, "Got non-Component in supers for new Component: "\
-          "#{super_components.inspect}" \
-              unless other.is_a? Component
-        
         this.include other
-        other.categories.each do |name, cat|
-          all_categories[name] << cat
+        
+        if other.is_a? Component
+          other.categories.each do |name, cat|
+            all_categories[name] << cat
+          end
         end
       end
       
