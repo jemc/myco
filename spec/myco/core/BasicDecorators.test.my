@@ -85,4 +85,28 @@ BasicSpec {
     assert_equal(collected, [88, 0])
   }
   
+  "setter decorator declares a setter that pre-processes the given value": {
+    collected_self = []
+    subject = BasicDecorators {
+      var foo
+      setter foo: |x| collected_self.push(self); x + 1
+    }
+    
+    assert_equal((subject.foo = 87), 88)
+    assert_equal(subject.foo, 88)
+    assert_equal(collected_self, [subject])
+  }
+  
+  "getter decorator declares a getter that post-processes the return value": {
+    collected_self = []
+    subject = BasicDecorators {
+      var foo
+      getter foo: |x| collected_self.push(self); x + 1
+    }
+    
+    assert_equal((subject.foo = 87), 87)
+    assert_equal(subject.foo, 88)
+    assert_equal(collected_self, [subject])
+  }
+  
 }

@@ -47,6 +47,8 @@ module Myco
     attr_accessor :cache
     attr_accessor :var
     attr_accessor :expose
+    attr_accessor :setter
+    attr_accessor :getter
     
     attr_reader :metadata
     
@@ -131,6 +133,12 @@ module Myco
       
       if @var
         bind_var_getter
+        bind_var_setter
+        @effective_body = @target.instance_method(@name).executable
+      elsif @getter
+        bind_var_getter
+        @effective_body = @target.instance_method(@name).executable
+      elsif @setter
         bind_var_setter
         @effective_body = @target.instance_method(@name).executable
       elsif @cache
@@ -283,11 +291,24 @@ module Myco
         g.push_ivar(@name)
         
         ret.set!
+        
+        # If this meme has a getter defined, use it
+        if self.getter
+          g.push_self
+          g.push_local(1) # meme
+          g.send(:getter, 0)
+          g.rotate(3)
+          g.send(:call_on_object, 2)
+        end
+        
         g.ret
       end
     end
     
     def bind_var_setter
+      # TODO: move this bytecode generation to a helper method 
+      meme = self
+      
       # TODO: move this bytecode generation to a helper method 
       target.dynamic_method :"#{@name}=", '(myco_internal)' do |g|
         g.total_args = 1
@@ -298,6 +319,16 @@ module Myco
         g.pop
         
         g.push_local 0 # value
+        
+        # If this meme has a setter defined, use it
+        if meme.setter
+          g.push_self
+          g.push_literal(meme)
+          g.send(:setter, 0)
+          g.rotate(3)
+          g.send(:call_on_object, 2)
+        end
+        
         g.set_ivar @name
         
         g.ret

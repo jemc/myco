@@ -86,4 +86,24 @@
     }
   }
   
+  # The 'setter' decorator defines a setter that pre-processes the given value
+  setter: Decorator {
+    apply: |meme| {
+      wrap_meme = meme.dup
+      meme.setter = Proc.new |orig_value| {
+        wrap_meme.result_for(self,orig_value)
+      }
+    }
+  }
+  
+  # The 'getter' decorator defines a getter that post-processes the return value
+  getter: Decorator {
+    apply: |meme| {
+      wrap_meme = meme.dup
+      meme.getter = Proc.new |orig_value| {
+        wrap_meme.result_for(self,orig_value)
+      }
+    }
+  }
+  
 }
