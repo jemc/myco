@@ -59,4 +59,31 @@
       }
     }
   }
+  
+  # The 'pre' decorator defines a wrapper that pre-processes arguments
+  pre: Decorator {
+    apply: |meme| {
+      orig_meme = meme.target.memes[meme.name]
+      wrap_meme = meme.dup
+      meme.body = Proc.new |*a,&b| {
+        new_a = \
+        wrap_meme.result_for(self,*a)
+        orig_meme.result_for(self,*new_a,&b)
+      }
+    }
+  }
+  
+  # The 'post' decorator defines a wrapper that post-processes return value
+  post: Decorator {
+    apply: |meme| {
+      orig_meme = meme.target.memes[meme.name]
+      wrap_meme = meme.dup
+      meme.body = Proc.new |*a,&b| {
+        result = \
+        orig_meme.result_for(self,*a,&b)
+        wrap_meme.result_for(self,result)
+      }
+    }
+  }
+  
 }

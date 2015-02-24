@@ -62,4 +62,27 @@ BasicSpec {
     assert_equal(subject.foo, 88)
     assert_equal(collected, [88, 99])
   }
+  
+  "pre decorator declares a wrapper that pre-processes arguments": {
+    collected = []
+    subject = BasicDecorators {
+      foo:     |x| collected.push(x); x % 8
+      pre foo: |x| collected.push(x); [x + 1]
+    }
+    
+    assert_equal(subject.foo(87), 0)
+    assert_equal(collected, [87, 88])
+  }
+  
+  "post decorator declares a wrapper that post-processes return value": {
+    collected = []
+    subject = BasicDecorators {
+      foo:      |x| collected.push(x); x % 8
+      post foo: |x| collected.push(x); x + 1
+    }
+    
+    assert_equal(subject.foo(88), 1)
+    assert_equal(collected, [88, 0])
+  }
+  
 }
