@@ -22,8 +22,8 @@ Myco.eval_file 'ast/InvokeMethod.my'
 Myco.eval_file 'ast/ArrayAssembly.my'
 Myco.eval_file 'ast/ArgumentAssembly.my'
 
-require_relative "ast/quest"
-require_relative "ast/branch_operator"
+Myco.eval_file 'ast/Quest.my'
+Myco.eval_file 'ast/BranchOperator.my'
 
 require_relative "ast/misc"
 
