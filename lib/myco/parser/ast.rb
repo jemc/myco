@@ -7,6 +7,7 @@ Myco.eval_file 'ast/StringLiteral.my'
 Myco.eval_file 'ast/SymbolLiteral.my'
 
 Myco.eval_file 'ast/ArrayAssembly.my'
+Myco.eval_file 'ast/KeywordAssembly.my'
 Myco.eval_file 'ast/ArgumentAssembly.my'
 
 Myco.eval_file 'ast/MycoModuleScope.my'

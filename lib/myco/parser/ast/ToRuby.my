@@ -129,19 +129,19 @@ CodeTools::AST << {
     }
   }
   
-  HashLiteral << {
+  ArrayAssembly << {
+    to_ruby: |g|
+      g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
+  }
+  
+  KeywordAssembly << {
     to_ruby: |g| {
       g.add("{")
-      g.list(self.array.each_slice(2).to_a, ",", auto_lines:true) |pair| {
+      g.list(self.body.each_slice(2).to_a, ",", auto_lines:true) |pair| {
         g.add(pair.first, " => ", pair.last)
       }
       g.add("}")
     }
-  }
-  
-  ArrayAssembly << {
-    to_ruby: |g|
-      g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
   }
   
   ConstantAccessScoped << {

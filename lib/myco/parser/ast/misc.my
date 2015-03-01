@@ -25,9 +25,6 @@ CodeTools::AST << {
     dstr: |loc, str, array|
       DynamicString.new(loc.line, str, array)
     
-    hash: |loc, array|
-      HashLiteral.new(loc.line, array)
-    
     cdecl: |loc, expr, value|
       ConstantAssignment.new(loc.line, expr, value)
   }
