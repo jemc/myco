@@ -1,0 +1,43 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    category: |loc, name, body| DeclareCategory.new(
+      line: loc.line
+      name: name
+      body: body
+    )
+  }
+  
+  DeclareCategoryScope < MycoModuleScope {
+    body_bytecode: |g| {
+      g.push_scope
+      g.send(:set_myco_category, 0)
+      g.pop
+      
+      self.body.bytecode(g)
+    }
+  }
+  
+  DeclareCategory < Node, BasicObject {
+    var name, var body
+    
+    to_sexp: [:category, self.name.value, self.body.to_sexp]
+    
+    scope_implementation: DeclareCategoryScope.new(
+      line: self.line
+      body: self.body
+    )
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_self
+        g.push_literal(self.name.value)
+      g.send(:__category__, 1)
+      
+      scope_implementation.bytecode(g)
+    }
+  }
+  
+}

@@ -1,0 +1,66 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    declobj: |loc, types, body| DeclareObject.new(
+      line:  loc.line
+      types: types
+      body:  body
+    )
+  }
+  
+  DeclareObjectScope < MycoModuleScope {
+    body_bytecode: |g| {
+      g.push_scope
+      g.send(:set_myco_component, 0)
+      g.pop
+      
+      self.body.bytecode(g)
+    }
+  }
+  
+  DeclareObject < Node, BasicObject {
+    var types, var body
+    
+    var create: true
+    var scope_type: DeclareObjectScope
+    
+    to_sexp: [:declobj, self.types.to_sexp, self.body.to_sexp]
+    
+    var scope_implementation: self.scope_type.new(
+      line: self.line
+      body: self.body
+    )
+    
+    bytecode: |g| {
+      pos(g)
+      
+      # ::Myco::Component.new types, parent, filename
+      g.push_cpath_top
+      g.find_const(:"Myco")
+      g.find_const(:"Component")
+        self.types.bytecode(g)
+        g.push_scope; g.send(:for_method_definition, 0)
+        g.push_scope; g.send(:active_path, 0); g.meta_to_s
+        g.push_int(self.line)
+      g.send(:new, 4)
+      
+      # The return value of Component.new at the top of the stack
+      # will be consumed by self.scope.bytecode, so save two copies of it.
+      g.dup_top # One for sending :__last__= to
+      g.dup_top # One for sending :instance to (or returning, if !self.create)
+      
+      # Compile the inner scope,
+      # leaving the last object in the scope at the top of the stack.
+      scope_implementation.bytecode(g)
+      
+      # component.__last__ = (value left on stack from self.scope.bytecode)
+      g.send(:"__last__=", 1)
+      g.pop
+      
+      # return (self.create ? component.instance : component)
+      self.create && g.send(:instance, 0)
+    }
+  }
+  
+}

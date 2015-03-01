@@ -3,15 +3,17 @@ module CodeTools::AST
   module BuilderMethods; end
 end
 
+Myco.eval_file 'ast/MycoModuleScope.my'
+
 Myco.eval_file 'ast/ConstantAccess.my'
 Myco.eval_file 'ast/ConstantDefine.my'
-require_relative "ast/constant_reopen"
-require_relative "ast/declare_category"
-require_relative "ast/declare_decorator"
-require_relative "ast/declare_file"
-require_relative "ast/declare_meme"
-require_relative "ast/declare_object"
-require_relative "ast/declare_string"
+Myco.eval_file 'ast/ConstantReopen.my'
+Myco.eval_file 'ast/DeclareCategory.my'
+Myco.eval_file 'ast/DeclareDecorator.my'
+Myco.eval_file 'ast/DeclareFile.my'
+Myco.eval_file 'ast/DeclareMeme.my'
+Myco.eval_file 'ast/DeclareObject.my'
+Myco.eval_file 'ast/DeclareString.my'
 require_relative "ast/invoke"
 require_relative "ast/local_variable_access_ambiguous"
 require_relative "ast/invoke_method"

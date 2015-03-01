@@ -1,0 +1,46 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    declfile: |loc, body| DeclareFile.new(
+      line: loc.line
+      body: body
+    )
+  }
+  
+  DeclareFileScope < MycoModuleScope {
+    body_bytecode: |g| {
+      g.push_scope
+      g.send(:set_myco_file, 0)
+      g.pop
+      
+      self.body.bytecode(g)
+    }
+  }
+  
+  DeclareFile < Node, BasicObject {
+    var body
+    
+    # Use minimal inspect to avoid huge inspect output for inner AST nodes
+    # that store a reference to a DeclareFile in an instance variable. 
+    inspect: to_s
+    
+    to_sexp: [:declfile, self.body.to_sexp]
+    
+    implementation: {
+      myco = ToplevelConstant.new(self.line, :"Myco")
+      type = ScopedConstant.new(self.line, myco, :"FileToplevel")
+      types = ArrayAssembly.new(self.line, [type])
+      decl = DeclareObject.new(line:self.line, types:types, body:self.body)
+      decl.scope_type = DeclareFileScope
+      decl
+    }
+    
+    bytecode: |g| {
+      pos(g)
+      
+      implementation.bytecode(g)
+    }
+  }
+  
+}

@@ -1,0 +1,31 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    declstr: |loc, types, string| DeclareString.new(
+      line:   loc.line
+      types:  types
+      string: string
+    )
+  }
+  
+  DeclareString < Node, BasicObject {
+    var types, var string
+    
+    to_sexp: [:declstr, self.types.to_sexp, self.string.to_sexp]
+    
+    implementation: {
+      blk   = NilLiteral.new(self.line)
+      obj   = DeclareObject.new(line:self.line, types:self.types, body:blk)
+      args  = ArgumentAssembly.new(self.string.line, [self.string])
+      InvokeMethod.new(self.string.line, obj, :from_string, args)
+    }
+    
+    bytecode: |g| {
+      pos(g)
+      
+      implementation.bytecode(g)
+    }
+  }
+  
+}
