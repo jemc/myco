@@ -1,0 +1,47 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    invoke: |loc, receiver, name, arguments, block_params=null, block=null| {
+      node = Invoke.new(
+        line:      loc.line
+        receiver:  receiver
+        name:      name
+        arguments: arguments
+      )
+      # TODO: be more clever with this mechanism
+      # TODO: error if passing both block argument and block literal
+      # Currently, this fails silently and ignores the block argument
+      block && (
+        node.arguments = node.arguments || ArgumentAssembly.new(loc.line, [])
+        node.arguments.block = Iter.new(loc.line, block_params, block)
+      )
+      node
+    }
+  }
+  
+  Invoke < Node, BasicObject {
+    var receiver, var name, var arguments
+    
+    bytecode: |g| pos(g); implementation.bytecode(g)
+    
+    to_sexp: implementation.to_sexp
+    
+    implementation: {
+      self.receiver.nil? && self.arguments.nil? &? (
+        LocalVariableAccessAmbiguous.new(
+          line: self.line
+          name: self.name
+        )
+      ) ?? (
+        InvokeMethod.new(
+          line:      self.line
+          receiver:  self.receiver || Self.new(self.line)
+          name:      self.name
+          arguments: self.arguments || ArgumentAssembly.new(self.line, [])
+        )
+      )
+    }
+  }
+  
+}

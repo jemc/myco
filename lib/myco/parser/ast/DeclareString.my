@@ -14,12 +14,16 @@ CodeTools::AST << {
     
     to_sexp: [:declstr, self.types.to_sexp, self.string.to_sexp]
     
-    implementation: {
-      blk   = NilLiteral.new(self.line)
-      obj   = DeclareObject.new(line:self.line, types:self.types, body:blk)
-      args  = ArgumentAssembly.new(self.string.line, [self.string])
-      InvokeMethod.new(self.string.line, obj, :from_string, args)
-    }
+    implementation: InvokeMethod.new(
+      line:      self.string.line
+      name:      :from_string
+      arguments: ArgumentAssembly.new(self.string.line, [self.string])
+      receiver:  DeclareObject.new(
+        line:      self.line
+        types:     self.types
+        body:      NilLiteral.new(self.line)
+      )
+    )
     
     bytecode: |g| {
       pos(g)

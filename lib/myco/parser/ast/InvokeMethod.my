@@ -1,0 +1,19 @@
+
+CodeTools::AST << {
+  
+  InvokeMethod < Node, BasicObject {
+    var receiver, var name, var arguments
+    
+    to_sexp: [:call, self.receiver.to_sexp, self.name, self.arguments.to_sexp]
+    
+    bytecode: |g| {
+      self.receiver.bytecode(g)
+      self.arguments.bytecode(g)
+      
+      pos(g)
+      
+      g.__send__(self.arguments.send_op, self.name, self.arguments.send_count)
+    }
+  }
+  
+}

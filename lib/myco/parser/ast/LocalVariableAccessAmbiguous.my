@@ -1,0 +1,30 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    lambig: |loc, name| LocalVariableAccessAmbiguous.new(
+      line: loc.line
+      name: name
+    )
+  }
+  
+  LocalVariableAccessAmbiguous < Node, BasicObject {
+    var name
+    
+    to_sexp: [:lambig, self.name]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      local = g.state.scope.search_local(self.name)
+      local &? (
+        local.get_bytecode(g)
+      ) ?? (
+        rcvr = Self.new(self.line)
+        send = Send.new(self.line, rcvr, self.name, true, true)
+        send.bytecode(g)
+      )
+    }
+  }
+  
+}

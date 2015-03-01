@@ -14,9 +14,11 @@ Myco.eval_file 'ast/DeclareFile.my'
 Myco.eval_file 'ast/DeclareMeme.my'
 Myco.eval_file 'ast/DeclareObject.my'
 Myco.eval_file 'ast/DeclareString.my'
-require_relative "ast/invoke"
-require_relative "ast/local_variable_access_ambiguous"
-require_relative "ast/invoke_method"
+
+Myco.eval_file 'ast/Invoke.my'
+Myco.eval_file 'ast/LocalVariableAccessAmbiguous.my'
+Myco.eval_file 'ast/InvokeMethod.my'
+
 require_relative "ast/array_assembly"
 require_relative "ast/argument_assembly"
 require_relative "ast/quest"
