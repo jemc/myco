@@ -1,0 +1,29 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    lasgn: |loc, name, value| LocalVariableAssignment.new(
+      line:  loc.line
+      name:  name
+      value: value
+    )
+  }
+  
+  LocalVariableAssignment < LocalVariable, Node, BasicObject {
+    var name, var value, var variable
+    
+    to_sexp: [:lasgn, self.name, self.value]
+    
+    bytecode: |g| {
+      self.variable # TODO: determine if this can be removed
+      || g.state.scope.assign_local_reference(self)
+      
+      self.value
+      && self.value.bytecode(g)
+      
+      pos(g)
+      
+      self.variable.set_bytecode(g)
+    }
+  }
+}

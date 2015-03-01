@@ -24,8 +24,9 @@ Myco.eval_file 'ast/DeclareObject.my'
 Myco.eval_file 'ast/DeclareString.my'
 
 Myco.eval_file 'ast/Invoke.my'
-Myco.eval_file 'ast/LocalVariableAccessAmbiguous.my'
 Myco.eval_file 'ast/InvokeMethod.my'
+Myco.eval_file 'ast/LocalVariableAccessAmbiguous.my'
+Myco.eval_file 'ast/LocalVariableAssignment.my'
 
 Myco.eval_file 'ast/Quest.my'
 Myco.eval_file 'ast/BranchOperator.my'
