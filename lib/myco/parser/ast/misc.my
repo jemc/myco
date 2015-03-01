@@ -1,0 +1,127 @@
+
+CodeTools::AST << {
+  
+  # These builder methods are copied directly from rubinius-processor
+  # TODO: remove and all dep}encies on rubinius-processor and rubinius-ast
+  BuilderMethods << {
+    colon2: |loc, outer, name| {
+      outer &? (
+        (outer.kind_of?(ConstantAccess) && outer.name == :"Rubinius") &? (
+          name == :"Type" &? (
+            TypeConstant.new(loc.line)
+          ) ?? (
+            name == :"Mirror" &? (
+              MirrorConstant.new(loc.line)
+            ) ?? (
+              ScopedConstant.new(loc.line, outer, name)
+            )
+          )
+        ) ?? (
+          ScopedConstant.new(loc.line, outer, name)
+        )
+      ) ?? (
+        ConstantAccess.new(loc.line, name)
+      )
+    }
+    
+    colon3: |loc, name|
+      ToplevelConstant.new(loc.line, name)
+    
+    const: |loc, name|
+      ConstantAccess.new(loc.line, name)
+    
+    lit: |loc, sym|
+      SymbolLiteral.new(loc.line, sym)
+    
+    args: |loc, required, optional, splat, post, kwargs, kwrest, block|
+      Parameters.new(loc.line, required, optional, splat, post, kwargs, kwrest, block)
+    
+    self: |loc|
+      Self.new(loc.line)
+    
+    block: |loc, array|
+      Block.new(loc.line, array)
+    
+    str: |loc, str|
+      StringLiteral.new(loc.line, str)
+    
+    splat: |loc, expr|
+      SplatValue.new(loc.line, expr)
+    
+    block_pass: |loc, arguments, body|
+      BlockPass19.new(loc.line, arguments, body)
+    
+    evstr: |loc, value| {
+      value &? (
+        ToString.new(loc.line, value)
+      ) ?? (
+        StringLiteral.new(loc.line, "")
+      )
+    }
+    
+    dsym: |loc, str, array|
+      DynamicSymbol.new(loc.line, str, array)
+
+    dstr: |loc, str, array|
+      DynamicString.new(loc.line, str, array)
+    
+    true: |loc|
+      TrueLiteral.new(loc.line)
+
+    false: |loc|
+      FalseLiteral.new(loc.line)
+
+    return: |loc, value|
+      Return.new(loc.line, value)
+    
+    lasgn: |loc, name, value|
+      LocalVariableAssignment.new(loc.line, name, value)
+    
+    hash: |loc, array|
+      HashLiteral.new(loc.line, array)
+    
+    cdecl: |loc, expr, value|
+      ConstantAssignment.new(loc.line, expr, value)
+    
+    op_cdecl: |loc, var, value, op| {
+      op_value = null
+      (op == :and) && (op_value = And.new(loc.line, var, value))
+      (op == :or)  && (op_value = Or.new(loc.line, var, value))
+      op_value     || (op_value = SendWithArguments.new(loc.line, var, op,
+        ArrayLiteral.new(loc.line, [value])))
+      
+      ConstantAssignment.new(loc.line, var, op_value)
+    }
+  }
+  
+  # These builder methods process the null and void literals
+  BuilderMethods << {
+    null: |loc| NullLiteral.new(
+      line: loc.line
+    )
+    
+    void: |loc| VoidLiteral.new(
+      line: loc.line
+    )
+  }
+  
+  # TODO: don't depend on NilLiteral implementation
+  NullLiteral < NilLiteral, BasicObject {
+    to_sexp: [:null]
+  }
+  
+  # Replace NilLiteral with NullLiteral and let original NilLiteral "disappear"
+  NilLiteral: NullLiteral
+  
+  # Helper methods for bytecode generation
+  ::CodeTools::Generator << {
+    push_myco: push_cpath_top; find_const(:"Myco")
+    push_void: push_myco;      find_const(:"Void")
+  }
+  
+  VoidLiteral < Node {
+    to_sexp: [:void]
+    bytecode: |g| pos(g); g.push_void
+  }
+  
+}

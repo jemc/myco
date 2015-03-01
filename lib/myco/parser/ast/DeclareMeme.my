@@ -59,7 +59,7 @@ CodeTools::AST << {
     setter arguments: |x|
       x || Parameters.new(line, [], null, true, null, null, null, null)
     setter body: |x|
-      x || NilLiteral.new(line)
+      x || NullLiteral.new(line:line)
     
     to_sexp: [:meme
       self.name

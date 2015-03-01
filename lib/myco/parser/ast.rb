@@ -25,6 +25,7 @@ Myco.eval_file 'ast/ArgumentAssembly.my'
 Myco.eval_file 'ast/Quest.my'
 Myco.eval_file 'ast/BranchOperator.my'
 
-require_relative "ast/misc"
+# TODO: refactor and break out misc
+Myco.eval_file "ast/misc.my"
 
 Myco.eval_file 'ast/ToRuby.my'

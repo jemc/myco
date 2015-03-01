@@ -24,7 +24,7 @@ CodeTools::AST << {
       receiver:  DeclareObject.new(
         line:      self.line
         types:     self.types
-        body:      NilLiteral.new(self.line)
+        body:      NullLiteral.new(line:self.line)
       )
     )
     

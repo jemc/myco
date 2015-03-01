@@ -12,8 +12,6 @@ CodeTools::AST << {
   Quest < Node, BasicObject {
     var receiver, var questable
     
-    var void_literal: VoidLiteral.new(self.line)
-    
     setter questable: |given| {
       given.receiver = FakeReceiver.new(line: self.line)
       given
