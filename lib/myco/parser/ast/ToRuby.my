@@ -178,7 +178,7 @@ CodeTools::AST << {
     to_ruby: |g| {
       g.add(implementation)
       g.line(".tap { |__c__| __c__.__name__ = ")
-        g.add(self.name.name.inspect)
+        g.add(self.constant.name.inspect)
       g.add(" }")
     }
   }

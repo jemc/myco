@@ -24,9 +24,6 @@ CodeTools::AST << {
     
     dstr: |loc, str, array|
       DynamicString.new(loc.line, str, array)
-    
-    cdecl: |loc, expr, value|
-      ConstantAssignment.new(loc.line, expr, value)
   }
   
   # Helper methods for bytecode generation

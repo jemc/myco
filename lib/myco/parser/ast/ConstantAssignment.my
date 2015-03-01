@@ -1,0 +1,24 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    cdecl: |loc, constant, value| ConstantAssignment.new(
+      line:     loc.line
+      constant: constant
+      value:    value
+    )
+  }
+  
+  ConstantAssignment < Node, BasicObject {
+    var constant, var value
+    
+    to_sexp: [:cdecl, self.constant.assign_sexp, self.value]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      self.constant.assign_bytecode(g, self.value)
+      g.send(:const_set, 2)
+    }
+  }
+}
