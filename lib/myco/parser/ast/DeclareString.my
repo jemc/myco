@@ -17,7 +17,10 @@ CodeTools::AST << {
     implementation: InvokeMethod.new(
       line:      self.string.line
       name:      :from_string
-      arguments: ArgumentAssembly.new(self.string.line, [self.string])
+      arguments: ArgumentAssembly.new(
+        line:      self.string.line,
+        body:      [self.string]
+      )
       receiver:  DeclareObject.new(
         line:      self.line
         types:     self.types

@@ -13,7 +13,7 @@ CodeTools::AST << {
     var name, var arguments
     
     setter arguments: |x|
-      x || ArrayAssembly.new(self.line, [])
+      x || ArrayAssembly.new(line:self.line, body:[])
     
     to_sexp: {
       args_sexp = arguments.to_sexp

@@ -55,7 +55,7 @@ CodeTools::AST << {
     setter name: |x|
       x.value
     setter decorations: |x|
-      x || ArrayAssembly.new(line, [])
+      x || ArrayAssembly.new(line:line, body:[])
     setter arguments: |x|
       x || Parameters.new(line, [], null, true, null, null, null, null)
     setter body: |x|

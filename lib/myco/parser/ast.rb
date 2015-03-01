@@ -19,8 +19,9 @@ Myco.eval_file 'ast/Invoke.my'
 Myco.eval_file 'ast/LocalVariableAccessAmbiguous.my'
 Myco.eval_file 'ast/InvokeMethod.my'
 
-require_relative "ast/array_assembly"
-require_relative "ast/argument_assembly"
+Myco.eval_file 'ast/ArrayAssembly.my'
+Myco.eval_file 'ast/ArgumentAssembly.my'
+
 require_relative "ast/quest"
 require_relative "ast/branch_operator"
 

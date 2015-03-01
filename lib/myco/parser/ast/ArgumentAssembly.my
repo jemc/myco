@@ -1,0 +1,71 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    argass: |loc, body| ArgumentAssembly.new(
+      line: loc.line
+      body: body
+    )
+  }
+  
+  ArgumentAssembly < Node, BasicObject {
+    var body, var block
+    
+    setter body: |given_body| {
+      given_body.last.is_a?(BlockPass) && (self.block = given_body.pop)
+      given_body
+    }
+    
+    to_sexp: {
+      sexp = [:arglist] + self.body.map(&:to_sexp)
+      self.block && sexp.push(self.block.to_sexp)
+      sexp
+    }
+    
+    # All items before the first SplatValue
+    pre_group:
+      self.body.take_while |item| { !item.is_a?(SplatValue) }
+    
+    # All items after and including the first SplatValue
+    post_group:
+      self.body.drop_while |item| { !item.is_a?(SplatValue) }
+    
+    # Symbol of bytecode operation to use for send
+    send_op: {
+      self.body.detect |item| { item.is_a?(SplatValue) } &? (
+        :send_with_splat
+      ) ?? (self.block &? (  # TODO: better elsif construction
+        :send_with_block
+      ) ?? (
+        :send
+      ))
+    }
+    
+    # Number of arguments to use for send operation
+    send_count:
+      pre_group.size
+    
+    splat_bytecode: |g| ArrayAssembly.new(
+      line: self.line
+      body: post_group
+    ).bytecode(g)
+    
+    block_bytecode: |g|
+      self.block &? self.block.bytecode(g) ?? g.push_nil
+    
+    bytecode: |g| {
+      pos(g)
+      
+      pre_group.each |item| { item.bytecode(g) }
+      
+      send_op == :send_with_splat && (
+        splat_bytecode(g)
+        block_bytecode(g)
+      )
+      send_op == :send_with_block && (
+        block_bytecode(g)
+      )
+    }
+  }
+  
+}

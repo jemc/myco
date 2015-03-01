@@ -13,7 +13,7 @@ CodeTools::AST << {
       # TODO: error if passing both block argument and block literal
       # Currently, this fails silently and ignores the block argument
       block && (
-        node.arguments = node.arguments || ArgumentAssembly.new(loc.line, [])
+        node.arguments = node.arguments || ArgumentAssembly.new(line:loc.line, body:[])
         node.arguments.block = Iter.new(loc.line, block_params, block)
       )
       node
@@ -38,7 +38,7 @@ CodeTools::AST << {
           line:      self.line
           receiver:  self.receiver || Self.new(self.line)
           name:      self.name
-          arguments: self.arguments || ArgumentAssembly.new(self.line, [])
+          arguments: self.arguments || ArgumentAssembly.new(line:self.line, body:[])
         )
       )
     }

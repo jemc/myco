@@ -30,7 +30,7 @@ CodeTools::AST << {
     implementation: {
       myco = ToplevelConstant.new(self.line, :"Myco")
       type = ScopedConstant.new(self.line, myco, :"FileToplevel")
-      types = ArrayAssembly.new(self.line, [type])
+      types = ArrayAssembly.new(line:self.line, body:[type])
       decl = DeclareObject.new(line:self.line, types:types, body:self.body)
       decl.scope_type = DeclareFileScope
       decl
