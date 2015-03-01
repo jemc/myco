@@ -4,17 +4,11 @@ CodeTools::AST << {
   # These builder methods are copied directly from rubinius-processor
   # TODO: remove all dependencies on rubinius-processor and rubinius-ast
   BuilderMethods << {
-    lit: |loc, sym|
-      SymbolLiteral.new(loc.line, sym)
-    
     args: |loc, required, optional, splat, post, kwargs, kwrest, block|
       Parameters.new(loc.line, required, optional, splat, post, kwargs, kwrest, block)
     
     block: |loc, array|
       Block.new(loc.line, array)
-    
-    str: |loc, str|
-      StringLiteral.new(loc.line, str)
     
     splat: |loc, expr|
       SplatValue.new(loc.line, expr)
@@ -22,13 +16,8 @@ CodeTools::AST << {
     block_pass: |loc, arguments, body|
       BlockPass19.new(loc.line, arguments, body)
     
-    evstr: |loc, value| {
-      value &? (
-        ToString.new(loc.line, value)
-      ) ?? (
-        StringLiteral.new(loc.line, "")
-      )
-    }
+    evstr: |loc, value|
+      ToString.new(loc.line, value)
     
     dsym: |loc, str, array|
       DynamicSymbol.new(loc.line, str, array)

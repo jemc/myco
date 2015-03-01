@@ -3,6 +3,12 @@ module CodeTools::AST
   module BuilderMethods; end
 end
 
+Myco.eval_file 'ast/StringLiteral.my'
+Myco.eval_file 'ast/SymbolLiteral.my'
+
+Myco.eval_file 'ast/ArrayAssembly.my'
+Myco.eval_file 'ast/ArgumentAssembly.my'
+
 Myco.eval_file 'ast/MycoModuleScope.my'
 
 Myco.eval_file 'ast/ConstantAccess.my'
@@ -20,9 +26,6 @@ Myco.eval_file 'ast/DeclareString.my'
 Myco.eval_file 'ast/Invoke.my'
 Myco.eval_file 'ast/LocalVariableAccessAmbiguous.my'
 Myco.eval_file 'ast/InvokeMethod.my'
-
-Myco.eval_file 'ast/ArrayAssembly.my'
-Myco.eval_file 'ast/ArgumentAssembly.my'
 
 Myco.eval_file 'ast/Quest.my'
 Myco.eval_file 'ast/BranchOperator.my'

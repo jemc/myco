@@ -1,0 +1,24 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    str: |loc, string| StringLiteral.new(
+      line:   loc.line
+      string: string
+    )
+  }
+  
+  StringLiteral < Node, BasicObject {
+    var string
+    
+    to_sexp: [:str, self.string]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(self.string)
+      g.string_dup
+    }
+  }
+  
+}

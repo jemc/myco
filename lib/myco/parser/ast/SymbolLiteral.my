@@ -1,0 +1,23 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    lit: |loc, value| SymbolLiteral.new(
+      line:   loc.line
+      value: value
+    )
+  }
+  
+  SymbolLiteral < Node, BasicObject {
+    var value
+    
+    to_sexp: [:lit, self.value]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(self.value)
+    }
+  }
+  
+}
