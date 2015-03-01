@@ -10,9 +10,6 @@ CodeTools::AST << {
     block: |loc, array|
       Block.new(loc.line, array)
     
-    splat: |loc, expr|
-      SplatValue.new(loc.line, expr)
-    
     block_pass: |loc, arguments, body|
       BlockPass19.new(loc.line, arguments, body)
     

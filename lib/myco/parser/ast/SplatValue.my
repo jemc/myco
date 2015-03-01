@@ -1,0 +1,31 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    splat: |loc, value| SplatValue.new(
+      line: loc.line
+      value: value
+    )
+  }
+  
+  SplatValue < Node, BasicObject {
+    var value
+    
+    to_sexp: [:splat, self.value.to_sexp]
+    splat?: true
+    
+    bytecode: |g| {
+      self.value.bytecode(g)
+      
+      # TODO: determine if coercion from other types is necessary here
+      g.dup
+      g.push_rubinius
+      g.find_const(:"Runtime")
+      g.swap
+      g.send(:dup_as_array, 1, true)
+      
+      g.swap
+      g.pop
+    }
+  }
+}
