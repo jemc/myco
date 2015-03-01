@@ -549,20 +549,9 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # meme_expr = (return_arg_expr | arg_expr)
+  # meme_expr = arg_expr
   def _meme_expr
-
-    _save = self.pos
-    while true # choice
-      _tmp = apply(:_return_arg_expr)
-      break if _tmp
-      self.pos = _save
-      _tmp = apply(:_arg_expr)
-      break if _tmp
-      self.pos = _save
-      break
-    end # end choice
-
+    _tmp = apply(:_arg_expr)
     set_failed_rule :_meme_expr unless _tmp
     return _tmp
   end
@@ -1825,32 +1814,6 @@ class CodeTools::PegParser
     end # end sequence
 
     set_failed_rule :_t_INTEGER unless _tmp
-    return _tmp
-  end
-
-  # t_JUMP = < "->" > {token(:t_JUMP,          text)}
-  def _t_JUMP
-
-    _save = self.pos
-    while true # sequence
-      _text_start = self.pos
-      _tmp = match_string("->")
-      if _tmp
-        text = get_text(_text_start)
-      end
-      unless _tmp
-        self.pos = _save
-        break
-      end
-      @result = begin; token(:t_JUMP,          text); end
-      _tmp = true
-      unless _tmp
-        self.pos = _save
-      end
-      break
-    end # end sequence
-
-    set_failed_rule :_t_JUMP unless _tmp
     return _tmp
   end
 
@@ -4244,44 +4207,6 @@ class CodeTools::PegParser
     end # end sequence
 
     set_failed_rule :_declstr unless _tmp
-    return _tmp
-  end
-
-  # return_arg_expr = arg_expr:n0 c_spc* t_JUMP:to {node(:return, to, n0)}
-  def _return_arg_expr
-
-    _save = self.pos
-    while true # sequence
-      _tmp = apply(:_arg_expr)
-      n0 = @result
-      unless _tmp
-        self.pos = _save
-        break
-      end
-      while true
-        _tmp = apply(:_c_spc)
-        break unless _tmp
-      end
-      _tmp = true
-      unless _tmp
-        self.pos = _save
-        break
-      end
-      _tmp = apply(:_t_JUMP)
-      to = @result
-      unless _tmp
-        self.pos = _save
-        break
-      end
-      @result = begin; node(:return, to, n0); end
-      _tmp = true
-      unless _tmp
-        self.pos = _save
-      end
-      break
-    end # end sequence
-
-    set_failed_rule :_return_arg_expr unless _tmp
     return _tmp
   end
 
@@ -7112,7 +7037,7 @@ class CodeTools::PegParser
   Rules[:_decl] = rule_info("decl", "(declobj | declstr | copen)")
   Rules[:_declobj_expr] = rule_info("declobj_expr", "(category | declobj_expr_not_category)")
   Rules[:_declobj_expr_not_category] = rule_info("declobj_expr_not_category", "(decl | cdefn | cmeme | constant | meme)")
-  Rules[:_meme_expr] = rule_info("meme_expr", "(return_arg_expr | arg_expr)")
+  Rules[:_meme_expr] = rule_info("meme_expr", "arg_expr")
   Rules[:_arg_expr] = rule_info("arg_expr", "(assignment | left_chained_atoms | dyn_string | dyn_symstr | expr_atom)")
   Rules[:_expr_atom] = rule_info("expr_atom", "(decl | left_chained_invocations | lit_string | lit_symstr | unary_operation | paren_expr | constant | lit_simple | lit_array | invoke)")
   Rules[:_expr_atom_not_chained] = rule_info("expr_atom_not_chained", "(decl | lit_string | lit_symstr | unary_operation | paren_expr | constant | lit_simple | lit_array | invoke)")
@@ -7158,7 +7083,6 @@ class CodeTools::PegParser
   Rules[:_t_SELF] = rule_info("t_SELF", "< \"self\" > {token(:t_SELF,          text)}")
   Rules[:_t_FLOAT] = rule_info("t_FLOAT", "< \"-\"? c_num+ \".\" c_num+ > {token(:t_FLOAT,         text)}")
   Rules[:_t_INTEGER] = rule_info("t_INTEGER", "< \"-\"? c_num+ > {token(:t_INTEGER,       text)}")
-  Rules[:_t_JUMP] = rule_info("t_JUMP", "< \"->\" > {token(:t_JUMP,          text)}")
   Rules[:_t_DOT] = rule_info("t_DOT", "< \".\" > {token(:t_DOT,           text)}")
   Rules[:_t_QUEST] = rule_info("t_QUEST", "< \".\" c_spc_nl* \"?\" > {token(:t_QUEST,         text)}")
   Rules[:_t_SCOPE] = rule_info("t_SCOPE", "< \"::\" > {token(:t_SCOPE,         text)}")
@@ -7217,7 +7141,6 @@ class CodeTools::PegParser
   Rules[:_s_DECLSTR_BODY] = rule_info("s_DECLSTR_BODY", "s_DECLSTR_BODYLINE*:slist { slist[1..-1].join('') }")
   Rules[:_declstr_body] = rule_info("declstr_body", "t_DECLSTR_BEGIN:tb s_DECLSTR_BODY:st c_spc_nl* t_DECLSTR_END {node(:str, tb, st)}")
   Rules[:_declstr] = rule_info("declstr", "constant_list:nc c_spc+ declstr_body:nb {node(:declstr, nc, nc, nb)}")
-  Rules[:_return_arg_expr] = rule_info("return_arg_expr", "arg_expr:n0 c_spc* t_JUMP:to {node(:return, to, n0)}")
   Rules[:_assignment] = rule_info("assignment", "(local_assignment | invoke_assignment)")
   Rules[:_assign_rhs] = rule_info("assign_rhs", "arg_expr")
   Rules[:_local_assignment] = rule_info("local_assignment", "t_IDENTIFIER:ti c_spc_nl* t_ASSIGN:to c_spc_nl* assign_rhs:rhs {node(:lasgn, to, ti.sym, rhs)}")

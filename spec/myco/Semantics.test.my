@@ -61,15 +61,4 @@ BasicSpec {
     assert_equal(unsplat_w_block(a,*b,&null), [[1,2], 3,4, null])
     assert_equal(unsplat_w_block(a,*b,&c),    [[1,2], 3,4, c])
   }
-  
-  "returns from a method 'early' with a jump return": {
-    assert(true)
-    88 ->         # Jump return the value 88
-    assert(false) # This bad assertion is never reached
-  }
-  
-  "returns a value from a method 'early' with a jump return": {
-    value = send("returns from a method 'early' with a jump return")
-    assert_equal(value, 88)
-  }
 }
