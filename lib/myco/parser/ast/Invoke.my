@@ -36,7 +36,7 @@ CodeTools::AST << {
       ) ?? (
         InvokeMethod.new(
           line:      self.line
-          receiver:  self.receiver || Self.new(self.line)
+          receiver:  self.receiver || Self.new(line:self.line)
           name:      self.name
           arguments: self.arguments || ArgumentAssembly.new(line:self.line, body:[])
         )

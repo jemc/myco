@@ -1,7 +1,19 @@
 
 CodeTools::AST << {
-  # Monkey patch original to use ::Myco to look up constants
-  ConstantAccess << {
+  
+  BuilderMethods << {
+    const: |loc, name| ConstantAccess.new(
+      line: loc.line
+      name: name
+    )
+  }
+    
+  ConstantAccess < Node, BasicObject {
+    var name
+    
+    to_sexp: [:const, self.name]
+    assign_sexp: self.name
+    
     bytecode: |g| {
       pos(g)
       
@@ -10,6 +22,14 @@ CodeTools::AST << {
         g.push_literal(self.name)
         g.push_scope
       g.send(:find_constant, 2)
+    }
+    
+    assign_bytecode: |g, value| {
+      pos(g)
+      
+      g.push_scope
+      g.push_literal(self.name)
+      value.bytecode(g)
     }
   }
 }

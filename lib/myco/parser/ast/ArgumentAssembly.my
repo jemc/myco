@@ -51,7 +51,7 @@ CodeTools::AST << {
     ).bytecode(g)
     
     block_bytecode: |g|
-      self.block &? self.block.bytecode(g) ?? g.push_nil
+      self.block &? self.block.bytecode(g) ?? g.push_null
     
     bytecode: |g| {
       pos(g)
