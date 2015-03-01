@@ -6,6 +6,8 @@ end
 Myco.eval_file 'ast/MycoModuleScope.my'
 
 Myco.eval_file 'ast/ConstantAccess.my'
+Myco.eval_file 'ast/ConstantAccessScoped.my'
+Myco.eval_file 'ast/ConstantAccessToplevel.my'
 Myco.eval_file 'ast/ConstantDefine.my'
 Myco.eval_file 'ast/ConstantReopen.my'
 Myco.eval_file 'ast/DeclareCategory.my'

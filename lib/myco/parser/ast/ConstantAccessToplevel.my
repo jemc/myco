@@ -1,0 +1,32 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    colon3: |loc, name| ConstantAccessToplevel.new(
+      line: loc.line
+      name: name
+    )
+  }
+    
+  ConstantAccessToplevel < Node, BasicObject {
+    var name, var parent
+    
+    to_sexp: [:colon3, self.name]
+    assign_sexp: to_sexp
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_cpath_top
+      g.find_const(self.name)
+    }
+    
+    assign_bytecode: |g, value| {
+      pos(g)
+      
+      g.push_cpath_top
+      g.push_literal(self.name)
+      value.bytecode(g)
+    }
+  }
+}

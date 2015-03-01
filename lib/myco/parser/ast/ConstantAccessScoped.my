@@ -1,0 +1,41 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    colon2: |loc, parent, name| ConstantAccessScoped.new(
+      line:   loc.line
+      parent: parent
+      name:   name
+    )
+  }
+    
+  ConstantAccessScoped < Node, BasicObject {
+    var name, var parent
+    
+    to_sexp: [:colon2, self.parent.to_sexp, self.name]
+    assign_sexp: to_sexp
+    
+    bytecode: |g| {
+      pos(g)
+      
+      handled = false # TODO: better elsif construction here
+      (self.parent.is_a?(ConstantAccess) && parent.name == :"Rubinius") && (
+        self.name == :"Type"   && (handled = true; g.push_type)
+        self.name == :"Mirror" && (handled = true; g.push_mirror)
+      )
+      handled || (
+        self.parent.bytecode(g)
+        g.find_const(self.name)
+      )
+    }
+    
+    assign_bytecode: |g, value| {
+      pos(g)
+      
+      value.bytecode(g)
+      g.push_literal(self.name)
+      self.parent.bytecode(g)
+      g.rotate(3)
+    }
+  }
+}

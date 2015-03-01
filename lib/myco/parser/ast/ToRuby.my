@@ -144,7 +144,7 @@ CodeTools::AST << {
       g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
   }
   
-  ScopedConstant << {
+  ConstantAccessScoped << {
     to_ruby: |g|
       g.add(self.parent); g.add("::"self.name"")
     
@@ -152,7 +152,7 @@ CodeTools::AST << {
       to_ruby(g); g.add(" = "); g.add(value)
   }
   
-  ToplevelConstant << {
+  ConstantAccessToplevel << {
     to_ruby: |g|
       g.add("::"self.name"")
     

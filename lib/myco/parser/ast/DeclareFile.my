@@ -28,8 +28,8 @@ CodeTools::AST << {
     to_sexp: [:declfile, self.body.to_sexp]
     
     implementation: {
-      myco = ToplevelConstant.new(self.line, :"Myco")
-      type = ScopedConstant.new(self.line, myco, :"FileToplevel")
+      myco = ConstantAccessToplevel.new(line:self.line, name::"Myco")
+      type = ConstantAccessScoped.new(line:self.line, parent:myco, name::"FileToplevel")
       types = ArrayAssembly.new(line:self.line, body:[type])
       decl = DeclareObject.new(line:self.line, types:types, body:self.body)
       decl.scope_type = DeclareFileScope

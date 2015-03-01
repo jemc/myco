@@ -4,29 +4,6 @@ CodeTools::AST << {
   # These builder methods are copied directly from rubinius-processor
   # TODO: remove all dependencies on rubinius-processor and rubinius-ast
   BuilderMethods << {
-    colon2: |loc, outer, name| {
-      outer &? (
-        (outer.kind_of?(ConstantAccess) && outer.name == :"Rubinius") &? (
-          name == :"Type" &? (
-            TypeConstant.new(loc.line)
-          ) ?? (
-            name == :"Mirror" &? (
-              MirrorConstant.new(loc.line)
-            ) ?? (
-              ScopedConstant.new(loc.line, outer, name)
-            )
-          )
-        ) ?? (
-          ScopedConstant.new(loc.line, outer, name)
-        )
-      ) ?? (
-        ConstantAccess.new(loc.line, name)
-      )
-    }
-    
-    colon3: |loc, name|
-      ToplevelConstant.new(loc.line, name)
-    
     lit: |loc, sym|
       SymbolLiteral.new(loc.line, sym)
     
