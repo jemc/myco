@@ -12,15 +12,6 @@ CodeTools::AST << {
     
     block_pass: |loc, arguments, body|
       BlockPass19.new(loc.line, arguments, body)
-    
-    evstr: |loc, value|
-      ToString.new(loc.line, value)
-    
-    dsym: |loc, str, array|
-      DynamicSymbol.new(loc.line, str, array)
-    
-    dstr: |loc, str, array|
-      DynamicString.new(loc.line, str, array)
   }
   
   # Helper methods for bytecode generation

@@ -5,6 +5,8 @@ end
 
 Myco.eval_file 'ast/StringLiteral.my'
 Myco.eval_file 'ast/SymbolLiteral.my'
+Myco.eval_file 'ast/DynamicString.my'
+Myco.eval_file 'ast/DynamicSymbol.my'
 
 Myco.eval_file 'ast/SplatValue.my'
 Myco.eval_file 'ast/ArrayAssembly.my'

@@ -2,21 +2,21 @@
 CodeTools::AST << {
   
   BuilderMethods << {
-    str: |loc, string| StringLiteral.new(
+    str: |loc, value| StringLiteral.new(
       line:   loc.line
-      string: string
+      value: value
     )
   }
   
   StringLiteral < Node, BasicObject {
-    var string
+    var value
     
-    to_sexp: [:str, self.string]
+    to_sexp: [:str, self.value]
     
     bytecode: |g| {
       pos(g)
       
-      g.push_literal(self.string)
+      g.push_literal(self.value)
       g.string_dup
     }
   }

@@ -104,18 +104,15 @@ CodeTools::AST << {
   TrueLiteral  << { to_ruby: |g| g.add("true") }
   FalseLiteral << { to_ruby: |g| g.add("false") }
   
-  StringLiteral << { to_ruby: |g| g.add(self.string.inspect) }
+  StringLiteral << { to_ruby: |g| g.add(self.value.inspect) }
   SymbolLiteral << { to_ruby: |g| g.add(self.value.inspect) }
   
   DynamicString << {
     to_ruby: |g| {
-      inspect_escape = Proc.new |str| { str.inspect.slice(::Range.new(1, -2)) }
-      
       g.add('"')
-        g.add(inspect_escape.call(self.string))
-        self.array.each_slice(2) |interpolated, inner_string| {
-          g.add('#{'); g.add(interpolated.value); g.add('}')
-          g.add(inspect_escape.call(inner_string.value))
+        self.body.each_slice(2) |string, to_string| {
+          g.add(string.value.to_s.inspect.slice(::Range.new(1, -2)))
+          to_string && (g.add('#{'); g.add(to_string); g.add('}'))
         }
       g.add('"')
     }
@@ -123,9 +120,12 @@ CodeTools::AST << {
   
   DynamicSymbol << {
     to_ruby: |g| {
-      g.add(":")
-      # TODO: use super here
-      DynamicString.instance_method(:to_ruby).bind(self).call(g)
+      g.add(':"')
+        self.body.each_slice(2) |string, to_string| {
+          g.add(string.value.to_s.inspect.slice(::Range.new(1, -2)))
+          to_string && (g.add('#{'); g.add(to_string); g.add('}'))
+        }
+      g.add('"')
     }
   }
   

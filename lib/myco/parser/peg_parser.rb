@@ -3120,30 +3120,7 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # expr_atom_evstr = expr_atom_not_string:n0 {node(:evstr, n0, n0)}
-  def _expr_atom_evstr
-
-    _save = self.pos
-    while true # sequence
-      _tmp = apply(:_expr_atom_not_string)
-      n0 = @result
-      unless _tmp
-        self.pos = _save
-        break
-      end
-      @result = begin; node(:evstr, n0, n0); end
-      _tmp = true
-      unless _tmp
-        self.pos = _save
-      end
-      break
-    end # end sequence
-
-    set_failed_rule :_expr_atom_evstr unless _tmp
-    return _tmp
-  end
-
-  # dyn_string_parts = (c_spc* expr_atom_evstr:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist { nlist.flatten }
+  # dyn_string_parts = (c_spc* expr_atom_not_string:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist { nlist.flatten }
   def _dyn_string_parts
 
     _save = self.pos
@@ -3162,7 +3139,7 @@ class CodeTools::PegParser
           self.pos = _save2
           break
         end
-        _tmp = apply(:_expr_atom_evstr)
+        _tmp = apply(:_expr_atom_not_string)
         n0 = @result
         unless _tmp
           self.pos = _save2
@@ -3206,7 +3183,7 @@ class CodeTools::PegParser
               self.pos = _save5
               break
             end
-            _tmp = apply(:_expr_atom_evstr)
+            _tmp = apply(:_expr_atom_not_string)
             n0 = @result
             unless _tmp
               self.pos = _save5
@@ -3260,7 +3237,7 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # dyn_string = lit_string:n0 dyn_string_parts:nrest {node(:dstr, n0, n0.value, nrest)}
+  # dyn_string = lit_string:n0 dyn_string_parts:nrest {node(:dstr, n0, [n0] + nrest)}
   def _dyn_string
 
     _save = self.pos
@@ -3277,7 +3254,7 @@ class CodeTools::PegParser
         self.pos = _save
         break
       end
-      @result = begin; node(:dstr, n0, n0.value, nrest); end
+      @result = begin; node(:dstr, n0, [n0] + nrest); end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -3289,7 +3266,7 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # dyn_symstr = lit_symstr:n0 dyn_string_parts:nrest {node(:dsym, n0, n0.value.to_s, nrest)}
+  # dyn_symstr = lit_symstr:n0 dyn_string_parts:nrest {node(:dsym, n0, [n0] + nrest)}
   def _dyn_symstr
 
     _save = self.pos
@@ -3306,7 +3283,7 @@ class CodeTools::PegParser
         self.pos = _save
         break
       end
-      @result = begin; node(:dsym, n0, n0.value.to_s, nrest); end
+      @result = begin; node(:dsym, n0, [n0] + nrest); end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -7119,10 +7096,9 @@ class CodeTools::PegParser
   Rules[:_lit_string_as_symbol] = rule_info("lit_string_as_symbol", "(t_STRING_BEGIN t_STRING_BODY:tb t_STRING_END {node(:lit, tb, encode_escapes(tb.text).to_sym)} | t_SSTRING_BEGIN t_SSTRING_BODY:tb t_SSTRING_END {node(:lit, tb, encode_escapes(tb.text).to_sym)})")
   Rules[:_lit_symstr] = rule_info("lit_symstr", "t_SYMSTR_BEGIN t_STRING_BODY:tb t_STRING_END {node(:lit, tb, encode_escapes(tb.text).to_sym)}")
   Rules[:_category_name] = rule_info("category_name", "t_CATGRY_BEGIN t_CATGRY_BODY:tb t_CATGRY_END {node(:lit, tb, encode_escapes(tb.text).to_sym)}")
-  Rules[:_expr_atom_evstr] = rule_info("expr_atom_evstr", "expr_atom_not_string:n0 {node(:evstr, n0, n0)}")
-  Rules[:_dyn_string_parts] = rule_info("dyn_string_parts", "(c_spc* expr_atom_evstr:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist { nlist.flatten }")
-  Rules[:_dyn_string] = rule_info("dyn_string", "lit_string:n0 dyn_string_parts:nrest {node(:dstr, n0, n0.value, nrest)}")
-  Rules[:_dyn_symstr] = rule_info("dyn_symstr", "lit_symstr:n0 dyn_string_parts:nrest {node(:dsym, n0, n0.value.to_s, nrest)}")
+  Rules[:_dyn_string_parts] = rule_info("dyn_string_parts", "(c_spc* expr_atom_not_string:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist { nlist.flatten }")
+  Rules[:_dyn_string] = rule_info("dyn_string", "lit_string:n0 dyn_string_parts:nrest {node(:dstr, n0, [n0] + nrest)}")
+  Rules[:_dyn_symstr] = rule_info("dyn_symstr", "lit_symstr:n0 dyn_string_parts:nrest {node(:dsym, n0, [n0] + nrest)}")
   Rules[:_constant] = rule_info("constant", "(constant:n0 t_SCOPE:ts t_CONSTANT:tc {node(:colon2, ts, n0, tc.sym)} | t_SCOPE:ts t_CONSTANT:tc {node(:colon3, ts, tc.sym)} | t_CONSTANT:tc {node(:const,  tc, tc.sym)})")
   Rules[:_const_sep] = rule_info("const_sep", "(c_spc_nl* t_CONST_SEP c_spc_nl*)+")
   Rules[:_constant_list] = rule_info("constant_list", "constant:n0 (const_sep constant:n)*:nrest {node(:arrass, n0, [n0, *nrest])}")

@@ -1,0 +1,29 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    dsym: |loc, body| DynamicSymbol.new(
+      line: loc.line
+      body: body
+    )
+  }
+  
+  DynamicSymbol < Node, BasicObject {
+    var body
+    
+    to_sexp: [:dsym] + self.body.map(&:to_sexp)
+    
+    bytecode: |g| {
+      pos(g)
+      
+      self.body.each_slice(2) |string, other| {
+        g.push_literal(string.value)
+        other && (other.bytecode(g); g.meta_to_s)
+      }
+      
+      g.string_build(self.body.size)
+      g.send(:to_sym, 0)
+    }
+  }
+  
+}
