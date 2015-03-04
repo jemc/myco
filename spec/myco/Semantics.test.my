@@ -61,4 +61,32 @@ BasicSpec {
     assert_equal(unsplat_w_block(a,*b,&null), [[1,2], 3,4, null])
     assert_equal(unsplat_w_block(a,*b,&c),    [[1,2], 3,4, c])
   }
+  
+  "distributes arguments to the correct parameters in the meme signature": {
+    pr = Proc.new {}
+    subject = Object {
+      example: |a,b,c='C',d='D',*e,f,g:,h:,i:'I',j:'J',**k,&l| [
+        a:a,b:b,c:c,d:d,e:e,f:f,g:g,h:h,i:i,j:j,k:k,l:l
+      ]
+    }
+    
+    assert_equal(subject.example(
+      1,2,3,4,5,6,7,8,9
+      g:10,h:11,i:22,j:33,x:44,y:55,z:66
+      &pr
+    ), [
+      a:1,b:2,c:3,d:4,e:[5,6,7,8],f:9
+      g:10,h:11,i:22,j:33,k:[x:44,y:55,z:66].last
+      l:pr
+    ])
+    
+    assert_equal(subject.example(
+      1,2,9
+      g:10,h:11
+    ), [
+      a:1,b:2,c:'C',d:'D',e:[],f:9
+      g:10,h:11,i:'I',j:'J',k:Hash.new
+      l:null
+    ])
+  }
 }
