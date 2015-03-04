@@ -512,11 +512,12 @@ param_list =
     { node(:args, tb, nil, nil, nil, nil, nil, nil, nil) }
 | t_PARAMS_BEGIN:tb param_sepds:plist t_PARAMS_END
     {
-      required, optional, rest, kwargs, kwrest, block = 6.times.map { [] }
+      required, optional, rest, post, kwargs, kwrest, block = 7.times.map { [] }
       
       required << plist.shift[1] while plist[0] && plist[0][0] == :required
       optional << plist.shift[1] while plist[0] && plist[0][0] == :optional
       rest     << plist.shift[1] while plist[0] && plist[0][0] == :rest
+      post     << plist.shift[1] while plist[0] && plist[0][0] == :required
       kwargs   << plist.shift[1] while plist[0] && plist[0][0] == :kwargs
       kwrest   << plist.shift[1] while plist[0] && plist[0][0] == :kwrest
       block    << plist.shift[1] while plist[0] && plist[0][0] == :block
@@ -524,7 +525,7 @@ param_list =
       required = required
       optional = optional.empty? ? nil : node(:block, tb, optional)
       rest     = rest.first
-      post     = nil
+      post     = post
       kwargs   = kwargs.empty?   ? nil : node(:block, tb, kwargs)
       kwrest   = kwrest.first
       block    = block.first
