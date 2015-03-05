@@ -280,7 +280,7 @@ module Myco
           g.make_array 0
           g.push_nil
         g.send :invoke, 5
-        g.set_ivar(@name)
+        g.set_ivar(:"@#{@name}")
         
         g.push_true
         g.set_ivar(:"__#{@name}_defined__")
@@ -288,7 +288,7 @@ module Myco
         g.goto(ret)
         
         get.set!
-        g.push_ivar(@name)
+        g.push_ivar(:"@#{@name}")
         
         ret.set!
         
@@ -329,7 +329,7 @@ module Myco
           g.send(:call_on_object, 2)
         end
         
-        g.set_ivar @name
+        g.set_ivar(:"@#{@name}")
         
         g.ret
       end
