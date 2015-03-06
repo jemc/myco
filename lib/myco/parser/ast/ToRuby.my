@@ -236,49 +236,47 @@ CodeTools::AST << {
       g.add("["self.name.value.inspect", "); g.add(self.arguments); g.add("]")
   }
   
-  Parameters << {
+  ParameterAssembly << {
     to_ruby: |g| {
       list = []
       list_add = Proc.new |&blk| { list.push(Proc.new(&blk)) }
       
       self.required.each |item| { list_add.call { g.add(item.to_s) } }
       
-      self.defaults &? (
-        self.defaults.arguments.each |asgn| {
-          name = asgn.name
-          value = asgn.value
-          list_add.call {
-            g.add(""name"=")
-            (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
-          }
+      self.optional.each |asgn| {
+        name = asgn.name
+        value = asgn.value
+        list_add.call {
+          g.add(""name"=")
+          (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
         }
-      )
+      }
       
-      (self.splat == :"*") &? (
+      (self.splat == true) &? (
         list_add.call { g.add("*") }
       ) ?? (self.splat &? ( # TODO: make prettier elsif alternative
         list_add.call { g.add("*"self.splat"") }
       ))
       
-      self.keywords &? (
-        self.keywords.arguments.each |asgn| {
-          name = asgn.name
-          value = asgn.value
-          list_add.call {
-            g.add(""name":")
-            (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
-          }
-        }
-        
-        (self.keywords.kwrest == true) &? (
-          list_add.call { g.add("**") }
-        ) ?? self.keywords.kwrest &? (
-          list_add.call { g.add("**"self.keywords.kwrest.name"") }
-        )
-      )
+      self.post.each |item| { list_add.call { g.add(item.to_s) } }
       
-      self.block_arg &? (
-        list_add.call { g.add("&"self.block_arg.name"") }
+      self.kwargs.each |asgn| {
+        name = asgn.name
+        value = asgn.value
+        list_add.call {
+          g.add(""name":")
+          (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
+        }
+      }
+      
+      (self.kwrest == true) &? (
+        list_add.call { g.add("**") }
+      ) ?? (self.kwrest &? ( # TODO: make prettier elsif alternative
+        list_add.call { g.add("**"self.kwrest"") }
+      ))
+      
+      self.block.is_a?(Symbol) && (
+        list_add.call { g.add("&"self.block"") }
       )
       
       g.add("|"); g.list(list, ", ") |proc| { proc.call }; g.add("|")

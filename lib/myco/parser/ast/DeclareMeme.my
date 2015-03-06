@@ -34,7 +34,6 @@ CodeTools::AST << {
       
       meth.local_count = local_count
       meth.local_names = local_names
-      meth.splat_index = self.arguments.splat_index
       
       meth.ret
       meth.close
@@ -57,7 +56,7 @@ CodeTools::AST << {
     setter decorations: |x|
       x || ArrayAssembly.new(line:line, body:[])
     setter arguments: |x|
-      x || Parameters.new(line, [], null, true, null, null, null, null)
+      x || ParameterAssembly.new(line:line, required:[], splat:true)
     setter body: |x|
       x || NullLiteral.new(line:line)
     
