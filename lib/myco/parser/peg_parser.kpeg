@@ -509,7 +509,7 @@ param_sepds =
 
 param_list =
   t_PARAMS_BEGIN:tb t_PARAMS_END
-    { node(:args, tb, nil, nil, nil, nil, nil, nil, nil) }
+    { node(:args, tb, [], [], nil, [], [], nil, nil) }
 | t_PARAMS_BEGIN:tb param_sepds:plist t_PARAMS_END
     {
       required, optional, rest, post, kwargs, kwrest, block = 7.times.map { [] }

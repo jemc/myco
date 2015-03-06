@@ -51,11 +51,6 @@ CodeTools::AST << {
     var kwrest:   null
     var block:    null
     
-    setter required: |given| given || []
-    setter optional: |given| given || []
-    setter post:     |given| given || []
-    setter kwargs:   |given| given || []
-    
     # Called on a new method or block generator
     # to set up various parameter-related properties.
     generator_setup: |g| {
