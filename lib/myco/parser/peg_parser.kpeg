@@ -523,10 +523,10 @@ param_list =
       block    << plist.shift[1] while plist[0] && plist[0][0] == :block
       
       required = required
-      optional = optional.empty? ? nil : node(:block, tb, optional)
+      optional = optional
       rest     = rest.first
       post     = post
-      kwargs   = kwargs.empty?   ? nil : node(:block, tb, kwargs)
+      kwargs   = kwargs
       kwrest   = kwrest.first
       block    = block.first
       

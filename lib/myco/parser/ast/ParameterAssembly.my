@@ -52,9 +52,9 @@ CodeTools::AST << {
     var block:    null
     
     setter required: |given| given || []
-    setter optional: |given| given &? given.array ?? [] # TODO: ingest as an array and not a ast.block
+    setter optional: |given| given || []
     setter post:     |given| given || []
-    setter kwargs:   |given| given &? given.array ?? [] # TODO: ingest as an array and not a ast.block
+    setter kwargs:   |given| given || []
     
     # Called on a new method or block generator
     # to set up various parameter-related properties.
