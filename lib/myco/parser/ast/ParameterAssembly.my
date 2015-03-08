@@ -131,11 +131,11 @@ CodeTools::AST << {
     names: [
       *self.required,
       *self.optional.map(&:name),
-      *(self.splat.is_a?(Symbol) && [self.splat]),
+      *(self.splat.is_a?(Symbol) &? [self.splat] ?? []),
       *self.post,
       *self.kwargs.map(&:name),
-      *(self.kwrest.is_a?(Symbol) && [self.kwrest]),
-      *(self.block && [self.block.name]),
+      *(self.kwrest.is_a?(Symbol) &? [self.kwrest] ?? []),
+      *(self.block &? [self.block.name] ?? []),
     ]
     
     # TODO: remove/refactor out
