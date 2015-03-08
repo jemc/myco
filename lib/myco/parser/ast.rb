@@ -12,6 +12,8 @@ Myco.eval_file 'ast/SplatValue.my'
 Myco.eval_file 'ast/ArrayAssembly.my'
 Myco.eval_file 'ast/KeywordAssembly.my'
 Myco.eval_file 'ast/ArgumentAssembly.my'
+
+Myco.eval_file 'ast/BlockParameter.my'
 Myco.eval_file 'ast/ParameterAssembly.my'
 
 Myco.eval_file 'ast/MycoModuleScope.my'

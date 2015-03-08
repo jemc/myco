@@ -1,0 +1,31 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    blkprm: |loc, name| BlockParameter.new(
+      line: loc.line
+      name: name
+    )
+  }
+  
+  BlockParameter < LocalVariable, Node, BasicObject {
+    var name
+    
+    to_sexp: [:blkprm, self.name]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_proc
+      
+      (self.variable.?depth > 0) &? (
+        g.set_local_depth(self.variable.depth, self.variable.slot)
+      ) ?? (
+        g.set_local(self.variable.slot)
+      )
+      
+      g.pop
+    }
+  }
+   
+}

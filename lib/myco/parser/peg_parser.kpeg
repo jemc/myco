@@ -530,6 +530,9 @@ param_list =
       kwrest   = kwrest.first
       block    = block.first
       
+      # TODO: move these conversions to their respective reductions
+      block = block && node(:blkprm, tb, block)
+      
       node(:args, tb, required, optional, rest, post, kwargs, kwrest, block)
     }
 

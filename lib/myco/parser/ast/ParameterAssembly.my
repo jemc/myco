@@ -135,12 +135,8 @@ CodeTools::AST << {
       *self.post,
       *self.kwargs.map(&:name),
       *(self.kwrest.is_a?(Symbol) && [self.kwrest]),
-      *(self.block.is_a?(Symbol) && [self.block]),
+      *(self.block && [self.block.name]),
     ]
-    
-    # TODO: remove/refactor out
-    var block_arg: self.block.is_a?(Symbol) &&
-      BlockArgument.new(self.line, self.block)
     
     # TODO: remove/refactor out
     var kwrest_asgn
@@ -160,7 +156,7 @@ CodeTools::AST << {
         scope.assign_local_reference(self.kwrest_asgn)
       )
       
-      self.block && scope.assign_local_reference(self.block_arg)
+      self.block && scope.assign_local_reference(self.block)
     }
     
     # TODO: simplify
@@ -288,7 +284,7 @@ CodeTools::AST << {
         kw_done.set!
       )
       
-      self.block_arg && self.block_arg.bytecode(g)
+      self.block && self.block.bytecode(g)
       
       g.state.check_for_locals = true
     }

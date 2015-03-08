@@ -236,6 +236,10 @@ CodeTools::AST << {
       g.add("["self.name.value.inspect", "); g.add(self.arguments); g.add("]")
   }
   
+  BlockParameter << {
+    to_ruby: |g| g.add("&"self.name"")
+  }
+  
   ParameterAssembly << {
     to_ruby: |g| {
       list = []
@@ -275,9 +279,7 @@ CodeTools::AST << {
         list_add.call { g.add("**"self.kwrest"") }
       ))
       
-      self.block.is_a?(Symbol) && (
-        list_add.call { g.add("&"self.block"") }
-      )
+      self.block && list_add.call { g.add(self.block) }
       
       g.add("|"); g.list(list, ", ") |proc| { proc.call }; g.add("|")
     }
