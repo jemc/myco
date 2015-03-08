@@ -313,7 +313,7 @@ CodeTools::AST << {
         g.add(")")
       )
       
-      self.arguments.block.is_a?(Iter) && (
+      self.arguments.block.is_a?(BlockLiteral) && (
         g.add(" {"); g.add(self.arguments.block); g.add("}")
       )
     }
@@ -361,7 +361,7 @@ CodeTools::AST << {
     to_ruby: |g| g.add("&"); g.add(self.body)
   }
   
-  Iter << {
+  BlockLiteral << {
     to_ruby: |g| {
       g.with_nested_var_scope(self) {
         g.var_scope_declare_locals(*self.arguments.names)

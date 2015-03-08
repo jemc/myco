@@ -11,7 +11,7 @@ CodeTools::AST << {
     )
   }
   
-  DeclareMemeBody < Iter, BasicObject {
+  DeclareMemeBody < BlockLiteral {
     var name
     
     bytecode: |g| {

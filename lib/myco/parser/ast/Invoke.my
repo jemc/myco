@@ -15,53 +15,9 @@ CodeTools::AST << {
       block && (
         node.arguments = node.arguments || ArgumentAssembly.new(line:loc.line, body:[])
         block_params = block_params || ParameterAssembly.new(line:loc.line)
-        node.arguments.block = Iter.new(loc.line, block_params, block)
+        node.arguments.block = BlockLiteral.new(line:loc.line, arguments:block_params, body:block)
       )
       node
-    }
-  }
-  
-  # TODO: replace Iter and move this to Iter definition
-  Iter << {
-    bytecode: |g| {
-      pos(g)
-      
-      state = g.state
-      state.scope.nest_scope(self)
-      
-      blk = new_block_generator(g, self.arguments)
-      
-      blk.push_state(self)
-      blk.definition_line(self.line)
-      blk.state.push_super(state.super)
-      blk.state.push_eval(state.eval)
-      
-      blk.state.push_name(blk.name)
-      
-      # Push line info down.
-      pos(blk)
-      
-      self.arguments.bytecode(blk)
-      
-      blk.state.push_block
-      blk.push_modifiers
-      blk.break = null
-      blk.next = null
-      blk.redo = blk.new_label
-      blk.redo.set!
-      
-      self.body.bytecode(blk)
-      
-      blk.pop_modifiers
-      blk.state.pop_block
-      blk.ret
-      blk.close
-      blk.pop_state
-      
-      blk.local_count = local_count
-      blk.local_names = local_names
-      
-      g.create_block(blk)
     }
   }
   

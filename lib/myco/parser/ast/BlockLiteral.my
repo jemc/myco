@@ -1,0 +1,112 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    blklit: |loc, arguments, body| BlockLiteral.new(
+      line:      loc.line
+      arguments: arguments
+      body:      body
+    )
+  }
+  
+  BlockLiteral < CodeTools::Compiler::LocalVariables, Node, BasicObject {
+    var arguments, var body
+    var parent
+    
+    CompilerClass: CodeTools::Compiler # TODO: remove this
+    
+    setter arguments: |given| given || ParameterAssembly.new(line:self.line)
+    setter body:      |given| given || NullLiteral.new(line:self.line)
+    
+    to_sexp: TODO
+    
+    locals: self.body.?locals.?body.map(&:value) ?? null
+    
+    block_local?: |name|
+      locals.?include?(name) ?? false
+    
+    module?: false
+    
+    nest_scope: |scope| scope.parent = self
+    
+    # Look up a local variable in this block's scope.
+    search_local: |name| {
+      (variable = self.variables[name]) &? (
+        variable.nested_reference
+      ) ?? (self.block_local?(name) &? (
+        self.new_local(name)
+      ) ?? ((reference = self.parent.search_local(name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        null
+      )))
+    }
+    
+    # Assign a slot number to a local variable access node.
+    # TODO: remove this method in favor of using search_local in all cases instead.
+    assign_local_reference: |var| {
+      var.variable = (variable = self.variables[var.name]) &? (
+        variable.reference
+      ) ?? (self.block_local?(var.name) &? (
+        variable = self.new_local(var.name)
+        variable.reference
+      ) ?? ((reference = self.parent.search_local(var.name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        variable = self.new_local(var.name)
+        variable.reference
+      )))
+    }
+    
+    new_local: |name| {
+      self.variables[name] = \
+        self.variables[name] || CompilerClass::LocalVariable.new(allocate_slot)
+    }
+    
+    new_nested_local: |name| new_local(name).nested_reference
+    
+    bytecode: |g| {
+      pos(g)
+      
+      state = g.state
+      state.scope.nest_scope(self)
+      
+      blk = new_block_generator(g, self.arguments)
+      
+      blk.push_state(self)
+      blk.definition_line(self.line)
+      blk.state.push_super(state.super)
+      blk.state.push_eval(state.eval)
+      
+      blk.state.push_name(blk.name)
+      
+      # Push line info down.
+      pos(blk)
+      
+      self.arguments.bytecode(blk)
+      
+      blk.state.push_block
+      blk.push_modifiers
+      blk.break = null
+      blk.next = null
+      blk.redo = blk.new_label
+      blk.redo.set!
+      
+      self.body.bytecode(blk)
+      
+      blk.pop_modifiers
+      blk.state.pop_block
+      blk.ret
+      blk.close
+      blk.pop_state
+      
+      blk.local_count = local_count
+      blk.local_names = local_names
+      
+      g.create_block(blk)
+    }
+  }
+  
+}
