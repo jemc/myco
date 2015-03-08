@@ -88,5 +88,21 @@ BasicSpec {
       g:10,h:11,i:'I',j:'J',k:Hash.new
       l:null
     ])
+    
+    subject = Object {
+      example: |a, b="", c:false, &d| [
+        a:a,b:b,c:c,d:d
+      ]
+    }
+    
+    assert_equal(subject.example(
+      1,"foo"
+      c:true
+      &pr
+    ), [
+      a:1,b:"foo"
+      c:true
+      d:pr
+    ])
   }
 }

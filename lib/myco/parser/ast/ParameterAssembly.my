@@ -141,12 +141,12 @@ CodeTools::AST << {
     map_locals: |scope| {
       self.required.each |name| { scope.new_local(name) }
       self.optional.each |var|  { scope.assign_local_reference(var) }
-      self.splat.is_a?(Symbol) &? scope.new_local(self.splat) ?? scope.new_local(:"*")
+      self.splat && (self.splat.is_a?(Symbol) &? scope.new_local(self.splat) ?? scope.new_local(:"*"))
       self.post.each     |name| { scope.new_local(name) }
       
       (self.kwargs.any? || self.kwrest) && scope.new_local(:"__myco_kwargs_value__")
       self.kwargs.each |var| { scope.assign_local_reference(var) }
-      self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest)
+      self.kwrest && (self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest))
       
       self.block && scope.assign_local_reference(self.block)
     }
