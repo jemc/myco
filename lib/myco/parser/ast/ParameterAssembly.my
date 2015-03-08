@@ -138,9 +138,6 @@ CodeTools::AST << {
       *(self.block &? [self.block.name] ?? []),
     ]
     
-    # TODO: remove/refactor out
-    var kwrest_asgn
-    
     map_locals: |scope| {
       self.required.each |name| { scope.new_local(name) }
       self.optional.each |var|  { scope.assign_local_reference(var) }
@@ -148,13 +145,8 @@ CodeTools::AST << {
       self.post.each     |name| { scope.new_local(name) }
       
       (self.kwargs.any? || self.kwrest) && scope.new_local(:"__myco_kwargs_value__")
-      self.kwargs.each |var| {
-        scope.assign_local_reference(var)
-      }
-      self.kwrest.is_a?(Symbol) && (
-        self.kwrest_asgn = LocalVariableAssignment.new(line:self.line, name:self.kwrest)
-        scope.assign_local_reference(self.kwrest_asgn)
-      )
+      self.kwargs.each |var| { scope.assign_local_reference(var) }
+      self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest)
       
       self.block && scope.assign_local_reference(self.block)
     }
@@ -162,7 +154,7 @@ CodeTools::AST << {
     # TODO: simplify
     bytecode: |g| {
       g.state.check_for_locals = false
-      map_locals(g.state.scope)
+      self.map_locals(g.state.scope)
       
       self.optional.each |param| {
         done = g.new_label
@@ -181,8 +173,8 @@ CodeTools::AST << {
         missing_value_label = g.new_label
         defaults_label = g.new_label
         
-        keywords_value = LocalVariableAccess.new(self.line, :"__myco_kwargs_value__")
-        keywords_value.bytecode(g)
+        kwargs_value_var = g.state.scope.search_local(:"__myco_kwargs_value__")
+        kwargs_value_var.get_bytecode(g)
         
         g.dup; g.goto_if_not_nil(assignments_label) # TODO: trivially remove this line?
         
@@ -232,11 +224,12 @@ CodeTools::AST << {
           g.push(required_kwargs.size)
           g.goto_if_not_equal(extra_keys_label)
           
-          self.kwrest_asgn && (
+          self.kwrest.is_a?(Symbol) && (
             g.push_cpath_top
             g.find_const(:"Hash")
             g.send(:allocate, 0, true)
-            self.kwrest_asgn.variable.set_bytecode(g)
+            kwrest_asgn = g.state.scope.search_local(self.kwrest)
+            kwrest_asgn.set_bytecode(g)
             g.pop
           )
           
@@ -276,8 +269,9 @@ CodeTools::AST << {
         self.kwrest &? g.push(:true) ?? g.push(:false)
         
         g.send(:keywords_extra, 2, true)
-        self.kwrest_asgn && (
-          self.kwrest_asgn.variable.set_bytecode(g)
+        self.kwrest.is_a?(Symbol) && (
+          kwrest_asgn = g.state.scope.search_local(self.kwrest)
+          kwrest_asgn.set_bytecode(g)
         )
         g.pop
         
