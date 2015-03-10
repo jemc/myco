@@ -9,8 +9,9 @@ CodeTools::AST << {
     )
   }
   
-  LocalVariableAssignment < LocalVariable, Node, BasicObject {
+  LocalVariableAssignment < Node, BasicObject {
     var name, var value
+    var variable # TODO: remove
     
     to_sexp: [:lasgn, self.name, self.value]
     

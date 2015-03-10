@@ -8,8 +8,9 @@ CodeTools::AST << {
     )
   }
   
-  BlockParameter < LocalVariable, Node, BasicObject {
+  BlockParameter < Node, BasicObject {
     var name
+    var variable # TODO: remove
     
     to_sexp: [:blkprm, self.name]
     
