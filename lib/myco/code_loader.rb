@@ -200,7 +200,7 @@ module Myco
         return nil unless filename
         
         compiled_file_type.dump(
-          @compiled_code, filename, Rubinius::Signature, 0
+          @compiled_code, filename, Rubinius::Signature, Rubinius::RUBY_LIB_VERSION
         )
       end
       
@@ -297,6 +297,7 @@ module Myco
           @compiled_code = primitive_load_file \
             @filename, Rubinius::Signature, Rubinius::RUBY_LIB_VERSION
         rescue Rubinius::InvalidRBC => e
+          warn e.message
           File.delete @filename
           raise e
         end
