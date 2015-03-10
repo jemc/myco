@@ -1,8 +1,9 @@
 
 CodeTools::AST << {
   
-  MycoModuleScope < ModuleScope, CodeTools::Compiler::LocalVariables, BasicObject {
-    var name
+  # TODO: rename to something else
+  MycoModuleScope < CodeTools::Compiler::LocalVariables, Node, BasicObject {
+    var name, var body
     
     bytecode: |g| {
       pos(g)
