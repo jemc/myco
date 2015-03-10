@@ -1,37 +1,12 @@
 
 module Myco
   
-  # Most of method is stolen from Rubinius implementation of Kernel#eval
-  # TODO: remove in favor of CodeLoader
-  def self.eval(string, scope=nil, filename=nil, lineno=nil, type=:myco)
-    string = StringValue(string)
-    filename = StringValue(filename) if filename
-    lineno = Rubinius::Type.coerce_to lineno, Fixnum, :to_i if lineno
-    lineno = 1 if filename && !lineno
-    
-    binding = ::Binding.setup(Rubinius::VariableScope.of_sender,
-                              Rubinius::CompiledCode.of_sender,
-                              (scope||Rubinius::ConstantScope.of_sender),
-                              self)
-    
-    filename ||= "(eval)"
-    
-    lineno ||= binding.line_number
-    
-    existing_scope = binding.constant_scope
-    binding.constant_scope = existing_scope.dup
-    
-    compiler_class = case type
-    when :myco; Myco::ToolSet::Compiler
-    when :ruby; Rubinius::ToolSets::Runtime::Compiler
-    else; raise NotImplementedError
-    end
-    
-    be = compiler_class.construct_block string, binding, filename, lineno
-    
-    result = be.call_on_instance(binding.self)
-    binding.constant_scope = existing_scope
-    result
+  # TODO: deprecate with proper import set of functions
+  def self.eval(string, call_depth:1)
+    loader = Myco::CodeLoader::MycoLoader.new("(eval)")
+    loader.bind_to(call_depth: call_depth + 1)
+    loader.string = string
+    loader.load
   end
   
   # TODO: deprecate with proper import set of functions
