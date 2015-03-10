@@ -285,7 +285,7 @@ CodeTools::AST << {
     }
   }
   
-  Block << {
+  Body << {
     to_ruby: |g|
       g.add("("); g.list(self.array, "", auto_lines:true); g.add(")")
   }

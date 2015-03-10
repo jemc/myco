@@ -4,9 +4,6 @@ CodeTools::AST << {
   # These builder methods are copied directly from rubinius-processor
   # TODO: remove all dependencies on rubinius-processor and rubinius-ast
   BuilderMethods << {
-    block: |loc, array|
-      Block.new(loc.line, array)
-    
     block_pass: |loc, arguments, body|
       BlockPass19.new(loc.line, arguments, body)
   }
