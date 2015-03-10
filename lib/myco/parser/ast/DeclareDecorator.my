@@ -23,12 +23,12 @@ CodeTools::AST << {
       sexp
     }
     
-    bytecode: |g| {
-      pos(g)
-      
-      ary = ArrayLiteral.new(self.line, [self.name, self.arguments])
-      ary.bytecode(g)
-    }
+    implementation: ArrayAssembly.new(
+      line:self.line
+      body:[self.name, self.arguments]
+    )
+    
+    bytecode: |g| pos(g); implementation.bytecode(g)
   }
   
 }
