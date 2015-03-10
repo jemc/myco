@@ -1,34 +1,6 @@
 
 CodeTools::AST << {
   
-  Node << {
-    
-    # Monkey-patch-replace to be compatible with ParameterAssembly
-    # TODO: move this to a complete Node definition, independent of rubinius-ast
-    new_block_generator: |g, parameters| {
-      blk = g.class.new
-      blk.name = g.state.name || :"__block__"
-      blk.file = g.file
-      blk.for_block = true
-      
-      parameters.generator_setup(blk)
-      
-      blk
-    }
-    
-    # Monkey-patch-replace to be compatible with ParameterAssembly
-    # TODO: move this to a complete Node definition, independent of rubinius-ast
-    new_generator: |g, name, parameters=null| {
-      meth = g.class.new
-      meth.name = name
-      meth.file = g.file
-      
-      parameters && parameters.generator_setup(meth)
-      
-      meth
-    }
-  }
-  
   BuilderMethods << {
     args: |loc, required, optional, splat, post, kwargs, kwrest, block| ParameterAssembly.new(
       line:     loc.line

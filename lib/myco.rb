@@ -18,9 +18,7 @@ end
 module Myco
   ToolSet = Rubinius::ToolSets.create :myco_boot do
     require "rubinius/melbourne"
-    require "rubinius/processor"
     require "rubinius/compiler"
-    require "rubinius/ast"
     
     require_relative 'myco/parser'
   end
@@ -30,9 +28,7 @@ end
 module Myco
   ToolSet = Rubinius::ToolSets.create :myco do
     require "rubinius/melbourne"
-    require "rubinius/processor"
     require "rubinius/compiler"
-    require "rubinius/ast"
     
     require_relative 'myco/parser'
   end

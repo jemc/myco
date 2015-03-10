@@ -1,8 +1,6 @@
 
 CodeTools::AST << {
   
-  # TODO: remove all dependencies on rubinius-processor and rubinius-ast
-  
   # Helper methods for bytecode generation
   ::CodeTools::Generator << {
     push_myco: push_cpath_top; find_const(:"Myco")

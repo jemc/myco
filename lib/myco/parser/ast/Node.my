@@ -1,0 +1,67 @@
+
+CodeTools::AST << {
+  
+  Node < BasicObject {
+    var line
+    
+    pos: |g| g.set_line(self.line)
+    
+    new_block_generator: |g, parameters| {
+      blk = g.class.new
+      blk.name = g.state.name || :"__block__"
+      blk.file = g.file
+      blk.for_block = true
+      
+      parameters.generator_setup(blk)
+      
+      blk
+    }
+    
+    new_generator: |g, name, parameters=null| {
+      meth = g.class.new
+      meth.name = name
+      meth.file = g.file
+      
+      parameters && parameters.generator_setup(meth)
+      
+      meth
+    }
+  }
+  
+  # TODO: move this out of Node.my ?
+  State < BasicObject {
+    var scope
+    
+    # TODO: decouple rubinius-compiler from rubinius-ast and remove this hack
+    sclass new: |scope| {
+      obj = allocate
+      obj.scope = scope
+      obj
+    }
+    
+    var names: [] # stack of names
+    push_name: |x| self.names.push(x)
+    pop_name:      self.names.pop
+    name:          self.names.last
+    
+    # TODO: investigate the possibility of removing
+    var supers: [] # stack of supers
+    push_super: |x| self.supers.push(x)
+    pop_super:      self.supers.pop
+    super:          self.supers.last
+    
+    # TODO: investigate the possibility of removing
+    var evals: [] # stack of evals
+    push_eval: |x| self.evals.push(x)
+    pop_eval:      self.evals.pop
+    eval:          self.evals.last
+    
+    # TODO: investigate the possibility of removing
+    var block: 0 # count block levels
+    push_block: self.block = self.block + 1
+    pop_block: (self.block > 0) && (self.block = self.block - 1)
+    
+    # TODO: investigate the possibility of removing
+    var check_for_locals: true
+  }
+}

@@ -3,6 +3,8 @@ module CodeTools::AST
   module BuilderMethods; end
 end
 
+Myco.eval_file 'ast/Node.my'
+
 Myco.eval_file 'ast/Script.my'
 
 Myco.eval_file 'ast/StringLiteral.my'

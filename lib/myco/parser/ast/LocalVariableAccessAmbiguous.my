@@ -20,9 +20,8 @@ CodeTools::AST << {
       local &? (
         local.get_bytecode(g)
       ) ?? (
-        rcvr = Self.new(line:self.line)
-        send = Send.new(self.line, rcvr, self.name, true, true)
-        send.bytecode(g)
+        g.push_self
+        g.send(self.name, 0)
       )
     }
   }

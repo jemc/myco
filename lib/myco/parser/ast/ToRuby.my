@@ -353,9 +353,6 @@ CodeTools::AST << {
       )
     }
   }
-  CollectSplat << { to_ruby: |g| { } } # TODO
-  ConcatArgs   << { to_ruby: |g| { } } # TODO
-  PushArgs     << { to_ruby: |g| { } } # TODO
   
   BlockArgument << {
     to_ruby: |g| g.add("&"); g.add(self.body)
@@ -392,9 +389,5 @@ CodeTools::AST << {
         g.add(self.left); g.add(') {')
         g.add(self.right); g.add('}')
     }
-  }
-  
-  Return << {
-    to_ruby: |g| g.add("return "); g.add(self.value)
   }
 }
