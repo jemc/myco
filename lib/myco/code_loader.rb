@@ -16,12 +16,6 @@ module Myco
     # Use generated ruby files only when Myco files cannot be found or loaded.
     self.precedence = [:rbc, :myco, :rb]
     
-    # TODO: a more elegant solution than env vars
-    # Emit ruby if env var indicates
-    # Load from ruby exclusively if env var indicates
-    self.emit_rb    = true    if ENV['MYCO_TO_RUBY'] == 'PRE'
-    self.precedence = [:myco] if ENV['MYCO_TO_RUBY'] == 'PRE'
-    
     # Try to resolve the given file path
     # in the current working directory or in the given load paths.
     def self.resolve_file path, load_paths=[]
@@ -249,12 +243,6 @@ module Myco
     end
     
     class MycoLoader < AbstractLoader
-      def initialize *args
-        # TODO: a more elegant solution than env vars
-        raise NotImplementedError if ENV['MYCO_TO_RUBY'] == 'POST'
-        super
-      end
-      
       def ast_root_for(body)
         Myco::ToolSet::AST::Script.new(body: body)
       end
@@ -303,12 +291,6 @@ module Myco
       
       def emit_rb!;  nil end
       def emit_rbc!; nil end
-      
-      def initialize *args
-        # TODO: a more elegant solution than env vars
-        raise NotImplementedError if ENV['MYCO_TO_RUBY'] == 'POST'
-        super
-      end
       
       def make_compiled_code
         begin
