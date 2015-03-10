@@ -2,7 +2,7 @@
 module Myco
   
   # TODO: deprecate with proper import set of functions
-  def self.eval(string, call_depth:1)
+  def self.eval string, call_depth:1
     loader = Myco::CodeLoader::MycoLoader.new("(eval)")
     loader.bind_to(call_depth: call_depth + 1)
     loader.string = string
@@ -16,12 +16,7 @@ module Myco
     get_last ? file_toplevel.component.__last__ : file_toplevel.component
   end
   
-  def self.file_to_ruby use_path
-    parser = Myco::ToolSet::Parser.new(use_path, 1, [])
-    ast = parser.parse_string File.read(use_path)
-    ast.to_ruby_code
-  end
-  
+  # TODO: replace backtrace in a different way, without this hack
   def self.rescue
     begin
       yield
