@@ -1,0 +1,34 @@
+
+CodeTools::AST << {
+  
+  BuilderMethods << {
+    block_pass: |loc, arguments, body| BlockArgument.new(
+      line:      loc.line
+      arguments: arguments
+      body:      body
+    )
+  }
+  
+  BlockArgument < Node, BasicObject {
+    var arguments # TODO: get rid of this property
+    var body
+    
+    to_sexp: [:block_pass, self.body.to_sexp]
+    
+    bytecode: |g| {
+      self.body.bytecode(g)
+      
+      done_label = g.new_label
+      g.dup
+      g.is_nil
+      g.goto_if_true(done_label)
+      
+      g.push_cpath_top; g.find_const(:"Proc")
+        g.swap
+      g.send(:"__from_block__", 1)
+      
+      done_label.set!
+    }
+  }
+  
+}

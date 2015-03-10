@@ -12,7 +12,7 @@ CodeTools::AST << {
     var body, var block
     
     setter body: |given_body| {
-      given_body.last.is_a?(BlockPass) && (self.block = given_body.pop)
+      given_body.last.is_a?(BlockArgument) && (self.block = given_body.pop)
       given_body
     }
     

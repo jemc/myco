@@ -295,7 +295,7 @@ CodeTools::AST << {
   InvokeMethod << {
     to_ruby: |g| {
       list = self.arguments &? self.arguments.body.dup ?? []
-      self.arguments.block.is_a?(BlockPass) &&
+      self.arguments.block.is_a?(BlockArgument) && # TODO: receive block as part of arguments list
         list.push(self.arguments.block)
       
       g.add(self.receiver)
@@ -357,7 +357,7 @@ CodeTools::AST << {
   ConcatArgs   << { to_ruby: |g| { } } # TODO
   PushArgs     << { to_ruby: |g| { } } # TODO
   
-  BlockPass << {
+  BlockArgument << {
     to_ruby: |g| g.add("&"); g.add(self.body)
   }
   
