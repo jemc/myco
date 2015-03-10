@@ -139,7 +139,7 @@ module Myco
         parser = parser_type.new(@filename, @line, [])
         ast = parser.parse_string(@string)
         
-        ast = ast_root_type.new(ast) if ast_root_type
+        ast = ast_root_for(ast)
         ast.file = filename.to_sym
         ast.variable_scope = @variable_scope
         
@@ -255,8 +255,8 @@ module Myco
         super
       end
       
-      def ast_root_type
-        Myco::ToolSet::AST::EvalExpression
+      def ast_root_for(body)
+        Myco::ToolSet::AST::Script.new(body: body)
       end
       
       def parser_type
@@ -281,8 +281,8 @@ module Myco
         super *args
       end
       
-      def ast_root_type
-        Rubinius::ToolSets::Runtime::AST::EvalExpression
+      def ast_root_for(body)
+        Rubinius::ToolSets::Runtime::AST::EvalExpression.new(body)
       end
       
       def parser_type

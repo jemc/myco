@@ -1,0 +1,27 @@
+
+CodeTools::AST << {
+  
+  # TODO: consider moving out of the AST namespace - or maybe collapse into FileToplevel
+  Script < Node, BasicObject {
+    var file, var body
+    var variable_scope # TODO: remove?
+    
+    nest_scope: |scope| scope.parent = self
+    search_local: null # TODO: revisit and possibly implement for nested evals
+    
+    to_sexp: [:script, self.file, self.body.to_sexp]
+    
+    bytecode: |g| {
+      g.name = :"__script__"
+      g.file = self.file.to_sym
+      
+      g.push_state(self)
+      
+      self.body.bytecode(g)
+      g.ret
+      
+      g.pop_state
+    }
+  }
+  
+}

@@ -195,7 +195,7 @@ CodeTools::AST << {
       g.with_nested_var_scope(self) { g.add(self.body) }
   }
   
-  EvalExpression << { to_ruby: |g| g.add(self.body) }
+  Script      << { to_ruby: |g| g.add(self.body) }
   DeclareFile << { to_ruby: |g| g.line; implementation.to_ruby(g); g.line }
   
   DeclareObject << {
