@@ -4971,7 +4971,7 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # in_arg_block = t_OP_TOPROC:to expr_atom:n0 {node(:block_pass, to, nil, n0)}
+  # in_arg_block = t_OP_TOPROC:to expr_atom:n0 {node(:blkarg, to, n0)}
   def _in_arg_block
 
     _save = self.pos
@@ -4988,7 +4988,7 @@ class CodeTools::PegParser
         self.pos = _save
         break
       end
-      @result = begin; node(:block_pass, to, nil, n0); end
+      @result = begin; node(:blkarg, to, n0); end
       _tmp = true
       unless _tmp
         self.pos = _save
@@ -7139,7 +7139,7 @@ class CodeTools::PegParser
   Rules[:_in_arg_kwarg_mark] = rule_info("in_arg_kwarg_mark", "c_spc_nl* t_MEME_MARK:to")
   Rules[:_in_arg_kwarg] = rule_info("in_arg_kwarg", "id_as_symbol:n0 in_arg_kwarg_mark c_spc_nl* arg_expr:n1 { [n0, n1] }")
   Rules[:_in_arg_splat] = rule_info("in_arg_splat", "t_OP_MULT:to expr_atom:n0 {node(:splat, to, n0)}")
-  Rules[:_in_arg_block] = rule_info("in_arg_block", "t_OP_TOPROC:to expr_atom:n0 {node(:block_pass, to, nil, n0)}")
+  Rules[:_in_arg_block] = rule_info("in_arg_block", "t_OP_TOPROC:to expr_atom:n0 {node(:blkarg, to, n0)}")
   Rules[:_in_arg_list] = rule_info("in_arg_list", "(in_arg_normals:n0 arg_sep in_arg_kwargs:n1 arg_sep in_arg_block:n2 { [*n0,n1,n2] } | in_arg_normals:n0 arg_sep in_arg_kwargs:n1 { [*n0,n1] } | in_arg_normals:n0 arg_sep in_arg_block:n1 { [*n0,n1] } | in_arg_kwargs:n0 arg_sep in_arg_block:n1 { [n0, n1] } | in_arg_normals:n0 { [*n0] } | in_arg_kwargs:n0 { [n0] } | in_arg_block:n0 { [n0] })")
   Rules[:_arg_list] = rule_info("arg_list", "(t_ARGS_BEGIN:tb arg_sep_opt t_ARGS_END {node(:argass, tb, [])} | t_ARGS_BEGIN:tb arg_sep_opt in_arg_list:nlist arg_sep_opt t_ARGS_END {node(:argass, tb, nlist)})")
   Rules[:_lit_array] = rule_info("lit_array", "(t_ARRAY_BEGIN:tb arg_sep_opt t_ARRAY_END {node(:arrass, tb, [])} | t_ARRAY_BEGIN:tb arg_sep_opt in_arg_list:nlist arg_sep_opt t_ARRAY_END {node(:arrass, tb, nlist)})")

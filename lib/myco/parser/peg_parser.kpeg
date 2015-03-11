@@ -465,7 +465,7 @@ in_arg_splat  =
 
 in_arg_block  =
   t_OP_TOPROC:to expr_atom:n0
-    ~node(:block_pass, to, nil, n0)
+    ~node(:blkarg, to, n0)
 
 in_arg_list =
   in_arg_normals:n0 arg_sep in_arg_kwargs:n1 arg_sep in_arg_block:n2  { [*n0,n1,n2] }

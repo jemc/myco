@@ -2,18 +2,16 @@
 CodeTools::AST << {
   
   BuilderMethods << {
-    block_pass: |loc, arguments, body| BlockArgument.new(
-      line:      loc.line
-      arguments: arguments
-      body:      body
+    blkarg: |loc, body| BlockArgument.new(
+      line: loc.line
+      body: body
     )
   }
   
   BlockArgument < Node, BasicObject {
-    var arguments # TODO: get rid of this property
     var body
     
-    to_sexp: [:block_pass, self.body.to_sexp]
+    to_sexp: [:blkarg, self.body.to_sexp]
     
     bytecode: |g| {
       self.body.bytecode(g)
