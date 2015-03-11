@@ -31,6 +31,6 @@ stages.each do |toolset_name|
     require "rubinius/melbourne"
     require "rubinius/compiler"
     
-    require_relative 'myco/parser'
+    require_relative 'myco/code_tools'
   end
 end

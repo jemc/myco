@@ -1,0 +1,54 @@
+
+CodeTools::AST << {
+  BuilderMethods: Module.new { } # TODO: move out of this file
+}
+
+import 'AST/Node.my'
+
+import 'AST/Script.my'
+
+import 'AST/StringLiteral.my'
+import 'AST/SymbolLiteral.my'
+import 'AST/DynamicString.my'
+import 'AST/DynamicSymbol.my'
+
+import 'AST/Body.my'
+
+import 'AST/SplatValue.my'
+import 'AST/ArrayAssembly.my'
+import 'AST/KeywordAssembly.my'
+import 'AST/ArgumentAssembly.my'
+import 'AST/BlockArgument.my'
+import 'AST/BlockLiteral.my'
+
+import 'AST/BlockParameter.my'
+import 'AST/ParameterAssembly.my'
+
+import 'AST/MycoModuleScope.my'
+
+import 'AST/ConstantAccess.my'
+import 'AST/ConstantAccessScoped.my'
+import 'AST/ConstantAccessToplevel.my'
+import 'AST/ConstantAssignment.my'
+import 'AST/ConstantDefine.my'
+import 'AST/ConstantReopen.my'
+import 'AST/DeclareCategory.my'
+import 'AST/DeclareDecorator.my'
+import 'AST/DeclareFile.my'
+import 'AST/DeclareMeme.my'
+import 'AST/DeclareObject.my'
+import 'AST/DeclareString.my'
+
+import 'AST/Invoke.my'
+import 'AST/InvokeMethod.my'
+import 'AST/LocalVariableAccessAmbiguous.my'
+import 'AST/LocalVariableAssignment.my'
+import 'AST/BlockLiteral.my'
+
+import 'AST/Quest.my'
+import 'AST/BranchOperator.my'
+
+# TODO: refactor and break out misc
+import "AST/misc.my"
+
+import 'AST/ToRuby.my'

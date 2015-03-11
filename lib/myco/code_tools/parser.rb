@@ -17,7 +17,6 @@ module CodeTools
   end
 end
 
-require_relative 'parser/ast'
 require_relative 'parser/peg_parser'
 
 module CodeTools
