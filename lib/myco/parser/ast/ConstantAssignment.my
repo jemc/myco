@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantAssignment < Node, BasicObject {
+  ConstantAssignment < Node {
     var constant, var value
     
     Form: [:cdecl, :constant, :value]

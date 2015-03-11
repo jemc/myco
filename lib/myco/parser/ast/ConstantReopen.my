@@ -11,7 +11,7 @@ CodeTools::AST << {
     }
   }
   
-  ConstantReopen < Node, BasicObject {
+  ConstantReopen < Node {
     var name, var body # TODO: rename 'var name' as 'var constant'
     
     Form: [:copen, :name, :body]

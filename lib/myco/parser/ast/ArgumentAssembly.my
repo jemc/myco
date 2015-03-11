@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ArgumentAssembly < Node, BasicObject {
+  ArgumentAssembly < Node {
     var body, var block
     
     Form: [:argass, :body]

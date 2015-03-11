@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  LocalVariableAccessAmbiguous < Node, BasicObject {
+  LocalVariableAccessAmbiguous < Node {
     var name
     
     Form: [:lambig, :name]

@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantAccessScoped < Node, BasicObject {
+  ConstantAccessScoped < Node {
     var parent, var name
     
     Form: [:colon2, :parent, :name]

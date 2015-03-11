@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ArrayAssembly < Node, BasicObject {
+  ArrayAssembly < Node {
     var body
     
     Form: [:arrass, :body]

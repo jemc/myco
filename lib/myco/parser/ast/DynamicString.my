@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DynamicString < Node, BasicObject {
+  DynamicString < Node {
     var body
     
     Form: [:dstr, :body]

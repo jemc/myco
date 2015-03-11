@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantAccessToplevel < Node, BasicObject {
+  ConstantAccessToplevel < Node {
     var name
     
     Form: [:colon3, :name]

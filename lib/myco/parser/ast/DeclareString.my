@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DeclareString < Node, BasicObject {
+  DeclareString < Node {
     var types, var string
     
     Form: [:declstr, :types, :string]

@@ -38,7 +38,7 @@ CodeTools::AST << {
     }
   }
   
-  DeclareMeme < Node, BasicObject {
+  DeclareMeme < Node {
     var name, var decorations, var arguments, var body
     
     Form: [:meme, :name, :decorations, :arguments, :body]

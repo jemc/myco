@@ -2,7 +2,7 @@
 CodeTools::AST << {
   
   # TODO: rename to something else
-  MycoModuleScope < CodeTools::Compiler::LocalVariables, Node, BasicObject {
+  MycoModuleScope < CodeTools::Compiler::LocalVariables, Node {
     var name, var body
     
     bytecode: |g| {

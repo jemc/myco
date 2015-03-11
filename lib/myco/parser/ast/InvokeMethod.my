@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  InvokeMethod < Node, BasicObject {
+  InvokeMethod < Node {
     var receiver, var name, var arguments
     
     Form: [:call, :receiver, :name, :arguments]

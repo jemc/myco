@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DeclareDecorator < Node, BasicObject {
+  DeclareDecorator < Node {
     var name, var arguments
     
     setter arguments: |x|

@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  BlockParameter < Node, BasicObject {
+  BlockParameter < Node {
     var name
     var variable # TODO: remove
     

@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  BlockLiteral < CodeTools::Compiler::LocalVariables, Node, BasicObject {
+  BlockLiteral < CodeTools::Compiler::LocalVariables, Node {
     # TODO: rename arguments as parameters
     var arguments, var body
     var parent # TODO: investigate removing

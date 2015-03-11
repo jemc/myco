@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DynamicSymbol < Node, BasicObject {
+  DynamicSymbol < Node {
     var body
     
     Form: [:dsym, :body]

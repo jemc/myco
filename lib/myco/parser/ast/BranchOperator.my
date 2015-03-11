@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  BranchOperator < Node, BasicObject {
+  BranchOperator < Node {
     var type, var left, var right
     
     Form: [:branch_op, :type, :left, :right]

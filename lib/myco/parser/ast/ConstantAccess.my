@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantAccess < Node, BasicObject {
+  ConstantAccess < Node {
     var name
     
     Form: [:const, :name]

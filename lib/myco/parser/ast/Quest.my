@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  Quest < Node, BasicObject {
+  Quest < Node {
     var receiver, var questable
     
     Form: [:quest, :receiver, :questable]
@@ -47,7 +47,7 @@ CodeTools::AST << {
     }
     
     
-    FakeReceiver < Node, BasicObject {
+    FakeReceiver < Node {
       Form: [:qrcvr]
       
       # Do nothing here - this would normally be ill-advised,

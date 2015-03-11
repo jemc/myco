@@ -11,7 +11,7 @@ CodeTools::AST << {
     }
   }
   
-  DeclareCategory < Node, BasicObject {
+  DeclareCategory < Node {
     var name, var body
     
     Form: [:category, :name, :body]

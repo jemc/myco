@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantDefine < Node, BasicObject {
+  ConstantDefine < Node {
     var constant, var object
     
     Form: [:cdefn, :constant, :object]

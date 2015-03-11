@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  StringLiteral < Node, BasicObject {
+  StringLiteral < Node {
     var value
     
     Form: [:str, :value]

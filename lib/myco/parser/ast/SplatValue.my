@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  SplatValue < Node, BasicObject {
+  SplatValue < Node {
     var value
     
     Form: [:splat, :value]

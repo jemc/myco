@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  LocalVariableAssignment < Node, BasicObject {
+  LocalVariableAssignment < Node {
     var name, var value
     var variable # TODO: remove
     

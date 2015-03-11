@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  SymbolLiteral < Node, BasicObject {
+  SymbolLiteral < Node {
     var value
     
     Form: [:lit, :value]

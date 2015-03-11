@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  Body < Node, BasicObject {
+  Body < Node {
     var array
     
     Form: [:block, :array]
