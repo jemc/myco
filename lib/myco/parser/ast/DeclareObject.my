@@ -1,14 +1,6 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    declobj: |loc, types, body| DeclareObject.new(
-      line:  loc.line
-      types: types
-      body:  body
-    )
-  }
-  
   DeclareObjectScope < MycoModuleScope {
     body_bytecode: |g| {
       g.push_scope
@@ -22,10 +14,10 @@ CodeTools::AST << {
   DeclareObject < Node, BasicObject {
     var types, var body
     
+    Form: [:declobj, :types, :body]
+    
     var create: true
     var scope_type: DeclareObjectScope
-    
-    to_sexp: [:declobj, self.types.to_sexp, self.body.to_sexp]
     
     var scope_implementation: self.scope_type.new(
       line: self.line

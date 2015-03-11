@@ -1,25 +1,14 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    argass: |loc, body| ArgumentAssembly.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   ArgumentAssembly < Node, BasicObject {
     var body, var block
+    
+    Form: [:argass, :body]
     
     setter body: |given_body| {
       given_body.last.is_a?(BlockArgument) && (self.block = given_body.pop)
       given_body
-    }
-    
-    to_sexp: {
-      sexp = [:arglist] + self.body.map(&:to_sexp)
-      self.block && sexp.push(self.block.to_sexp)
-      sexp
     }
     
     # All items before the first SplatValue

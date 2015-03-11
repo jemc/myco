@@ -1,18 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    colon3: |loc, name| ConstantAccessToplevel.new(
-      line: loc.line
-      name: name
-    )
-  }
-    
   ConstantAccessToplevel < Node, BasicObject {
-    var name, var parent
+    var name
     
-    to_sexp: [:colon3, self.name]
-    assign_sexp: to_sexp
+    Form: [:colon3, :name]
     
     bytecode: |g| {
       pos(g)

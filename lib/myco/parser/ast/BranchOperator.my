@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    branch_op: |loc, type, left, right| BranchOperator.new(
-      line:  loc.line
-      type:  type
-      left:  left
-      right: right
-    )
-  }
-  
   BranchOperator < Node, BasicObject {
     var type, var left, var right
+    
+    Form: [:branch_op, :type, :left, :right]
     
     bytecode: |g| {
       pos(g)
@@ -61,8 +54,6 @@ CodeTools::AST << {
       self.right.bytecode(g)
       done_label.set!
     }
-    
-    to_sexp: [:branch_op, self.type, self.left.to_sexp, self.right.to_sexp]
   }
   
 }

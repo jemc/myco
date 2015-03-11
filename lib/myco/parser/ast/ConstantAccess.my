@@ -1,18 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    const: |loc, name| ConstantAccess.new(
-      line: loc.line
-      name: name
-    )
-  }
-    
   ConstantAccess < Node, BasicObject {
     var name
     
-    to_sexp: [:const, self.name]
-    assign_sexp: self.name
+    Form: [:const, :name]
     
     bytecode: |g| {
       pos(g)

@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    lambig: |loc, name| LocalVariableAccessAmbiguous.new(
-      line: loc.line
-      name: name
-    )
-  }
-  
   LocalVariableAccessAmbiguous < Node, BasicObject {
     var name
     
-    to_sexp: [:lambig, self.name]
+    Form: [:lambig, :name]
     
     bytecode: |g| {
       pos(g)

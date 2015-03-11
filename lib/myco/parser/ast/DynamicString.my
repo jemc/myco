@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    dstr: |loc, body| DynamicString.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   DynamicString < Node, BasicObject {
     var body
     
-    to_sexp: [:dstr] + self.body.map(&:to_sexp)
+    Form: [:dstr, :body]
     
     bytecode: |g| {
       pos(g)

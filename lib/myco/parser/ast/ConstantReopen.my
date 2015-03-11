@@ -1,14 +1,6 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    copen: |loc, name, body| ConstantReopen.new(
-      line: loc.line
-      name: name
-      body: body
-    )
-  }
-  
   ConstantReopenScope < MycoModuleScope {
     body_bytecode: |g| {
       g.push_scope
@@ -20,9 +12,9 @@ CodeTools::AST << {
   }
   
   ConstantReopen < Node, BasicObject {
-    var name, var body
+    var name, var body # TODO: rename 'var name' as 'var constant'
     
-    to_sexp: [:copen, self.name.name, self.body.to_sexp]
+    Form: [:copen, :name, :body]
     
     bytecode: |g| {
       pos(g)

@@ -1,18 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    splat: |loc, value| SplatValue.new(
-      line: loc.line
-      value: value
-    )
-  }
-  
   SplatValue < Node, BasicObject {
     var value
     
-    to_sexp: [:splat, self.value.to_sexp]
-    splat?: true
+    Form: [:splat, :value]
     
     bytecode: |g| {
       self.value.bytecode(g)

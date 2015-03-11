@@ -8,38 +8,50 @@ CodeTools::AST << {
     push_null: push_nil
   }
   
-  # These builder methods process the null and void literals
-  BuilderMethods << {
-    self:  |loc| Self.new(line:loc.line)
-    null:  |loc| NullLiteral.new(line:loc.line)
-    void:  |loc| VoidLiteral.new(line:loc.line)
-    true:  |loc| TrueLiteral.new(line:loc.line)
-    false: |loc| FalseLiteral.new(line:loc.line)
-  }
-  
   Self < Node {
-    to_sexp: [:self]
+    Form: [:self]
     bytecode: |g| pos(g); g.push_self
   }
   
   NullLiteral < Node {
-    to_sexp: [:null]
+    Form: [:null]
     bytecode: |g| pos(g); g.push_null
   }
   
   VoidLiteral < Node {
-    to_sexp: [:void]
+    Form: [:void]
     bytecode: |g| pos(g); g.push_void
   }
   
   TrueLiteral < Node {
-    to_sexp: [:true]
+    Form: [:true]
     bytecode: |g| pos(g); g.push_true
   }
   
   FalseLiteral < Node {
-    to_sexp: [:false]
+    Form: [:false]
     bytecode: |g| pos(g); g.push_false
   }
   
+  # TODO: use some other way to be eager
+  EVALUATE_NOW: ::CodeTools::AST.component_eval {
+    constants.select |const_name| {
+      const_get(const_name).constants.include?(:"Form")
+      }.each |const_name| {
+        component = const_get(const_name)
+        form = component.const_get(:"Form").dup
+        form_name = form.shift
+        
+        BuilderMethods.declare_meme(form_name) |*args| {
+          inst = component.new
+          loc = args.shift
+          inst.line = loc.line
+          form.zip(args).each |key, value| {
+            inst.send(:""key"=", value)
+          }
+          inst
+        }
+      }
+    }
+  }
 }

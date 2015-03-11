@@ -1,19 +1,6 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    args: |loc, required, optional, splat, post, kwargs, kwrest, block| ParameterAssembly.new(
-      line:     loc.line
-      required: required
-      optional: optional
-      splat:    splat
-      post:     post
-      kwargs:   kwargs
-      kwrest:   kwrest
-      block:    block
-    )
-  }
-  
   ParameterAssembly < Node, BasicObject {
     var required: []
     var optional: []
@@ -22,6 +9,8 @@ CodeTools::AST << {
     var kwargs:   []
     var kwrest:   null
     var block:    null
+    
+    Form: [:args, :required, :optional, :splat, :post, :kwargs, :kwrest, :block]
     
     # Called on a new method or block generator
     # to set up various parameter-related properties.

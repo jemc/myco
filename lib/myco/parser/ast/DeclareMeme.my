@@ -1,16 +1,6 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    meme: |loc, name, decorations, arguments, body| DeclareMeme.new(
-      line:        loc.line
-      name:        name
-      decorations: decorations
-      arguments:   arguments
-      body:        body
-    )
-  }
-  
   DeclareMemeBody < BlockLiteral {
     var name
     
@@ -51,6 +41,8 @@ CodeTools::AST << {
   DeclareMeme < Node, BasicObject {
     var name, var decorations, var arguments, var body
     
+    Form: [:meme, :name, :decorations, :arguments, :body]
+    
     setter name: |x|
       x.value
     setter decorations: |x|
@@ -59,13 +51,6 @@ CodeTools::AST << {
       x || ParameterAssembly.new(line:line, required:[], splat:true)
     setter body: |x|
       x || NullLiteral.new(line:line)
-    
-    to_sexp: [:meme
-      self.name
-      self.decorations.to_sexp
-      self.arguments.to_sexp
-      self.body.to_sexp
-    ]
     
     body_implementation: DeclareMemeBody.new(
       line:      self.line

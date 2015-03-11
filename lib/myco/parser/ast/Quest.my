@@ -1,23 +1,15 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    quest: |loc, receiver, questable| Quest.new(
-      line:      loc.line
-      receiver:  receiver
-      questable: questable
-    )
-  }
-  
   Quest < Node, BasicObject {
     var receiver, var questable
+    
+    Form: [:quest, :receiver, :questable]
     
     setter questable: |given| {
       given.receiver = FakeReceiver.new(line: self.line)
       given
     }
-    
-    to_sexp: [:quest, self.receiver.to_sexp, self.questable.to_sexp]
     
     bytecode: |g| {
       pos(g)
@@ -56,7 +48,7 @@ CodeTools::AST << {
     
     
     FakeReceiver < Node, BasicObject {
-      to_sexp: [:qrcvr]
+      Form: [:qrcvr]
       
       # Do nothing here - this would normally be ill-advised,
       # because Nodes are expected to push an item onto the stack,

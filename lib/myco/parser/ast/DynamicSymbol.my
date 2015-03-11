@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    dsym: |loc, body| DynamicSymbol.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   DynamicSymbol < Node, BasicObject {
     var body
     
-    to_sexp: [:dsym] + self.body.map(&:to_sexp)
+    Form: [:dsym, :body]
     
     bytecode: |g| {
       pos(g)

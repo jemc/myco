@@ -1,24 +1,17 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    blklit: |loc, arguments, body| BlockLiteral.new(
-      line:      loc.line
-      arguments: arguments
-      body:      body
-    )
-  }
-  
   BlockLiteral < CodeTools::Compiler::LocalVariables, Node, BasicObject {
+    # TODO: rename arguments as parameters
     var arguments, var body
-    var parent
+    var parent # TODO: investigate removing
+    
+    Form: [:blklit, :arguments, :body]
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
     setter arguments: |given| given || ParameterAssembly.new(line:self.line)
     setter body:      |given| given || NullLiteral.new(line:self.line)
-    
-    to_sexp: TODO
     
     locals: self.body.?locals.?body.map(&:value) ?? null
     

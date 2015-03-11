@@ -1,19 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    colon2: |loc, parent, name| ConstantAccessScoped.new(
-      line:   loc.line
-      parent: parent
-      name:   name
-    )
-  }
-    
   ConstantAccessScoped < Node, BasicObject {
-    var name, var parent
+    var parent, var name
     
-    to_sexp: [:colon2, self.parent.to_sexp, self.name]
-    assign_sexp: to_sexp
+    Form: [:colon2, :parent, :name]
     
     bytecode: |g| {
       pos(g)

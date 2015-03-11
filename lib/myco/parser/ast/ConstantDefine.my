@@ -1,28 +1,19 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    cdefn: |loc, constant, object| {
-      object.create = false
-      ConstantDefine.new(
-        line:     loc.line,
-        constant: constant,
-        object:   object
-      )
-    }
-  }
-  
   ConstantDefine < Node, BasicObject {
-    var constant
-    var object
+    var constant, var object
     
-    to_sexp: [:cdefn, self.constant.name, self.object.to_sexp]
+    Form: [:cdefn, :constant, :object]
     
     implementation: ConstantAssignment.new(
       line:     self.line
       constant: self.constant
       value:    self.object
     )
+    
+    # TODO: don't set AST state from here
+    setter object: |given| given.create = false; given
     
     bytecode: |g| {
       pos(g)

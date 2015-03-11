@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    blkarg: |loc, body| BlockArgument.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   BlockArgument < Node, BasicObject {
     var body
     
-    to_sexp: [:blkarg, self.body.to_sexp]
+    Form: [:blkarg, :body]
     
     bytecode: |g| {
       self.body.bytecode(g)

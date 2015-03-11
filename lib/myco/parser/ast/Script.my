@@ -6,10 +6,10 @@ CodeTools::AST << {
     var file, var body
     var variable_scope # TODO: remove?
     
+    Form: [:script, :file, :body]
+    
     nest_scope: |scope| scope.parent = self
     search_local: null # TODO: revisit and possibly implement for nested evals
-    
-    to_sexp: [:script, self.file, self.body.to_sexp]
     
     bytecode: |g| {
       g.name = :"__script__"

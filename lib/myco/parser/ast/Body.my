@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    block: |loc, array| Body.new(
-      line:  loc.line
-      array: array
-    )
-  }
-  
   Body < Node, BasicObject {
     var array
     
-    to_sexp: [:block, *self.array.map(&:to_sexp)]
+    Form: [:block, :array]
     
     bytecode: |g| {
       ary = self.array.dup

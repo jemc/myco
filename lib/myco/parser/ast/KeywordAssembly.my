@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    hash: |loc, body| KeywordAssembly.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   KeywordAssembly < Node, BasicObject {
     var body
     
-    to_sexp: [:hash] + self.body.map(&:to_sexp)
+    Form: [:hash, :body]
     
     bytecode: |g| {
       pos(g)

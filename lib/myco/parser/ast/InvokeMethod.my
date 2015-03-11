@@ -4,7 +4,7 @@ CodeTools::AST << {
   InvokeMethod < Node, BasicObject {
     var receiver, var name, var arguments
     
-    to_sexp: [:call, self.receiver.to_sexp, self.name, self.arguments.to_sexp]
+    Form: [:call, :receiver, :name, :arguments]
     
     bytecode: |g| {
       self.receiver.bytecode(g)

@@ -1,27 +1,13 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    deco: |loc, name, arguments| DeclareDecorator.new(
-      line: loc.line
-      name: name
-      arguments: arguments
-    )
-  }
-  
   DeclareDecorator < Node, BasicObject {
     var name, var arguments
     
     setter arguments: |x|
       x || ArrayAssembly.new(line:self.line, body:[])
     
-    to_sexp: {
-      args_sexp = arguments.to_sexp
-      args_sexp[0] = :arglist
-      sexp = [:deco, self.name.value]
-      arguments.body.empty? || sexp.push(args_sexp)
-      sexp
-    }
+    Form: [:deco, :name, :arguments]
     
     implementation: ArrayAssembly.new(
       line:self.line

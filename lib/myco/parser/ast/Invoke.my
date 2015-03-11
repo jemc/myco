@@ -1,34 +1,23 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    invoke: |loc, receiver, name, arguments, block_params=null, block=null| {
-      node = Invoke.new(
-        line:      loc.line
-        receiver:  receiver
-        name:      name
-        arguments: arguments
-      )
-      # TODO: be more clever with this mechanism
-      # TODO: error if passing both block argument and block literal
-      # Currently, this fails silently and ignores the block argument
-      block && (
-        node.arguments = node.arguments || ArgumentAssembly.new(line:loc.line, body:[])
-        block_params = block_params || ParameterAssembly.new(line:loc.line)
-        node.arguments.block = BlockLiteral.new(line:loc.line, arguments:block_params, body:block)
-      )
-      node
-    }
-  }
-  
   Invoke < Node, BasicObject {
-    var receiver, var name, var arguments
+    var receiver, var name, var arguments, var block_params, var block
+    
+    Form: [:invoke, :receiver, :name, :arguments, :block_params, :block]
     
     bytecode: |g| pos(g); implementation.bytecode(g)
     
-    to_sexp: implementation.to_sexp
-    
     implementation: {
+      # TODO: error if passing both block argument and block literal
+      # Currently, this fails silently and ignores the block argument
+      # TODO: don't change AST state from here
+      self.block && (
+        self.arguments = self.arguments || ArgumentAssembly.new(line:self.line, body:[])
+        self.block_params = self.block_params || ParameterAssembly.new(line:self.line)
+        self.arguments.block = BlockLiteral.new(line:self.line, arguments:self.block_params, body:self.block)
+      )
+      
       self.receiver.nil? && self.arguments.nil? &? (
         LocalVariableAccessAmbiguous.new(
           line: self.line

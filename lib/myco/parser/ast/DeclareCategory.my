@@ -1,14 +1,6 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    category: |loc, name, body| DeclareCategory.new(
-      line: loc.line
-      name: name
-      body: body
-    )
-  }
-  
   DeclareCategoryScope < MycoModuleScope {
     body_bytecode: |g| {
       g.push_scope
@@ -22,7 +14,7 @@ CodeTools::AST << {
   DeclareCategory < Node, BasicObject {
     var name, var body
     
-    to_sexp: [:category, self.name.value, self.body.to_sexp]
+    Form: [:category, :name, :body]
     
     scope_implementation: DeclareCategoryScope.new(
       line: self.line
@@ -33,7 +25,7 @@ CodeTools::AST << {
       pos(g)
       
       g.push_self
-        g.push_literal(self.name.value)
+        g.push_literal(self.name.value) # TODO: ingest as ::Symbol, not AST::SymbolLiteral
       g.send(:__category__, 1)
       
       scope_implementation.bytecode(g)

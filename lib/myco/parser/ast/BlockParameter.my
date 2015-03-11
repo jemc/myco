@@ -1,18 +1,11 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    blkprm: |loc, name| BlockParameter.new(
-      line: loc.line
-      name: name
-    )
-  }
-  
   BlockParameter < Node, BasicObject {
     var name
     var variable # TODO: remove
     
-    to_sexp: [:blkprm, self.name]
+    Form: [:blkprm, :name]
     
     bytecode: |g| {
       pos(g)

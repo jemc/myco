@@ -1,19 +1,11 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    lasgn: |loc, name, value| LocalVariableAssignment.new(
-      line:  loc.line
-      name:  name
-      value: value
-    )
-  }
-  
   LocalVariableAssignment < Node, BasicObject {
     var name, var value
     var variable # TODO: remove
     
-    to_sexp: [:lasgn, self.name, self.value]
+    Form: [:lasgn, :name, :value]
     
     bytecode: |g| {
       var = g.state.scope.assign_local_reference(self)
@@ -24,4 +16,5 @@ CodeTools::AST << {
       var.set_bytecode(g)
     }
   }
+  
 }

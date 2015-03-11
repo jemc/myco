@@ -1,17 +1,10 @@
 
 CodeTools::AST << {
   
-  BuilderMethods << {
-    arrass: |loc, body| ArrayAssembly.new(
-      line: loc.line
-      body: body
-    )
-  }
-  
   ArrayAssembly < Node, BasicObject {
     var body
     
-    to_sexp: [:array] + self.body.map(&:to_sexp)
+    Form: [:arrass, :body]
     
     bytecode: |g| {
       pos(g)
