@@ -8,5 +8,8 @@ script:
   - alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
   - alpha/bin/myco inoculate --verbose beta
   - beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - beta/bin/myco inoculate --verbose gamma
+  - gamma/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - gamma/bin/myco -e "puts('done!')"
 notifications:
   email: false
