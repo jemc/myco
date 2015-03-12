@@ -1,22 +1,6 @@
 
 require 'stringio'
 
-module CodeTools
-  class Parser < Melbourne
-  end
-  
-  class Compiler
-    module ParserPatch
-      def initialize *args
-        super
-        @processor = Myco::ToolSet::Parser
-      end
-    end
-    
-    Parser.prepend ParserPatch
-  end
-end
-
 require_relative 'parser/peg_parser'
 
 module CodeTools

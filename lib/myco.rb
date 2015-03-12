@@ -28,7 +28,6 @@ stages.each do |toolset_name|
       Myco.eval_file 'myco/bootstrap.my'
     end
     
-    require "rubinius/melbourne"
     require "rubinius/compiler"
     
     require_relative 'myco/code_tools'

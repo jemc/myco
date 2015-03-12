@@ -4,7 +4,6 @@ module Myco
   
   MYCO_REQUIRED_GEMS = [
     ['rubinius-toolset',   '~> 2.3'],
-    ['rubinius-melbourne', '~> 2.2'],
     ['rubinius-compiler',  '~> 2.2'],
   ]
   

@@ -130,7 +130,7 @@ module Myco
       def make_ast
         @string || make_string
         
-        parser = parser_type.new(@filename, @line, [])
+        parser = new_parser
         ast = parser.parse_string(@string)
         
         ast = ast_root_for(ast)
@@ -143,7 +143,7 @@ module Myco
       def make_generator
         @ast || make_ast
         
-        g = generator_type.new
+        g = new_generator
         @ast.bytecode(g)
         
         g.close
@@ -247,12 +247,12 @@ module Myco
         Myco::ToolSet::AST::Script.new(body: body)
       end
       
-      def parser_type
-        Myco::ToolSet::Parser
+      def new_parser
+        Myco::ToolSet::Parser.new
       end
       
-      def generator_type
-        Myco::ToolSet::Generator
+      def new_generator
+        Myco::ToolSet::Generator.new
       end
       
       def compiled_file_type
@@ -273,12 +273,12 @@ module Myco
         Rubinius::ToolSets::Runtime::AST::EvalExpression.new(body)
       end
       
-      def parser_type
-        Rubinius::ToolSets::Runtime::Melbourne
+      def new_parser
+        Rubinius::ToolSets::Runtime::Melbourne.new(@filename, @line, [])
       end
       
-      def generator_type
-        Rubinius::ToolSets::Runtime::Generator
+      def new_generator
+        Rubinius::ToolSets::Runtime::Generator.new
       end
       
       def compiled_file_type
