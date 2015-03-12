@@ -105,4 +105,13 @@ BasicSpec {
       d:pr
     ])
   }
+  
+  "interpolates when strings or symbols surround objects": {
+    assert_equal("foo"88"bar", "foo88bar")
+    assert_equal(:"foo"88"bar", :"foo88bar")
+    assert_equal("foo" 88 "bar", "foo88bar")
+    assert_equal(:"foo" 88 "bar", :"foo88bar")
+    assert_equal("foo " 88 " bar", "foo 88 bar")
+    assert_equal(:"foo " 88 " bar", :"foo 88 bar")
+  }
 }
