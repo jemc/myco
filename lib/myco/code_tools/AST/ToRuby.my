@@ -185,7 +185,7 @@ CodeTools::AST << {
   
   ConstantReopen << {
     to_ruby: |g| {
-      g.add(self.name); g.add(".component_eval {")
+      g.add(self.constant); g.add(".component_eval {")
       g.add(self.body); g.add("}")
     }
   }
@@ -210,7 +210,7 @@ CodeTools::AST << {
   
   DeclareCategory << {
     to_ruby: |g| {
-      g.add("__category__("self.name.value.inspect")")
+      g.add("__category__("self.name.inspect")")
       g.add(".component_eval {"); g.add(self.body); g.add("}")
     }
   }
@@ -218,13 +218,13 @@ CodeTools::AST << {
   DeclareMeme << {
     to_ruby: |g| {
       g.with_nested_var_scope(body_implementation) {
-        g.var_scope_declare_locals(*self.arguments.names)
+        g.var_scope_declare_locals(*self.parameters.names)
         
         g.add("declare_meme(")
         g.add(""self.name.inspect", ")
         g.add(self.decorations); g.add(", nil, ::Myco.cscope.dup)")
         g.add(" { ");
-          g.add(self.arguments); g.add(" ")
+          g.add(self.parameters); g.add(" ")
           g.add(self.body);
         g.add("}")
       }
@@ -361,9 +361,9 @@ CodeTools::AST << {
   BlockLiteral << {
     to_ruby: |g| {
       g.with_nested_var_scope(self) {
-        g.var_scope_declare_locals(*self.arguments.names)
+        g.var_scope_declare_locals(*self.parameters.names)
         
-        g.add(" "); g.add(self.arguments); g.add(" "); g.add(self.body)
+        g.add(" "); g.add(self.parameters); g.add(" "); g.add(self.body)
       }
     }
   }

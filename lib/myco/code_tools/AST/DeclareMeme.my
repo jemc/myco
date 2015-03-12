@@ -9,7 +9,7 @@ CodeTools::AST << {
       
       g.state.scope.nest_scope(self)
       
-      meth = new_generator(g, self.name, self.arguments)
+      meth = new_generator(g, self.name, self.parameters)
       
       meth.push_state(self)
       meth.state.push_super(self)
@@ -17,7 +17,7 @@ CodeTools::AST << {
       
       meth.state.push_name(self.name.to_sym)
       
-      self.arguments.bytecode(meth)
+      self.parameters.bytecode(meth)
       self.body.bytecode(meth)
       
       meth.state.pop_name
@@ -39,24 +39,24 @@ CodeTools::AST << {
   }
   
   DeclareMeme < Node {
-    var name, var decorations, var arguments, var body
+    var name, var decorations, var parameters, var body
     
-    Form: [:meme, :name, :decorations, :arguments, :body]
+    Form: [:meme, :name, :decorations, :parameters, :body]
     
     setter name: |x|
       x.value
     setter decorations: |x|
       x || ArrayAssembly.new(line:line, body:[])
-    setter arguments: |x|
+    setter parameters: |x|
       x || ParameterAssembly.new(line:line, required:[], splat:true)
     setter body: |x|
       x || NullLiteral.new(line:line)
     
     body_implementation: DeclareMemeBody.new(
-      line:      self.line
-      name:      self.name
-      arguments: self.arguments
-      body:      self.body
+      line:       self.line
+      name:       self.name
+      parameters: self.parameters
+      body:       self.body
     )
     
     bytecode: |g| {

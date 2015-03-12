@@ -2,15 +2,14 @@
 CodeTools::AST << {
   
   BlockLiteral < CodeTools::Compiler::LocalVariables, Node {
-    # TODO: rename arguments as parameters
-    var arguments, var body
+    var parameters, var body
     var parent # TODO: investigate removing
     
-    Form: [:blklit, :arguments, :body]
+    Form: [:blklit, :parameters, :body]
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
-    setter arguments: |given| given || ParameterAssembly.new(line:self.line)
+    setter parameters: |given| given || ParameterAssembly.new(line:self.line)
     setter body:      |given| given || NullLiteral.new(line:self.line)
     
     locals: self.body.?locals.?body.map(&:value) ?? null
@@ -66,7 +65,7 @@ CodeTools::AST << {
       state = g.state
       state.scope.nest_scope(self)
       
-      blk = new_block_generator(g, self.arguments)
+      blk = new_block_generator(g, self.parameters)
       
       blk.push_state(self)
       blk.definition_line(self.line)
@@ -78,7 +77,7 @@ CodeTools::AST << {
       # Push line info down.
       pos(blk)
       
-      self.arguments.bytecode(blk)
+      self.parameters.bytecode(blk)
       
       blk.state.push_block
       blk.push_modifiers

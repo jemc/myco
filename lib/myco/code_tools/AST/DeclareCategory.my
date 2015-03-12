@@ -25,7 +25,7 @@ CodeTools::AST << {
       pos(g)
       
       g.push_self
-        g.push_literal(self.name.value) # TODO: ingest as ::Symbol, not AST::SymbolLiteral
+        g.push_literal(self.name)
       g.send(:__category__, 1)
       
       scope_implementation.bytecode(g)

@@ -3756,7 +3756,7 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # category = category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END)) {node(:category, n0, n0,       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))}
+  # category = category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END)) {node(:category, n0, n0.value,       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))}
   def _category
 
     _save = self.pos
@@ -3811,7 +3811,7 @@ class CodeTools::PegParser
         self.pos = _save
         break
       end
-      @result = begin; node(:category, n0, n0,
+      @result = begin; node(:category, n0, n0.value,
       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0))); end
       _tmp = true
       unless _tmp
@@ -7112,7 +7112,7 @@ class CodeTools::PegParser
   Rules[:_declobj] = rule_info("declobj", "constant_list:n0 c_spc_nl* t_DECLARE_BEGIN:t declobj_expr_body:n1 {node(:declobj, t, n0, n1)}")
   Rules[:_category_expr] = rule_info("category_expr", "declobj_expr_not_category")
   Rules[:_category_sepd_exprs] = rule_info("category_sepd_exprs", "arg_sep category_expr:n0 (arg_sep category_expr:n)*:nrest { [n0, *nrest] }")
-  Rules[:_category] = rule_info("category", "category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END)) {node(:category, n0, n0,       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))}")
+  Rules[:_category] = rule_info("category", "category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END)) {node(:category, n0, n0.value,       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))}")
   Rules[:_copen] = rule_info("copen", "constant:n0 c_spc_nl* t_REOPEN:tb c_spc_nl* t_DECLARE_BEGIN declobj_expr_body:n1 {node(:copen, tb, n0, n1)}")
   Rules[:_cdefn] = rule_info("cdefn", "constant:n0 c_spc_nl* t_DEFINE:t c_spc_nl* declobj:n1 {node(:cdefn, t, n0, n1)}")
   Rules[:_t_DECLSTR_BEGIN] = rule_info("t_DECLSTR_BEGIN", "< /[^\\s{:,<][^\\s]+/ > {      \# Table of replacement characters to use when calculating   \# the ending delimiter from the starting delimiter.   \# Directional characters are replaced with their opposite.   @declstr_replace_tbl ||= %w{     < > ( ) { } [ ]   }      \# Calculate the ending delimiter to look for and store it   @declstr_destrlim = text \\     .split(/(?<=[^a-zA-Z])|(?=[^a-zA-Z])/)     .map { |str|       idx = @declstr_replace_tbl.find_index(str)       idx.nil? ? str :          (idx.odd? ? @declstr_replace_tbl[idx-1] : @declstr_replace_tbl[idx+1])     }     .reverse     .join ''      token(:t_DECLSTR_BEGIN, text) }")

@@ -325,7 +325,7 @@ category_sepd_exprs =
 
 category =
   category_name:n0 category_sepd_exprs?:nlist &(arg_sep_opt (t_CATGRY_BEGIN | t_DECLARE_END))
-    ~node(:category, n0, n0,
+    ~node(:category, n0, n0.value,
       (nlist ? node(:block, nlist.first, nlist) : node(:null, n0)))
 
 copen =
