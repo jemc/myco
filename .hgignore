@@ -3,3 +3,6 @@
 ^run.sh
 ^sandbox
 \.my\.rbc?$
+^alpha
+^beta
+^gamma
