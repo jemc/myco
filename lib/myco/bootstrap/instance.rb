@@ -8,7 +8,11 @@ module Myco
     end
     
     def inspect
-      to_s
+      vars = (instance_variables - [:@component]).map { |var|
+        [var.to_s[1..-1], instance_variable_get(var).inspect].join(": ")
+      }
+      vars = vars.any? ? (" " + vars.join(", ")) : ""
+      "#<#{@component.to_s}#{vars}>"
     end
     
     # TODO: remove (for now it makes debugging easier with RSpec)
