@@ -1,6 +1,7 @@
 
 import 'BasicSpec.my'
 import 'fixtures/libfoo.my'
+import as(:"Contained") 'fixtures/libfoo.my'
 
 NinetyNineGenerator < EmptyObject { generate: 99 }
 
@@ -60,9 +61,15 @@ BasicSpec {
   
   "accesses a constant imported into the FileToplevel": {
     assert_equal(Foo::EightyEight, 88)
+    assert_equal(Contained::Foo::EightyEight, 88)
   }
   
   "allows imports to access its own top level constants": {
-    assert_equal((Foo{}).ninety_nine, 99)
+    assert_equal((Foo.new).ninety_nine, 99)
+    assert_equal((Contained::Foo.new).ninety_nine, 99)
+  }
+  
+  "imports two separate copies of the same library": {
+    refute_equal(Foo, Contained::Foo)
   }
 }

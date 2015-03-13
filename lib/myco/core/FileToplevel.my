@@ -9,12 +9,23 @@
   
   # Run the code in the given file, ignoring the return value but
   # importing the constants defined therein into the current namespace.
-  import: Decorator {
-    apply: |meme, *args| {
+  var import: Decorator {
+    apply: |meme| {
       load_paths = [meme.target.instance.dirname]
       scope = meme.target.constant_scope
       component = Myco.eval_file(meme.name.to_s, load_paths, false, scope)
-      meme.target.include(component)
+      
+      const_name = meme.metadata[:as]
+      const_name &? (
+        meme.target.const_set(const_name, component)
+      ) ?? (
+        meme.target.include(component)
+      )
     }
+  }
+  # Force an import to assign to a constant in the current namespace
+  # instead of being included into the current namespace.
+  var as: Decorator {
+    apply: |meme, given| meme.metadata[:as] = given
   }
 }
