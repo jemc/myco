@@ -3295,88 +3295,92 @@ class CodeTools::PegParser
     return _tmp
   end
 
-  # constant = (constant:n0 t_SCOPE:ts t_CONSTANT:tc {node(:colon2, ts, n0, tc.sym)} | t_SCOPE:ts t_CONSTANT:tc {node(:colon3, ts, tc.sym)} | t_CONSTANT:tc {node(:const,  tc, tc.sym)})
+  # colon_const = t_SCOPE t_CONSTANT:tc { tc }
+  def _colon_const
+
+    _save = self.pos
+    while true # sequence
+      _tmp = apply(:_t_SCOPE)
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      _tmp = apply(:_t_CONSTANT)
+      tc = @result
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin;  tc ; end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_colon_const unless _tmp
+    return _tmp
+  end
+
+  # constant = t_SCOPE?:ts t_CONSTANT:tc (t_SCOPE t_CONSTANT:tx)*:trest {node(:const, (ts||tc), !!ts, [tc.sym, *trest.map(&:sym)])}
   def _constant
 
     _save = self.pos
-    while true # choice
-
+    while true # sequence
       _save1 = self.pos
-      while true # sequence
-        _tmp = apply(:_constant)
-        n0 = @result
-        unless _tmp
-          self.pos = _save1
-          break
-        end
-        _tmp = apply(:_t_SCOPE)
-        ts = @result
-        unless _tmp
-          self.pos = _save1
-          break
-        end
-        _tmp = apply(:_t_CONSTANT)
-        tc = @result
-        unless _tmp
-          self.pos = _save1
-          break
-        end
-        @result = begin; node(:colon2, ts, n0, tc.sym); end
+      _tmp = apply(:_t_SCOPE)
+      @result = nil unless _tmp
+      unless _tmp
         _tmp = true
-        unless _tmp
-          self.pos = _save1
-        end
+        self.pos = _save1
+      end
+      ts = @result
+      unless _tmp
+        self.pos = _save
         break
-      end # end sequence
-
-      break if _tmp
-      self.pos = _save
-
-      _save2 = self.pos
-      while true # sequence
-        _tmp = apply(:_t_SCOPE)
-        ts = @result
-        unless _tmp
-          self.pos = _save2
-          break
-        end
-        _tmp = apply(:_t_CONSTANT)
-        tc = @result
-        unless _tmp
-          self.pos = _save2
-          break
-        end
-        @result = begin; node(:colon3, ts, tc.sym); end
-        _tmp = true
-        unless _tmp
-          self.pos = _save2
-        end
+      end
+      _tmp = apply(:_t_CONSTANT)
+      tc = @result
+      unless _tmp
+        self.pos = _save
         break
-      end # end sequence
+      end
+      _ary = []
+      while true
 
-      break if _tmp
-      self.pos = _save
-
-      _save3 = self.pos
-      while true # sequence
-        _tmp = apply(:_t_CONSTANT)
-        tc = @result
-        unless _tmp
-          self.pos = _save3
+        _save3 = self.pos
+        while true # sequence
+          _tmp = apply(:_t_SCOPE)
+          unless _tmp
+            self.pos = _save3
+            break
+          end
+          _tmp = apply(:_t_CONSTANT)
+          tx = @result
+          unless _tmp
+            self.pos = _save3
+          end
           break
-        end
-        @result = begin; node(:const,  tc, tc.sym); end
-        _tmp = true
-        unless _tmp
-          self.pos = _save3
-        end
-        break
-      end # end sequence
+        end # end sequence
 
-      break if _tmp
-      self.pos = _save
+        _ary << @result if _tmp
+        break unless _tmp
+      end
+      _tmp = true
+      @result = _ary
+      trest = @result
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; node(:const, (ts||tc), !!ts, [tc.sym, *trest.map(&:sym)]); end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
       break
-    end # end choice
+    end # end sequence
 
     set_failed_rule :_constant unless _tmp
     return _tmp
@@ -7103,7 +7107,8 @@ class CodeTools::PegParser
   Rules[:_dyn_string_parts] = rule_info("dyn_string_parts", "(c_spc* expr_atom_not_string:n0 c_spc* lit_string:n1 {[n0,n1]})+:nlist { nlist.flatten }")
   Rules[:_dyn_string] = rule_info("dyn_string", "lit_string:n0 dyn_string_parts:nrest {node(:dstr, n0, [n0] + nrest)}")
   Rules[:_dyn_symstr] = rule_info("dyn_symstr", "lit_symstr:n0 dyn_string_parts:nrest {node(:dsym, n0, [n0] + nrest)}")
-  Rules[:_constant] = rule_info("constant", "(constant:n0 t_SCOPE:ts t_CONSTANT:tc {node(:colon2, ts, n0, tc.sym)} | t_SCOPE:ts t_CONSTANT:tc {node(:colon3, ts, tc.sym)} | t_CONSTANT:tc {node(:const,  tc, tc.sym)})")
+  Rules[:_colon_const] = rule_info("colon_const", "t_SCOPE t_CONSTANT:tc { tc }")
+  Rules[:_constant] = rule_info("constant", "t_SCOPE?:ts t_CONSTANT:tc (t_SCOPE t_CONSTANT:tx)*:trest {node(:const, (ts||tc), !!ts, [tc.sym, *trest.map(&:sym)])}")
   Rules[:_const_sep] = rule_info("const_sep", "(c_spc_nl* t_CONST_SEP c_spc_nl*)+")
   Rules[:_constant_list] = rule_info("constant_list", "constant:n0 (const_sep constant:n)*:nrest {node(:arrass, n0, [n0, *nrest])}")
   Rules[:_id_as_symbol] = rule_info("id_as_symbol", "t_IDENTIFIER:t0 {node(:lit, t0, t0.sym)}")

@@ -21,8 +21,7 @@ CodeTools::AST << {
     inspect: to_s
     
     implementation: {
-      myco = ConstantAccessToplevel.new(line:self.line, name::"Myco")
-      type = ConstantAccessScoped.new(line:self.line, parent:myco, name::"FileToplevel")
+      type = ConstantAccess.new(line:self.line, toplevel:true, names:[:"Myco", :"FileToplevel"])
       types = ArrayAssembly.new(line:self.line, body:[type])
       decl = DeclareObject.new(line:self.line, types:types, body:self.body)
       decl.scope_type = DeclareFileScope

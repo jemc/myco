@@ -2,26 +2,29 @@
 CodeTools::AST << {
   
   ConstantAccess < Node {
-    var name
+    var toplevel, var names
     
-    Form: [:const, :name]
+    Form: [:const, :toplevel, :names]
     
     bytecode: |g| {
       pos(g)
       
-      g.push_cpath_top
-      g.find_const(:"Myco")
-        g.push_literal(self.name)
-        g.push_scope
-      g.send(:find_constant, 2)
-    }
-    
-    assign_bytecode: |g, value| {
-      pos(g)
+      name_list = self.names.map(&:to_sym)
+      first_name = name_list.shift
       
-      g.push_scope
-      g.push_literal(self.name)
-      value.bytecode(g)
+      self.toplevel &? (
+        g.push_cpath_top
+        g.find_const(first_name)
+      ) ?? (
+        g.push_cpath_top
+        g.find_const(:"Myco")
+          g.push_literal(first_name)
+          g.push_scope
+        g.send(:find_constant, 2)
+      )
+      
+      name_list.each |name| { g.find_const(name) }
     }
   }
+  
 }

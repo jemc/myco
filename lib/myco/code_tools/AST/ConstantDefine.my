@@ -21,7 +21,7 @@ CodeTools::AST << {
       implementation.bytecode(g)
       
       g.dup_top
-        g.push_literal(self.constant.name)
+        g.push_literal(self.constant.names.last)
       g.send(:"__name__=", 1)
       g.pop
     }

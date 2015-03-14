@@ -27,8 +27,6 @@ import 'AST/ParameterAssembly.my'
 import 'AST/MycoModuleScope.my'
 
 import 'AST/ConstantAccess.my'
-import 'AST/ConstantAccessScoped.my'
-import 'AST/ConstantAccessToplevel.my'
 import 'AST/ConstantAssignment.my'
 import 'AST/ConstantDefine.my'
 import 'AST/ConstantReopen.my'

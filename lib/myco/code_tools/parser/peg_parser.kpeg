@@ -284,10 +284,13 @@ dyn_symstr =
 ##
 # Constants
 
+colon_const =
+  t_SCOPE t_CONSTANT:tc
+    { tc }
+
 constant =
-  constant:n0 t_SCOPE:ts t_CONSTANT:tc  ~node(:colon2, ts, n0, tc.sym)
-| t_SCOPE:ts t_CONSTANT:tc              ~node(:colon3, ts, tc.sym)
-| t_CONSTANT:tc                         ~node(:const,  tc, tc.sym)
+  t_SCOPE?:ts t_CONSTANT:tc (t_SCOPE t_CONSTANT:tx)*:trest
+    ~node(:const, (ts||tc), !!ts, [tc.sym, *trest.map(&:sym)])
 
 const_sep     = (c_spc_nl* t_CONST_SEP c_spc_nl*)+
 

@@ -9,7 +9,30 @@ CodeTools::AST << {
     bytecode: |g| {
       pos(g)
       
-      self.constant.assign_bytecode(g, self.value)
+      name_list = self.constant.names.map(&:to_sym)
+      last_name = name_list.pop
+      first_name = name_list.any? && name_list.shift
+      
+      self.constant.toplevel &? (
+        g.push_cpath_top
+        first_name && g.find_const(first_name)
+      ) ?? (
+        first_name &? (
+          g.push_cpath_top
+          g.find_const(:"Myco")
+            g.push_literal(first_name)
+            g.push_scope
+          g.send(:find_constant, 2)
+        ) ?? (
+          g.push_scope
+          g.send(:for_method_definition, 0)
+        )
+      )
+      
+      name_list.each |name| { g.find_const(name) }
+      
+      g.push_literal(last_name)
+      self.value.bytecode(g)
       g.send(:const_set, 2)
     }
   }
