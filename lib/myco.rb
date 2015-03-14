@@ -10,6 +10,8 @@ require_relative 'myco/bootstrap'
 
 
 # Detect whether a second pass is necessary (when no bytecode is available)
+# TODO: recursively check mtime for all rbc files as well,
+#   to be sure that core implementation files don't need to be recompiled.
 if File.file?(File.expand_path('myco/bootstrap.my.rbc', File.dirname(__FILE__)))
   stages = [:myco]
 else
