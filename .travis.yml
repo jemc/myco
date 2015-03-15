@@ -2,7 +2,7 @@ language: ruby
 rvm:
   - rbx-2
 before_script:
-  - sudo apt-get install -y hg
+  - sudo apt-get install -y mercurial
   - bundle install
   - rake fetch_peg
 script:
