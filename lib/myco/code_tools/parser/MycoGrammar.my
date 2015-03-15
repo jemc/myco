@@ -1,0 +1,564 @@
+
+import 'MycoCharacterClasses.my'
+import 'MycoTokens.my'
+
+MycoGrammar: Pegleromyces::Grammar {
+  C: MycoCharacterClasses
+  T: MycoTokens
+  
+  [rules]
+  
+##
+# Toplevel Terminal Categorizations
+
+rule root:
+  (r(declobj_expr_body[:n0])
+    { ast.declfile(n0, n0) })[:root]
+
+# Declarations
+rule decl:
+  declobj
+/ declstr
+/ copen
+
+# Expressions allowable inside object declarations
+rule declobj_expr:
+  category
+/ declobj_expr_not_category
+
+# Expressions allowable inside object declarations that is not a category 
+rule declobj_expr_not_category:
+  decl
+/ cdefn
+/ cmeme
+/ constant
+/ meme
+
+# Expressions allowable inside memes
+rule meme_expr:
+  arg_expr
+
+# Expressions allowable as function arguments
+rule arg_expr:
+  assignment
+/ left_chained_atoms
+/ dyn_string
+/ dyn_symstr
+/ expr_atom
+
+# TODO: make expr_atom not redundant with below rules
+# Expression atoms
+rule expr_atom:
+  decl
+/ left_chained_invocations
+/ lit_string
+/ lit_symstr
+/ unary_operation
+/ paren_expr
+/ constant
+/ lit_simple
+/ lit_array
+/ invoke
+
+# Expression atoms that are not invocation chains
+rule expr_atom_not_chained:
+  decl
+/ lit_string
+/ lit_symstr
+/ unary_operation
+/ paren_expr
+/ constant
+/ lit_simple
+/ lit_array
+/ invoke
+
+# Expression atoms that are not strings
+rule expr_atom_not_string:
+  decl
+/ left_chained_invocations
+/ unary_operation
+/ paren_expr
+/ constant
+/ lit_simple
+/ lit_array
+/ invoke
+
+##
+# Simple literals
+
+rule lit_simple:
+  r(T.null[:t0])     { ast.null(t0) }
+/ r(T.void[:t0])     { ast.void(t0) }
+/ r(T.true[:t0])     { ast.true(t0) }
+/ r(T.false[:t0])    { ast.false(t0) }
+/ r(T.self[:t0])     { ast.self(t0) }
+/ r(T.float[:t0])    { ast.lit(t0, t0.float) }
+/ r(T.integer[:t0])  { ast.lit(t0, t0.integer) }
+/ r(T.symbol[:t0])   { ast.lit(t0, t0.text.slice(::Range.new(1,-1)).to_sym) } # TODO: more succinct here
+
+##
+# Enclosed literals
+
+rule lit_string:
+  r((T.string_begin  + T.string_body[:tb]  + T.string_end) /
+    (T.sstring_begin + T.sstring_body[:tb] + T.sstring_end))
+    { ast.lit(tb, encode_escapes(tb.text)) }
+
+rule lit_string_as_symbol:
+  r((T.string_begin  + T.string_body[:tb]  + T.string_end) /
+    (T.sstring_begin + T.sstring_body[:tb] + T.sstring_end))
+    { ast.lit(tb, encode_escapes(tb.text).to_sym) }
+
+rule lit_symstr:
+  r(T.symstr_begin + T.string_body[:tb] + T.string_end)
+    { ast.lit(tb, encode_escapes(tb.text).to_sym) }
+
+rule category_name:
+  r(T.catgry_begin + T.catgry_body[:tb] + T.catgry_end)
+    { ast.lit(tb, encode_escapes(tb.text).to_sym) }
+
+##
+# String interpolations / juxtapositions
+
+rule dyn_string_part:
+  r(C.spc.* + expr_atom_not_string[:n0] + C.spc.* + lit_string[:n1])
+    { [n0,n1] }
+
+rule dyn_string_parts:
+  r(dyn_string_part.+[:nlist])
+    { nlist.flatten }
+
+rule dyn_string:
+  r(lit_string[:n0] + dyn_string_parts[:nrest])
+    { ast.dstr(n0, [n0] + nrest) }
+
+rule dyn_symstr:
+  r(lit_symstr[:n0] + dyn_string_parts[:nrest])
+    { ast.dsym(n0, [n0] + nrest) }
+
+##
+# Constants
+
+rule colon_const:
+  r(T.scope + T.constant[:tc])
+    { tc }
+
+rule constant:
+  r(T.scope.-[:ts] + T.constant[:tc] + colon_const.*[:trest])
+    { ast.const((ts||tc), !!ts, [tc.sym, *trest.map(&:sym)]) }
+
+rule const_sep: (C.spc_nl.* + T.const_sep + C.spc_nl.*).+
+
+rule sepd_constant:
+  r(const_sep + constant[:n0])
+    { n0 }
+
+rule constant_list:
+  r(constant[:n0] + sepd_constant.*[:nrest])
+    { ast.arrass(n0, [n0, *nrest]) }
+
+##
+# Bare identifiers
+
+# Used in contexts where a bare identifier is a symbol
+rule id_as_symbol:
+  r(T.identifier[:t0]) { ast.lit(t0, t0.sym) }
+
+##
+# Object declarations
+
+rule declobj_sepd_expr:
+  r(arg_sep + declobj_expr[:n0]) { n0 }
+
+rule declobj_sepd_exprs:
+  r(declobj_expr[:n0] + declobj_sepd_expr.*[:nrest] + arg_sep_opt)
+    { [n0, *nrest] }
+
+rule declobj_expr_body:
+  r(arg_sep_opt + declobj_sepd_exprs[:nlist] + T.declare_end[:te])
+    { ast.block(nlist.first, nlist) }
+/ r(arg_sep_opt + T.declare_end[:te])
+    { ast.null(te) }
+
+rule declobj:
+  r(constant_list[:n0] + C.spc_nl.* + T.declare_begin[:tb] + declobj_expr_body[:n1])
+    { ast.declobj(tb, n0, n1) }
+
+rule category_expr:
+  declobj_expr_not_category
+
+rule category_sepd_expr:
+  r(arg_sep + category_expr[:n0]) { n0 }
+
+rule category_sepd_exprs:
+  r(arg_sep + category_expr[:n0] + category_sepd_expr.*[:nrest])
+    { [n0, *nrest] }
+
+rule category:
+  r(category_name[:n0] + category_sepd_exprs.-[:nlist]
+      + !!(arg_sep_opt + (T.catgry_begin / T.declare_end)))
+      { ast.category(n0, n0.value,
+        (nlist &? ast.block(nlist.first, nlist) ?? ast.null(n0))) }
+
+rule copen:
+  r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
+    { ast.copen(tb, n0, n1) }
+
+rule cdefn:
+  r(constant[:n0] + C.spc_nl.* + T.define[:tb] + C.spc_nl.* + declobj[:n1])
+    { ast.cdefn(tb, n0, n1) }
+
+##
+# String object declarations
+
+rule declstr_body:
+  r(T.declstr_begin[:tb] + C.spc.* + C.nl
+  + T.declstr_body[:ts] + C.spc_nl.* + T.declstr_end)
+    { ast.str(tb, ts.text) }
+
+rule declstr:
+  r(constant_list[:nc] + C.spc.+ + declstr_body[:nb])
+    { ast.declstr(nc, nc, nb) }
+
+##
+# Assignment
+
+rule assignment:
+  local_assignment
+/ invoke_assignment
+
+rule assign_rhs:
+  arg_expr
+
+rule local_assignment:
+  r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + assign_rhs[:rhs])
+    { ast.lasgn(to, ti.sym, rhs) }
+
+rule invoke_assignment_lhs:
+  left_chained_invocations
+/ invoke
+
+rule invoke_assignment:
+  r(invoke_assignment_lhs[:lhs] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + assign_rhs[:rhs])
+  {
+    lhs.name = (""lhs.name"=").to_sym
+    orig_arguments = lhs.arguments &? lhs.arguments.body ?? []
+    arg_order = lhs.name==:"[]=" &? [*orig_arguments, rhs] ?? [rhs, *orig_arguments]
+    lhs.arguments = ast.argass(rhs, arg_order)
+    lhs
+  }
+
+
+##
+# Invoke - Results in a :lambig, :call, or :iter with a :call within
+
+rule invoke_body:
+  r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
+    { [np, nb] }
+
+opt_arg_list:    (r(C.spc.*    + arg_list[:n])     { n  }).-
+opt_invoke_body: (r(C.spc_nl.* + invoke_body[:nx]) { nx }).-
+
+rule invoke:
+  r(T.identifier[:tn] + opt_arg_list[:na] + opt_invoke_body[:nlist])
+    { ast.invoke(tn, null, tn.sym, na, *(nlist || [])) }
+
+rule op_invoke: # Allow some binary operators to be invoked with a dot
+  r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_invoke_body[:nlist])
+    { ast.invoke(tn, null, tn.sym, na, *(nlist || [])) }
+
+rule elem_invoke:
+  r(lit_array[:na] + opt_invoke_body[:nlist])
+    { ast.invoke(na, null, :"[]", ast.argass(na, na.body), *(nlist || [])) }
+
+rule op_invoke_id:
+  left_op_normal
+
+##
+# Argument lists
+
+arg_sep:     (C.spc.* + T.arg_sep + C.spc.*).+
+arg_sep_opt: (C.spc / T.arg_sep).*
+
+rule in_arg_normal:
+  in_arg_splat
+/ r(arg_expr[:n0] + !in_arg_kwarg_mark) { n0 }
+
+rule in_arg_sepd_normal:
+  r(arg_sep + in_arg_normal[:n0]) { n0 }
+
+rule in_arg_normals:
+  r(in_arg_normal[:n0] + in_arg_sepd_normal.*[:nrest])
+    { [n0,*nrest] }
+
+rule in_arg_sepd_kwarg:
+  r(arg_sep + in_arg_kwarg[:n0]) { n0 }
+
+rule in_arg_kwargs:
+  r(in_arg_kwarg[:n0] + in_arg_sepd_kwarg.*[:nrest])
+    { ast.hash(n0.first, [n0,*nrest].flatten) }
+
+rule in_arg_kwarg_mark: C.spc_nl.* + T.meme_mark
+
+rule in_arg_kwarg:
+  r(id_as_symbol[:n0] + in_arg_kwarg_mark + C.spc_nl.* + arg_expr[:n1])
+    { [n0, n1] }
+
+rule in_arg_splat:
+  r(T.op_mult[:to] + expr_atom[:n0])
+    { ast.splat(to, n0) }
+
+rule in_arg_block:
+  r(T.op_toproc[:to] + expr_atom[:n0])
+    { ast.blkarg(to, n0) }
+
+rule in_arg_list:
+  r(in_arg_normals[:n0] + arg_sep + in_arg_kwargs[:n1] + arg_sep + in_arg_block[:n2]) { [*n0,n1,n2] }
+/ r(in_arg_normals[:n0] + arg_sep + in_arg_kwargs[:n1]) { [*n0,n1] }
+/ r(in_arg_normals[:n0] + arg_sep + in_arg_block[:n1]) { [*n0,n1] }
+/ r(in_arg_kwargs[:n0]  + arg_sep + in_arg_block[:n1]) { [n0,n1] }
+/ r(in_arg_normals[:n0]) { [*n0] }
+/ r(in_arg_kwargs[:n0]) { [n0] }
+/ r(in_arg_block[:n0]) { [n0] }
+
+rule arg_list:
+  r(T.args_begin[:tb] + arg_sep_opt + in_arg_list.-[:nlist] + arg_sep_opt + T.args_end)
+    { ast.argass(tb, (nlist || [])) }
+
+rule lit_array:
+  r(T.array_begin[:tb] + arg_sep_opt + in_arg_list.-[:nlist] + arg_sep_opt + T.array_end)
+    { ast.arrass(tb, (nlist || [])) }
+
+##
+# Parameter lists
+
+rule param:
+  r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + arg_expr[:nv])
+    { [:optional, ast.lasgn(ti, ti.sym, nv)] }
+/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr.-[:nv])
+    { [:kwargs, ast.lasgn(ti, ti.sym, nv || ast.lit(to, :"*"))] }
+/ r(T.op_exp + C.spc_nl.* + T.identifier[:ti])
+    { [:kwrest,   ti.sym] }
+/ r(T.op_mult + C.spc_nl.* + T.identifier[:ti])
+    { [:rest,     ti.sym] }
+/ r(T.op_toproc + C.spc_nl.* + T.identifier[:ti])
+    { [:block,    ti.sym] }
+/ r(T.identifier[:ti])
+    { [:required, ti.sym] }
+
+rule param_sepd:
+  r(arg_sep + param[:n0]) { n0 }
+
+rule param_sepds:
+  r(param[:n0] + param_sepd.*[:nrest] + arg_sep_opt) { [n0, *nrest] }
+
+rule param_list:
+  r(T.params_begin[:tb] + T.params_end)
+    { ast.args(tb, [], [], null, [], [], null, null) } # TODO: investigate removing
+/ r(T.params_begin[:tb] + param_sepds[:plist] + T.params_end)
+    {
+  required = []
+  optional = []
+  rest     = []
+  post     = []
+  kwargs   = []
+  kwrest   = []
+  block    = []
+  
+  loop { plist[0] && plist[0][0] == :required || break; required.push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :optional || break; optional.push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :rest     || break; rest    .push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :required || break; post    .push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :kwargs   || break; kwargs  .push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :kwrest   || break; kwrest  .push(plist.shift[1]) }
+  loop { plist[0] && plist[0][0] == :block    || break; block   .push(plist.shift[1]) }
+  
+  required = required
+  optional = optional
+  rest     = rest.first
+  post     = post
+  kwargs   = kwargs
+  kwrest   = kwrest.first
+  block    = block.first
+  
+  # TODO: move these conversions to their respective reductions
+  block = block && ast.blkprm(tb, block)
+  
+  ast.args(tb, required, optional, rest, post, kwargs, kwrest, block)
+}
+
+##
+# Two-term operators
+
+left_op_normal:
+  T.op_exp
+/ T.op_mult / T.op_div / T.op_mod
+/ T.op_plus / T.op_minus
+/ T.op_compare
+/ T.op_and  / T.op_or
+
+left_op_branch:
+  T.op_and  / T.op_or
+/ T.op_and_q  / T.op_or_q / T.op_void_q
+
+rule left_op: left_op_normal / left_op_branch
+
+# Achieve left-associativity through iteration.
+#
+# PEG parsers get tripped up by left recursion
+# (in contrast to LALR parsers, which prefer left recursion).
+# This is a well-understood limitation, but refer to:
+# http://www.dalnefre.com/wp/2011/05/parsing-expression-grammars-part-4/
+# for an easy-to-understand explanation of this problem and this solution.
+#
+rule sepd_chained_atom:
+  r(C.spc_nl.* + left_op[:to] + C.spc_nl.* + expr_atom[:n1])
+    { [to, n1] }
+
+rule left_chained_atoms:
+  r(expr_atom[:n0] + sepd_chained_atom.+[:nlist])
+    {
+  nlist.unshift(n0)
+  nlist.flatten!
+  
+  collapse(nlist, :t_op_exp)
+  collapse(nlist, :t_op_mult, :t_op_div, :t_op_mod)
+  collapse(nlist, :t_op_plus, :t_op_minus)
+  collapse(nlist, :t_op_compare)
+  collapse(nlist, :t_op_and, :t_op_or,
+                  :t_op_and_q, :t_op_or_q, :t_op_void_q) |n0,op,n1| {
+    ast.branch_op(op, op.sym, n0, n1)
+  }
+  
+  # There should only be one resulting node left
+  (nlist.count == 1)
+    || raise("Failed to fully collapse left_chained_atoms: "nlist"")
+  
+  nlist.first
+}
+
+##
+# Invocations and Quests (soft-failing invocations)
+
+rule left_invoke_op:
+  T.quest
+/ T.dot
+
+# Achieve left-associativity through iteration.
+# (see left_chained_atoms).
+#
+rule sepd_chained_invocation:
+  r(C.spc_nl.* + left_invoke_op[:t0] + C.spc_nl.* + (invoke / op_invoke)[:n1])
+    { [t0, n1] }
+/ r(C.spc.*.token(:t_dot)[:t0] + elem_invoke[:n1])
+    { [t0, n1] }
+
+rule left_chained_invocations:
+  r(expr_atom_not_chained[:n0] + sepd_chained_invocation.+[:nlist])
+    {
+  nlist.unshift(n0)
+  nlist.send(:"flatten!")
+  
+  collapse(nlist, :t_dot, :t_quest) |n0,op,n1| {
+    (op.type == :t_dot)
+      &? (n1.receiver=n0; n1)
+      ?? ast.quest(op, n0, n1)
+  }
+  
+  # There should only be one resulting node left
+  (nlist.count == 1)
+    || raise("Failed to fully collapse left_chained_invocations: "nlist"")
+  
+  nlist.first
+}
+
+##
+# Unary operators
+
+rule unary_operation:
+  r(T.op_not[:to] + expr_atom[:n0])
+    { ast.invoke(to, n0, :"!", null) }
+
+##
+# Memes and etc..
+
+# TODO: this should work without the call to 'inner'
+# Currently, without this call, an unbalanced tidx_stack occurs
+# in the Processor due to an extra :t_start capture symbol emitted
+# by the BytecodeParser with no matching :t_end to clear it.
+rule t_inln_sep:   !T.arg_sep.inner + T.expr_sep
+
+rule inln_sep:     (C.spc.* + t_inln_sep + C.spc.*).+
+rule inln_sep_opt: (C.spc / t_inln_sep).*
+
+rule expr_sep:     (C.spc.* + T.expr_sep + C.spc.*).+
+rule expr_sep_opt: (C.spc / T.expr_sep).*
+
+rule meme_inline_sepd_expr:
+  r(inln_sep + meme_expr[:n]) { n }
+
+rule meme_inline_sepd_exprs:
+  r(meme_expr[:n0] + meme_inline_sepd_expr.*[:nrest] + inln_sep_opt)
+    { [n0, *nrest] }
+
+rule meme_sepd_expr:
+  r(expr_sep + meme_expr[:n]) { n }
+
+rule meme_sepd_exprs:
+  r(meme_expr[:n0] + meme_sepd_expr.*[:nrest] + expr_sep_opt)
+    { [n0, *nrest] }
+
+rule meme_inline_expr_body:
+  r(inln_sep_opt + meme_inline_sepd_exprs[:nlist])
+    { ast.block(nlist.first, nlist) }
+
+rule meme_expr_body:
+  r(expr_sep_opt + meme_sepd_exprs[:nlist] + T.meme_end[:te])
+    { ast.block(nlist.first, nlist) }
+/ r(expr_sep_opt + T.meme_end[:te])
+    { ast.null(te) }
+
+rule paren_expr_body:
+  r(expr_sep_opt + meme_sepd_exprs[:nlist] + T.paren_end[:te])
+    { nlist.count==1 &? nlist.first ?? ast.block(nlist.first, nlist) }
+/ r(expr_sep_opt + T.paren_end[:te])
+    { ast.null(te) }
+
+rule paren_expr:
+  r(T.paren_begin + paren_expr_body[:n0]) { n0 }
+
+rule meme_enclosed_expr_body:
+  r(T.meme_begin + meme_expr_body[:n0]) { n0 }
+
+rule meme_either_body:
+  meme_enclosed_expr_body
+/ meme_inline_expr_body
+
+rule cmeme:
+  r(constant[:n0] + C.spc.* + T.meme_mark[:tm] + C.spc_nl.* + meme_inline_expr_body[:n1])
+    { ast.cdecl(tm, n0, n1) }
+
+rule meme_name:
+  id_as_symbol
+/ lit_string_as_symbol
+
+rule decorator:
+  r(meme_name[:ni] + arg_list.-[:na])
+    { ast.deco(ni, ni, na) }
+
+rule sepd_decorator:
+  r(C.spc.* + decorator[:n]) { n }
+
+rule decorators_and_meme_name:
+  r(decorator[:n0] + sepd_decorator.*[:nrest])
+    { ast.arrass(n0, [n0, *nrest].reverse) }
+
+rule meme:
+  r(decorators_and_meme_name[:nd]
+      + C.spc.* + T.meme_mark[:tm]
+      + (r(C.spc_nl.* + param_list.-[:n]) { n })[:np]
+      + C.spc_nl.* + meme_either_body[:nb])
+    { ast.meme(tm, nd.body.shift.name, nd, np, nb) }
+/ r(decorators_and_meme_name[:nd])
+    { ast.meme(nd, nd.body.shift.name, nd, null, null) }
+}

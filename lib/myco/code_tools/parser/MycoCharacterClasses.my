@@ -1,0 +1,20 @@
+
+MycoCharacterClasses: Pegleromyces::Grammar {
+  eol_comment: str('#') + (!eol + any).*
+  
+  # TODO: reinstate the following:
+  nl:     str("\n")
+  spc:    set(" \t\r\f\v") / str("\\\n") / eol_comment
+  spc_nl: spc / nl
+  
+  eof:    !any
+  eol:    nl / eof
+  
+  # TODO: Unicode upper and lower
+  upper:  range('A','Z')
+  lower:  range('a','z') / str('_')
+  num:    range('0','9')
+  alpha:  lower / upper
+  alnum:  alpha / num
+  suffix: str('!') / str('?')
+}

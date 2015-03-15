@@ -1,0 +1,78 @@
+
+MycoTokens: Pegleromyces::Grammar {
+  C: MycoCharacterClasses
+  
+  [main]
+  
+  token const_sep:     str(',')
+  token expr_sep:      str(';') / C.nl
+  token arg_sep:       str(',') / C.nl
+  token declare_begin: str('{')
+  token declare_end:   str('}') / C.eof
+  token meme_mark:     str(':')
+  token meme_begin:    str('{')
+  token meme_end:      str('}')
+  token paren_begin:   str('(')
+  token paren_end:     str(')')
+  token define:        str('<')
+  token reopen:        str('<<')
+  token params_begin:  str('|')
+  token params_end:    str('|')
+  token args_begin:    str('(')
+  token args_end:      str(')')
+  token array_begin:   str('[')
+  token array_end:     str(']')
+  
+  token constant:     C.upper + C.alnum.*
+  token identifier:   C.lower + C.alnum.* + C.suffix.-
+  token symbol:       str(':') + C.lower + C.alnum.*
+  token null:         str('null')
+  token void:         str('void')
+  token true:         str('true')
+  token false:        str('false')
+  token self:         str('self')
+  token float:        str('-').- + C.num.+ + str('.') + C.num.+
+  token integer:      str('-').- + C.num.+
+  
+  token dot:          str('.')
+  token quest:        str('.') + C.spc_nl.* + str('?')
+  token scope:        str('::')
+  token assign:       str('=')
+  token op_toproc:    str('&')
+  token op_not:       str('!')
+  token op_plus:      str('+')
+  token op_minus:     str('-')
+  token op_mult:      str('*')
+  token op_div:       str('/')
+  token op_mod:       str('%')
+  token op_exp:       str('**')
+  token op_and:       str('&&')
+  token op_or:        str('||')
+  token op_and_q:     str('&?')
+  token op_or_q:      str('|?')
+  token op_void_q:    str('??')
+  token op_compare:   str('<=>') / str('=~') / str('==') /
+                      str('<=') / str('>=') / str('<') / str('>')
+  
+  string_norm:     !set("\\\"") + any
+  token string_body:   string_norm.* + (str("\\") + any + string_norm.*).*
+  token string_begin:  str('"')
+  token string_end:    str('"')
+  token symstr_begin:  str(':"')
+  
+  sstring_norm:    !set("\\\'") + any
+  token sstring_body:  sstring_norm.* + (str("\\") + any + sstring_norm.*).*
+  token sstring_begin: str("'")
+  token sstring_end:   str("'")
+  
+  catgry_norm:     !set("\\[]") + any
+  token catgry_body:   catgry_norm.* + (str("\\") + any + catgry_norm.*).*
+  token catgry_begin:  str('[')
+  token catgry_end:    str(']')
+  
+  # TODO: more flexible declstrs?
+  declstr_norm:     !str("@@@") + any
+  token declstr_body:   declstr_norm.*
+  token declstr_begin:  str('@@@')
+  token declstr_end:    str('@@@')
+}

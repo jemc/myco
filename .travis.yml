@@ -2,7 +2,9 @@ language: ruby
 rvm:
   - rbx-2
 before_script:
+  - apt-get install -y hg
   - bundle install
+  - rake fetch_peg
 script:
   - myco inoculate --verbose alpha
   - alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my

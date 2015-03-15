@@ -1,7 +1,11 @@
 
 require 'stringio'
 
-require_relative 'parser/peg_parser'
+
+# TODO: try to load Pegleromyces library in a better way
+Pegleromyces = Myco.eval_file(
+  'parser/pegleromyces/lib/pegleromyces.my', nil, false)
+
 
 module CodeTools
   
@@ -9,25 +13,18 @@ module CodeTools
     include CodeTools::AST::BuilderMethods
   end
   
-  class PegParserWrapper
-    def parse string
-      @parser = Myco::ToolSet::PegParser.new string
-      @parser.builder = Myco::ToolSet::AST::Builder.new
-      @parsed_okay = !!@parser.parse
-    end
-    
-    def result
-      { root: @parser.root_node } if @parsed_okay
-    end
-    
-    def raise_error
-      @parser.show_error(io=StringIO.new)
-      raise SyntaxError, io.string
-    end
-  end
-  
   class Parser
-    Implementation = PegParserWrapper
+    # TODO: convert this section to Myco and make idiomatic
+    MycoParser = Myco::Component.new([Pegleromyces::BytecodeParser]).instance
+    MycoBuilder = Myco.eval_file('parser/MycoBuilder.my')
+    
+    MycoBuilder.ast = CodeTools::AST::Builder.new
+    MycoParser.component.declare_meme(:new_builder) { MycoBuilder }
+    MycoParser.component.declare_meme(:new) { MycoParser }
+    
+    MycoParser.grammar = Myco.eval_file('parser/MycoGrammar.my')
+    
+    Implementation = MycoParser
     
     def parse_string string
       @parser = Implementation.new

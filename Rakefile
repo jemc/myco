@@ -1,22 +1,15 @@
 
-require 'rspec/core/rake_task'
-
-
 task :default => :test
 
-
-file 'lib/myco/code_tools/parser/peg_parser.rb' => 'lib/myco/code_tools/parser/peg_parser.kpeg' do
-  puts "Building PEG Parser..."
-  raise "kpeg failed to build PEG Parser..." unless \
-    system "kpeg -f lib/myco/code_tools/parser/peg_parser.kpeg -s" \
-               " -o lib/myco/code_tools/parser/peg_parser.rb"
+task :fetch_peg do
+  url = "https://bitbucket.org/jemc/pegleromyces"
+  dir = "lib/myco/code_tools/parser/pegleromyces"
+  system "hg clone #{url} #{dir}" unless File.directory?(dir)
+  system "cd #{dir} && hg pull -u"
+  system "rm -rf #{dir}/spec" # Don't bother keeping specs in the subdir clone
 end
 
-
-task :build_parser => 'lib/myco/code_tools/parser/peg_parser.rb'
-task :plinth => :build_parser
-
-RSpec::Core::RakeTask.new :test_parser => :build_parser
+task :plinth => :fetch_peg
 
 task :test => :plinth do
   system "bin/myco spec/**/*.test.my spec/**/**/*.test.my"
