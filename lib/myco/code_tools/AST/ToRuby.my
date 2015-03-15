@@ -238,8 +238,11 @@ CodeTools::AST << {
   }
   
   DeclareDecorator << {
-    to_ruby: |g|
-      g.add("["self.name.value.inspect", "); g.add(self.arguments); g.add("]")
+    to_ruby: |g| {
+      g.add("["self.name.value.inspect", [")
+        g.list(self.arguments.body, ",", auto_lines:true)
+      g.add("]]")
+    }
   }
   
   BlockParameter << {
