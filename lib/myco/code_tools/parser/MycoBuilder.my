@@ -1,6 +1,8 @@
 
 BasicObject {
-  var ast
+  # TODO: be more clever here
+  ASTBuilder: ::CodeTools::AST::Builder.new
+  var ast: ASTBuilder
   
   var escape_encodings: {
     hash = Hash.new

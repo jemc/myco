@@ -1,6 +1,7 @@
 
 CodeTools::AST << {
   BuilderMethods: Module.new { } # TODO: move out of this file
+  Builder < BasicObject, BuilderMethods { }
 }
 
 import 'AST/Node.my'

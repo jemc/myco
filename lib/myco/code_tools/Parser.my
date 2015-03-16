@@ -1,0 +1,23 @@
+
+# TODO: include Pegleromyces library in a better way than clone into subdir
+import as(:"Pegleromyces") 'parser/pegleromyces/lib/pegleromyces.my'
+
+# TODO: remove this hack
+::Myco::Pegleromyces: Pegleromyces
+
+CodeTools::Parser < BasicObject {
+  MycoGrammar: Myco.eval_file('parser/MycoGrammar.my')
+  MycoBuilder: Myco.eval_file('parser/MycoBuilder.my')
+  
+  var parser: Pegleromyces::BytecodeParser {
+    var grammar: MycoGrammar
+    # TODO: re-evaluate design that returns an existing builder as 'new_builder'
+    new_builder: MycoBuilder
+  }
+  
+  parse_string: |string| {
+    self.parser.parse(string)
+    self.parser.result &?
+      self.parser.result.fetch(:root) ?? self.parser.raise_error
+  }
+}
