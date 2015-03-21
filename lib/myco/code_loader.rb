@@ -264,7 +264,8 @@ module Myco
     class RubyLoader < AbstractLoader
       def is_rb?; true end
       
-      def emit_rb!; nil end
+      def emit_rb!;  nil end
+      def emit_rbc!; nil end
       
       def initialize *args
         super *args
