@@ -109,7 +109,6 @@ module Myco
       attr_accessor :block_environment
       
       def initialize filename, line = 1
-        p [self.class, filename]
         @filename = filename
         @line     = line
       end
