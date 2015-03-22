@@ -61,27 +61,20 @@ module Myco
     Rubinius::ConstantScope.of_sender
   end
   
-  def self.find_constant(name, scope=nil)
-    name = ::Rubinius::Type.coerce_to_constant_name name
-    scope ||= ::Rubinius::ConstantScope.of_sender
-    
-    category  = scope.myco_category
-    component = scope.myco_component
-    file      = scope.myco_file
-    
+  def self.find_constant(name, scope=Rubinius::ConstantScope.of_sender)
     # TODO: optimize this constant search
     # (it currently searches each ancestor of each nested component scope)
     bucket = nil
     scope.myco_levels.detect { |level|
       bucket = find_constant_bucket_in_module(level, name)
     }
-    bucket ? bucket.constant : ::Rubinius::Type.const_get(::Myco, name)
+    bucket ? bucket.constant : Rubinius::Type.const_get(::Myco, name)
   end
   
   def self.find_constant_bucket_in_module(mod, name, inherit=true)
-    current, constant = mod, nil
+    current = mod
     
-    while current and ::Rubinius::Type.object_kind_of? current, Module
+    while current and Rubinius::Type.object_kind_of? current, Module
       if bucket = current.constant_table.lookup(name)
         return bucket
       end
