@@ -399,4 +399,8 @@ CodeTools::AST << {
         g.add(self.right); g.add('}')
     }
   }
+  
+  PipeOperator << {
+    to_ruby: |g| g.add(implementation)
+  }
 }
