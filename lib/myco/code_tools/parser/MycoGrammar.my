@@ -255,22 +255,22 @@ rule invoke_assignment:
 
 rule invoke_body:
   r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
-    { [np, nb] }
+    { ast.block(nb, np, nb) }
 
 opt_arg_list:    (r(C.spc.*    + arg_list[:n])     { n  }).-
 opt_invoke_body: (r(C.spc_nl.* + invoke_body[:nx]) { nx }).-
 
 rule invoke:
-  r(T.identifier[:tn] + opt_arg_list[:na] + opt_invoke_body[:nlist])
-    { ast.invoke(tn, null, tn.sym, na, *(nlist || [])) }
+  r(T.identifier[:tn] + opt_arg_list[:na] + opt_invoke_body[:nb])
+    { ast.invoke(tn, null, tn.sym, na, nb) }
 
 rule op_invoke: # Allow some binary operators to be invoked with a dot
-  r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_invoke_body[:nlist])
-    { ast.invoke(tn, null, tn.sym, na, *(nlist || [])) }
+  r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_invoke_body[:nb])
+    { ast.invoke(tn, null, tn.sym, na, nb) }
 
 rule elem_invoke:
-  r(lit_array[:na] + opt_invoke_body[:nlist])
-    { ast.invoke(na, null, :"[]", ast.argass(na, na.body), *(nlist || [])) }
+  r(lit_array[:na] + opt_invoke_body[:nb])
+    { ast.invoke(na, null, :"[]", ast.argass(na, na.body), nb) }
 
 rule op_invoke_id:
   left_op_normal

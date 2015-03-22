@@ -2,9 +2,9 @@
 CodeTools::AST << {
   
   Invoke < Node {
-    var receiver, var name, var arguments, var block_params, var block
+    var receiver, var name, var arguments, var block
     
-    Form: [:invoke, :receiver, :name, :arguments, :block_params, :block]
+    Form: [:invoke, :receiver, :name, :arguments, :block]
     
     bytecode: |g| pos(g); implementation.bytecode(g)
     
@@ -14,8 +14,7 @@ CodeTools::AST << {
       # TODO: don't change AST state from here
       self.block && (
         self.arguments = self.arguments || ArgumentAssembly.new(line:self.line, body:[])
-        self.block_params = self.block_params || ParameterAssembly.new(line:self.line)
-        self.arguments.block = Block.new(line:self.line, parameters:self.block_params, body:self.block)
+        self.arguments.block = self.block
       )
       
       self.receiver.nil? && self.arguments.nil? &? (

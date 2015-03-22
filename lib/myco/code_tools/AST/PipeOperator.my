@@ -16,7 +16,6 @@ CodeTools::AST << {
       receiver:     self.invoke.receiver
       name:         self.invoke.name
       arguments:    self.implementation_args
-      block_params: self.invoke.block_params
       block:        self.invoke.block
     )
     
