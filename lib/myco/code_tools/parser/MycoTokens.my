@@ -25,7 +25,7 @@ MycoTokens: Pegleromyces::Grammar {
   
   token constant:     C.upper + C.alnum.*
   token identifier:   C.lower + C.alnum.* + C.suffix.-
-  token symbol:       str(':') + C.lower + C.alnum.*
+  token symbol:       str(':') + (C.lower / C.upper) + C.alnum.* + C.suffix.-
   token null:         str('null')
   token void:         str('void')
   token true:         str('true')
@@ -35,7 +35,7 @@ MycoTokens: Pegleromyces::Grammar {
   token integer:      str('-').- + C.num.+
   
   token dot:          str('.')
-  token quest:        str('.') + C.spc_nl.* + str('?')
+  token quest:        str('.') + str('?')
   token scope:        str('::')
   token assign:       str('=')
   token op_toproc:    str('&')
