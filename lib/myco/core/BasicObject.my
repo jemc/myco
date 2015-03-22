@@ -3,7 +3,22 @@
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
-  switch: |input,comparator=:"=="|
+  case: |input, *rest| {
+    # If there is a final strategy with no test value, use it as the else case
+    use_strategy = rest.size.odd? && rest.pop
+    # Iterate over the pairs of test_values and strategies,
+    # selecting the first matching pair's strategy as the one to use.
+    rest.each_slice(2).detect |test_value, strategy| {
+      (test_value == input) && (
+        use_strategy = strategy
+        true
+      )
+    }
+    # Call the selected strategy or error if none
+    use_strategy &? use_strategy.call(input)
+                 ?? raise("No match for case("input")")
+  }
+  switch: |input,comparator=:"=="| # TODO: remove deprecated switch
     Switch.new(input:input, comparator:comparator)
   
   # TODO: alias more efficiently

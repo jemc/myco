@@ -9,6 +9,7 @@ BasicSpec {
   
   [tests]
   
+  # TODO: remove deprecated switch
   "switch returns a Switch with its input set": {
     s = new_subject.switch(88)
     assert_is_a(s, Switch)
@@ -19,5 +20,19 @@ BasicSpec {
     a = 0
     loop { a=a+1; if(a>5) { break } }
     assert_equal(a, 6)
+  }
+  
+  "executes a single strategy based on case input": {
+    effects = []
+    readable = &|y|{
+      y case(
+        88, &|x|{ effects.push(x); ""x" is eighty-eight" }
+        99, &|x|{ effects.push(x); ""x" is ninety-nine" }
+            &|x|{ effects.push(x); ""x" is unknown" }
+      )
+    }
+    assert_equal(readable.call(88), "88 is eighty-eight"); assert_equal(effects, [88])
+    assert_equal(readable.call(99), "99 is ninety-nine");  assert_equal(effects, [88,99])
+    assert_equal(readable.call(100), "100 is unknown");    assert_equal(effects, [88,99,100])
   }
 }
