@@ -2,6 +2,8 @@
 require_relative 'myco/version'
 Myco.activate_required_gems
 
+Myco::SingletonClass = Myco.singleton_class
+
 require_relative 'myco/code_loader'
 require_relative 'myco/eval'
 require_relative 'myco/misc'

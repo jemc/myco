@@ -16,14 +16,58 @@ CodeTools::AST << {
         g.push_cpath_top
         g.find_const(first_name)
       ) ?? (
-        g.push_cpath_top
-        g.find_const(:"Myco")
-          g.push_literal(first_name)
-          g.push_scope
-        g.send(:find_constant, 2)
+        Myco.find_constant_bytecode(g, first_name)
       )
       
       name_list.each |name| { g.find_const(name) }
+    }
+    
+    ::Myco::SingletonClass << {
+      find_constant_bytecode: |g, name| {
+        g.push_cpath_top
+        g.find_const(:"Myco")
+          g.push_literal(name)
+          g.push_scope
+        g.send(:find_constant, 2)
+      }
+      
+      # TODO: use the try_find_const_fast instruction here, when it is merged into Rubinius.
+      # find_constant_bytecode: |g, name| {
+      #   loop_start_label = g.new_label
+      #   retry_label = g.new_label
+      #   fail_label = g.new_label
+      #   done_label = g.new_label
+        
+      #   # g.push_rubinius; g.push_literal(name); g.send(:p, 1, true); g.pop
+        
+      #   g.push_scope
+      #   g.send(:myco_levels, 0)
+      #   # TODO: don't dup, iterate without mutating
+      #   g.send(:dup, 0)                         # stack: myco_levels
+        
+      #   loop_start_label.set!
+      #   g.dup_top                               # stack: myco_levels, myco_levels
+      #   g.send(:pop, 0)                         # stack: myco_levels, mod
+        
+      #   g.dup_top                               # stack: myco_levels, mod, mod
+      #   g.goto_if_nil(fail_label)               # stack: myco_levels, mod
+        
+      #   g.try_find_const(name)                  # stack: myco_levels, result
+      #   g.dup_top                               # stack: myco_levels, result, result
+        
+      #   g.goto_if_not_undefined(done_label)     # stack: myco_levels, undefined
+      #   g.pop                                   # stack: myco_levels
+      #   g.goto(loop_start_label)
+        
+      #   fail_label.set!                         # stack: myco_levels, mod
+      #   g.pop                                   # stack: myco_levels
+      #   g.push_cpath_top; g.find_const(:"Myco") # stack: myco_levels, ::Myco
+      #     g.push_literal(name)
+      #   g.send(:const_get, 1)                   # stack: myco_levels, result
+        
+      #   done_label.set!                         # stack: myco_levels, result
+      #   g.swap; g.pop                           # stack: result
+      # }
     }
   }
   

@@ -18,11 +18,7 @@ CodeTools::AST << {
         first_name && g.find_const(first_name)
       ) ?? (
         first_name &? (
-          g.push_cpath_top
-          g.find_const(:"Myco")
-            g.push_literal(first_name)
-            g.push_scope
-          g.send(:find_constant, 2)
+          Myco.find_constant_bytecode(g, first_name)
         ) ?? (
           g.push_scope
           g.send(:for_method_definition, 0)
