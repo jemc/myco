@@ -14,9 +14,9 @@ CodeTools::AST << {
       g.is_nil
       g.goto_if_true(done_label)
       
-      g.push_cpath_top; g.find_const(:"Proc")
+      g.push_cpath_top; g.find_const(:Proc)
         g.swap
-      g.send(:"__from_block__", 1)
+      g.send(:__from_block__, 1)
       
       done_label.set!
     }

@@ -39,9 +39,7 @@ CodeTools::AST << {
       
       else_label.set!
       g.pop # pop the duped receiver - it won't be used after all
-      g.push_cpath_top
-      g.find_const(:"Myco")
-      g.find_const(:"Void")
+      g.push_void
       
       end_label.set!
     }

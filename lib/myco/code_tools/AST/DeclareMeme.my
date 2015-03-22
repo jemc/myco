@@ -4,7 +4,7 @@ CodeTools::AST << {
   DeclareMemeBody < Block {
     var name
     
-    Form: [:"DeclareMemeBody", :name] # To prevent it from masquerading as a Block TODO: remove
+    Form: [:DeclareMemeBody, :name] # To prevent it from masquerading as a Block TODO: remove
     
     bytecode: |g| {
       pos(g)

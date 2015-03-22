@@ -105,7 +105,7 @@ CodeTools::AST << {
       self.splat && (self.splat.is_a?(Symbol) &? scope.new_local(self.splat) ?? scope.new_local(:"*"))
       self.post.each     |name| { scope.new_local(name) }
       
-      (self.kwargs.any? || self.kwrest) && scope.new_local(:"__myco_kwargs_value__")
+      (self.kwargs.any? || self.kwrest) && scope.new_local(:__myco_kwargs_value__)
       self.kwargs.each |var| { scope.assign_local_reference(var) }
       self.kwrest && (self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest))
       
@@ -134,14 +134,14 @@ CodeTools::AST << {
         missing_value_label = g.new_label
         defaults_label = g.new_label
         
-        kwargs_value_var = g.state.scope.search_local(:"__myco_kwargs_value__")
+        kwargs_value_var = g.state.scope.search_local(:__myco_kwargs_value__)
         kwargs_value_var.get_bytecode(g)
         
         g.dup; g.goto_if_not_nil(assignments_label) # TODO: trivially remove this line?
         
         g.pop
         g.push_cpath_top
-        g.find_const(:"Hash")
+        g.find_const(:Hash)
         g.send(:allocate, 0, true)
         
         assignments_label.set!
@@ -170,7 +170,7 @@ CodeTools::AST << {
         missing_value_label.set!
         g.pop
         g.push_rubinius
-        g.find_const(:"Runtime")
+        g.find_const(:Runtime)
         g.swap
         g.send(:keywords_missing, 1, true)
         g.goto(kw_done)
@@ -187,7 +187,7 @@ CodeTools::AST << {
           
           self.kwrest.is_a?(Symbol) && (
             g.push_cpath_top
-            g.find_const(:"Hash")
+            g.find_const(:Hash)
             g.send(:allocate, 0, true)
             kwrest_asgn = g.state.scope.search_local(self.kwrest)
             kwrest_asgn.set_bytecode(g)
@@ -224,7 +224,7 @@ CodeTools::AST << {
         
         g.dup
         g.push_rubinius
-        g.find_const(:"Runtime")
+        g.find_const(:Runtime)
         g.swap
         
         self.kwrest &? g.push(:true) ?? g.push(:false)

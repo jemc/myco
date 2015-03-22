@@ -28,9 +28,8 @@ CodeTools::AST << {
       pos(g)
       
       # ::Myco::Component.new types, parent, filename
-      g.push_cpath_top
-      g.find_const(:"Myco")
-      g.find_const(:"Component")
+      g.push_myco
+      g.find_const(:Component)
         self.types.bytecode(g)
         g.push_scope; g.send(:for_method_definition, 0)
         g.push_scope; g.send(:active_path, 0); g.meta_to_s

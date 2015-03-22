@@ -1,6 +1,6 @@
 
 # TODO: include Pegleromyces library in a better way than clone into subdir
-import as(:"Pegleromyces") 'parser/pegleromyces/lib/pegleromyces.my'
+import as(:Pegleromyces) 'parser/pegleromyces/lib/pegleromyces.my'
 
 # TODO: remove this hack
 ::Myco::Pegleromyces: Pegleromyces

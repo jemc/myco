@@ -18,7 +18,7 @@ CodeTools::AST << {
     
     # TODO: figure out how to keep in sync with ClosedScope#attach_and_call impl
     attach_and_call: |g, arg_name, scoped=false, pass_block=false| {
-      self.name = :"MycoModuleScope" # TODO: remove/fix
+      self.name = :MycoModuleScope # TODO: remove/fix
       name = self.name || arg_name
       meth = new_generator(g, name)
       

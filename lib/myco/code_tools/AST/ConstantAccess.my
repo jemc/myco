@@ -24,8 +24,7 @@ CodeTools::AST << {
     
     ::Myco::SingletonClass << {
       find_constant_bytecode: |g, name| {
-        g.push_cpath_top
-        g.find_const(:"Myco")
+        g.push_myco
           g.push_literal(name)
           g.push_scope
         g.send(:find_constant, 2)
@@ -61,7 +60,7 @@ CodeTools::AST << {
         
       #   fail_label.set!                         # stack: myco_levels, mod
       #   g.pop                                   # stack: myco_levels
-      #   g.push_cpath_top; g.find_const(:"Myco") # stack: myco_levels, ::Myco
+      #   g.push_myco                             # stack: myco_levels, Myco
       #     g.push_literal(name)
       #   g.send(:const_get, 1)                   # stack: myco_levels, result
         

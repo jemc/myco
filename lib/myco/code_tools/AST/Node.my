@@ -8,7 +8,7 @@ CodeTools::AST << {
     
     new_block_generator: |g, parameters| {
       blk = g.class.new
-      blk.name = g.state.name || :"__block__"
+      blk.name = g.state.name || :__block__
       blk.file = g.file
       blk.for_block = true
       

@@ -12,7 +12,7 @@ CodeTools::AST << {
     search_local: null # TODO: revisit and possibly implement for nested evals
     
     bytecode: |g| {
-      g.name = :"__script__"
+      g.name = :__script__
       g.file = self.file.to_sym
       
       g.push_state(self)

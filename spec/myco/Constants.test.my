@@ -1,7 +1,7 @@
 
 import 'BasicSpec.my'
 import 'fixtures/libfoo.my'
-import as(:"Contained") 'fixtures/libfoo.my'
+import as(:Contained) 'fixtures/libfoo.my'
 
 NinetyNineGenerator < EmptyObject { generate: 99 }
 
