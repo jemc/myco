@@ -10,8 +10,13 @@ BasicSpec {
   
   [tests]
   
-  "|>": {
+  "explicit piping with |>": {
     assert_equal(88 |> plus(11), 99)
     assert_equal(33 |> plus(66) |> over(9), 11)
+  }
+  
+  "implicit piping by juxtaposition": {
+    assert_equal(88 plus(11), 99)
+    assert_equal(33 plus(66) over(9), 11)
   }
 }

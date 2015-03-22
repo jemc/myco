@@ -41,9 +41,10 @@ rule meme_expr:
 # Expressions allowable as function arguments
 rule arg_expr:
   assignment
-/ left_chained_atoms
+/ left_chained_operations
 / dyn_string
 / dyn_symstr
+/ left_chained_piping
 / expr_atom
 
 # TODO: make expr_atom not redundant with below rules
@@ -411,12 +412,12 @@ rule left_op: left_op_normal / left_op_branch
 # http://www.dalnefre.com/wp/2011/05/parsing-expression-grammars-part-4/
 # for an easy-to-understand explanation of this problem and this solution.
 #
-rule sepd_chained_atom:
+rule sepd_chained_operation:
   r(C.spc_nl.* + left_op[:to] + C.spc_nl.* + expr_atom[:n1])
     { [to, n1] }
 
-rule left_chained_atoms:
-  r(expr_atom[:n0] + sepd_chained_atom.+[:nlist])
+rule left_chained_operations:
+  r(expr_atom[:n0] + sepd_chained_operation.+[:nlist])
     {
   nlist.unshift(n0)
   nlist.flatten!
@@ -435,7 +436,7 @@ rule left_chained_atoms:
   
   # There should only be one resulting node left
   (nlist.count == 1)
-    || raise("Failed to fully collapse left_chained_atoms: "nlist"")
+    || raise("Failed to fully collapse left_chained_operations: "nlist"")
   
   nlist.first
 }
@@ -448,7 +449,7 @@ rule left_invoke_op:
 / T.dot
 
 # Achieve left-associativity through iteration.
-# (see left_chained_atoms).
+# (see left_chained_operations).
 #
 rule sepd_chained_invocation:
   r(C.spc_nl.* + left_invoke_op[:t0] + C.spc_nl.* + (invoke / op_invoke)[:n1])
@@ -460,7 +461,7 @@ rule left_chained_invocations:
   r(expr_atom_not_chained[:n0] + sepd_chained_invocation.+[:nlist])
     {
   nlist.unshift(n0)
-  nlist.send(:"flatten!")
+  nlist.flatten!
   
   collapse(nlist, :t_dot, :t_quest) |n0,op,n1| {
     (op.type == :t_dot)
@@ -471,6 +472,32 @@ rule left_chained_invocations:
   # There should only be one resulting node left
   (nlist.count == 1)
     || raise("Failed to fully collapse left_chained_invocations: "nlist"")
+  
+  nlist.first
+}
+
+##
+# Piping invocations
+
+pipeable: left_chained_invocations / invoke
+
+rule sepd_chained_piping:
+  r(C.spc.+.token(:t_op_r_pipe)[:to] + pipeable[:n1])
+    { [to, n1] }
+
+rule left_chained_piping:
+  r(expr_atom[:n0] + sepd_chained_piping.+[:nlist])
+    {
+  nlist.unshift(n0)
+  nlist.flatten!
+  
+  collapse(nlist, :t_op_r_pipe) |n0,op,n1| {
+    ast.pipe_op(op, n0, n1)
+  }
+  
+  # There should only be one resulting node left
+  (nlist.count == 1)
+    || raise("Failed to fully collapse left_chained_piping: "nlist"")
   
   nlist.first
 }
