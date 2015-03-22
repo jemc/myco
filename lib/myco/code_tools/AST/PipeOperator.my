@@ -1,0 +1,26 @@
+
+CodeTools::AST << {
+  
+  PipeOperator < Node {
+    var value, var invoke
+    
+    Form: [:pipe_op, :value, :invoke]
+    
+    implementation_args: ArgumentAssembly.new(
+      line: self.line
+      body: [self.value] + (self.invoke.arguments.?body ?? [])
+    )
+    
+    implementation: Invoke.new(
+      line:         self.line
+      receiver:     self.invoke.receiver
+      name:         self.invoke.name
+      arguments:    self.implementation_args
+      block_params: self.invoke.block_params
+      block:        self.invoke.block
+    )
+    
+    bytecode: |g| implementation.bytecode(g)
+  }
+  
+}

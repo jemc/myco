@@ -53,6 +53,7 @@ MycoTokens: Pegleromyces::Grammar {
   token op_void_q:    str('??')
   token op_compare:   str('<=>') / str('=~') / str('==') /
                       str('<=') / str('>=') / str('<') / str('>')
+  token op_r_pipe:    str('|>')
   
   string_norm:     !set("\\\"") + any
   token string_body:   string_norm.* + (str("\\") + any + string_norm.*).*

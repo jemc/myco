@@ -46,6 +46,7 @@ import 'AST/BlockLiteral.my'
 
 import 'AST/Quest.my'
 import 'AST/BranchOperator.my'
+import 'AST/PipeOperator.my'
 
 # TODO: refactor and break out misc
 import "AST/misc.my"

@@ -1,0 +1,17 @@
+
+import 'BasicSpec.my'
+
+
+BasicSpec {
+  name: "PipeOperators"
+  
+  plus: |left, right| left + right
+  over: |left, right| left / right
+  
+  [tests]
+  
+  "|>": {
+    assert_equal(88 |> plus(11), 99)
+    assert_equal(33 |> plus(66) |> over(9), 11)
+  }
+}
