@@ -1,11 +1,11 @@
 
 CodeTools::AST << {
   
-  BlockLiteral < CodeTools::Compiler::LocalVariables, Node {
+  Block < CodeTools::Compiler::LocalVariables, Node {
     var parameters, var body
     var parent # TODO: investigate removing
     
-    Form: [:blklit, :parameters, :body]
+    Form: [:block, :parameters, :body]
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     

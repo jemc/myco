@@ -15,7 +15,7 @@ CodeTools::AST << {
       self.block && (
         self.arguments = self.arguments || ArgumentAssembly.new(line:self.line, body:[])
         self.block_params = self.block_params || ParameterAssembly.new(line:self.line)
-        self.arguments.block = BlockLiteral.new(line:self.line, parameters:self.block_params, body:self.block)
+        self.arguments.block = Block.new(line:self.line, parameters:self.block_params, body:self.block)
       )
       
       self.receiver.nil? && self.arguments.nil? &? (

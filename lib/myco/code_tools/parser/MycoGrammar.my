@@ -177,7 +177,7 @@ rule declobj_sepd_exprs:
 
 rule declobj_expr_body:
   r(arg_sep_opt + declobj_sepd_exprs[:nlist] + T.declare_end[:te])
-    { ast.block(nlist.first, nlist) }
+    { ast.sequence(nlist.first, nlist) }
 / r(arg_sep_opt + T.declare_end[:te])
     { ast.null(te) }
 
@@ -199,7 +199,7 @@ rule category:
   r(category_name[:n0] + category_sepd_exprs.-[:nlist]
       + !!(arg_sep_opt + (T.catgry_begin / T.declare_end)))
       { ast.category(n0, n0.value,
-        (nlist &? ast.block(nlist.first, nlist) ?? ast.null(n0))) }
+        (nlist &? ast.sequence(nlist.first, nlist) ?? ast.null(n0))) }
 
 rule copen:
   r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
@@ -540,17 +540,17 @@ rule meme_sepd_exprs:
 
 rule meme_inline_expr_body:
   r(inln_sep_opt + meme_inline_sepd_exprs[:nlist])
-    { ast.block(nlist.first, nlist) }
+    { ast.sequence(nlist.first, nlist) }
 
 rule meme_expr_body:
   r(expr_sep_opt + meme_sepd_exprs[:nlist] + T.meme_end[:te])
-    { ast.block(nlist.first, nlist) }
+    { ast.sequence(nlist.first, nlist) }
 / r(expr_sep_opt + T.meme_end[:te])
     { ast.null(te) }
 
 rule paren_expr_body:
   r(expr_sep_opt + meme_sepd_exprs[:nlist] + T.paren_end[:te])
-    { nlist.count==1 &? nlist.first ?? ast.block(nlist.first, nlist) }
+    { nlist.count==1 &? nlist.first ?? ast.sequence(nlist.first, nlist) }
 / r(expr_sep_opt + T.paren_end[:te])
     { ast.null(te) }
 

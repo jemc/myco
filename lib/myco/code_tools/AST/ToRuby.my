@@ -294,7 +294,7 @@ CodeTools::AST << {
     }
   }
   
-  Body << {
+  Sequence << {
     to_ruby: |g|
       g.add("("); g.list(self.array, "", auto_lines:true); g.add(")")
   }
@@ -322,7 +322,7 @@ CodeTools::AST << {
         g.add(")")
       )
       
-      self.arguments.block.is_a?(BlockLiteral) && (
+      self.arguments.block.is_a?(Block) && (
         g.add(" {"); g.add(self.arguments.block); g.add("}")
       )
     }
@@ -367,7 +367,7 @@ CodeTools::AST << {
     to_ruby: |g| g.add("&"); g.add(self.body)
   }
   
-  BlockLiteral << {
+  Block << {
     to_ruby: |g| {
       g.with_nested_var_scope(self) {
         g.var_scope_declare_locals(*self.parameters.names)

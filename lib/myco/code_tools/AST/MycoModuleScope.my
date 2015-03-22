@@ -63,7 +63,7 @@ CodeTools::AST << {
     
     var parent
     
-    # This is an abbreviated form of BlockLiteral#search_local
+    # This is an abbreviated form of Block#search_local
     # because no locals can be assigned within the MycoModuleScope
     search_local: |name| {
       reference = self.parent.search_local(name)

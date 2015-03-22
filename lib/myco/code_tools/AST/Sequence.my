@@ -1,10 +1,10 @@
 
 CodeTools::AST << {
   
-  Body < Node {
+  Sequence < Node {
     var array
     
-    Form: [:block, :array]
+    Form: [:sequence, :array]
     
     bytecode: |g| {
       ary = self.array.dup
