@@ -58,6 +58,7 @@ rule expr_atom:
 / paren_expr
 / constant
 / lit_simple
+/ lit_other
 / lit_array
 / invoke
 
@@ -70,6 +71,7 @@ rule expr_atom_not_chained:
 / paren_expr
 / constant
 / lit_simple
+/ lit_other
 / lit_array
 / invoke
 
@@ -81,6 +83,7 @@ rule expr_atom_not_string:
 / paren_expr
 / constant
 / lit_simple
+/ lit_other
 / lit_array
 / invoke
 
@@ -96,6 +99,20 @@ rule lit_simple:
 / r(T.float[:t0])    { ast.lit(t0, t0.float) }
 / r(T.integer[:t0])  { ast.lit(t0, t0.integer) }
 / r(T.symbol[:t0])   { ast.lit(t0, t0.text.slice(::Range.new(1,-1)).to_sym) } # TODO: more succinct here
+
+##
+# Other literals
+
+lit_other:
+  lit_block
+
+rule lit_block:
+  r(T.op_toproc[:to] + block_body[:n1])
+    { ast.blklit(to, n1) }
+
+rule block_body:
+  r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
+    { ast.block(nb, np, nb) }
 
 ##
 # Enclosed literals
@@ -253,23 +270,19 @@ rule invoke_assignment:
 ##
 # Invoke - Results in a :lambig, :call, or :iter with a :call within
 
-rule invoke_body:
-  r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
-    { ast.block(nb, np, nb) }
-
-opt_arg_list:    (r(C.spc.*    + arg_list[:n])     { n  }).-
-opt_invoke_body: (r(C.spc_nl.* + invoke_body[:nx]) { nx }).-
+opt_arg_list:   (r(C.spc.*    + arg_list[:n])   { n }).-
+opt_block_body: (r(C.spc_nl.* + block_body[:n]) { n }).-
 
 rule invoke:
-  r(T.identifier[:tn] + opt_arg_list[:na] + opt_invoke_body[:nb])
+  r(T.identifier[:tn] + opt_arg_list[:na] + opt_block_body[:nb])
     { ast.invoke(tn, null, tn.sym, na, nb) }
 
 rule op_invoke: # Allow some binary operators to be invoked with a dot
-  r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_invoke_body[:nb])
+  r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_block_body[:nb])
     { ast.invoke(tn, null, tn.sym, na, nb) }
 
 rule elem_invoke:
-  r(lit_array[:na] + opt_invoke_body[:nb])
+  r(lit_array[:na] + opt_block_body[:nb])
     { ast.invoke(na, null, :"[]", ast.argass(na, na.body), nb) }
 
 rule op_invoke_id:

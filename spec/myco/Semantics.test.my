@@ -114,4 +114,10 @@ BasicSpec {
     assert_equal("foo " 88 " bar", "foo 88 bar")
     assert_equal(:"foo " 88 " bar", :"foo 88 bar")
   }
+  
+  "ampersand with block creates standalone block literals": {
+    assert_is_a(&{}, ::Proc)
+    assert_equal(&{ 88 }.call, 88)
+    assert_equal(& |a,b| { a + b }.call(88, 11), 99)
+  }
 }

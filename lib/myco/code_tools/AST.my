@@ -25,6 +25,8 @@ import 'AST/Block.my'
 import 'AST/BlockParameter.my'
 import 'AST/ParameterAssembly.my'
 
+import 'AST/BlockLiteral.my'
+
 import 'AST/MycoModuleScope.my'
 
 import 'AST/ConstantAccess.my'

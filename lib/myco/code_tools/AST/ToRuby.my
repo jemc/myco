@@ -377,6 +377,8 @@ CodeTools::AST << {
     }
   }
   
+  BlockLiteral << { to_ruby: |g| g.add(implementation) }
+  
   Quest << {
     to_ruby: |g| {
       associated_questable = self.questable.dup
