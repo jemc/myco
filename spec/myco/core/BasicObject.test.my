@@ -49,6 +49,20 @@ BasicSpec {
     assert_equal(readable.call(100), "unknown")
   }
   
+  "executes callable test values of cond until a match is found": {
+    effects = []
+    readable = &|y|{
+      cond(
+        &{effects.push(1); 88 == y}, &{ "eighty-eight" }
+        &{effects.push(2); 99 == y}, &{ "ninety-nine" }
+                                     &{ "unknown" }
+      )
+    }
+    assert_equal(readable.call(88), "eighty-eight"); assert_equal(effects, [1])
+    assert_equal(readable.call(99), "ninety-nine");  assert_equal(effects, [1,1,2])
+    assert_equal(readable.call(100), "unknown");     assert_equal(effects, [1,1,2,1,2])
+  }
+  
   "executes a single callable strategy based on case input": {
     effects = []
     readable = &|y|{
