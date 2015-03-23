@@ -265,11 +265,11 @@ CodeTools::AST << {
         }
       }
       
-      (self.splat == true) &? (
-        list_add.call { g.add("*") }
-      ) ?? (self.splat &? ( # TODO: make prettier elsif alternative
-        list_add.call { g.add("*"self.splat"") }
-      ))
+      cond(
+        self.splat == true, &{ list_add.call { g.add("*") } }
+        self.splat,         &{ list_add.call { g.add("*"self.splat"") } }
+        &{ }
+      )
       
       self.post.each |item| { list_add.call { g.add(item.to_s) } }
       
@@ -282,11 +282,11 @@ CodeTools::AST << {
         }
       }
       
-      (self.kwrest == true) &? (
-        list_add.call { g.add("**") }
-      ) ?? (self.kwrest &? ( # TODO: make prettier elsif alternative
-        list_add.call { g.add("**"self.kwrest"") }
-      ))
+      cond(
+        self.kwrest == true, &{ list_add.call { g.add("**") } }
+        self.kwrest,         &{ list_add.call { g.add("**"self.kwrest"") } }
+        &{ }
+      )
       
       self.block && list_add.call { g.add(self.block) }
       

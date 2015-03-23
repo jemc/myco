@@ -20,15 +20,11 @@ CodeTools::AST << {
       self.body.drop_while |item| { !item.is_a?(SplatValue) }
     
     # Symbol of bytecode operation to use for send
-    send_op: {
-      self.body.detect |item| { item.is_a?(SplatValue) } &? (
-        :send_with_splat
-      ) ?? (self.block &? (  # TODO: better elsif construction
-        :send_with_block
-      ) ?? (
-        :send
-      ))
-    }
+    send_op: cond(
+      self.body.detect |item| { item.is_a?(SplatValue) }, :send_with_splat,
+      self.block,                                         :send_with_block,
+                                                          :send,
+    )
     
     # Number of arguments to use for send operation
     send_count:
