@@ -22,21 +22,7 @@ BasicSpec {
     assert_equal(a, 6)
   }
   
-  "executes a single strategy based on case input": {
-    effects = []
-    readable = &|y|{
-      y case(
-        88, &|x|{ effects.push(x); ""x" is eighty-eight" }
-        99, &|x|{ effects.push(x); ""x" is ninety-nine" }
-            &|x|{ effects.push(x); ""x" is unknown" }
-      )
-    }
-    assert_equal(readable.call(88), "88 is eighty-eight"); assert_equal(effects, [88])
-    assert_equal(readable.call(99), "99 is ninety-nine");  assert_equal(effects, [88,99])
-    assert_equal(readable.call(100), "100 is unknown");    assert_equal(effects, [88,99,100])
-  }
-  
-  "executes a single strategy of cond": {
+  "executes a single callable strategy of cond": {
     effects = []
     readable = &|y|{
       cond(
@@ -49,4 +35,45 @@ BasicSpec {
     assert_equal(readable.call(99), "ninety-nine");  assert_equal(effects, [88,99])
     assert_equal(readable.call(100), "unknown");     assert_equal(effects, [88,99,100])
   }
+  
+  "returns a single non-callable strategy of cond": {
+    readable = &|y|{
+      cond(
+        88 == y, "eighty-eight"
+        99 == y, "ninety-nine"
+                 "unknown"
+      )
+    }
+    assert_equal(readable.call(88), "eighty-eight")
+    assert_equal(readable.call(99), "ninety-nine")
+    assert_equal(readable.call(100), "unknown")
+  }
+  
+  "executes a single callable strategy based on case input": {
+    effects = []
+    readable = &|y|{
+      y case(
+        88, &|x|{ effects.push(x); "eighty-eight" }
+        99, &|x|{ effects.push(x); "ninety-nine" }
+            &|x|{ effects.push(x); "unknown" }
+      )
+    }
+    assert_equal(readable.call(88), "eighty-eight"); assert_equal(effects, [88])
+    assert_equal(readable.call(99), "ninety-nine");  assert_equal(effects, [88,99])
+    assert_equal(readable.call(100), "unknown");     assert_equal(effects, [88,99,100])
+  }
+  
+  "returns a single non-callable strategy based on case input": {
+    readable = &|y|{
+      y case(
+        88, "eighty-eight"
+        99, "ninety-nine"
+            "unknown"
+      )
+    }
+    assert_equal(readable.call(88), "eighty-eight")
+    assert_equal(readable.call(99), "ninety-nine")
+    assert_equal(readable.call(100), "unknown")
+  }
+  
 }

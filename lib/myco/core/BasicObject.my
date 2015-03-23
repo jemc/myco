@@ -14,8 +14,8 @@
         true
       )
     }
-    # Call the selected strategy or error if none
-    use_strategy &? use_strategy.call(input)
+    # Call or return the selected strategy or error if none
+    use_strategy &? (use_strategy.?call(input) ?? use_strategy)
                  ?? raise("No match for case("input")")
   }
   cond: |*rest| {
@@ -29,8 +29,8 @@
         true
       )
     }
-    # Call the selected strategy or error if none
-    use_strategy &? use_strategy.call
+    # Call or return the selected strategy or error if none
+    use_strategy &? (use_strategy.?call ?? use_strategy)
                  ?? raise("No match for cond")
   }
   
