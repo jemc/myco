@@ -35,4 +35,18 @@ BasicSpec {
     assert_equal(readable.call(99), "99 is ninety-nine");  assert_equal(effects, [88,99])
     assert_equal(readable.call(100), "100 is unknown");    assert_equal(effects, [88,99,100])
   }
+  
+  "executes a single strategy of cond": {
+    effects = []
+    readable = &|y|{
+      cond(
+        88 == y, &{ effects.push(y); "eighty-eight" }
+        99 == y, &{ effects.push(y); "ninety-nine" }
+                 &{ effects.push(y); "unknown" }
+      )
+    }
+    assert_equal(readable.call(88), "eighty-eight"); assert_equal(effects, [88])
+    assert_equal(readable.call(99), "ninety-nine");  assert_equal(effects, [88,99])
+    assert_equal(readable.call(100), "unknown");     assert_equal(effects, [88,99,100])
+  }
 }
