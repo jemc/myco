@@ -1,9 +1,10 @@
 
 CodeTools::AST << {
   
-  # TODO: rename to something else
-  MycoModuleScope < CodeTools::Compiler::LocalVariables, Node {
+  # TODO: remove from AST nodes, as this is just common behavior and has nothing itself to do with syntax
+  DeclaredScope < CodeTools::Compiler::LocalVariables, Node {
     var name, var body
+    var scope_method
     
     bytecode: |g| {
       pos(g)
@@ -13,26 +14,26 @@ CodeTools::AST << {
       # (Necessary to pass local variables from above to memes below)
       g.state.scope.nest_scope(self)
       
-      attach_and_call(g, :__myco_module_init__, true)
-    }
-    
-    # TODO: figure out how to keep in sync with ClosedScope#attach_and_call impl
-    attach_and_call: |g, arg_name, scoped=false, pass_block=false| {
-      self.name = :MycoModuleScope # TODO: remove/fix
-      name = self.name || arg_name
+      # This name is arbitrary and is just for the benefit of backtraces
+      name = :__declaration__
+      
       meth = new_generator(g, name)
       
       meth.push_state(self)
       meth.for_module_body = true
       
-      scoped && (
-        meth.push_self
-        meth.add_scope
-      )
+      meth.push_self
+      meth.add_scope
       
       meth.state.push_name(name.to_sym)
       
-      body_bytecode(meth) # (@body.bytecode meth) in original implementation
+      self.scope_method && (
+        meth.push_scope
+        meth.send(self.scope_method, 0)
+        meth.pop
+      )
+      
+      self.body.bytecode(meth)
       
       meth.state.pop_name
       
@@ -52,8 +53,6 @@ CodeTools::AST << {
       
       meth
     }
-    
-    body_bytecode: |g| self.body.bytecode(g)
     
     # Become the AST scope parent of the given AST scope Node .
     # This is only for the benefit of LocalVariableAccessAmbiguous

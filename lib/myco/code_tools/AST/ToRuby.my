@@ -189,14 +189,14 @@ CodeTools::AST << {
     }
   }
   
-  ConstantReopen << {
+  DeclareExtension << {
     to_ruby: |g| {
       g.add(self.constant); g.add(".component_eval {")
       g.add(self.body); g.add("}")
     }
   }
   
-  MycoModuleScope << {
+  DeclaredScope << {
     to_ruby: |g|
       g.with_nested_var_scope(self) { g.add(self.body) }
   }

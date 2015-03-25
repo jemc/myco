@@ -1,16 +1,6 @@
 
 CodeTools::AST << {
   
-  DeclareFileScope < MycoModuleScope {
-    body_bytecode: |g| {
-      g.push_scope
-      g.send(:set_myco_file, 0)
-      g.pop
-      
-      self.body.bytecode(g)
-    }
-  }
-  
   DeclareFile < Node {
     var body
     
@@ -24,7 +14,7 @@ CodeTools::AST << {
       type = ConstantAccess.new(line:self.line, toplevel:true, names:[:Myco, :FileToplevel])
       types = ArrayAssembly.new(line:self.line, body:[type])
       decl = DeclareObject.new(line:self.line, types:types, body:self.body)
-      decl.scope_type = DeclareFileScope
+      decl.scope_implementation.scope_method = :set_myco_file
       decl
     }
     

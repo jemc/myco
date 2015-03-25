@@ -1,27 +1,17 @@
 
 CodeTools::AST << {
   
-  DeclareObjectScope < MycoModuleScope {
-    body_bytecode: |g| {
-      g.push_scope
-      g.send(:set_myco_component, 0)
-      g.pop
-      
-      self.body.bytecode(g)
-    }
-  }
-  
   DeclareObject < Node {
     var types, var body
     
     Form: [:declobj, :types, :body]
     
     var create: true
-    var scope_type: DeclareObjectScope
     
-    var scope_implementation: self.scope_type.new(
+    var scope_implementation: DeclaredScope.new(
       line: self.line
       body: self.body
+      scope_method: :set_myco_component
     )
     
     bytecode: |g| {

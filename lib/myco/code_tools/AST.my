@@ -27,18 +27,19 @@ import 'AST/ParameterAssembly.my'
 
 import 'AST/BlockLiteral.my'
 
-import 'AST/MycoModuleScope.my'
-
 import 'AST/ConstantAccess.my'
 import 'AST/ConstantAssignment.my'
 import 'AST/ConstantDefine.my'
-import 'AST/ConstantReopen.my'
-import 'AST/DeclareCategory.my'
-import 'AST/DeclareDecorator.my'
-import 'AST/DeclareFile.my'
-import 'AST/DeclareMeme.my'
+
+import 'AST/DeclaredScope.my'
 import 'AST/DeclareObject.my'
 import 'AST/DeclareString.my'
+import 'AST/DeclareFile.my'
+import 'AST/DeclareExtension.my'
+import 'AST/DeclareCategory.my'
+
+import 'AST/DeclareDecorator.my'
+import 'AST/DeclareMeme.my'
 
 import 'AST/Invoke.my'
 import 'AST/InvokeMethod.my'

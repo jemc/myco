@@ -1,0 +1,23 @@
+
+CodeTools::AST << {
+  
+  DeclareExtension < Node {
+    var constant, var body
+    
+    Form: [:copen, :constant, :body]
+    
+    bytecode: |g| {
+      pos(g)
+      
+      scope = DeclaredScope.new(
+        line: self.line
+        body: self.body
+        scope_method: :set_myco_component
+      )
+      
+      self.constant.bytecode(g)
+      scope.bytecode(g)
+    }
+  }
+  
+}

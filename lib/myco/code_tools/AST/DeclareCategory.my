@@ -1,24 +1,15 @@
 
 CodeTools::AST << {
   
-  DeclareCategoryScope < MycoModuleScope {
-    body_bytecode: |g| {
-      g.push_scope
-      g.send(:set_myco_category, 0)
-      g.pop
-      
-      self.body.bytecode(g)
-    }
-  }
-  
   DeclareCategory < Node {
     var name, var body
     
     Form: [:category, :name, :body]
     
-    scope_implementation: DeclareCategoryScope.new(
+    scope_implementation: DeclaredScope.new(
       line: self.line
       body: self.body
+      scope_method: :set_myco_category
     )
     
     bytecode: |g| {
