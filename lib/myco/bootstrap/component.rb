@@ -127,6 +127,8 @@ module Myco
     def include *others
       others.reverse_each do |other|
         Rubinius::Type.include_modules_from(other, self.origin)
+        # TODO: avoid touching singleton class that doesn't already exist?
+        Rubinius::Type.include_modules_from(other.singleton_class, self.singleton_class.origin)
         Rubinius::Type.infect(self, other)
         other.__send__ :included, self
       end
