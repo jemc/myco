@@ -50,7 +50,7 @@ BasicSpec {
   }
   
   "passes a block to a method": {
-    a = [1,2]; b = [3,4]; c = Proc.new { }
+    a = [1,2]; b = [3,4]; c = &{ }
     
     refute(unblock)
     assert(unblock{})
@@ -63,7 +63,7 @@ BasicSpec {
   }
   
   "distributes arguments to the correct parameters in the meme signature": {
-    pr = Proc.new {}
+    pr = &{ }
     subject = Object {
       example: |a,b,c='C',d='D',*e,f,g:,h:,i:'I',j:'J',**k,&l| [
         a:a,b:b,c:c,d:d,e:e,f:f,g:g,h:h,i:i,j:j,k:k,l:l

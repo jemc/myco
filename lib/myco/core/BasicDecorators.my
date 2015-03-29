@@ -39,7 +39,7 @@
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
-      meme.body = Proc.new |*a,&b| {
+      meme.body = &|*a,&b| {
         wrap_meme.result_for(self,*a,&b)
         orig_meme.result_for(self,*a,&b)
       }
@@ -51,7 +51,7 @@
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
-      meme.body = Proc.new |*a,&b| {
+      meme.body = &|*a,&b| {
         result = \
         orig_meme.result_for(self,*a,&b)
         wrap_meme.result_for(self,*a,&b)
@@ -65,7 +65,7 @@
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
-      meme.body = Proc.new |*a,&b| {
+      meme.body = &|*a,&b| {
         new_a = \
         wrap_meme.result_for(self,*a)
         orig_meme.result_for(self,*new_a,&b)
@@ -78,7 +78,7 @@
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
-      meme.body = Proc.new |*a,&b| {
+      meme.body = &|*a,&b| {
         result = \
         orig_meme.result_for(self,*a,&b)
         wrap_meme.result_for(self,result)
@@ -90,7 +90,7 @@
   setter: Decorator {
     apply: |meme| {
       wrap_meme = meme.dup
-      meme.setter = Proc.new |orig_value| {
+      meme.setter = &|orig_value| {
         wrap_meme.result_for(self,orig_value)
       }
     }
@@ -100,7 +100,7 @@
   getter: Decorator {
     apply: |meme| {
       wrap_meme = meme.dup
-      meme.getter = Proc.new |orig_value| {
+      meme.getter = &|orig_value| {
         wrap_meme.result_for(self,orig_value)
       }
     }

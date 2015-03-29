@@ -252,7 +252,7 @@ CodeTools::AST << {
   ParameterAssembly << {
     to_ruby: |g| {
       list = []
-      list_add = Proc.new |&blk| { list.push(Proc.new(&blk)) }
+      list_add = &|&blk| { list.push(blk) }
       
       self.required.each |item| { list_add.call { g.add(item.to_s) } }
       
