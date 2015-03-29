@@ -131,7 +131,12 @@ module Myco
         @string || make_string
         
         parser = new_parser
-        ast = parser.parse_string(@string)
+        begin
+          ast = parser.parse_string(@string)
+        rescue Exception => e
+          full_message = "Error while parsing #{filename}:\n" + e.message
+          raise e.class, full_message, e.backtrace
+        end
         
         ast = ast_root_for(ast)
         ast.file = filename.to_sym
