@@ -9,7 +9,7 @@ CodeTools::AST << {
     implementation_receiver: ConstantAccess.new(
       line:     self.line
       toplevel: true
-      names:    [:Proc]
+      names:    [:Ruby, :Proc]
     )
     
     implementation: Invoke.new(

@@ -11,7 +11,7 @@ BasicSpec {
   Subject < Object { foo:88, bar:99 }
   make_subject: Subject { }
   
-  RubySubject: ::Class.new {
+  RubySubject: ::Ruby::Class.new {
     __send__(:define_method, :foo){88}
     __send__(:define_method, :bar){99}
   }

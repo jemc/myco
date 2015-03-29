@@ -14,8 +14,17 @@ CodeTools::AST << {
       first_name = name_list.any? && name_list.shift
       
       self.constant.toplevel &? (
-        g.push_cpath_top
-        first_name && g.find_const(first_name)
+        first_name &? (
+          # The conceptual toplevel in Myco is the Myco namespace
+          first_name case(
+            :Myco,     &{ g.push_myco },
+            :Ruby,     &{ g.push_cpath_top },
+            :Rubinius, &{ g.push_rubinius },
+                       &{ g.push_myco; g.find_const(first_name) }
+          )
+        ) ?? (
+          g.push_myco
+        )
       ) ?? (
         first_name &? (
           Myco.find_constant_bytecode(g, first_name)

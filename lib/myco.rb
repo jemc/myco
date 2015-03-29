@@ -11,6 +11,9 @@ require_relative 'myco/backtrace'
 require_relative 'myco/bootstrap'
 
 
+# TODO: remove this hack after 0.1.7 gem release
+::Ruby = ::Object
+
 # Detect whether a second pass is necessary (when no bytecode is available)
 # TODO: recursively check mtime for all rbc files as well,
 #   to be sure that core implementation files don't need to be recompiled.

@@ -98,7 +98,7 @@ rule lit_simple:
 / r(T.self[:t0])     { ast.self(t0) }
 / r(T.float[:t0])    { ast.lit(t0, t0.float) }
 / r(T.integer[:t0])  { ast.lit(t0, t0.integer) }
-/ r(T.symbol[:t0])   { ast.lit(t0, t0.text.slice(::Range.new(1,-1)).to_sym) } # TODO: more succinct here
+/ r(T.symbol[:t0])   { ast.lit(t0, t0.text.slice(Range.new(1,-1)).to_sym) } # TODO: more succinct here
 
 ##
 # Other literals

@@ -111,7 +111,7 @@ CodeTools::AST << {
     to_ruby: |g| {
       g.add('"')
         self.body.each_slice(2) |string, to_string| {
-          g.add(string.value.to_s.inspect.slice(::Range.new(1, -2)))
+          g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
           to_string && (g.add('#{'); g.add(to_string); g.add('}'))
         }
       g.add('"')
@@ -122,7 +122,7 @@ CodeTools::AST << {
     to_ruby: |g| {
       g.add(':"')
         self.body.each_slice(2) |string, to_string| {
-          g.add(string.value.to_s.inspect.slice(::Range.new(1, -2)))
+          g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
           to_string && (g.add('#{'); g.add(to_string); g.add('}'))
         }
       g.add('"')
@@ -150,7 +150,12 @@ CodeTools::AST << {
       first_name = name_list.shift
       
       self.toplevel &? (
-        g.add("::"first_name"")
+        first_name case(
+          :Myco,     &{ g.add("::Myco") },
+          :Ruby,     &{ g.add("::Object") },
+          :Rubinius, &{ g.add("::Rubinius") },
+                     &{ g.add("::Myco::"first_name"") }
+        )
       ) ?? (
         g.add("::Myco.find_constant("first_name.inspect")")
       )
@@ -165,7 +170,16 @@ CodeTools::AST << {
       first_name = name_list.any? && name_list.shift
       
       self.constant.toplevel &? (
-        first_name && g.add("::"first_name"")
+        first_name &? (
+          first_name case(
+            :Myco,     &{ g.add("::Myco") },
+            :Ruby,     &{ g.add("::Object") },
+            :Rubinius, &{ g.add("::Rubinius") },
+                       &{ g.add("::Myco::"first_name"") }
+          )
+        ) ?? (
+          g.add("::Myco")
+        )
       ) ?? (
         first_name &? (
           g.add("::Myco.find_constant("first_name.inspect")")

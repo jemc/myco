@@ -7,7 +7,7 @@ BasicCommand < Object {
   options_parse: |*argv| {
     command = argv.first && self.commands.memes[argv.first.to_sym]
     command
-      &? (command.result.run(*argv.slice(::Range.new(1, -1))); null)
+      &? (command.result.run(*argv.slice(Range.new(1, -1))); null)
       ?? options_parser.parse(argv)
   }
   

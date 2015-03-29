@@ -8,7 +8,7 @@ BasicCommand {
   
   run: |*argv| {
     files = options_parse(*argv)
-    files && files.uniq.each |file| { Myco.eval_file(file, [::Dir.pwd]) }
+    files && files.uniq.each |file| { Myco.eval_file(file, [Dir.pwd]) }
   }
   
   [options]

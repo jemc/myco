@@ -1,11 +1,11 @@
 
 BasicObject {
   # TODO: be more clever here
-  ASTBuilder: ::CodeTools::AST::Builder.new
+  ASTBuilder: CodeTools::AST::Builder.new
   var ast: ASTBuilder
   
   var escape_encodings: {
-    hash = Hash.new
+    hash = ::Ruby::Hash.new
     hash["\\a"] =  7.chr # \a  0x07  Bell or alert
     hash["\\b"] =  8.chr # \b  0x08  Backspace
     # TODO:              # \cx       Control-x

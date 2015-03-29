@@ -17,6 +17,6 @@ BasicSpec {
   }
   
   "has a metadata property that can be used for storage": {
-    assert_is_a(parent.memes[:foo].metadata, ::Hash)
+    assert_is_a(parent.memes[:foo].metadata, ::Ruby::Hash)
   }
 }

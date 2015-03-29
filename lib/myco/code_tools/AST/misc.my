@@ -2,7 +2,7 @@
 CodeTools::AST << {
   
   # Helper methods for bytecode generation
-  ::CodeTools::Generator << {
+  CodeTools::Generator << {
     push_myco: push_cpath_top; find_const(:Myco)
     push_void: push_myco;      find_const(:Void)
     push_null: push_nil
@@ -34,7 +34,7 @@ CodeTools::AST << {
   }
   
   # TODO: use some other way to be eager
-  EVALUATE_NOW: ::CodeTools::AST.component_eval {
+  EVALUATE_NOW: CodeTools::AST.component_eval {
     constants.select |const_name| {
       const_get(const_name).constants.include?(:Form)
       }.each |const_name| {
