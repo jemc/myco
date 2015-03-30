@@ -8,10 +8,12 @@ import 'AST/Node.my'
 
 import 'AST/Script.my'
 
+import 'AST/NumericLiteral.my'
 import 'AST/StringLiteral.my'
 import 'AST/SymbolLiteral.my'
-import 'AST/DynamicString.my'
-import 'AST/DynamicSymbol.my'
+
+import 'AST/StringCompose.my'
+import 'AST/SymbolCompose.my'
 
 import 'AST/Sequence.my'
 

@@ -10,7 +10,7 @@ CodeTools::AST << {
     var kwrest:   null
     var block:    null
     
-    Form: [:args, :required, :optional, :splat, :post, :kwargs, :kwrest, :block]
+    Form: [:params, :required, :optional, :splat, :post, :kwargs, :kwrest, :block]
     
     # Called on a new method or block generator
     # to set up various parameter-related properties.

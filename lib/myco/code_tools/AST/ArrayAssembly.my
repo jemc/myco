@@ -4,7 +4,7 @@ CodeTools::AST << {
   ArrayAssembly < Node {
     var body
     
-    Form: [:arrass, :body]
+    Form: [:array, :body]
     
     bytecode: |g| {
       pos(g)

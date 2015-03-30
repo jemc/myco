@@ -1,10 +1,10 @@
 
 CodeTools::AST << {
   
-  SymbolLiteral < Node {
+  NumericLiteral < Node {
     var value
     
-    Form: [:symbol, :value]
+    Form: [:numeric, :value]
     
     bytecode: |g| {
       pos(g)

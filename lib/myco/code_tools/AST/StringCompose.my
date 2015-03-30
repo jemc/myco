@@ -1,10 +1,10 @@
 
 CodeTools::AST << {
   
-  DynamicSymbol < Node {
+  StringCompose < Node {
     var body
     
-    Form: [:dsym, :body]
+    Form: [:string_compose, :body]
     
     bytecode: |g| {
       pos(g)
@@ -15,7 +15,6 @@ CodeTools::AST << {
       }
       
       g.string_build(self.body.size)
-      g.send(:to_sym, 0)
     }
   }
   

@@ -104,10 +104,11 @@ CodeTools::AST << {
   TrueLiteral  << { to_ruby: |g| g.add("true") }
   FalseLiteral << { to_ruby: |g| g.add("false") }
   
-  StringLiteral << { to_ruby: |g| g.add(self.value.inspect) }
-  SymbolLiteral << { to_ruby: |g| g.add(self.value.inspect) }
+  NumericLiteral << { to_ruby: |g| g.add(self.value.inspect) }
+  StringLiteral  << { to_ruby: |g| g.add(self.value.inspect) }
+  SymbolLiteral  << { to_ruby: |g| g.add(self.value.inspect) }
   
-  DynamicString << {
+  StringCompose << {
     to_ruby: |g| {
       g.add('"')
         self.body.each_slice(2) |string, to_string| {
@@ -118,7 +119,7 @@ CodeTools::AST << {
     }
   }
   
-  DynamicSymbol << {
+  SymbolCompose << {
     to_ruby: |g| {
       g.add(':"')
         self.body.each_slice(2) |string, to_string| {

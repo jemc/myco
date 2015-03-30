@@ -4,7 +4,7 @@ CodeTools::AST << {
   ArgumentAssembly < Node {
     var body, var block
     
-    Form: [:argass, :body]
+    Form: [:args, :body]
     
     setter body: |given_body| {
       given_body.last.is_a?(BlockArgument) && (self.block = given_body.pop)
