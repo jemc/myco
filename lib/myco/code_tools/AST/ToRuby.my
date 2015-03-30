@@ -263,6 +263,10 @@ CodeTools::AST << {
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
   RestParameter     << { to_ruby: |g| g.add("*"(self.name==:"*" |? self.name ?? "")"") }
+  
+  KeywordRequiredParameter << { to_ruby: |g| g.add(""self.name":") }
+  KeywordOptionalParameter << { to_ruby: |g| g.add(""self.name":"); g.add(self.value) }
+  
   BlockParameter    << { to_ruby: |g| g.add("&"self.name"") }
   
   ParameterAssembly << {
@@ -275,14 +279,8 @@ CodeTools::AST << {
       self.rest && list_add.call { g.add(self.rest) }
       self.post.each     |item| { list_add.call { g.add(item) } }
       
-      self.kwargs.each |asgn| {
-        name = asgn.name
-        value = asgn.value
-        list_add.call {
-          g.add(""name":")
-          (value.is_a?(SymbolLiteral) && value.value==:"*") || g.add(value)
-        }
-      }
+      self.kwrequired.each |item| { list_add.call { g.add(item) } }
+      self.kwoptional.each |item| { list_add.call { g.add(item) } }
       
       cond(
         self.kwrest == true, &{ list_add.call { g.add("**") } }

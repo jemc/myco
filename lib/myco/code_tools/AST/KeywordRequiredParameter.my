@@ -1,0 +1,13 @@
+
+CodeTools::AST << {
+  
+  KeywordRequiredParameter < Node {
+    var name
+    
+    Form: [:kwreqprm, :name]
+    
+    map_local: |scope| scope.new_local(self.name)
+    bytecode: |g| { } # TODO: move ParameterAssembly logic to this method
+  }
+   
+}

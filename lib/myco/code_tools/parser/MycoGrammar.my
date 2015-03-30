@@ -349,8 +349,10 @@ rule lit_array:
 rule param:
   r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + arg_expr[:nv])
     { [:optional, ast.lasgn(ti, ti.sym, nv)] }
-/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr.-[:nv])
-    { [:kwargs, ast.lasgn(ti, ti.sym, nv || ast.symbol(to, :"*"))] }
+/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr[:nv])
+    { [:kwargs, ast.lasgn(ti, ti.sym, nv)] }
+/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to])
+    { [:kwargs,   ti.sym] }
 / r(T.op_exp + C.spc_nl.* + T.identifier[:ti])
     { [:kwrest,   ti.sym] }
 / r(T.op_mult + C.spc_nl.* + T.identifier[:ti])
@@ -387,22 +389,29 @@ rule param_list:
   loop { plist[0] && plist[0][0] == :kwrest   || break; kwrest  .push(plist.shift[1]) }
   loop { plist[0] && plist[0][0] == :block    || break; block   .push(plist.shift[1]) }
   
-  required = required
-  optional = optional
-  rest     = rest.first
-  post     = post
-  kwargs   = kwargs
-  kwrest   = kwrest.first
-  block    = block.first
+  required   = required
+  optional   = optional
+  rest       = rest.first
+  post       = post
+  kwrequired = kwargs.select |x| { x.is_a?(Symbol) }
+  kwoptional = kwargs.reject |x| { x.is_a?(Symbol) }
+  kwrest     = kwrest.first
+  block      = block.first
   
   # TODO: move these conversions to their respective reductions
-  required = required.map |x| { ast.reqprm(tb, x) }
-  optional = optional.map |x| { ast.optprm(tb, x) }
-  rest     = rest  && ast.restprm(tb, rest)
-  post     = post.map     |x| { ast.reqprm(tb, x) }
-  block    = block && ast.blkprm(tb, block)
+  required   = required.map   |x| { ast.reqprm(tb, x) }
+  optional   = optional.map   |x| { ast.optprm(tb, x) }
+  rest       = rest  && ast.restprm(tb, rest)
+  post       = post.map       |x| { ast.reqprm(tb, x) }
+  block      = block && ast.blkprm(tb, block)
+  kwrequired = kwrequired.map |x| { ast.kwreqprm(tb, x) }
+  kwoptional = kwoptional.map |x| { ast.kwoptprm(tb, x) }
   
-  ast.params(tb, required, optional, rest, post, kwargs, kwrest, block)
+  ast.params(tb
+    required, optional, rest, post
+    kwrequired, kwoptional, kwrest
+    block
+  )
 }
 
 ##

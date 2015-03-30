@@ -2,15 +2,22 @@
 CodeTools::AST << {
   
   ParameterAssembly < Node {
-    var required: []
-    var optional: []
-    var rest:    null
-    var post:     []
-    var kwargs:   []
-    var kwrest:   null
-    var block:    null
+    var required:   []
+    var optional:   []
+    var rest:      null
+    var post:       []
+    var kwrequired: []
+    var kwoptional: []
+    var kwrest:    null
+    var block:     null
     
-    Form: [:params, :required, :optional, :rest, :post, :kwargs, :kwrest, :block]
+    Form: [:params,
+      :required, :optional, :rest, :post,
+      :kwrequired, :kwoptional, :kwrest,
+      :block]
+    
+    keywords_any?:
+      self.kwrequired.any? || self.kwoptional.any? || self.kwrest
     
     # Called on a new method or block generator
     # to set up various parameter-related properties.
@@ -21,7 +28,7 @@ CodeTools::AST << {
       
       g.total_args =
         self.required.size + self.optional.size + self.post.size
-        + ((self.kwargs.any? || self.kwrest) &? 1 ?? 0)
+        + (self.keywords_any? &? 1 ?? 0)
       
       g.splat_index =
         self.rest &? (self.required.size + self.optional.size) ?? null
@@ -31,7 +38,7 @@ CodeTools::AST << {
         + self.optional.size
         + (self.rest &? 1 ?? 0)
         + self.post.size
-        + ((self.kwargs.any? || self.kwrest) &? 1 ?? 0)
+        + (self.keywords_any? &? 1 ?? 0)
         + 1 # for self.block
       )
       
@@ -41,27 +48,11 @@ CodeTools::AST << {
     }
     
     # TODO: remove/refactor out
-    required_and_optional_kwargs: {
-      # TODO: perhaps make these be given separately?
-      required_kwargs = []
-      optional_kwargs = []
-      
-      self.kwargs.each |param| {
-        # TODO: use nil or some other param.value to represent required kwarg
-        (param.value.kind_of?(SymbolLiteral) && param.value.value == :"*")
-        &? required_kwargs.push(param)
-        ?? optional_kwargs.push(param)
-      }
-      
-      ret = [required_kwargs, optional_kwargs]
-    }
-    
-    # TODO: remove/refactor out
     keyword_entries: {
-      entries = required_and_optional_kwargs
-      entries.first.map! |x| { [x.name, true] }
-      entries.last.map! |x| { [x.name, false] }
-      entries = entries.flatten(2)
+      entries = \
+        kwrequired.map |x| { [x.name, true] }
+      + kwoptional.map |x| { [x.name, false] }
+      entries = entries.flatten(1)
       entries.empty? &? null ?? entries
     }
     
@@ -69,19 +60,9 @@ CodeTools::AST << {
     arity: {
       arity = self.required.size + self.post.size
       
-      # Check for required kwargs
-      kwargs_are_required = self.kwargs.select |param| {
-        # TODO: use nil or some other param.value to represent required kwarg
-        (param.value.kind_of?(SymbolLiteral) && param.value.value == :"*")
-      }
+      kwrequired.any? && (arity = arity + 1)
       
-      kwargs_are_required && (
-        arity = arity + 1
-      )
-      
-      (self.rest
-      || self.optional.any?
-      || (kwargs.any? && !kwargs_are_required)) && (
+      (self.rest || self.optional.any? || kwoptional.any?) && (
         arity = arity + 1
         arity = arity * -1
       )
@@ -94,7 +75,8 @@ CodeTools::AST << {
       *self.optional.map(&:name),
       *(self.rest &? [self.rest.name] ?? []),
       *self.post.map(&:name),
-      *self.kwargs.map(&:name),
+      *self.kwrequired.map(&:name),
+      *self.kwoptional.map(&:name),
       *(self.kwrest.is_a?(Symbol) &? [self.kwrest] ?? []),
       *(self.block &? [self.block.name] ?? []),
     ]
@@ -105,8 +87,9 @@ CodeTools::AST << {
       self.rest &&             self.rest.map_local(scope)
       self.post.each     |param| { param.map_local(scope) }
       
-      (self.kwargs.any? || self.kwrest) && scope.new_local(:__myco_kwargs_value__)
-      self.kwargs.each |var| { scope.assign_local_reference(var) }
+      self.keywords_any? && scope.new_local(:__myco_kwargs_value__)
+      self.kwrequired.each |param| { param.map_local(scope) }
+      self.kwoptional.each |param| { param.map_local(scope) }
       self.kwrest && (self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest))
       
       self.block && scope.assign_local_reference(self.block)
@@ -121,7 +104,7 @@ CodeTools::AST << {
       self.optional.each |param| { param.bytecode(g) }
       self.rest && self.rest.bytecode(g)
       
-      (self.kwargs.any? || self.kwrest) && (
+      self.keywords_any? && (
         kw_done = g.new_label
         assignments_label = g.new_label
         missing_value_label = g.new_label
@@ -130,7 +113,7 @@ CodeTools::AST << {
         kwargs_value_var = g.state.scope.search_local(:__myco_kwargs_value__)
         kwargs_value_var.get_bytecode(g)
         
-        g.dup; g.goto_if_not_nil(assignments_label) # TODO: trivially remove this line?
+        g.dup_top; g.goto_if_not_nil(assignments_label) # TODO: trivially remove this line?
         
         g.pop
         g.push_cpath_top
@@ -139,22 +122,19 @@ CodeTools::AST << {
         
         assignments_label.set!
         
-        entries = self.required_and_optional_kwargs
-        required_kwargs = entries.first
-        optional_kwargs = entries.last
-        
-        required_kwargs.each |param| {
-          g.dup
+        self.kwrequired.each |param| {
+          g.dup_top
           
           g.push_literal(param.name)
           g.send(:find_item, 1, true)
           
-          g.dup
+          g.dup_top
           g.goto_if_false(missing_value_label)
           
           g.send(:value, 0, true)
           
-          param.variable.set_bytecode(g)
+          param_var = g.state.scope.search_local(param.name)
+          param_var.set_bytecode(g)
           g.pop
         }
         
@@ -172,10 +152,10 @@ CodeTools::AST << {
         
         extra_keys_label = g.new_label
         
-        optional_kwargs.empty? &? (
-          g.dup
+        self.kwoptional.empty? &? (
+          g.dup_top
           g.send(:size, 0, true)
-          g.push(required_kwargs.size)
+          g.push(self.kwrequired.size)
           g.goto_if_not_equal(extra_keys_label)
           
           self.kwrest.is_a?(Symbol) && (
@@ -189,24 +169,24 @@ CodeTools::AST << {
           
           g.goto(kw_done)
         ) ?? (
-          optional_kwargs.each |arg| {
+          self.kwoptional.each |param| {
             next_value_label = g.new_label
             default_value_label = g.new_label
             
-            g.dup
-            g.push_literal(arg.name)
+            g.dup_top
+            g.push_literal(param.assignment.name)
             g.send(:find_item, 1, true)
             
-            g.dup
+            g.dup_top
             g.goto_if_false(default_value_label)
             
             g.send(:value, 0, true)
-            arg.variable.set_bytecode(g)
+            param.assignment.variable.set_bytecode(g)
             g.goto(next_value_label)
             
             default_value_label.set!
             g.pop
-            arg.bytecode(g)
+            param.assignment.bytecode(g)
             
             next_value_label.set!
             g.pop
@@ -215,7 +195,7 @@ CodeTools::AST << {
         
         extra_keys_label.set!
         
-        g.dup
+        g.dup_top
         g.push_rubinius
         g.find_const(:Runtime)
         g.swap
