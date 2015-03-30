@@ -22,6 +22,7 @@ import 'AST/ArgumentAssembly.my'
 import 'AST/BlockArgument.my'
 import 'AST/Block.my'
 
+import 'AST/RequiredParameter.my'
 import 'AST/BlockParameter.my'
 import 'AST/ParameterAssembly.my'
 

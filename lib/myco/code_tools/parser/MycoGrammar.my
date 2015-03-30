@@ -396,7 +396,8 @@ rule param_list:
   block    = block.first
   
   # TODO: move these conversions to their respective reductions
-  block = block && ast.blkprm(tb, block)
+  required = required.map |x| { ast.reqprm(tb, x) }
+  block    = block && ast.blkprm(tb, block)
   
   ast.args(tb, required, optional, rest, post, kwargs, kwrest, block)
 }

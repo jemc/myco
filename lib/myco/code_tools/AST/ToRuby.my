@@ -259,6 +259,10 @@ CodeTools::AST << {
     }
   }
   
+  RequiredParameter << {
+    to_ruby: |g| g.add(""self.name"")
+  }
+  
   BlockParameter << {
     to_ruby: |g| g.add("&"self.name"")
   }
@@ -268,7 +272,7 @@ CodeTools::AST << {
       list = []
       list_add = &|&blk| { list.push(blk) }
       
-      self.required.each |item| { list_add.call { g.add(item.to_s) } }
+      self.required.each |item| { list_add.call { g.add(item) } }
       
       self.optional.each |asgn| {
         name = asgn.name

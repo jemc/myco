@@ -1,0 +1,13 @@
+
+CodeTools::AST << {
+  
+  RequiredParameter < Node {
+    var name
+    
+    Form: [:reqprm, :name]
+    
+    map_local: |scope| scope.new_local(self.name)
+    bytecode: |g| { }
+  }
+   
+}
