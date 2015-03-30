@@ -15,7 +15,7 @@ CodeTools::AST << {
       pos(g)
       
       ##
-      # unless self.receiver.respond_to?(self.questable.name).false?
+      # unless Rubinius::Type.object_respond_to?(self.receiver, self.questable.name).false?
       #   execute_statement self.questable
       # else
       #   return void
@@ -25,9 +25,10 @@ CodeTools::AST << {
       end_label  = g.new_label
       
       self.receiver.bytecode(g)
-      g.dup_top # dup the receiver to save it for later
+        g.dup_top # dup the receiver to save it for later
+      g.push_type; g.swap
         g.push_literal(self.questable.name)
-      g.send(:"respond_to?", 1)
+      g.send(:"object_respond_to?", 2)
       g.send(:"false?", 0)
       g.goto_if_true(else_label)
       

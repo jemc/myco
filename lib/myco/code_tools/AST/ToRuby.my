@@ -384,12 +384,14 @@ CodeTools::AST << {
   
   Quest << {
     to_ruby: |g| {
+      # TODO: make this output more verbose, but more correct, and without duping the questable
       associated_questable = self.questable.dup
       associated_questable.receiver = self.receiver
       
       g.add("(")
-        g.add(self.receiver)
-          g.add(".respond_to?("self.questable.name.inspect").false?")
+        g.add("Rubinius::Type.object_respond_to?(")
+          g.add(self.receiver)
+          g.add(", "self.questable.name.inspect").false?")
         g.add(" ? ::Myco::Void : ")
         g.add(associated_questable)
       g.add(")")
