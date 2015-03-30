@@ -273,8 +273,7 @@ CodeTools::AST << {
       self.required.each |item| { list_add.call { g.add(item) } }
       self.optional.each |item| { list_add.call { g.add(item) } }
       self.rest && list_add.call { g.add(self.rest) }
-      
-      self.post.each |item| { list_add.call { g.add(item.to_s) } }
+      self.post.each     |item| { list_add.call { g.add(item) } }
       
       self.kwargs.each |asgn| {
         name = asgn.name
