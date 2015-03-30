@@ -262,6 +262,7 @@ CodeTools::AST << {
   
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
+  RestParameter     << { to_ruby: |g| g.add("*"(self.name==:"*" |? self.name ?? "")"") }
   BlockParameter    << { to_ruby: |g| g.add("&"self.name"") }
   
   ParameterAssembly << {
@@ -271,12 +272,7 @@ CodeTools::AST << {
       
       self.required.each |item| { list_add.call { g.add(item) } }
       self.optional.each |item| { list_add.call { g.add(item) } }
-      
-      cond(
-        self.splat == true, &{ list_add.call { g.add("*") } }
-        self.splat,         &{ list_add.call { g.add("*"self.splat"") } }
-        &{ }
-      )
+      self.rest && list_add.call { g.add(self.rest) }
       
       self.post.each |item| { list_add.call { g.add(item.to_s) } }
       

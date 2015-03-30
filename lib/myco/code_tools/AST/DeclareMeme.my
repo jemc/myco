@@ -50,7 +50,7 @@ CodeTools::AST << {
     setter decorations: |x|
       x || ArrayAssembly.new(line:line, body:[])
     setter parameters: |x|
-      x || ParameterAssembly.new(line:line, required:[], splat:true)
+      x || ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line, name::"*"))
     setter body: |x|
       x || NullLiteral.new(line:line)
     

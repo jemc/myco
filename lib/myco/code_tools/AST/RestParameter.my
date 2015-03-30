@@ -1,0 +1,13 @@
+
+CodeTools::AST << {
+  
+  RestParameter < Node {
+    var name
+    
+    Form: [:restprm, :name]
+    
+    map_local: |scope| scope.new_local(self.name)
+    bytecode: |g| { }
+  }
+   
+}

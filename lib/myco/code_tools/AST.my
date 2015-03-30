@@ -26,6 +26,7 @@ import 'AST/Block.my'
 
 import 'AST/RequiredParameter.my'
 import 'AST/OptionalParameter.my'
+import 'AST/RestParameter.my'
 import 'AST/BlockParameter.my'
 import 'AST/ParameterAssembly.my'
 

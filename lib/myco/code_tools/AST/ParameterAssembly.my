@@ -4,13 +4,13 @@ CodeTools::AST << {
   ParameterAssembly < Node {
     var required: []
     var optional: []
-    var splat:    null
+    var rest:    null
     var post:     []
     var kwargs:   []
     var kwrest:   null
     var block:    null
     
-    Form: [:params, :required, :optional, :splat, :post, :kwargs, :kwrest, :block]
+    Form: [:params, :required, :optional, :rest, :post, :kwargs, :kwrest, :block]
     
     # Called on a new method or block generator
     # to set up various parameter-related properties.
@@ -24,12 +24,12 @@ CodeTools::AST << {
         + ((self.kwargs.any? || self.kwrest) &? 1 ?? 0)
       
       g.splat_index =
-        self.splat &? (self.required.size + self.optional.size) ?? null
+        self.rest &? (self.required.size + self.optional.size) ?? null
       
       g.block_index = self.block && (
         self.required.size
         + self.optional.size
-        + (self.splat &? 1 ?? 0)
+        + (self.rest &? 1 ?? 0)
         + self.post.size
         + ((self.kwargs.any? || self.kwrest) &? 1 ?? 0)
         + 1 # for self.block
@@ -79,7 +79,7 @@ CodeTools::AST << {
         arity = arity + 1
       )
       
-      (self.splat
+      (self.rest
       || self.optional.any?
       || (kwargs.any? && !kwargs_are_required)) && (
         arity = arity + 1
@@ -92,7 +92,7 @@ CodeTools::AST << {
     names: [
       *self.required.map(&:name),
       *self.optional.map(&:name),
-      *(self.splat.is_a?(Symbol) &? [self.splat] ?? []),
+      *(self.rest &? [self.rest.name] ?? []),
       *self.post,
       *self.kwargs.map(&:name),
       *(self.kwrest.is_a?(Symbol) &? [self.kwrest] ?? []),
@@ -102,7 +102,8 @@ CodeTools::AST << {
     map_locals: |scope| {
       self.required.each |param| { param.map_local(scope) }
       self.optional.each |param| { param.map_local(scope) }
-      self.splat && (self.splat.is_a?(Symbol) &? scope.new_local(self.splat) ?? scope.new_local(:"*"))
+      self.rest && self.rest.map_local(scope)
+      
       self.post.each     |name| { scope.new_local(name) }
       
       (self.kwargs.any? || self.kwrest) && scope.new_local(:__myco_kwargs_value__)
@@ -119,6 +120,7 @@ CodeTools::AST << {
       
       self.required.each |param| { param.bytecode(g) }
       self.optional.each |param| { param.bytecode(g) }
+      self.rest && self.rest.bytecode(g)
       
       (self.kwargs.any? || self.kwrest) && (
         kw_done = g.new_label
