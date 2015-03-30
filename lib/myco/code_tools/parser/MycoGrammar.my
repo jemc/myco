@@ -397,6 +397,7 @@ rule param_list:
   
   # TODO: move these conversions to their respective reductions
   required = required.map |x| { ast.reqprm(tb, x) }
+  optional = optional.map |x| { ast.optprm(tb, x) }
   block    = block && ast.blkprm(tb, block)
   
   ast.params(tb, required, optional, rest, post, kwargs, kwrest, block)

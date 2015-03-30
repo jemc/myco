@@ -1,0 +1,25 @@
+
+CodeTools::AST << {
+  
+  OptionalParameter < Node {
+    var assignment
+    
+    Form: [:optprm, :assignment] # TODO: accept raw name and value here
+    
+    name:  assignment.name
+    value: assignment.value
+    
+    map_local: |scope| scope.assign_local_reference(self.assignment)
+    bytecode: |g| {
+      done = g.new_label
+      
+      self.assignment.variable.get_bytecode(g)
+      g.goto_if_not_undefined(done)
+      self.assignment.bytecode(g)
+      g.pop
+      
+      done.set!
+    }
+  }
+   
+}

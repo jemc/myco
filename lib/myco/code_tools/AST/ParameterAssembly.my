@@ -101,7 +101,7 @@ CodeTools::AST << {
     
     map_locals: |scope| {
       self.required.each |param| { param.map_local(scope) }
-      self.optional.each |var|  { scope.assign_local_reference(var) }
+      self.optional.each |param| { param.map_local(scope) }
       self.splat && (self.splat.is_a?(Symbol) &? scope.new_local(self.splat) ?? scope.new_local(:"*"))
       self.post.each     |name| { scope.new_local(name) }
       
@@ -118,17 +118,7 @@ CodeTools::AST << {
       self.map_locals(g.state.scope)
       
       self.required.each |param| { param.bytecode(g) }
-      
-      self.optional.each |param| {
-        done = g.new_label
-        
-        param.variable.get_bytecode(g)
-        g.goto_if_not_undefined(done)
-        param.bytecode(g)
-        g.pop
-        
-        done.set!
-      }
+      self.optional.each |param| { param.bytecode(g) }
       
       (self.kwargs.any? || self.kwrest) && (
         kw_done = g.new_label
