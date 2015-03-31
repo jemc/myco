@@ -33,7 +33,7 @@ CodeTools::AST << {
     var scope
     
     # TODO: decouple rubinius-compiler from rubinius-ast and remove this hack
-    sclass new: |scope| {
+    static new: |scope| {
       obj = allocate
       obj.scope = scope
       obj

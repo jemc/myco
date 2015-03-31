@@ -8,7 +8,7 @@ BasicSpec {
   new_subject: BasicDecorators {
     var foo: Object { }
     memoize bar: |x,y,z| x+y-z
-    sclass var baz: 99
+    static var baz: 99
   }
   
   [tests]
@@ -31,7 +31,7 @@ BasicSpec {
     assert_equal(a, b)
   }
   
-  "sclass decorator targets the singleton class of the component": {
+  "static decorator targets the singleton class of the component": {
     comp = new_subject.component
     
     assert_equal(comp.baz, 99)

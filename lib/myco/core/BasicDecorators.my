@@ -28,8 +28,8 @@
     cache: true
   }
   
-  # The 'sclass' decorator makes the component's singleton class the target
-  sclass: Decorator {
+  # The 'static' decorator makes the component's singleton class the target
+  static: Decorator {
     [transforms]
     target: |meme| meme.target.singleton_class
   }
