@@ -81,7 +81,7 @@ CodeTools::AST << {
       *(self.block &? [self.block] ?? []),
     ]
     
-    names: all_params.map(&:name)
+    names: all_params.map(&:name).compact
     
     # TODO: simplify
     bytecode: |g| {

@@ -262,11 +262,11 @@ CodeTools::AST << {
   
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
-  RestParameter     << { to_ruby: |g| g.add("*"(self.name==:"*" |? self.name ?? "")"") }
+  RestParameter     << { to_ruby: |g| g.add("*"self.name"") }
   
   KeywordRequiredParameter << { to_ruby: |g| g.add(""self.name":") }
   KeywordOptionalParameter << { to_ruby: |g| g.add(""self.name":"); g.add(self.value) }
-  KeywordRestParameter     << { to_ruby: |g| g.add("**"(self.name==:"**" |? self.name ?? "")"") }
+  KeywordRestParameter     << { to_ruby: |g| g.add("**"self.name"") }
   
   BlockParameter    << { to_ruby: |g| g.add("&"self.name"") }
   
