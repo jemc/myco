@@ -161,19 +161,20 @@ CodeTools::AST << {
             default_value_label = g.new_label
             
             g.dup_top
-            g.push_literal(param.assignment.name)
+            g.push_literal(param.name)
             g.send(:find_item, 1, true)
             
             g.dup_top
             g.goto_if_false(default_value_label)
             
             g.send(:value, 0, true)
-            param.assignment.variable.set_bytecode(g)
+            g.state.scope.search_local(param.name).set_bytecode(g)
             g.goto(next_value_label)
             
             default_value_label.set!
             g.pop
-            param.assignment.bytecode(g)
+            param.value.bytecode(g)
+            g.state.scope.search_local(param.name).set_bytecode(g)
             
             next_value_label.set!
             g.pop

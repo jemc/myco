@@ -2,16 +2,13 @@
 CodeTools::AST << {
   
   KeywordOptionalParameter < Node {
-    var assignment
+    var name, var value
     
-    Form: [:kwoptprm, :assignment] # TODO: accept raw name and value here
-    
-    name:  assignment.name
-    value: assignment.value
+    Form: [:kwoptprm, :name, :value]
     
     map_local: |scope| {
       scope.new_local(:__myco_keywords_value__)
-      scope.assign_local_reference(self.assignment)
+      scope.new_local(self.name)
     }
     
     bytecode: |g| { } # TODO: move ParameterAssembly logic to this method

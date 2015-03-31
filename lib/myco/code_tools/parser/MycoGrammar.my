@@ -400,11 +400,11 @@ rule param_list:
   
   # TODO: move these conversions to their respective reductions
   required   = required.map   |x| { ast.reqprm(tb, x) }
-  optional   = optional.map   |x| { ast.optprm(tb, x) }
+  optional   = optional.map   |x| { ast.optprm(tb, x.name, x.value) }
   rest       = rest              && ast.restprm(tb, rest)
   post       = post.map       |x| { ast.reqprm(tb, x) }
   kwrequired = kwrequired.map |x| { ast.kwreqprm(tb, x) }
-  kwoptional = kwoptional.map |x| { ast.kwoptprm(tb, x) }
+  kwoptional = kwoptional.map |x| { ast.kwoptprm(tb, x.name, x.value) }
   kwrest     = kwrest            && ast.kwrestprm(tb, kwrest)
   block      = block             && ast.blkprm(tb, block)
   
