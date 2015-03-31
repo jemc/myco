@@ -29,6 +29,7 @@ import 'AST/OptionalParameter.my'
 import 'AST/RestParameter.my'
 import 'AST/KeywordRequiredParameter.my'
 import 'AST/KeywordOptionalParameter.my'
+import 'AST/KeywordRestParameter.my'
 import 'AST/BlockParameter.my'
 import 'AST/ParameterAssembly.my'
 

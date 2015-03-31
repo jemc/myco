@@ -9,7 +9,11 @@ CodeTools::AST << {
     name:  assignment.name
     value: assignment.value
     
-    map_local: |scope| scope.assign_local_reference(self.assignment)
+    map_local: |scope| {
+      scope.new_local(:__myco_keywords_value__)
+      scope.assign_local_reference(self.assignment)
+    }
+    
     bytecode: |g| { } # TODO: move ParameterAssembly logic to this method
   }
    

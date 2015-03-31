@@ -70,35 +70,23 @@ CodeTools::AST << {
       arity
     }
     
-    names: [
-      *self.required.map(&:name),
-      *self.optional.map(&:name),
-      *(self.rest &? [self.rest.name] ?? []),
-      *self.post.map(&:name),
-      *self.kwrequired.map(&:name),
-      *self.kwoptional.map(&:name),
-      *(self.kwrest.is_a?(Symbol) &? [self.kwrest] ?? []),
-      *(self.block &? [self.block.name] ?? []),
+    all_params: [
+      *self.required,
+      *self.optional,
+      *(self.rest &? [self.rest] ?? []),
+      *self.post,
+      *self.kwrequired,
+      *self.kwoptional,
+      *(self.kwrest &? [self.kwrest] ?? []),
+      *(self.block &? [self.block] ?? []),
     ]
     
-    map_locals: |scope| {
-      self.required.each |param| { param.map_local(scope) }
-      self.optional.each |param| { param.map_local(scope) }
-      self.rest &&             self.rest.map_local(scope)
-      self.post.each     |param| { param.map_local(scope) }
-      
-      self.keywords_any? && scope.new_local(:__myco_kwargs_value__)
-      self.kwrequired.each |param| { param.map_local(scope) }
-      self.kwoptional.each |param| { param.map_local(scope) }
-      self.kwrest && (self.kwrest.is_a?(Symbol) && scope.new_local(self.kwrest))
-      
-      self.block && scope.assign_local_reference(self.block)
-    }
+    names: all_params.map(&:name)
     
     # TODO: simplify
     bytecode: |g| {
       g.state.check_for_locals = false
-      self.map_locals(g.state.scope)
+      all_params.each |param| { param.map_local(g.state.scope) }
       
       self.required.each |param| { param.bytecode(g) }
       self.optional.each |param| { param.bytecode(g) }
@@ -110,8 +98,7 @@ CodeTools::AST << {
         missing_value_label = g.new_label
         defaults_label = g.new_label
         
-        kwargs_value_var = g.state.scope.search_local(:__myco_kwargs_value__)
-        kwargs_value_var.get_bytecode(g)
+        g.state.scope.search_local(:__myco_keywords_value__).get_bytecode(g)
         
         g.dup_top; g.goto_if_not_nil(assignments_label) # TODO: trivially remove this line?
         
@@ -158,11 +145,11 @@ CodeTools::AST << {
           g.push(self.kwrequired.size)
           g.goto_if_not_equal(extra_keys_label)
           
-          self.kwrest.is_a?(Symbol) && (
+          self.kwrest && (
             g.push_cpath_top
             g.find_const(:Hash)
             g.send(:allocate, 0, true)
-            kwrest_asgn = g.state.scope.search_local(self.kwrest)
+            kwrest_asgn = g.state.scope.search_local(self.kwrest.name)
             kwrest_asgn.set_bytecode(g)
             g.pop
           )
@@ -203,8 +190,8 @@ CodeTools::AST << {
         self.kwrest &? g.push(:true) ?? g.push(:false)
         
         g.send(:keywords_extra, 2, true)
-        self.kwrest.is_a?(Symbol) && (
-          kwrest_asgn = g.state.scope.search_local(self.kwrest)
+        self.kwrest && (
+          kwrest_asgn = g.state.scope.search_local(self.kwrest.name)
           kwrest_asgn.set_bytecode(g)
         )
         g.pop

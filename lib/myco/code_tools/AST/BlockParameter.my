@@ -3,21 +3,15 @@ CodeTools::AST << {
   
   BlockParameter < Node {
     var name
-    var variable # TODO: remove
     
     Form: [:blkprm, :name]
     
+    map_local: |scope| scope.new_local(self.name)
     bytecode: |g| {
       pos(g)
       
       g.push_proc
-      
-      (self.variable.?depth > 0) &? (
-        g.set_local_depth(self.variable.depth, self.variable.slot)
-      ) ?? (
-        g.set_local(self.variable.slot)
-      )
-      
+      g.state.scope.search_local(self.name).set_bytecode(g)
       g.pop
     }
   }

@@ -1,10 +1,10 @@
 
 CodeTools::AST << {
   
-  KeywordRequiredParameter < Node {
+  KeywordRestParameter < Node {
     var name
     
-    Form: [:kwreqprm, :name]
+    Form: [:kwrestprm, :name]
     
     map_local: |scope| {
       scope.new_local(:__myco_keywords_value__)
