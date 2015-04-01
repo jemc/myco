@@ -9,15 +9,16 @@ CodeTools::AST << {
     bytecode: |g| pos(g); implementation.bytecode(g)
     
     implementation: {
+      use_args = self.arguments
+      
       # TODO: error if passing both block argument and block literal
       # Currently, this fails silently and ignores the block argument
-      # TODO: don't change AST state from here
       self.block && (
-        self.arguments = self.arguments || ArgumentAssembly.new(line:self.line, body:[])
-        self.arguments.block = self.block
+        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(line:self.line, body:[])
+        use_args.block = self.block
       )
       
-      self.receiver.nil? && self.arguments.nil? &? (
+      self.receiver.nil? && use_args.nil? &? (
         LocalVariableAccessAmbiguous.new(
           line: self.line
           name: self.name
@@ -27,7 +28,7 @@ CodeTools::AST << {
           line:      self.line
           receiver:  self.receiver || Self.new(line:self.line)
           name:      self.name
-          arguments: self.arguments || ArgumentAssembly.new(line:self.line, body:[])
+          arguments: use_args || ArgumentAssembly.new(line:self.line, body:[])
         )
       )
     }
