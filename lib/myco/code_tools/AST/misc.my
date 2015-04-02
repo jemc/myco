@@ -42,7 +42,6 @@ CodeTools::AST << {
       node_type = component.node_type
       fields    = component.fields
       
-      STDOUT.puts([1, const_name, node_type].inspect)
       BuilderMethods.declare_meme(node_type) |*args| {
         loc = args.shift
         kw = [:line, *fields].zip([loc.line, *args])
