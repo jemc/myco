@@ -2,10 +2,10 @@
 CodeTools::AST << {
   
   LocalVariableAssignment < Node {
-    var name, var value
-    var variable # TODO: remove
+    node_type lasgn
+    field name, field value
     
-    Form: [:lasgn, :name, :value]
+    var variable # TODO: remove
     
     bytecode: |g| {
       var = g.state.scope.assign_local_reference(self)

@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   SymbolLiteral < Node {
-    var value
-    
-    Form: [:symbol, :value]
+    node_type symbol
+    field value
     
     bytecode: |g| {
       pos(g)

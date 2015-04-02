@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   SymbolCompose < Node {
-    var body
-    
-    Form: [:symbol_compose, :body]
+    node_type symbol_compose
+    field body
     
     bytecode: |g| {
       pos(g)

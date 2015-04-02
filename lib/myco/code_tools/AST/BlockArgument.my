@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   BlockArgument < Node {
-    var body
-    
-    Form: [:blkarg, :body]
+    node_type blkarg
+    field body
     
     bytecode: |g| {
       self.body.bytecode(g)

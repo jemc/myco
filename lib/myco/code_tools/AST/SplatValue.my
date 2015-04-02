@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   SplatValue < Node {
-    var value
-    
-    Form: [:splat, :value]
+    node_type splat
+    field value
     
     bytecode: |g| {
       self.value.bytecode(g)

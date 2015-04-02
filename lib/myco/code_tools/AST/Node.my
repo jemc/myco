@@ -26,6 +26,28 @@ CodeTools::AST << {
       
       meth
     }
+    
+    static var node_type: null
+    static var fields:    [] # TODO: should be "static const"
+    
+    node_type: self.class.node_type
+    fields:    self.class.fields
+    
+    [decorators]
+    
+    # TODO: should be "const", not "var"
+    var node_type: Decorator {
+      apply: |meme| meme.target.node_type = meme.name
+      [transforms]
+      expose: false
+    }
+    
+    # TODO: should be "const", not "var"
+    var field: Decorator {
+      apply: |meme| meme.target.fields.push(meme.name)
+      [transforms]
+      var: true
+    }
   }
   
   # TODO: move this out of Node.my ?

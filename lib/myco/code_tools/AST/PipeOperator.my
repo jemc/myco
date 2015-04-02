@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   PipeOperator < Node {
-    var value, var invoke
-    
-    Form: [:pipe_op, :value, :invoke]
+    node_type pipe_op
+    field value, field invoke
     
     implementation_args: ArgumentAssembly.new(
       line: self.line

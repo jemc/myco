@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   RequiredParameter < Node {
-    var name
-    
-    Form: [:reqprm, :name]
+    node_type reqprm
+    field name
     
     map_local: |scope| scope.new_local(self.name)
     bytecode: |g| { }

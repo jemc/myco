@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareMemeBody < Block {
-    var name
-    
-    Form: [:DeclareMemeBody, :name] # To prevent it from masquerading as a Block TODO: remove
+    node_type "DeclareMemeBody" # To prevent it from masquerading as a Block TODO: remove
+    field name
     
     bytecode: |g| {
       pos(g)
@@ -41,9 +40,8 @@ CodeTools::AST << {
   }
   
   DeclareMeme < Node {
-    var name, var decorations, var parameters, var body
-    
-    Form: [:meme, :name, :decorations, :parameters, :body]
+    node_type meme
+    field name, field decorations, field parameters, field body
     
     setter name: |x|
       x.value

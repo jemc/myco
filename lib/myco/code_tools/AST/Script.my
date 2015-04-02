@@ -3,10 +3,10 @@ CodeTools::AST << {
   
   # TODO: consider moving out of the AST namespace - or maybe collapse into FileToplevel
   Script < Node {
-    var file, var body
-    var variable_scope # TODO: remove?
+    node_type script
+    field file, field body
     
-    Form: [:script, :file, :body]
+    var variable_scope # TODO: remove?
     
     nest_scope: |scope| scope.parent = self
     search_local: null # TODO: revisit and possibly implement for nested evals

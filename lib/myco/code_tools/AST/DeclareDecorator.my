@@ -2,12 +2,11 @@
 CodeTools::AST << {
   
   DeclareDecorator < Node {
-    var name, var arguments
+    node_type deco
+    field name, field arguments
     
     setter arguments: |x|
       x || ArrayAssembly.new(line:self.line, body:[])
-    
-    Form: [:deco, :name, :arguments]
     
     implementation: ArrayAssembly.new(
       line:self.line

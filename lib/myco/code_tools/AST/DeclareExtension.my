@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareExtension < Node {
-    var constant, var body
-    
-    Form: [:copen, :constant, :body]
+    node_type copen
+    field constant, field body
     
     bytecode: |g| {
       pos(g)

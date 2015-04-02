@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   Sequence < Node {
-    var array
-    
-    Form: [:sequence, :array]
+    node_type sequence
+    field array
     
     bytecode: |g| {
       ary = self.array.dup

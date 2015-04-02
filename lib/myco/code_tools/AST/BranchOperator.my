@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   BranchOperator < Node {
-    var type, var left, var right
-    
-    Form: [:branch_op, :type, :left, :right]
+    node_type branch_op
+    field type, field left, field right
     
     bytecode: |g| {
       pos(g)

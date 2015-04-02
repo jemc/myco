@@ -16,6 +16,8 @@
     cache: true # Enable caching of the value to act as storage
   }
   
+  # TODO: add const decorator to make all of these decorators 'thunks'
+  
   # The 'var' decorator creates an instance variable getter and setter:
   var: Decorator {
     [transforms]

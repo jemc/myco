@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   LocalVariableAccessAmbiguous < Node {
-    var name
-    
-    Form: [:lambig, :name]
+    node_type lambig
+    field name
     
     bytecode: |g| {
       pos(g)

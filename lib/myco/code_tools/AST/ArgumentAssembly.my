@@ -2,9 +2,9 @@
 CodeTools::AST << {
   
   ArgumentAssembly < Node {
-    var body, var block
-    
-    Form: [:args, :body]
+    node_type args
+    field body
+    var block # TODO: remove this unnecessary state
     
     setter body: |given_body| {
       given_body.last.is_a?(BlockArgument) && (self.block = given_body.pop)

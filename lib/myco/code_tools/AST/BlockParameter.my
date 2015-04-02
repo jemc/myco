@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   BlockParameter < Node {
-    var name
-    
-    Form: [:blkprm, :name]
+    node_type blkprm
+    field name
     
     map_local: |scope| scope.new_local(self.name)
     bytecode: |g| {

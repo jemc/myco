@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   OptionalParameter < Node {
-    var name, var value
-    
-    Form: [:optprm, :name, :value]
+    node_type optprm
+    field name, field value
     
     map_local: |scope| scope.new_local(self.name)
     

@@ -2,19 +2,15 @@
 CodeTools::AST << {
   
   ParameterAssembly < Node {
-    var required:   []
-    var optional:   []
-    var rest:      null
-    var post:       []
-    var kwrequired: []
-    var kwoptional: []
-    var kwrest:    null
-    var block:     null
-    
-    Form: [:params,
-      :required, :optional, :rest, :post,
-      :kwrequired, :kwoptional, :kwrest,
-      :block]
+    node_type params
+    field required:   []
+    field optional:   []
+    field rest:      null
+    field post:       []
+    field kwrequired: []
+    field kwoptional: []
+    field kwrest:    null
+    field block:     null
     
     keywords_any?:
       self.kwrequired.any? || self.kwoptional.any? || self.kwrest

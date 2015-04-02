@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   KeywordAssembly < Node {
-    var body
-    
-    Form: [:hash, :body]
+    node_type hash
+    field body
     
     bytecode: |g| {
       pos(g)

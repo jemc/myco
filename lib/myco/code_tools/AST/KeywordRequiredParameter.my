@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   KeywordRequiredParameter < Node {
-    var name
-    
-    Form: [:kwreqprm, :name]
+    node_type kwreqprm
+    field name
     
     map_local: |scope| {
       scope.new_local(:__myco_keywords_value__)

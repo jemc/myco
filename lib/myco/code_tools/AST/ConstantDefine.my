@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   ConstantDefine < Node {
-    var constant, var object
-    
-    Form: [:cdefn, :constant, :object]
+    node_type cdefn
+    field constant, field object
     
     implementation: ConstantAssignment.new(
       line:     self.line

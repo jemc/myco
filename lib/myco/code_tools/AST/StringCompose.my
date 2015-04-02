@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   StringCompose < Node {
-    var body
-    
-    Form: [:string_compose, :body]
+    node_type string_compose
+    field body
     
     bytecode: |g| {
       pos(g)

@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   BlockLiteral < Node {
-    var block
-    
-    Form: [:blklit, :block]
+    node_type blklit
+    field block
     
     implementation_receiver: ConstantAccess.new(
       line:     self.line

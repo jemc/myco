@@ -9,48 +9,44 @@ CodeTools::AST << {
   }
   
   Self < Node {
-    Form: [:self]
+    node_type self
     bytecode: |g| pos(g); g.push_self
   }
   
   NullLiteral < Node {
-    Form: [:null]
+    node_type null
     bytecode: |g| pos(g); g.push_null
   }
   
   VoidLiteral < Node {
-    Form: [:void]
+    node_type void
     bytecode: |g| pos(g); g.push_void
   }
   
   TrueLiteral < Node {
-    Form: [:true]
+    node_type true
     bytecode: |g| pos(g); g.push_true
   }
   
   FalseLiteral < Node {
-    Form: [:false]
+    node_type false
     bytecode: |g| pos(g); g.push_false
   }
   
   # TODO: use some other way to be eager
   EVALUATE_NOW: CodeTools::AST.component_eval {
     constants.select |const_name| {
-      const_get(const_name).constants.include?(:Form)
-      }.each |const_name| {
-        component = const_get(const_name)
-        form = component.const_get(:Form).dup
-        form_name = form.shift
-        
-        BuilderMethods.declare_meme(form_name) |*args| {
-          inst = component.new
-          loc = args.shift
-          inst.line = loc.line
-          form.zip(args).each |key, value| {
-            inst.send(:""key"=", value)
-          }
-          inst
-        }
+      const_get(const_name).?node_type ?? null
+    }.each |const_name| {
+      component = const_get(const_name)
+      node_type = component.node_type
+      fields    = component.fields
+      
+      STDOUT.puts([1, const_name, node_type].inspect)
+      BuilderMethods.declare_meme(node_type) |*args| {
+        loc = args.shift
+        kw = [:line, *fields].zip([loc.line, *args])
+        component.new(kw.to_h)
       }
     }
   }

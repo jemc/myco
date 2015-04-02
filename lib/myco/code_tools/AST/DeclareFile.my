@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareFile < Node {
-    var body
-    
-    Form: [:declfile, :body]
+    node_type declfile
+    field body
     
     # Use minimal inspect to avoid huge inspect output for inner AST nodes
     # that store a reference to a DeclareFile in an instance variable. 

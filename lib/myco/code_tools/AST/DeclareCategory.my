@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareCategory < Node {
-    var name, var body
-    
-    Form: [:category, :name, :body]
+    node_type category
+    field name, field body
     
     scope_implementation: DeclaredScope.new(
       line: self.line

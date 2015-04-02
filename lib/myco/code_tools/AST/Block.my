@@ -2,10 +2,10 @@
 CodeTools::AST << {
   
   Block < CodeTools::Compiler::LocalVariables, Node {
-    var parameters, var body
-    var parent # TODO: investigate removing
+    node_type block
+    field parameters, field body
     
-    Form: [:block, :parameters, :body]
+    var parent # TODO: investigate removing
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     

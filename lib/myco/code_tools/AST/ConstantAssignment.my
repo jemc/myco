@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   ConstantAssignment < Node {
-    var constant, var value
-    
-    Form: [:cdecl, :constant, :value]
+    node_type cdecl
+    field constant, field value
     
     bytecode: |g| {
       pos(g)

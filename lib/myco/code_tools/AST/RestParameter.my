@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   RestParameter < Node {
-    var name
-    
-    Form: [:restprm, :name]
+    node_type restprm
+    field name
     
     map_local: |scope| scope.new_local(self.name || :"*")
     bytecode: |g| { }

@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   Invoke < Node {
-    var receiver, var name, var arguments, var block
-    
-    Form: [:invoke, :receiver, :name, :arguments, :block]
+    node_type invoke
+    field receiver, field name, field arguments, field block
     
     bytecode: |g| pos(g); implementation.bytecode(g)
     

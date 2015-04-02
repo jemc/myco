@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   ArrayAssembly < Node {
-    var body
-    
-    Form: [:array, :body]
+    node_type array
+    field body
     
     bytecode: |g| {
       pos(g)

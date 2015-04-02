@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareString < Node {
-    var types, var string
-    
-    Form: [:declstr, :types, :string]
+    node_type declstr
+    field types, field string
     
     implementation: InvokeMethod.new(
       line:      self.string.line

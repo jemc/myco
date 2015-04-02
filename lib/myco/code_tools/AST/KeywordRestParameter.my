@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   KeywordRestParameter < Node {
-    var name
-    
-    Form: [:kwrestprm, :name]
+    node_type kwrestprm
+    field name
     
     map_local: |scope| {
       scope.new_local(:__myco_keywords_value__)

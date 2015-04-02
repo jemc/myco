@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   StringLiteral < Node {
-    var value
-    
-    Form: [:str, :value]
+    node_type str
+    field value
     
     bytecode: |g| {
       pos(g)

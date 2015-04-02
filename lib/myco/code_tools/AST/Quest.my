@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   Quest < Node {
-    var receiver, var questable
-    
-    Form: [:quest, :receiver, :questable]
+    node_type quest
+    field receiver, field questable
     
     setter questable: |given| {
       given.receiver = FakeReceiver.new(line: self.line)
@@ -47,7 +46,7 @@ CodeTools::AST << {
     
     
     FakeReceiver < Node {
-      Form: [:qrcvr]
+      node_type qrcvr
       
       # Do nothing here - this would normally be ill-advised,
       # because Nodes are expected to push an item onto the stack,

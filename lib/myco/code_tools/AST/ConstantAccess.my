@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   ConstantAccess < Node {
-    var toplevel, var names
-    
-    Form: [:const, :toplevel, :names]
+    node_type const
+    field toplevel, field names
     
     bytecode: |g| {
       pos(g)

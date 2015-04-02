@@ -2,9 +2,8 @@
 CodeTools::AST << {
   
   DeclareObject < Node {
-    var types, var body
-    
-    Form: [:declobj, :types, :body]
+    node_type declobj
+    field types, field body
     
     var create: true
     
