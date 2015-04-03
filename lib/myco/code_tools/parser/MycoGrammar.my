@@ -346,72 +346,51 @@ rule lit_array:
 ##
 # Parameter lists
 
-rule param:
+param_sep:     (C.spc.* + T.arg_sep + C.spc.*).+ / (C.spc.* + !!T.params_end)
+param_sep_opt: (C.spc / T.arg_sep).*
+param_sepd: |x| r(x[:n0] + param_sep) { n0 }
+
+rule req_param:
+  r(T.identifier[:ti] + !!param_sep)
+    { ast.reqprm(ti, ti.sym) }
+rule opt_param:
   r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + arg_expr[:nv])
-    { [:optional, ast.lasgn(ti, ti.sym, nv)] }
-/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr[:nv])
-    { [:kwargs, ast.lasgn(ti, ti.sym, nv)] }
-/ r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to])
-    { [:kwargs,   ti.sym] }
-/ r(T.op_exp + C.spc_nl.* + T.identifier[:ti])
-    { [:kwrest,   ti.sym] }
-/ r(T.op_mult + C.spc_nl.* + T.identifier[:ti])
-    { [:rest,     ti.sym] }
-/ r(T.op_toproc + C.spc_nl.* + T.identifier[:ti])
-    { [:block,    ti.sym] }
-/ r(T.identifier[:ti])
-    { [:required, ti.sym] }
-
-rule param_sepd:
-  r(arg_sep + param[:n0]) { n0 }
-
-rule param_sepds:
-  r(param[:n0] + param_sepd.*[:nrest] + arg_sep_opt) { [n0, *nrest] }
+    { ast.optprm(ti, ti.sym, nv) }
+rule rest_param:
+  r(T.op_mult + C.spc_nl.* + T.identifier[:ti])
+    { ast.restprm(ti, ti.sym) }
+rule kwopt_param:
+  r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr[:nv])
+    { ast.kwoptprm(ti, ti.sym, nv) }
+rule kwreq_param:
+  r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + !!param_sep)
+    { ast.kwreqprm(ti, ti.sym) }
+rule kwrest_param:
+  r(T.op_exp + C.spc_nl.* + T.identifier[:ti])
+    { ast.kwrestprm(ti, ti.sym) }
+rule block_param:
+  r(T.op_toproc + C.spc_nl.* + T.identifier[:ti])
+    { ast.blkprm(ti, ti.sym) }
 
 rule param_list:
-  r(T.params_begin[:tb] + T.params_end)
-    { ast.params(tb, [], [], null, [], [], null, null) } # TODO: investigate removing
-/ r(T.params_begin[:tb] + param_sepds[:plist] + T.params_end)
-    {
-  required = []
-  optional = []
-  rest     = []
-  post     = []
-  kwargs   = []
-  kwrest   = []
-  block    = []
+  r(T.params_begin[:tb]
+    + param_sep_opt
+    + param_sepd(req_param).*[:required]
+    + param_sepd(opt_param).*[:optional]
+    + param_sepd(rest_param).-[:rest]
+    + param_sepd(req_param).*[:post]
+    + param_sepd(kwreq_param / kwopt_param).*[:kw]
+    + param_sepd(kwrest_param).-[:kwrest]
+    + param_sepd(block_param).-[:block]
+    + T.params_end) {
+  kwrequired = kw.select |x| { x.node_type == :kwreqprm }
+  kwoptional = kw.select |x| { x.node_type == :kwoptprm }
   
-  loop { plist[0] && plist[0][0] == :required || break; required.push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :optional || break; optional.push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :rest     || break; rest    .push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :required || break; post    .push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :kwargs   || break; kwargs  .push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :kwrest   || break; kwrest  .push(plist.shift[1]) }
-  loop { plist[0] && plist[0][0] == :block    || break; block   .push(plist.shift[1]) }
-  
-  required   = required
-  optional   = optional
-  rest       = rest.first
-  post       = post
-  kwrequired = kwargs.select |x| { x.is_a?(Symbol) }
-  kwoptional = kwargs.reject |x| { x.is_a?(Symbol) }
-  kwrest     = kwrest.first
-  block      = block.first
-  
-  # TODO: move these conversions to their respective reductions
-  required   = required.map   |x| { ast.reqprm(tb, x) }
-  optional   = optional.map   |x| { ast.optprm(tb, x.name, x.value) }
-  rest       = rest              && ast.restprm(tb, rest)
-  post       = post.map       |x| { ast.reqprm(tb, x) }
-  kwrequired = kwrequired.map |x| { ast.kwreqprm(tb, x) }
-  kwoptional = kwoptional.map |x| { ast.kwoptprm(tb, x.name, x.value) }
-  kwrest     = kwrest            && ast.kwrestprm(tb, kwrest)
-  block      = block             && ast.blkprm(tb, block)
-  
+  # TODO: the ternary clauses should not be necessary
   ast.params(tb
-    required, optional, rest, post
-    kwrequired, kwoptional, kwrest
-    block
+    required, optional, (rest.is_a?(Array) &? rest.first ?? rest), post
+    kwrequired, kwoptional, (kwrest.is_a?(Array) &? kwrest.first ?? kwrest)
+    (block.is_a?(Array) &? block.first ?? block)
   )
 }
 
