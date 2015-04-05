@@ -264,12 +264,14 @@ module Myco
         g.pop
         
         ##
-        # if @#{:"__#{@name}_defined__"}
+        # if instance_variable_defined?(#{name})
         #   @#{name} = meme.body.invoke meme.name, @target, obj, [], nil
         # end
         # return @#{name}
         #
-        g.push_ivar(:"__#{@name}_defined__")
+        g.push_self
+        g.push_literal(:"@#{@name}")
+        g.send(:instance_variable_defined?, 1)
         g.goto_if_true(get)
         
         g.push_local 1 # meme
@@ -282,9 +284,6 @@ module Myco
         g.send :invoke, 5
         g.set_ivar(:"@#{@name}")
         
-        g.push_true
-        g.set_ivar(:"__#{@name}_defined__")
-        g.pop
         g.goto(ret)
         
         get.set!
@@ -313,10 +312,6 @@ module Myco
       target.dynamic_method :"#{@name}=", '(myco_internal)' do |g|
         g.total_args = 1
         g.local_count = 1
-        
-        g.push_true
-        g.set_ivar(:"__#{@name}_defined__")
-        g.pop
         
         g.push_local 0 # value
         
