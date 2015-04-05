@@ -32,6 +32,14 @@ CodeTools::AST << {
     
     node_type: self.class.node_type
     fields:    self.class.fields
+    representation: [
+      self.node_type, self.line, *self.fields.map |name| {
+        value = __send__(name)
+        value.?map |value| { value.?representation ?? value }
+          ?? value.?representation
+            ?? value
+      }
+    ]
     
     [decorators]
     
