@@ -9,7 +9,7 @@ BasicSpec {
   
   "can create a Ruby object": {
     obj = RubyEval @@@
-      Class.new do attr_accessor :foo end.new
+      ::Class.new do attr_accessor :foo end.new
     @@@
     
     obj.foo = 88

@@ -41,6 +41,27 @@ CodeTools::AST << {
       # return (self.create ? component.instance : component)
       self.create && g.send(:instance, 0)
     }
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_myco
+      g.find_const(:Evaluator)
+        g.push_scope
+        self.data_bytecode(g)
+      g.send(:evaluate, 2)
+    }
+    
+    data_bytecode: |g| {
+      g.push_literal(:component)
+      g.push_literal(self.line)
+        self.types.body.each |item| { item.data_bytecode(g) }
+      g.make_array(self.types.body.count)
+      g.push_literal(self.create) # TODO: remove / refactor out
+        self.body.array.each |item| { item.data_bytecode(g) }
+      g.make_array(self.body.array.count)
+      g.make_array(5)
+    }
   }
   
 }

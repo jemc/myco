@@ -22,6 +22,25 @@ CodeTools::AST << {
       
       implementation.bytecode(g)
     }
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_myco
+      g.find_const(:Evaluator)
+        g.push_scope
+        self.data_bytecode(g)
+      g.send(:evaluate, 2)
+    }
+    
+    data_bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(:file)
+        self.body.array.each |item| { item.data_bytecode(g) }
+      g.make_array(self.body.array.count)
+      g.make_array(2)
+    }
   }
   
 }

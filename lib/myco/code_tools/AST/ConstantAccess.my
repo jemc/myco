@@ -72,6 +72,16 @@ CodeTools::AST << {
       #   g.swap; g.pop                           # stack: result
       # }
     }
+    
+    # TODO: this is a helper method that is not really associated with this component
+    array_as_bytecode: |g, ary| {
+      ary.each |item| {
+        item.is_a?(Array) &? array_as_bytecode(g, item) ?? g.push_literal(item)
+      }
+      g.make_array(ary.size)
+    }
+    
+    data_bytecode: |g| pos(g); array_as_bytecode(g, self.representation)
   }
   
 }

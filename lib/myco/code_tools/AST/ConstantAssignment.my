@@ -39,6 +39,28 @@ CodeTools::AST << {
       self.value.bytecode(g)
       g.send(:const_set, 2)
     }
+    
+    data_body_implementation: BlockLiteral.new(
+      line: self.line
+      block: Block.new(
+        line: self.line
+        parameters: ParameterAssembly.new(line: self.line)
+        body: Sequence.new(
+          line: self.line
+          array: [self.value]
+        )
+      )
+    )
+    
+    data_bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(:cmeme)
+      self.constant.data_bytecode(g)
+      g.make_array(0) # future room for decorators
+      data_body_implementation.bytecode(g)
+      g.make_array(4)
+    }
   }
   
 }

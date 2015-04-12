@@ -74,6 +74,25 @@ CodeTools::AST << {
         body_implementation.bytecode(g)
       g.send(:declare_meme, 3)
     }
+    
+    data_body_implementation: BlockLiteral.new(
+      line: self.line
+      block: Block.new(
+        line:       self.line
+        parameters: self.parameters
+        body:       self.body
+      )
+    )
+    
+    data_bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(:meme)
+      g.push_literal(self.name)
+      self.decorations.bytecode(g)
+      data_body_implementation.bytecode(g)
+      g.make_array(4)
+    }
   }
   
 }

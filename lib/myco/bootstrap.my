@@ -1,16 +1,16 @@
 
 ::Myco::RubyEval < EmptyObject {
-  from_string: |string| ::Ruby::Kernel.instance_method(:eval).bind(self).call(string)
+  from_string: |string| ::Ruby.__send__(:eval, string)
 }
 
 RubyEval @@@
-  Myco.eval_file("core/Category.my",        [Myco::CoreLoadPath])
-  Myco.eval_file("core/BasicDecorators.my", [Myco::CoreLoadPath])
-  Myco.eval_file("core/BasicObject.my",     [Myco::CoreLoadPath])
-  Myco.eval_file("core/Decorator.my",       [Myco::CoreLoadPath])
-  Myco.eval_file("core/Object.my",          [Myco::CoreLoadPath])
-  Myco.eval_file("core/FileToplevel.my",    [Myco::CoreLoadPath])
+  ::Myco.eval_file("core/Category.my",        [::Myco::CoreLoadPath])
+  ::Myco.eval_file("core/BasicDecorators.my", [::Myco::CoreLoadPath])
+  ::Myco.eval_file("core/BasicObject.my",     [::Myco::CoreLoadPath])
+  ::Myco.eval_file("core/Decorator.my",       [::Myco::CoreLoadPath])
+  ::Myco.eval_file("core/Object.my",          [::Myco::CoreLoadPath])
+  ::Myco.eval_file("core/FileToplevel.my",    [::Myco::CoreLoadPath])
   
   # Below are not necessary for bootstrapping; TODO: move out of RubyEval
-  Myco.eval_file("core/Switch.my",          [Myco::CoreLoadPath])
+  ::Myco.eval_file("core/Switch.my",          [::Myco::CoreLoadPath])
 @@@

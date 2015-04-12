@@ -15,11 +15,20 @@ CodeTools::AST << {
       receiver:  DeclareObject.new(
         line:      self.line
         types:     self.types
-        body:      NullLiteral.new(line:self.line)
+        body:      Sequence.new(line: self.line, array: [])
       )
     )
     
     bytecode: |g| pos(g); implementation.bytecode(g)
+    
+    data_bytecode: |g| {
+      g.push_literal(:from_string)
+      g.push_literal(self.line)
+        self.types.body.each |item| { item.data_bytecode(g) }
+      g.make_array(self.types.body.count)
+      self.string.bytecode(g)
+      g.make_array(4)
+    }
   }
   
 }

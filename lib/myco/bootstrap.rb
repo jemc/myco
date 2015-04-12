@@ -8,3 +8,5 @@ require_relative 'bootstrap/component'
 
 require_relative 'bootstrap/file_toplevel'
 require_relative 'bootstrap/empty_object'
+
+require_relative 'bootstrap/evaluator'

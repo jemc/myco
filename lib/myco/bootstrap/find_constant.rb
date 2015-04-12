@@ -9,15 +9,15 @@ module Rubinius
     
     # TODO: Can this be more graceful and more eager?
     def myco_file
-      @myco_file ||= parent.myco_file
+      @myco_file ||= parent && parent.myco_file
     end
     
     def myco_levels
-      @myco_levels ||= (parent ? parent.myco_levels.dup : [])
+      @myco_levels ||= (parent ? parent.myco_levels.dup : [::Myco])
     end
     
     def set_myco_file
-      raise "myco_file already set for thie ConstantScope" \
+      raise "myco_file already set for this ConstantScope" \
         if @myco_file
       @myco_component = self.module
       @myco_file      = self.module
@@ -28,26 +28,31 @@ module Rubinius
     end
     
     def set_myco_component
-      raise "myco_component already set for thie ConstantScope" \
+      raise "myco_component already set for this ConstantScope" \
         if @myco_component
       @myco_component = self.module
       @myco_file      = parent.myco_file
+      
+      raise "No myco_file in parents for #{self.inspect}" unless @myco_file
       
       myco_levels << @myco_component
     end
     
     def set_myco_category
-      raise "myco_category already set for thie ConstantScope" \
+      raise "myco_category already set for this ConstantScope" \
         if @myco_category
       @myco_category  = self.module
       @myco_component = parent.myco_component
       @myco_file      = parent.myco_file
       
+      raise "No myco_component in parents for #{self.inspect}" unless @myco_component
+      raise "No myco_file in parents for #{self.inspect}"      unless @myco_file
+      
       myco_levels << @myco_category
     end
     
     def set_myco_meme value
-      raise "myco_meme already set for thie ConstantScope" \
+      raise "myco_meme already set for this ConstantScope" \
         if @myco_meme
       @myco_meme      = value
     end

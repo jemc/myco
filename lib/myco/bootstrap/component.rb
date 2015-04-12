@@ -9,6 +9,7 @@ module Myco
     attr_reader :parent
     attr_reader :parent_meme
     attr_reader :categories
+    attr_reader :main
     
     attr_reader :constant_scope
     
@@ -53,6 +54,7 @@ module Myco
       this.instance_eval {
         @super_components = super_components
         @parent      = parent
+        @main        = self
         @filename    = filename
         @line        = line
         @basename    = File.basename @filename
@@ -84,11 +86,6 @@ module Myco
       this
     end
     
-    # Get a reference to the main Component from main or from any inner Category
-    def main
-      self < Category ? parent : self
-    end
-    
     def __category__ name
       @categories[name] ||= __new_category__(name)
     end
@@ -102,6 +99,7 @@ module Myco
       end
       
       category = Component.new super_cats, self, filename, line
+      category.instance_variable_set(:@main, self)
       category.__name__ = name
       category_instance = category.instance
       meme = declare_meme(name) { category_instance }

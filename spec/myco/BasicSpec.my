@@ -1,7 +1,7 @@
 
 RSpecLoadOnce: Object {
   already_has_rspec: RubyEval @@@
-    defined? RSpec
+    defined? ::RSpec
   @@@
   
   on creation: {

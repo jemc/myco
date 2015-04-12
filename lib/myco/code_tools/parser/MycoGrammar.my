@@ -196,7 +196,7 @@ rule declobj_expr_body:
   r(arg_sep_opt + declobj_sepd_exprs[:nlist] + T.declare_end[:te])
     { ast.sequence(nlist.first, nlist) }
 / r(arg_sep_opt + T.declare_end[:te])
-    { ast.null(te) }
+    { ast.sequence(te, []) }
 
 rule declobj:
   r(constant_list[:n0] + C.spc_nl.* + T.declare_begin[:tb] + declobj_expr_body[:n1])
@@ -216,7 +216,7 @@ rule category:
   r(category_name[:n0] + category_sepd_exprs.-[:nlist]
       + !!(arg_sep_opt + (T.catgry_begin / T.declare_end)))
       { ast.category(n0, n0.value,
-        (nlist &? ast.sequence(nlist.first, nlist) ?? ast.null(n0))) }
+        (nlist &? ast.sequence(nlist.first, nlist) ?? ast.sequence(n0, []))) }
 
 rule copen:
   r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
