@@ -40,8 +40,8 @@
   # TODO: alias more efficiently
   # alias(::Ruby::Kernel, :raise) raise
   # alias(::Ruby::Kernel, :loop) loop
-  raise: |*args| ::Ruby::Kernel.instance_method(:raise).bind(self).call(*args)
-  loop: |&block| ::Ruby::Kernel.instance_method(:loop).bind(self).call(&block)
+  raise: |*args| ::Ruby.__send__(:raise, *args)
+  loop: |&block| ::Ruby.__send__(:loop, &block)
   break: raise(::Ruby::StopIteration)
   
   puts: |*args| STDOUT.puts(*args)
