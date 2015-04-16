@@ -1,5 +1,5 @@
 
-::Myco::Decorator < ::Myco::BasicObject {
+::Myco::Decorator << {
   # Implement the apply meme to mutate the incoming meme in more custom ways.
   # This is run after transforms.apply has already mutated the meme.
   apply: |meme, *args| { }

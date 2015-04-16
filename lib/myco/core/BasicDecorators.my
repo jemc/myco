@@ -1,5 +1,5 @@
 
-::Myco::BasicDecorators < ::Myco::EmptyObject {
+::Myco::BasicDecorators << {
   [decorators]
   
   # The 'storage' decorator acts like a set of var decorators
