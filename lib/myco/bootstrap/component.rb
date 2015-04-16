@@ -59,8 +59,14 @@ module Myco
         @line        = line
         @basename    = File.basename @filename
         @dirname     = File.dirname  @filename
-        @categories  = { main: this }
         @parent_meme = parent_meme
+        @categories  = Hash.new do |h,k|
+          # If the category doesn't exist, look for one in the super components
+          cat = nil
+          super_components.detect { |c| cat = c.categories[k] }
+          cat && (h[k] = __new_category__(k, [cat], filename, line))
+        end
+        @categories[:main] = this
       }
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
@@ -79,7 +85,7 @@ module Myco
         if name == :main
           this.categories[name] = this
         else
-          this.categories[name] = this.__new_category__ name, supers, filename, line
+          this.categories[name] = this.__new_category__(name, supers, filename, line)
         end
       end
       
