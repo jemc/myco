@@ -4,7 +4,8 @@
   
   # The 'storage' decorator acts like a set of var decorators
   # TODO: consolidate with 'var'
-  storage: Decorator {
+  storage: StorageDecorator # TODO: avoid this hack and use const decorator
+  StorageDecorator: Decorator {
     # Create a corresponding "writer" meme to go with this "reader" meme
     apply: |meme| {
       meme.target.declare_meme(:""meme.name"=") |new_value, *args| {
@@ -19,25 +20,29 @@
   # TODO: add const decorator to make all of these decorators 'thunks'
   
   # The 'var' decorator creates an instance variable getter and setter:
-  var: Decorator {
+  var: VarDecorator # TODO: avoid this hack and use const decorator
+  VarDecorator: Decorator {
     [transforms]
     var: true
   }
   
   # The 'memoize' decorator enables caching of the result
-  memoize: Decorator {
+  memoize: MemoizeDecorator # TODO: avoid this hack and use const decorator
+  MemoizeDecorator: Decorator {
     [transforms]
     cache: true
   }
   
   # The 'static' decorator makes the component's singleton class the target
-  static: Decorator {
+  static: StaticDecorator # TODO: avoid this hack and use const decorator
+  StaticDecorator: Decorator {
     [transforms]
     target: |meme| meme.target.singleton_class
   }
   
   # The 'before' decorator defines a wrapper that runs before the existing meme
-  before: Decorator {
+  before: BeforeDecorator # TODO: avoid this hack and use const decorator
+  BeforeDecorator: Decorator {
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
@@ -49,7 +54,8 @@
   }
   
   # The 'after' decorator defines a wrapper that runs after the existing meme
-  after: Decorator {
+  after: AfterDecorator # TODO: avoid this hack and use const decorator
+  AfterDecorator: Decorator {
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
@@ -63,7 +69,8 @@
   }
   
   # The 'pre' decorator defines a wrapper that pre-processes arguments
-  pre: Decorator {
+  pre: PreDecorator # TODO: avoid this hack and use const decorator
+  PreDecorator: Decorator {
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
@@ -76,7 +83,8 @@
   }
   
   # The 'post' decorator defines a wrapper that post-processes return value
-  post: Decorator {
+  post: PostDecorator # TODO: avoid this hack and use const decorator
+  PostDecorator: Decorator {
     apply: |meme| {
       orig_meme = meme.target.memes[meme.name]
       wrap_meme = meme.dup
@@ -89,7 +97,8 @@
   }
   
   # The 'setter' decorator defines a setter that pre-processes the given value
-  setter: Decorator {
+  setter: SetterDecorator # TODO: avoid this hack and use const decorator
+  SetterDecorator: Decorator {
     apply: |meme| {
       wrap_meme = meme.dup
       meme.setter = &|orig_value| {
@@ -99,7 +108,8 @@
   }
   
   # The 'getter' decorator defines a getter that post-processes the return value
-  getter: Decorator {
+  getter: GetterDecorator # TODO: avoid this hack and use const decorator
+  GetterDecorator: Decorator {
     apply: |meme| {
       wrap_meme = meme.dup
       meme.getter = &|orig_value| {

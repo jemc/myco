@@ -43,15 +43,15 @@ CodeTools::AST << {
     
     [decorators]
     
-    # TODO: should be "const", not "var"
-    var node_type: Decorator {
+    node_type: NodeTypeDecorator # TODO: avoid this hack and use const decorator
+    NodeTypeDecorator: Decorator {
       apply: |meme| meme.target.node_type = meme.name
       [transforms]
       expose: false
     }
     
-    # TODO: should be "const", not "var"
-    var field: Decorator {
+    field: FieldDecorator # TODO: avoid this hack and use const decorator
+    FieldDecorator: Decorator {
       apply: |meme| meme.target.fields.push(meme.name)
       [transforms]
       var: true
