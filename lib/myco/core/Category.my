@@ -1,5 +1,5 @@
 
-::Myco::Category < ::Myco::EmptyObject {
+::Myco::Category << {
   # Forward unknown methods to parent
   method_missing: |sym, *a, &b| parent.send(sym, *a, &b)
 }

@@ -1,5 +1,5 @@
 
-::Myco::BasicObject < ::Myco::EmptyObject, ::Myco::BasicDecorators {
+::Myco::BasicObject << {
   # Basic conditional handling
   if:     |cond, &blk| cond && blk.call
   unless: |cond, &blk| cond || blk.call
