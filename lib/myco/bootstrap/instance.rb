@@ -42,7 +42,7 @@ module Myco
     # prepend (::Module.new {
       def method_missing name, *args
         msg = "#{to_s} has no method called '#{name}'"
-        ::Ruby::Kernel.raise ::NoMethodError.new(msg, name, args)
+        ::Kernel.raise ::NoMethodError.new(msg, name, args)
       end
     # })
     
