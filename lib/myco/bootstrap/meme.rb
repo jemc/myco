@@ -18,8 +18,8 @@ module Myco
         decorators = main.categories[:decorators]
         decorators = decorators && decorators.instance
         
-        unless decorators.respond_to?(decoration)
-          reason = if decorators.nil?
+        unless Rubinius::Type.object_respond_to?(decorators, decoration)
+          reason = if !decorators
             "#{self} has no [decorators] category."
           else
             "Known decorators in #{decorators}: " \
@@ -29,7 +29,7 @@ module Myco
             "Unknown decorator for #{self}##{name}: '#{decoration}'. #{reason}" 
         end
         
-        [decorators.send(decoration), arguments]
+        [decorators.__send__(decoration), arguments]
       end
       decorations.each { |deco, args| deco.transforms.apply meme, *args }
       decorations.each { |deco, args| deco.apply meme, *args }

@@ -17,7 +17,7 @@ CodeTools::AST << {
         use_args.block = self.block
       )
       
-      self.receiver.nil? && use_args.nil? &? (
+      !self.receiver && !use_args &? (
         LocalVariableAccessAmbiguous.new(
           line: self.line
           name: self.name

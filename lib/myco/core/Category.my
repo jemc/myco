@@ -1,5 +1,15 @@
 
 ::Myco::Category << {
   # Forward unknown methods to parent
-  method_missing: |sym, *a, &b| parent.send(sym, *a, &b)
+  method_missing: |sym, *a, &b| parent.__send__(sym, *a, &b)
+  
+  # TODO: make DRY with respect to BasicObject.my (or remove these methods entirely...)
+  send: |*args, &block| __send__(*args, &block)
+  
+  kind_of?: |mod| __kind_of__(mod)
+  is_a?:    |mod| __kind_of__(mod)
+  
+  class: __class__ # TODO: consider removing
+  
+  dup: __dup__ # TODO: remove
 }

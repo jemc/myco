@@ -17,7 +17,6 @@ module Myco
   end
   
   Instance = Class.new nil do
-    include ::Kernel
     include InstanceMethods
     
     # These are not included in InstanceMethods because they should not shadow
@@ -40,39 +39,86 @@ module Myco
       "#<#{@component.to_s}#{vars}>"
     end
     
+    # These methods are taken from Ruby's Kernel.
+    # TODO: Audit which of these should remain.
+    
+    def __set_ivar__ sym, value
+      Rubinius.primitive :object_set_ivar
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_set_ivar failed"
+    end
+    
+    alias_method :instance_variable_set, :__set_ivar__ # TODO: remove
+    
+    def __get_ivar__ sym, value
+      Rubinius.primitive :object_get_ivar
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_get_ivar failed"
+    end
+    
+    alias_method :instance_variable_get, :__get_ivar__ # TODO: remove
+    
+    def __ivar_defined__ sym, value
+      Rubinius.primitive :object_ivar_defined
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_ivar_defined failed"
+    end
+    
+    alias_method :instance_variable_defined?, :__ivar_defined__ # TODO: remove
+    
+    def __kind_of__ mod
+      Rubinius.primitive :object_kind_of
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_kind_of failed"
+    end
+    
+    def __class__
+      Rubinius.primitive :object_class
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_class failed"
+    end
+    
+    def __dup__ # TODO: remove
+      copy = Rubinius::Type.object_class(self).allocate
+      Rubinius.invoke_primitive :object_copy_object, copy, self
+      copy
+    end
+
+    def __hash__
+      Rubinius.primitive :object_hash
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_hash failed"
+    end
+    
+    alias_method :hash, :__hash__ # TODO: remove
+    
     # These methods are taken from Ruby's BasicObject.
     # TODO: Audit which of these should remain.
     
     def __send__ message, *args
       Rubinius.primitive :object_send
-      raise ::PrimitiveFailure, "Rubinius.primitive :object_send failed"
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_send failed"
     end
 
     def __id__
       Rubinius.primitive :object_id
-      raise ::PrimitiveFailure, "Rubinius.primitive :object_id failed"
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_id failed"
     end
     
-    def __all_instance_variables__
+    def __ivar_names__
       Rubinius.primitive :object_ivar_names
-      raise ::PrimitiveFailure, "Rubinius.primitive :object_ivar_names failed"
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_ivar_names failed"
     end
     
-    def equal?(other)
+    alias_method :instance_variables, :__ivar_names__ # TODO: remove
+    
+    def __equal__(other)
       Rubinius.primitive :object_equal
-      raise ::PrimitiveFailure, "Rubinius.primitive :object_equal failed"
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_equal failed"
     end
     
-    alias_method :==, :equal?
+    alias_method :equal?, :__equal__
+    alias_method :==,     :__equal__
     
-    def !
-      Rubinius::Type.object_equal(self, false) ||
-        Rubinius::Type.object_equal(self, nil) ? true : false
-    end
-    
-    def !=(other)
+    def != other
       self == other ? false : true
     end
+    
+    alias_method :"!", :false?
   end
   
 end
