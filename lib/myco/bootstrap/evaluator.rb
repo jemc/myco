@@ -20,6 +20,12 @@ module Myco
       component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
       component.instance
+      
+    rescue Exception => e
+      # Make the exception message more helpful without obfuscating the backtrace
+      filename = cscope.respond_to?(:active_path) && cscope.active_path
+      e.instance_variable_set(:@reason_message, "While evaluating #{filename}:\n#{e.message}")
+      raise e
     end
     
     def self.evaluate_component(cscope, line, types, create, contents)
@@ -36,6 +42,12 @@ module Myco
       component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
       create ? component.instance : component
+      
+    rescue Exception => e
+      # Make the exception message more helpful without obfuscating the backtrace
+      filename = cscope.respond_to?(:active_path) && cscope.active_path
+      e.instance_variable_set(:@reason_message, "While evaluating component starting on line #{line}:\n#{e.message}")
+      raise e
     end
     
     def self.evaluate_category(cscope, name, contents)
