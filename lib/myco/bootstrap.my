@@ -5,15 +5,24 @@
 ::Myco::Decorator < ::Myco::BasicObject { }
 ::Myco::FileToplevel < ::Myco::BasicObject { }
 
-EVALUATE_NOW: ( # TODO: remove this hack
-  ::Myco.eval_file("core/Category.my",        [::Myco::CoreLoadPath])
-  ::Myco.eval_file("core/Decorator.my",       [::Myco::CoreLoadPath])
-  ::Myco.eval_file("core/BasicDecorators.my", [::Myco::CoreLoadPath])
-  ::Myco.eval_file("core/BasicObject.my",     [::Myco::CoreLoadPath])
-  ::Myco.eval_file("core/FileToplevel.my",    [::Myco::CoreLoadPath])
-  
-  # Below are not necessary for bootstrapping; TODO: move out of this block
-  ::Myco.eval_file("core/Object.my",          [::Myco::CoreLoadPath])
-  ::Myco.eval_file("core/Switch.my",          [::Myco::CoreLoadPath])
-  ::Myco.eval_file("Ruby.my",                 [::Myco::CoreLoadPath])
-)
+[decorators]
+
+load: LoadDecorator # TODO: avoid this hack
+LoadDecorator: ::Myco::Decorator {
+  apply: |meme| ::Myco.eval_file(meme.name.to_s, [::Myco::CoreLoadPath])
+  [transforms]
+  apply: { }
+}
+
+[main]
+
+load "core/Category.my"
+load "core/Decorator.my"
+load "core/BasicDecorators.my"
+load "core/BasicObject.my"
+load "core/FileToplevel.my"
+
+# Below are not necessary for bootstrapping; TODO: move out of this file
+load "core/Object.my"
+load "core/Switch.my"
+load "Ruby.my"
