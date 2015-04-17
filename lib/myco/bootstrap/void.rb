@@ -34,7 +34,8 @@ module Myco
 end
 
 # Patch the base classes to make them respond_to :false?
-class ::NilClass;    def false?; true  end; def void?; false end end
-class ::TrueClass;   def false?; false end; def void?; false end end
-class ::FalseClass;  def false?; true  end; def void?; false end end
-class ::BasicObject; def false?; false end; def void?; false end end
+class  ::NilClass;              def false?; true  end; def void?; false end end
+class  ::TrueClass;             def false?; false end; def void?; false end end
+class  ::FalseClass;            def false?; true  end; def void?; false end end
+class  ::BasicObject;           def false?; false end; def void?; false end end
+module ::Myco::InstanceMethods; def false?; false end; def void?; false end end
