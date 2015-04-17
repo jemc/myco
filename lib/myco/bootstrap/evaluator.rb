@@ -2,9 +2,9 @@
 module Myco
   class Evaluator
     
-    def self.evaluate(cscope, data)
+    def self.evaluate(cscope, data, &block)
       type, *rest = data
-      __send__(:"evaluate_#{type}", cscope, *rest)
+      __send__(:"evaluate_#{type}", cscope, *rest, &block)
     end
     
     def self.evaluate_file(cscope, contents)
@@ -36,6 +36,8 @@ module Myco
         cscope.active_path.to_s,
         line
       )
+      
+      yield component if block_given?
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
       inner_cscope.set_myco_component
@@ -79,10 +81,11 @@ module Myco
       assign_constant(cscope, *constant, body.call)
     end
     
-    def self.evaluate_define(cscope, constant, component)
-      component = evaluate(cscope, component)
-      component.__name__ = constant_name(cscope, *constant)
-      assign_constant(cscope, *constant, component)
+    def self.evaluate_define(cscope, constant, component_data)
+      evaluate(cscope, component_data) { |component|
+        component.__name__ = constant_name(cscope, *constant)
+        assign_constant(cscope, *constant, component)
+      }
     end
     
     
@@ -135,8 +138,9 @@ module Myco
         end
       end
       
-      names.reduce(const) { |const, var| const.const_get(name) }
-           .const_set(last_name, value)
+      parent = names.reduce(const) { |const, var| const.const_get(name) }
+      parent.const_set(last_name, value)
+      value
     end
     
   end
