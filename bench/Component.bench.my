@@ -16,7 +16,7 @@ BasicBench {
     integer:  send("Integer", text)
   }
   
-  RubyToken: RubyEval @@@
+  RubyToken: Ruby::Eval @@@
     Class.new do
       attr_accessor :type
       attr_accessor :text
