@@ -37,7 +37,7 @@ BasicSpec {
   
   "does not expose its signal handler memes": {
     refute(new_subject.memes.fetch(:creation, null))
-    refute(new_subject.respond_to?(:creation))
+    refute(Rubinius::Type.object_respond_to?(new_subject, :creation))
   }
 }
 

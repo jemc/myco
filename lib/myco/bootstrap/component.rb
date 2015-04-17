@@ -123,7 +123,7 @@ module Myco
         @instance = allocate
         @instance.instance_variable_set(:@component, self)
         yield @instance if block_given?
-        @instance.__signal__ :creation if @instance.respond_to? :__signal__
+        @instance.__signal__ :creation if Rubinius::Type.object_respond_to?(@instance, :__signal__)
       end
       
       @instance
@@ -165,7 +165,7 @@ module Myco
     def new **kwargs
       instance = allocate
       instance.instance_variable_set(:@component, self)
-      kwargs.each { |key,val| instance.send :"#{key}=", val }
+      kwargs.each { |key,val| instance.__send__ :"#{key}=", val }
       instance
     end
   end

@@ -6,7 +6,7 @@
   var comparator: :"=="
   
   when: |expected, &blk| {
-    matched || (input.send(comparator, expected) &&
+    matched || (input.__send__(comparator, expected) &&
       ((matched() = true) && (output() = blk.call(input))))
     self
   }

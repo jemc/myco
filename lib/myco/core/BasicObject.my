@@ -44,6 +44,15 @@
   loop: |&block| ::Ruby.__send__(:loop, &block)
   break: raise(::Ruby::StopIteration)
   
+  send: |*args, &block| __send__(*args, &block)
+  
+  kind_of?: |mod| __kind_of__(mod)
+  is_a?:    |mod| __kind_of__(mod)
+  
+  class: __class__ # TODO: consider removing
+  
+  dup: __dup__ # TODO: remove
+  
   puts: |*args| STDOUT.puts(*args)
   p:    |*args| STDOUT.puts(args.map |a| { a.inspect }.join(', '))
   
