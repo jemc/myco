@@ -1,16 +1,27 @@
+before_install:
+  - git clone --depth=1 git://github.com/rubinius/rubinius.git
+  - echo $LANG
+  - echo $LC_ALL
+  - sudo apt-get update && sudo apt-get install -y llvm-3.4 llvm-3.4-dev
+  - rvm use 2.0.0 --install --binary --fuzzy
+  - gem update --system
+  - gem --version
+  - cd rubinius && travis_retry bundle
+  - cd rubinius && travis_retry ./configure --llvm-config llvm-config-3.4
+  - cd rubinius && travis_retry rake build
+
 before_script:
   - sudo apt-get install -y mercurial
-  - rvm use rbx-head --install
-  - gem install bundler
-  - bundle install
-  - rake fetch_peg
+  - rubinius/bin/gem install bundler rake
+  - rubinius/bin/bundle install
+  - rubinius/bin/rake fetch_peg
 script:
-  - myco inoculate --verbose alpha
-  - alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - alpha/bin/myco inoculate --verbose beta
-  - beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - beta/bin/myco inoculate --verbose gamma
-  - gamma/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - gamma/bin/myco -e "puts('done!')"
+  - rubinius/bin/myco inoculate --verbose alpha
+  - rubinius/bin/rbx alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - rubinius/bin/rbx alpha/bin/myco inoculate --verbose beta
+  - rubinius/bin/rbx beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - rubinius/bin/rbx beta/bin/myco inoculate --verbose gamma
+  - rubinius/bin/rbx gamma/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - rubinius/bin/rbx gamma/bin/myco -e "puts('done!')"
 notifications:
   email: false
