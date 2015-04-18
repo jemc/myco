@@ -61,9 +61,13 @@ module Myco
         @dirname     = File.dirname  @filename
         @parent_meme = parent_meme
         @categories  = Hash.new do |h,k|
-          # If the category doesn't exist, look for one in the super components
+          # If the category doesn't exist, look for one in the super components.
+          # This allows for categories to be implicitly inherited after the fact.
           cat = nil
-          super_components.detect { |c| cat = c.categories[k] }
+          super_components.detect do |sup|
+            cats = sup.respond_to?(:categories) && sup.categories
+            cat  = cats && cats[k]
+          end
           cat && (h[k] = __new_category__(k, [cat], filename, line))
         end
         @categories[:main] = this
@@ -96,7 +100,7 @@ module Myco
       @categories[name] ||= __new_category__(name)
     end
     
-    def __new_category__ name, super_cats=[Category], filename=nil, line=nil
+    def __new_category__ name, super_cats=[::Myco::Category], filename=nil, line=nil
       # Get the filename and line from the VM if not specified
       if !filename || !line
         location = Rubinius::VM.backtrace(2,false).first
