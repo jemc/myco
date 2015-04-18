@@ -1,8 +1,7 @@
-language: ruby
-rvm:
-  - rbx-head
 before_script:
   - sudo apt-get install -y mercurial
+  - rvm use rbx-head --install
+  - gem install bundler
   - bundle install
   - rake fetch_peg
 script:
