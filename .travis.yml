@@ -1,28 +1,17 @@
 language: ruby
 rvm:
-  - 2.1.5
-
+  - rbx-2
 before_script:
-  - git clone --depth=1 git://github.com/rubinius/rubinius.git
-  - echo $LANG
-  - echo $LC_ALL
-  - sudo apt-get update && sudo apt-get install -y llvm-3.4 llvm-3.4-dev
-  - gem update --system
-  - gem --version
-  - cd rubinius && bundle install
-  - cd rubinius && ./configure --llvm-config llvm-config-3.4
-  - cd rubinius && rake build
   - sudo apt-get install -y mercurial
-  - rubinius/bin/gem install bundler rake
-  - rubinius/bin/bundle install
-  - rubinius/bin/rake fetch_peg
+  - bundle install
+  - rake fetch_peg
 script:
-  - rubinius/bin/myco inoculate --verbose alpha
-  - rubinius/bin/rbx alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - rubinius/bin/rbx alpha/bin/myco inoculate --verbose beta
-  - rubinius/bin/rbx beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - rubinius/bin/rbx beta/bin/myco inoculate --verbose gamma
-  - rubinius/bin/rbx gamma/bin/myco spec/**/*.test.my spec/**/**/*.test.my
-  - rubinius/bin/rbx gamma/bin/myco -e "puts('done!')"
+  - myco inoculate --verbose alpha
+  - alpha/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - alpha/bin/myco inoculate --verbose beta
+  - beta/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - beta/bin/myco inoculate --verbose gamma
+  - gamma/bin/myco spec/**/*.test.my spec/**/**/*.test.my
+  - gamma/bin/myco -e "puts('done!')"
 notifications:
   email: false
