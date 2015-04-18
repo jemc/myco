@@ -10,7 +10,7 @@ module Myco
   end
   
   # TODO: deprecate with proper import set of functions
-  def self.eval_file path, load_paths=nil, get_last=true, scope=nil
+  def self.eval_file path, load_paths=nil, get_last=true, scope=Rubinius::ConstantScope.new(::Myco, nil)
     load_paths ||= [File.dirname(Rubinius::VM.backtrace(1).first.file)]
     file_toplevel = CodeLoader.load(path, load_paths, cscope:scope, call_depth:1)
     get_last ? file_toplevel.component.__last__ : file_toplevel.component
