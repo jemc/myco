@@ -8,7 +8,7 @@ module Myco
     
     attr_reader :parent
     attr_reader :parent_meme
-    attr_reader :categories
+    attr_reader :main
     
     attr_reader :constant_scope
     
@@ -58,16 +58,7 @@ module Myco
         @basename    = File.basename @filename
         @dirname     = File.dirname  @filename
         @parent_meme = parent_meme
-        @categories  = Hash.new do |h,k|
-          # If the category doesn't exist, look for one in the super components.
-          # This allows for categories to be implicitly inherited after the fact.
-          cat = nil
-          super_components.detect do |sup|
-            cats = sup.respond_to?(:categories) && sup.categories
-            cat  = cats && cats[k]
-          end
-          cat && (h[k] = __new_category__(k, [cat], filename, line))
-        end
+        @categories  = Rubinius::LookupTable.new
         @categories[:main] = this
       }
       
@@ -77,7 +68,7 @@ module Myco
         this.include other
         
         if other.is_a? Component
-          other.categories.each do |name, cat|
+          other.each_category do |name, cat|
             all_categories[name] << cat
           end
         end
@@ -85,22 +76,35 @@ module Myco
       
       all_categories.each do |name, supers|
         if name == :main
-          this.categories[name] = this
+          this.__set_category__(name, this)
         else
-          this.categories[name] = this.__new_category__(name, supers, filename, line)
+          this.__new_category__(name, supers, filename, line)
         end
       end
       
       this
     end
     
-    # Get a reference to the main Component from main or from any inner Category
-    def main
-      self < Category ? parent : self
+    def __get_category__ name
+      if @categories.key?(name)
+        @categories[name]
+      else
+        # If the category doesn't exist, look for one in the super components.
+        # This allows for categories to be implicitly inherited after the fact.
+        super_cats = []
+        @super_components.each { |sup|
+          sup.respond_to?(:__get_category__) && (
+            cat = sup.__get_category__(name)
+            cat && super_cats.push(cat)
+          )
+        }
+        super_cats.any? && __new_category__(name, super_cats, @filename, @line)
+      end
     end
     
-    def __category__ name
-      @categories[name] ||= __new_category__(name)
+    def __set_category__ name, cat
+      @categories[name] = cat
+      cat
     end
     
     def __new_category__ name, super_cats=[::Myco::Category], filename=nil, line=nil
@@ -117,7 +121,17 @@ module Myco
       meme = declare_meme(name) { category_instance }
       meme.cache = true
       
-      category
+      __set_category__(name, category)
+    end
+    
+    def __category__ name
+      __get_category__(name) || __new_category__(name)
+    end
+    
+    alias_method :category, :__category__
+    
+    def each_category &block
+      @categories.each &block
     end
     
     def instance
