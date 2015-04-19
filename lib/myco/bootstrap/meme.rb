@@ -15,7 +15,7 @@ module Myco
       meme.body = body || blk
       
       decorations = decorations.map do |decoration, arguments|
-        decorators = main.categories[:decorators]
+        decorators = main.category(:decorators)
         decorators = decorators && decorators.instance
         
         unless Rubinius::Type.object_respond_to?(decorators, decoration)
