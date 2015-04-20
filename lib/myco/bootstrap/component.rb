@@ -53,13 +53,13 @@ module Myco
       this.instance_eval {
         @super_components = super_components
         @parent      = parent
+        @main        = self
         @filename    = filename
         @line        = line
         @basename    = File.basename @filename
         @dirname     = File.dirname  @filename
         @parent_meme = parent_meme
         @categories  = Rubinius::LookupTable.new
-        @categories[:main] = this
       }
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
@@ -69,24 +69,22 @@ module Myco
         
         if other.is_a? Component
           other.each_category do |name, cat|
-            all_categories[name] << cat
+            all_categories[name] << cat unless name == :main
           end
         end
       end
       
       all_categories.each do |name, supers|
-        if name == :main
-          this.__set_category__(name, this)
-        else
-          this.__new_category__(name, supers, filename, line)
-        end
+        this.__new_category__(name, supers, filename, line)
       end
       
       this
     end
     
     def __get_category__ name
-      if @categories.key?(name)
+      if name == :main
+        self
+      elsif @categories.key?(name)
         @categories[name]
       else
         # If the category doesn't exist, look for one in the super components.
@@ -116,6 +114,7 @@ module Myco
       end
       
       category = Component.new super_cats, self, filename, line
+      category.instance_variable_set(:@main, self)
       category.__name__ = name
       category_instance = category.instance
       meme = declare_meme(name) { category_instance }
