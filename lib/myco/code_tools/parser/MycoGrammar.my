@@ -199,8 +199,13 @@ rule declobj_expr_body:
     { ast.sequence(te, []) }
 
 rule declobj:
-  r(constant_list[:n0] + C.spc_nl.* + T.declare_begin[:tb] + declobj_expr_body[:n1])
+  r(constant_list[:n0] + C.spc.*
+    + T.declare_begin[:tb] + declobj_expr_body[:n1])
     { ast.declobj(tb, n0, n1) }
+/ r(constant_list[:n0] + C.spc.*
+    + T.args_begin + C.spc.* + constant[:ne] + C.spc.* + T.args_end + C.spc.*
+    + T.declare_begin[:tb] + declobj_expr_body[:n1])
+    { ast.declobj(tb, n0, n1, ne) }
 
 rule category_expr:
   declobj_expr_not_category

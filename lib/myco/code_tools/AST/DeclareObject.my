@@ -3,7 +3,7 @@ CodeTools::AST << {
   
   DeclareObject < Node {
     node_type declobj
-    field types, field body
+    field types, field body, field evaluator
     
     var create: true
     
@@ -45,8 +45,12 @@ CodeTools::AST << {
     bytecode: |g| {
       pos(g)
       
-      g.push_myco
-      g.find_const(:Evaluator)
+      self.evaluator &? (
+        self.evaluator.bytecode(g)
+      ) ?? (
+        g.push_myco
+        g.find_const(:Evaluator)
+      )
         g.push_scope
         self.data_bytecode(g)
       g.send(:evaluate, 2)
