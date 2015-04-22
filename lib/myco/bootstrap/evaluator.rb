@@ -73,7 +73,12 @@ module Myco
     def self.evaluate_meme(cscope, name, decorations, body)
       inner_cscope = ::Rubinius::ConstantScope.new(cscope.module, cscope)
       body.block.instance_variable_set(:@constant_scope, inner_cscope)
+      decorations = decorations.map { |deco| evaluate(cscope, deco) }
       inner_cscope.for_method_definition.declare_meme(name, decorations, &body)
+    end
+    
+    def self.evaluate_decorator(cscope, name, arguments)
+      [name, arguments] # TODO: try applying the decorator here
     end
     
     def self.evaluate_cmeme(cscope, constant, decorations, body)

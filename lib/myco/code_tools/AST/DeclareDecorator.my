@@ -8,14 +8,22 @@ CodeTools::AST << {
     setter arguments: |x|
       x || ArrayAssembly.new(line:self.line, body:[])
     
-    implementation: ArrayAssembly.new(
-      line:self.line
-      body:[self.name, self.arguments]
-    )
+    bytecode: |g| evaluate_bytecode(g)
     
-    to_literal: implementation.to_literal
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:decorator,
+      self.name.to_literal,
+      self.arguments.to_literal,
+    ]
     
-    bytecode: |g| pos(g); implementation.bytecode(g)
+    data_bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(:decorator)
+      self.name.bytecode(g)
+      self.arguments.bytecode(g)
+      g.make_array(3)
+    }
   }
   
 }

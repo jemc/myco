@@ -176,14 +176,7 @@ CodeTools::AST << {
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g) }
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g) }
   DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }
-  
-  DeclareDecorator << {
-    to_ruby: |g| {
-      g.add("["self.name.value.inspect", [")
-        g.list(self.arguments.body, ",", auto_lines:true)
-      g.add("]]")
-    }
-  }
+  DeclareDecorator   << { to_ruby: |g| evaluate_to_ruby(g) }
   
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
