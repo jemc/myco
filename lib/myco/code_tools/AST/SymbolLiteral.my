@@ -12,6 +12,8 @@ CodeTools::AST << {
       
       g.push_literal(self.value)
     }
+    
+    data_bytecode: |g| bytecode(g)
   }
   
 }

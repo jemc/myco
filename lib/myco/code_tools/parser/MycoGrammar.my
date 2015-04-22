@@ -30,9 +30,8 @@ rule declobj_expr:
 rule declobj_expr_not_category:
   decl
 / cdefn
-/ cmeme
-/ constant
 / meme
+/ constant
 
 # Expressions allowable inside memes
 rule meme_expr:
@@ -575,13 +574,10 @@ rule meme_either_body:
   meme_enclosed_expr_body
 / meme_inline_expr_body
 
-rule cmeme:
-  r(constant[:n0] + C.spc.* + T.meme_mark[:tm] + C.spc_nl.* + meme_inline_expr_body[:n1])
-    { ast.cdecl(tm, n0, n1) }
-
 rule meme_name:
   id_as_symbol
 / lit_string_as_symbol
+/ constant
 
 rule decoration:
   r(meme_name[:ni] + arg_list.-[:na])

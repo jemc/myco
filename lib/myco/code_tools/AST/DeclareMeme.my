@@ -5,8 +5,6 @@ CodeTools::AST << {
     node_type meme
     field name, field decorations, field parameters, field body
     
-    setter name: |x|
-      x.value
     setter decorations: |x|
       x || ArrayAssembly.new(line:line, body:[])
     setter parameters: |x|
@@ -27,7 +25,7 @@ CodeTools::AST << {
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:meme,
-      self.name,
+      self.name.?data_array ?? self.name.to_literal,
       self.decorations.body.map(&:data_array),
       self.data_body_implementation, # TODO: body implementation as actual data
     ]
@@ -36,7 +34,7 @@ CodeTools::AST << {
       pos(g)
       
       g.push_literal(:meme)
-      g.push_literal(self.name)
+      self.name.data_bytecode(g)
         self.decorations.body.each |item| { item.data_bytecode(g) }
       g.make_array(self.decorations.body.size)
       data_body_implementation.bytecode(g)

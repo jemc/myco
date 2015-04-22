@@ -167,7 +167,6 @@ CodeTools::AST << {
   Script << { to_ruby: |g| g.add(self.body) }
   
   ConstantAccess     << { to_ruby: |g| evaluate_to_ruby(g) }
-  ConstantAssignment << { to_ruby: |g| evaluate_to_ruby(g) }
   ConstantDefine     << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
@@ -175,6 +174,7 @@ CodeTools::AST << {
   DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g); g.line }
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g) }
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g) }
+  
   DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }
   DeclareDecoration  << { to_ruby: |g| evaluate_to_ruby(g) }
   
