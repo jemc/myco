@@ -108,6 +108,15 @@ CodeTools::AST << {
       to_ruby(g)
       g.to_s
     }
+    
+    evaluate_to_ruby: |g, evaluator=null| {
+      g.line
+      g.add(evaluator || "::Myco::Evaluator")
+      g.add(".evaluate(::Myco.cscope, ")
+        g.literal_array(self.data_array)
+      g.add(")")
+      g.line
+    }
   }
   
   Self         << { to_ruby: |g| g.add("self") }
@@ -233,14 +242,7 @@ CodeTools::AST << {
     # TODO: remove old definition
     to_ruby: |g| g.line; implementation.to_ruby(g); g.line
     
-    to_ruby: |g| {
-      g.line
-      g.add(self.evaluator || "::Myco::Evaluator")
-      g.add(".evaluate(::Myco.cscope, ")
-        g.literal_array(self.data_array)
-      g.add(")")
-      g.line
-    }
+    to_ruby: |g| evaluate_to_ruby(g)
   }
   
   DeclareObject << {
@@ -251,12 +253,7 @@ CodeTools::AST << {
       self.create && g.add(".instance")
     }
     
-    to_ruby: |g| {
-      g.add(self.evaluator || "::Myco::Evaluator")
-      g.add(".evaluate(::Myco.cscope, ")
-        g.literal_array(self.data_array)
-      g.add(")")
-    }
+    to_ruby: |g| evaluate_to_ruby(g, self.evaluator)
   }
   
   DeclareString << { to_ruby: |g| g.add(implementation) }
