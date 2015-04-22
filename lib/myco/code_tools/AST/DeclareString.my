@@ -19,7 +19,15 @@ CodeTools::AST << {
       )
     )
     
+    # TODO: remove old bytecode definition
     bytecode: |g| pos(g); implementation.bytecode(g)
+    
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:from_string,
+      self.line,
+      self.types.body.map |item| { item.data_array },
+      self.string.to_literal,
+    ]
     
     data_bytecode: |g| {
       g.push_literal(:from_string)

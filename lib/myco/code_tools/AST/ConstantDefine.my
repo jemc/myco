@@ -25,6 +25,12 @@ CodeTools::AST << {
       g.pop
     }
     
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:define,
+      self.constant.data_array,
+      self.object.data_array,
+    ]
+    
     data_bytecode: |g| {
       pos(g)
       

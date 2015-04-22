@@ -5,6 +5,8 @@ CodeTools::AST << {
     node_type str
     field value
     
+    to_literal: self.value
+    
     bytecode: |g| {
       pos(g)
       

@@ -13,6 +13,8 @@ CodeTools::AST << {
       body:[self.name, self.arguments]
     )
     
+    to_literal: implementation.to_literal
+    
     bytecode: |g| pos(g); implementation.bytecode(g)
   }
   

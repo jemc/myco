@@ -3,7 +3,7 @@ CodeTools::AST << {
   
   DeclareFile < Node {
     node_type declfile
-    field body
+    field body, field evaluator
     
     # Use minimal inspect to avoid huge inspect output for inner AST nodes
     # that store a reference to a DeclareFile in an instance variable. 
@@ -17,6 +17,7 @@ CodeTools::AST << {
       decl
     }
     
+    # TODO: remove old bytecode definition
     bytecode: |g| {
       pos(g)
       
@@ -26,12 +27,21 @@ CodeTools::AST << {
     bytecode: |g| {
       pos(g)
       
-      g.push_myco
-      g.find_const(:Evaluator)
+      self.evaluator &? (
+        self.evaluator.bytecode(g)
+      ) ?? (
+        g.push_myco
+        g.find_const(:Evaluator)
+      )
         g.push_scope
         self.data_bytecode(g)
       g.send(:evaluate, 2)
     }
+    
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:file,
+      self.body.array.map |item| { item.data_array },
+    ]
     
     data_bytecode: |g| {
       pos(g)

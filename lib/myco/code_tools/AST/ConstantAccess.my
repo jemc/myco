@@ -73,6 +73,9 @@ CodeTools::AST << {
       # }
     }
     
+    # TODO: don't be redundant with data_bytecode
+    data_array: self.representation
+    
     # TODO: this is a helper method that is not really associated with this component
     array_as_bytecode: |g, ary| {
       ary.each |item| {

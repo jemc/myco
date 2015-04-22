@@ -28,7 +28,7 @@ CodeTools::AST << {
     # Returns true if any items were written, else false.
     list: |items, separator="", auto_lines:false, &block| {
       items.any? && (
-        items = items.dup
+        items = items.dup # TODO: don't dup/pop here
         last_item = items.pop
         
         use_lines = items.any? && auto_lines
@@ -45,6 +45,18 @@ CodeTools::AST << {
         use_lines && self.pop_indent
         use_lines && self.line
       )
+    }
+    
+    literal_array: |ary| {
+      self.add("[")
+      self.list(ary, ",", auto_lines:true) |item| {
+        item.is_a?(Array) &? self.literal_array(item) ?? (
+          item.is_a?(Node) &? self.add(item) ?? (
+            self.add(item.inspect)
+          )
+        )
+      }
+      self.add("]")
     }
     
     # Stack of indent levels (as strings to be prefixed)
@@ -217,13 +229,33 @@ CodeTools::AST << {
   }
   
   Script      << { to_ruby: |g| g.add(self.body) }
-  DeclareFile << { to_ruby: |g| g.line; implementation.to_ruby(g); g.line }
+  DeclareFile << {
+    # TODO: remove old definition
+    to_ruby: |g| g.line; implementation.to_ruby(g); g.line
+    
+    to_ruby: |g| {
+      g.line
+      g.add(self.evaluator || "::Myco::Evaluator")
+      g.add(".evaluate(::Myco.cscope, ")
+        g.literal_array(self.data_array)
+      g.add(")")
+      g.line
+    }
+  }
   
   DeclareObject << {
+    # TODO: remove old definition
     to_ruby: |g| {
       g.add("::Myco::Component.new("); g.add(self.types); g.add(", ::Myco.cscope.for_method_definition, __FILE__, __LINE__)")
       g.line(".tap { |__c__| __c__.__last__ = __c__.component_eval {"); g.add(scope_implementation); g.add("}}")
       self.create && g.add(".instance")
+    }
+    
+    to_ruby: |g| {
+      g.add(self.evaluator || "::Myco::Evaluator")
+      g.add(".evaluate(::Myco.cscope, ")
+        g.literal_array(self.data_array)
+      g.add(")")
     }
   }
   

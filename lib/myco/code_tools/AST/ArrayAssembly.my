@@ -5,6 +5,9 @@ CodeTools::AST << {
     node_type array
     field body
     
+    # TODO: handle splats and other more complex assemblies
+    to_literal: self.body.map(&:to_literal)
+    
     bytecode: |g| {
       pos(g)
       

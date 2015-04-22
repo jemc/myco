@@ -59,6 +59,7 @@ CodeTools::AST << {
       body:       self.body
     )
     
+    # TODO: remove old bytecode definition
     bytecode: |g| {
       pos(g)
       
@@ -83,6 +84,13 @@ CodeTools::AST << {
         body:       self.body
       )
     )
+    
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:meme,
+      self.name,
+      self.decorations.to_literal,
+      self.data_body_implementation, # TODO: body implementation as actual data
+    ]
     
     data_bytecode: |g| {
       pos(g)

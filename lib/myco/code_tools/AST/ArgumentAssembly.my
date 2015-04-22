@@ -6,6 +6,9 @@ CodeTools::AST << {
     field body
     var block # TODO: remove this unnecessary state
     
+    # TODO: handle splats and blocks and other more complex assemblies
+    to_literal: self.body.map(&:to_literal)
+    
     setter body: |given_body| {
       given_body.last.is_a?(BlockArgument) && (self.block = given_body.pop)
       given_body

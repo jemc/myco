@@ -13,6 +13,7 @@ CodeTools::AST << {
       scope_method: :set_myco_component
     )
     
+    # TODO: remove old bytecode definition
     bytecode: |g| {
       pos(g)
       
@@ -55,6 +56,14 @@ CodeTools::AST << {
         self.data_bytecode(g)
       g.send(:evaluate, 2)
     }
+    
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:component,
+      self.line,
+      self.types.body.map |item| { item.data_array },
+      self.create,
+      self.body.array.map |item| { item.data_array },
+    ]
     
     data_bytecode: |g| {
       g.push_literal(:component)

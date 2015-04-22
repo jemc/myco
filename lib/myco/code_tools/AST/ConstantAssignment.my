@@ -52,6 +52,13 @@ CodeTools::AST << {
       )
     )
     
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:cmeme,
+      self.constant.data_array,
+      [], # future room for decorators
+      self.data_body_implementation, # TODO: body implementation as actual data
+    ]
+    
     data_bytecode: |g| {
       pos(g)
       

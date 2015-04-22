@@ -21,6 +21,12 @@ CodeTools::AST << {
       scope_implementation.bytecode(g)
     }
     
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:category,
+      self.name,
+      self.body.array.map |item| { item.data_array },
+    ]
+    
     data_bytecode: |g| {
       pos(g)
       
