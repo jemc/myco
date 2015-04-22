@@ -583,23 +583,23 @@ rule meme_name:
   id_as_symbol
 / lit_string_as_symbol
 
-rule decorator:
+rule decoration:
   r(meme_name[:ni] + arg_list.-[:na])
-    { ast.deco(ni, ni, na) }
+    { ast.decoration(ni, ni, na) }
 
-rule sepd_decorator:
-  r(C.spc.* + decorator[:n]) { n }
+rule sepd_decoration:
+  r(C.spc.* + decoration[:n]) { n }
 
-rule decorators_and_meme_name:
-  r(decorator[:n0] + sepd_decorator.*[:nrest])
+rule decorations_and_meme_name:
+  r(decoration[:n0] + sepd_decoration.*[:nrest])
     { ast.array(n0, [n0, *nrest].reverse) }
 
 rule meme:
-  r(decorators_and_meme_name[:nd]
+  r(decorations_and_meme_name[:nd]
       + C.spc.* + T.meme_mark[:tm]
       + (r(C.spc_nl.* + param_list.-[:n]) { n })[:np]
       + C.spc_nl.* + meme_either_body[:nb])
     { ast.meme(tm, nd.body.shift.name, nd, np, nb) }
-/ r(decorators_and_meme_name[:nd])
+/ r(decorations_and_meme_name[:nd])
     { ast.meme(nd, nd.body.shift.name, nd, null, null) }
 }

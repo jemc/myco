@@ -1,8 +1,8 @@
 
 CodeTools::AST << {
   
-  DeclareDecorator < Node {
-    node_type deco
+  DeclareDecoration < Node {
+    node_type decoration
     field name, field arguments
     
     setter arguments: |x|
@@ -11,7 +11,7 @@ CodeTools::AST << {
     bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
-    data_array: [:decorator,
+    data_array: [:decoration,
       self.name.to_literal,
       self.arguments.to_literal,
     ]
@@ -19,7 +19,7 @@ CodeTools::AST << {
     data_bytecode: |g| {
       pos(g)
       
-      g.push_literal(:decorator)
+      g.push_literal(:decoration)
       self.name.bytecode(g)
       self.arguments.bytecode(g)
       g.make_array(3)

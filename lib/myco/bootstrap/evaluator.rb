@@ -77,8 +77,8 @@ module Myco
       inner_cscope.for_method_definition.declare_meme(name, decorations, &body)
     end
     
-    def self.evaluate_decorator(cscope, name, arguments)
-      [name, arguments] # TODO: try applying the decorator here
+    def self.evaluate_decoration(cscope, name, arguments)
+      [name, arguments] # TODO: try applying the decoration here
     end
     
     def self.evaluate_cmeme(cscope, constant, decorations, body)
