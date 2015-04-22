@@ -5,18 +5,7 @@ CodeTools::AST << {
     node_type copen
     field constant, field body
     
-    bytecode: |g| {
-      pos(g)
-      
-      scope = DeclaredScope.new(
-        line: self.line
-        body: self.body
-        scope_method: :set_myco_component
-      )
-      
-      self.constant.bytecode(g)
-      scope.bytecode(g)
-    }
+    bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:extension,

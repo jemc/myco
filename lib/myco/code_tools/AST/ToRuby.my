@@ -110,12 +110,10 @@ CodeTools::AST << {
     }
     
     evaluate_to_ruby: |g, evaluator=null| {
-      g.line
       g.add(evaluator || "::Myco::Evaluator")
       g.add(".evaluate(::Myco.cscope, ")
         g.literal_array(self.data_array)
       g.add(")")
-      g.line
     }
   }
   
@@ -166,120 +164,18 @@ CodeTools::AST << {
     }
   }
   
-  ConstantAccess << {
-    to_ruby: |g| {
-      name_list = self.names.map(&:to_sym)
-      first_name = name_list.shift
-      
-      self.toplevel &? (
-        first_name case(
-          :Myco,     &{ g.add("::Myco") },
-          :Ruby,     &{ g.add("::Object") },
-          :Rubinius, &{ g.add("::Rubinius") },
-                     &{ g.add("::Myco::"first_name"") }
-        )
-      ) ?? (
-        g.add("::Myco.find_constant("first_name.inspect")")
-      )
-      name_list.each |name| { g.add("::"name"") }
-    }
-  }
+  Script << { to_ruby: |g| g.add(self.body) }
   
-  ConstantAssignment << {
-    to_ruby: |g| {
-      name_list = self.constant.names.map(&:to_sym)
-      last_name = name_list.pop
-      first_name = name_list.any? && name_list.shift
-      
-      self.constant.toplevel &? (
-        first_name &? (
-          first_name case(
-            :Myco,     &{ g.add("::Myco") },
-            :Ruby,     &{ g.add("::Object") },
-            :Rubinius, &{ g.add("::Rubinius") },
-                       &{ g.add("::Myco::"first_name"") }
-          )
-        ) ?? (
-          g.add("::Myco")
-        )
-      ) ?? (
-        first_name &? (
-          g.add("::Myco.find_constant("first_name.inspect")")
-        ) ?? (
-          g.add("::Myco.cscope.for_method_definition")
-        )
-      )
-      name_list.each |name| { g.add("::"name"") }
-      g.add("::"last_name" = ")
-      
-      g.add(self.value)
-    }
-  }
+  ConstantAccess     << { to_ruby: |g| evaluate_to_ruby(g) }
+  ConstantAssignment << { to_ruby: |g| evaluate_to_ruby(g) }
+  ConstantDefine     << { to_ruby: |g| evaluate_to_ruby(g) }
   
-  ConstantDefine << {
-    to_ruby: |g| {
-      g.add(implementation)
-      g.line(".tap { |__c__| __c__.__name__ = ")
-        g.add(self.constant.names.last.inspect)
-      g.add(" }")
-    }
-  }
-  
-  DeclareExtension << {
-    to_ruby: |g| {
-      g.add(self.constant); g.add(".component_eval {")
-      g.add(self.body); g.add("}")
-    }
-  }
-  
-  DeclaredScope << {
-    to_ruby: |g|
-      g.with_nested_var_scope(self) { g.add(self.body) }
-  }
-  
-  Script      << { to_ruby: |g| g.add(self.body) }
-  DeclareFile << {
-    # TODO: remove old definition
-    to_ruby: |g| g.line; implementation.to_ruby(g); g.line
-    
-    to_ruby: |g| evaluate_to_ruby(g)
-  }
-  
-  DeclareObject << {
-    # TODO: remove old definition
-    to_ruby: |g| {
-      g.add("::Myco::Component.new("); g.add(self.types); g.add(", ::Myco.cscope.for_method_definition, __FILE__, __LINE__)")
-      g.line(".tap { |__c__| __c__.__last__ = __c__.component_eval {"); g.add(scope_implementation); g.add("}}")
-      self.create && g.add(".instance")
-    }
-    
-    to_ruby: |g| evaluate_to_ruby(g, self.evaluator)
-  }
-  
-  DeclareString << { to_ruby: |g| g.add(implementation) }
-  
-  DeclareCategory << {
-    to_ruby: |g| {
-      g.add("__category__("self.name.inspect")")
-      g.add(".component_eval {"); g.add(self.body); g.add("}")
-    }
-  }
-  
-  DeclareMeme << {
-    to_ruby: |g| {
-      g.with_nested_var_scope(body_implementation) {
-        g.var_scope_declare_locals(*self.parameters.names)
-        
-        g.add("declare_meme(")
-        g.add(""self.name.inspect", ")
-        g.add(self.decorations); g.add(", nil, ::Myco.cscope.dup)")
-        g.add(" { ");
-          g.add(self.parameters); g.add(" ")
-          g.add(self.body);
-        g.add("}")
-      }
-    }
-  }
+  DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  DeclareString      << { to_ruby: |g| evaluate_to_ruby(g) }
+  DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g); g.line }
+  DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g) }
+  DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g) }
+  DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareDecorator << {
     to_ruby: |g| {

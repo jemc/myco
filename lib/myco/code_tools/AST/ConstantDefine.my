@@ -5,25 +5,10 @@ CodeTools::AST << {
     node_type cdefn
     field constant, field object
     
-    implementation: ConstantAssignment.new(
-      line:     self.line
-      constant: self.constant
-      value:    self.object
-    )
-    
     # TODO: don't set AST state from here
     setter object: |given| given.create = false; given
     
-    bytecode: |g| {
-      pos(g)
-      
-      implementation.bytecode(g)
-      
-      g.dup_top
-        g.push_literal(self.constant.names.last)
-      g.send(:"__name__=", 1)
-      g.pop
-    }
+    bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:define,

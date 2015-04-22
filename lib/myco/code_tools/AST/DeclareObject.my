@@ -7,42 +7,6 @@ CodeTools::AST << {
     
     var create: true
     
-    var scope_implementation: DeclaredScope.new(
-      line: self.line
-      body: self.body
-      scope_method: :set_myco_component
-    )
-    
-    # TODO: remove old bytecode definition
-    bytecode: |g| {
-      pos(g)
-      
-      # ::Myco::Component.new types, parent, filename
-      g.push_myco
-      g.find_const(:Component)
-        self.types.bytecode(g)
-        g.push_scope; g.send(:for_method_definition, 0)
-        g.push_scope; g.send(:active_path, 0); g.meta_to_s
-        g.push_int(self.line)
-      g.send(:new, 4)
-      
-      # The return value of Component.new at the top of the stack
-      # will be consumed by self.scope.bytecode, so save two copies of it.
-      g.dup_top # One for sending :__last__= to
-      g.dup_top # One for sending :instance to (or returning, if !self.create)
-      
-      # Compile the inner scope,
-      # leaving the last object in the scope at the top of the stack.
-      scope_implementation.bytecode(g)
-      
-      # component.__last__ = (value left on stack from self.scope.bytecode)
-      g.send(:"__last__=", 1)
-      g.pop
-      
-      # return (self.create ? component.instance : component)
-      self.create && g.send(:instance, 0)
-    }
-    
     bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode

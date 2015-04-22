@@ -3,28 +3,9 @@ CodeTools::AST << {
   
   DeclareFile < Node {
     node_type declfile
-    field body, field evaluator
+    field body
     
-    # Use minimal inspect to avoid huge inspect output for inner AST nodes
-    # that store a reference to a DeclareFile in an instance variable. 
-    inspect: to_s
-    
-    implementation: {
-      type = ConstantAccess.new(line:self.line, toplevel:true, names:[:Myco, :FileToplevel])
-      types = ArrayAssembly.new(line:self.line, body:[type])
-      decl = DeclareObject.new(line:self.line, types:types, body:self.body)
-      decl.scope_implementation.scope_method = :set_myco_file
-      decl
-    }
-    
-    # TODO: remove old bytecode definition
-    bytecode: |g| {
-      pos(g)
-      
-      implementation.bytecode(g)
-    }
-    
-    bytecode: |g| evaluate_bytecode(g, self.evaluator)
+    bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:file,

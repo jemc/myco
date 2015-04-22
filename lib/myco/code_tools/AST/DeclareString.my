@@ -5,22 +5,7 @@ CodeTools::AST << {
     node_type declstr
     field types, field string
     
-    implementation: InvokeMethod.new(
-      line:      self.string.line
-      name:      :from_string
-      arguments: ArgumentAssembly.new(
-        line:      self.string.line,
-        body:      [self.string]
-      )
-      receiver:  DeclareObject.new(
-        line:      self.line
-        types:     self.types
-        body:      Sequence.new(line: self.line, array: [])
-      )
-    )
-    
-    # TODO: remove old bytecode definition
-    bytecode: |g| pos(g); implementation.bytecode(g)
+    bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:from_string,

@@ -5,40 +5,7 @@ CodeTools::AST << {
     node_type cdecl
     field constant, field value
     
-    bytecode: |g| {
-      pos(g)
-      
-      name_list = self.constant.names.map(&:to_sym)
-      last_name = name_list.pop
-      first_name = name_list.any? && name_list.shift
-      
-      self.constant.toplevel &? (
-        first_name &? (
-          # The conceptual toplevel in Myco is the Myco namespace
-          first_name case(
-            :Myco,     &{ g.push_myco },
-            :Ruby,     &{ g.push_cpath_top },
-            :Rubinius, &{ g.push_rubinius },
-                       &{ g.push_myco; g.find_const(first_name) }
-          )
-        ) ?? (
-          g.push_myco
-        )
-      ) ?? (
-        first_name &? (
-          Myco.find_constant_bytecode(g, first_name)
-        ) ?? (
-          g.push_scope
-          g.send(:for_method_definition, 0)
-        )
-      )
-      
-      name_list.each |name| { g.find_const(name) }
-      
-      g.push_literal(last_name)
-      self.value.bytecode(g)
-      g.send(:const_set, 2)
-    }
+    bytecode: |g| evaluate_bytecode(g)
     
     data_body_implementation: BlockLiteral.new(
       line: self.line

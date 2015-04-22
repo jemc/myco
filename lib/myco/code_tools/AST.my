@@ -39,7 +39,6 @@ import 'AST/ConstantAccess.my'
 import 'AST/ConstantAssignment.my'
 import 'AST/ConstantDefine.my'
 
-import 'AST/DeclaredScope.my'
 import 'AST/DeclareObject.my'
 import 'AST/DeclareString.my'
 import 'AST/DeclareFile.my'

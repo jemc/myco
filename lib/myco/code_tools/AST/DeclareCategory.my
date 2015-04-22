@@ -5,21 +5,7 @@ CodeTools::AST << {
     node_type category
     field name, field body
     
-    scope_implementation: DeclaredScope.new(
-      line: self.line
-      body: self.body
-      scope_method: :set_myco_category
-    )
-    
-    bytecode: |g| {
-      pos(g)
-      
-      g.push_self
-        g.push_literal(self.name)
-      g.send(:__category__, 1)
-      
-      scope_implementation.bytecode(g)
-    }
+    bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:category,

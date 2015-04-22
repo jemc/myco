@@ -29,7 +29,7 @@ module Myco
     end
     
     def self.evaluate_component(cscope, line, types, create, contents)
-      supers = types.map { |data| resolve_constant(cscope, *data) }
+      supers = types.map { |type| evaluate(cscope, type) }
       component = ::Myco::Component.new(
         supers,
         cscope.for_method_definition,
@@ -61,7 +61,7 @@ module Myco
     end
     
     def self.evaluate_extension(cscope, constant, contents)
-      component = resolve_constant(cscope, *constant)
+      component = evaluate(cscope, constant)
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
       inner_cscope.set_myco_component
@@ -81,21 +81,7 @@ module Myco
       assign_constant(cscope, *constant, body.call)
     end
     
-    def self.evaluate_define(cscope, constant, component_data)
-      evaluate(cscope, component_data) { |component|
-        component.__name__ = constant_name(cscope, *constant)
-        assign_constant(cscope, *constant, component)
-      }
-    end
-    
-    
-    # TODO: deprecate/remove
-    def self.evaluate_from_string(cscope, line, types, string)
-      object = evaluate_component(cscope, line, types, true, [])
-      object.from_string(string)
-    end
-    
-    def self.resolve_constant(cscope, node_type, line, toplevel, names)
+    def self.evaluate_const(cscope, line, toplevel, names)
       first_name, *rest_names = names
       const = if toplevel
         case first_name
@@ -111,8 +97,18 @@ module Myco
       rest_names.reduce(const) { |const, name| Rubinius::Type.const_get(const, name.to_sym) }
     end
     
-    def self.constant_name(cscope, node_type, line, toplevel, names)
-      names.last.to_sym
+    def self.evaluate_define(cscope, constant, component_data)
+      evaluate(cscope, component_data) { |component|
+        component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
+        assign_constant(cscope, *constant, component)
+      }
+    end
+    
+    
+    # TODO: deprecate/remove
+    def self.evaluate_from_string(cscope, line, types, string)
+      object = evaluate_component(cscope, line, types, true, [])
+      object.from_string(string)
     end
     
     def self.assign_constant(cscope, node_type, line, toplevel, names, value)

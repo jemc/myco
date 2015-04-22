@@ -1,44 +1,6 @@
 
 CodeTools::AST << {
   
-  DeclareMemeBody < Block {
-    node_type "DeclareMemeBody" # To prevent it from masquerading as a Block TODO: remove
-    field name
-    
-    bytecode: |g| {
-      pos(g)
-      
-      g.state.scope.nest_scope(self)
-      
-      meth = new_generator(g, self.name, self.parameters)
-      
-      meth.push_state(self)
-      meth.state.push_super(self)
-      meth.definition_line(self.line)
-      
-      meth.state.push_name(self.name.to_sym)
-      
-      self.parameters.bytecode(meth)
-      self.body.bytecode(meth)
-      
-      meth.state.pop_name
-      
-      meth.local_count = local_count
-      meth.local_names = local_names
-      
-      meth.ret
-      meth.close
-      meth.pop_state
-      
-      g.push_scope
-      g.send(:for_method_definition, 0)
-      g.add_scope
-      
-      # Create the BlockEnvironment from the meth Generator
-      g.create_block(meth)
-    }
-  }
-  
   DeclareMeme < Node {
     node_type meme
     field name, field decorations, field parameters, field body
@@ -52,29 +14,7 @@ CodeTools::AST << {
     setter body: |x|
       x || NullLiteral.new(line:line)
     
-    body_implementation: DeclareMemeBody.new(
-      line:       self.line
-      name:       self.name
-      parameters: self.parameters
-      body:       self.body
-    )
-    
-    # TODO: remove old bytecode definition
-    bytecode: |g| {
-      pos(g)
-      
-      ##
-      # module = scope.for_method_definition
-      # module.send :declare_meme, self.name, self.decorations,
-      #   BlockEnvironment(body_implementation)
-      #
-      g.push_scope
-      g.send(:for_method_definition, 0)
-        g.push_literal(self.name)
-        self.decorations.bytecode(g)
-        body_implementation.bytecode(g)
-      g.send(:declare_meme, 3)
-    }
+    bytecode: |g| evaluate_bytecode(g)
     
     data_body_implementation: BlockLiteral.new(
       line: self.line
