@@ -24,19 +24,7 @@ CodeTools::AST << {
       implementation.bytecode(g)
     }
     
-    bytecode: |g| {
-      pos(g)
-      
-      self.evaluator &? (
-        self.evaluator.bytecode(g)
-      ) ?? (
-        g.push_myco
-        g.find_const(:Evaluator)
-      )
-        g.push_scope
-        self.data_bytecode(g)
-      g.send(:evaluate, 2)
-    }
+    bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:file,

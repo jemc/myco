@@ -41,6 +41,20 @@ CodeTools::AST << {
       }
     ]
     
+    evaluate_bytecode: |g, evaluator=null| {
+      pos(g)
+      
+      evaluator &? (
+        evaluator.bytecode(g)
+      ) ?? (
+        g.push_myco
+        g.find_const(:Evaluator)
+      )
+        g.push_scope
+        self.data_bytecode(g)
+      g.send(:evaluate, 2)
+    }
+    
     [decorators]
     
     node_type: NodeTypeDecorator # TODO: avoid this hack and use const decorator
