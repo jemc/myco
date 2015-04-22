@@ -90,18 +90,8 @@ module Myco
     
     def self.evaluate_const(cscope, line, toplevel, names)
       first_name, *rest_names = names
-      const = if toplevel
-        case first_name
-        when :Myco;   ::Myco
-        when :Ruby;   ::Object
-        when :Rubinius; Rubinius
-        else;         Rubinius::Type.const_get(::Myco, first_name.to_sym)
-        end
-      else
-        ::Myco.find_constant(first_name, cscope)
-      end
-      
-      rest_names.reduce(const) { |const, name| Rubinius::Type.const_get(const, name.to_sym) }
+      parent = search_constant(cscope, toplevel, first_name)
+      rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }
     end
     
     def self.evaluate_define(cscope, constant, component_data)
@@ -122,28 +112,31 @@ module Myco
       *names, last_name = names
       first_name = names.any? && names.shift
       
-      const = if toplevel
-        if first_name
-          case first_name
+      parent = search_constant(cscope, toplevel, first_name)
+      parent = names.reduce(parent) { |parent, var| parent.const_get(name) }
+      parent.const_set(last_name, value)
+      value
+    end
+    
+    def self.search_constant(cscope, toplevel, name=nil)
+      if toplevel
+        if name
+          case name
           when :Myco;   ::Myco
           when :Ruby;   ::Object
           when :Rubinius; Rubinius
-          else;         ::Myco.const_get(first_name)
+          else;         ::Myco.const_get(name)
           end
         else
           ::Myco
         end
       else
-        if first_name
-          ::Myco.find_constant(first_name, cscope)
+        if name
+          ::Myco.find_constant(name, cscope)
         else
           cscope.for_method_definition
         end
       end
-      
-      parent = names.reduce(const) { |const, var| const.const_get(name) }
-      parent.const_set(last_name, value)
-      value
     end
     
   end
