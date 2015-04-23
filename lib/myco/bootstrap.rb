@@ -1,4 +1,5 @@
 
+require_relative 'bootstrap/evaluator'
 require_relative 'bootstrap/find_constant'
 
 require_relative 'bootstrap/void'
@@ -8,5 +9,3 @@ require_relative 'bootstrap/component'
 
 require_relative 'bootstrap/file_toplevel'
 require_relative 'bootstrap/empty_object'
-
-require_relative 'bootstrap/evaluator'

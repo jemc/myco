@@ -1,4 +1,6 @@
 
+require_relative 'evaluator/context'
+
 module Myco
   class Evaluator
     
@@ -16,7 +18,7 @@ module Myco
       )
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
-      inner_cscope.set_myco_file
+      inner_cscope.myco_evctx.set_myco_file
       component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
       component.instance
@@ -40,7 +42,7 @@ module Myco
       yield component if block_given?
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
-      inner_cscope.set_myco_component
+      inner_cscope.myco_evctx.set_myco_component
       component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
       create ? component.instance : component
@@ -56,7 +58,7 @@ module Myco
       category = cscope.for_method_definition.__category__(name)
       
       inner_cscope = ::Rubinius::ConstantScope.new(category, cscope)
-      inner_cscope.set_myco_category
+      inner_cscope.myco_evctx.set_myco_category
       contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
     end
     
@@ -64,7 +66,7 @@ module Myco
       component = evaluate(cscope, constant)
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
-      inner_cscope.set_myco_component
+      inner_cscope.myco_evctx.set_myco_component
       contents.each { |item| evaluate(inner_cscope, item) }
       
       component

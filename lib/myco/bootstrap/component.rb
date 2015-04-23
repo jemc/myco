@@ -33,7 +33,7 @@ module Myco
       while true
         current = locations[i]
         break unless current
-        parent_meme = current.constant_scope.myco_meme
+        parent_meme = current.constant_scope.myco_evctx.myco_meme
         break if parent_meme
         i += 1
       end
@@ -196,11 +196,11 @@ module Myco
       block_env = block.block
       cscope = Rubinius::ConstantScope.new(self, block_env.constant_scope)
       if defined? ::Myco::FileToplevel && self < ::Myco::FileToplevel
-        cscope.set_myco_file
+        cscope.myco_evctx.set_myco_file
       elsif defined? ::Myco::Category && self < ::Myco::Category
-        cscope.set_myco_category
+        cscope.myco_evctx.set_myco_category
       else
-        cscope.set_myco_component
+        cscope.myco_evctx.set_myco_component
       end
       result = block_env.call_under(self, cscope, true, self)
       result

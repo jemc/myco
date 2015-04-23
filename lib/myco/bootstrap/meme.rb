@@ -78,17 +78,18 @@ module Myco
       case value
       when Rubinius::Executable
         @body = value
-        @body.scope.set_myco_meme self
+        @body.scope.myco_evctx.set_myco_meme self
       when Rubinius::BlockEnvironment
         block_env = value
         block_env.change_name name
-        block_env.constant_scope.set_myco_meme self
+        block_env.constant_scope.myco_evctx.set_myco_meme self \
+          unless block_env.constant_scope.myco_evctx.myco_meme # TODO: remove unless clause here.
         @body = Rubinius::BlockEnvironment::AsMethod.new block_env
       when Proc
         block_env = value.block.dup
         block_env.change_name name
-        block_env.constant_scope.set_myco_meme self \
-          unless block_env.constant_scope.myco_meme
+        block_env.constant_scope.myco_evctx.set_myco_meme self \
+          unless block_env.constant_scope.myco_evctx.myco_meme
         @body = Rubinius::BlockEnvironment::AsMethod.new block_env
       else
         raise ArgumentError,
