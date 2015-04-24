@@ -23,6 +23,11 @@ module Myco
       end
     end
     
+    def method_missing(name, *args, &block)
+      msg = "#{to_s} has no method called '#{name}'"
+      ::Kernel.raise ::NoMethodError.new(msg, name, args)
+    end
+    
     def self.new super_components=[], parent=nil, filename=nil, line=nil
       locations = Rubinius::VM.backtrace(1,false)
       
