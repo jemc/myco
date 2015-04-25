@@ -163,6 +163,13 @@ module Myco
       self
     end
     
+    # Use instead of other's Module#include to bypass type checks
+    def include_into other
+      Rubinius::Type.include_modules_from(self, other.origin)
+      Rubinius::Type.infect(other, self)
+      other.__send__ :included, self
+    end
+    
     # Extend the given object with this component's features
     # Called on object.extend(component)
     def extend_object object
