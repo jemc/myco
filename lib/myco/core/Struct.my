@@ -1,0 +1,28 @@
+
+::Myco::Struct < ::Myco::BasicObject {
+  static var fields: []
+  
+  static var struct_class: {
+    component = self
+    Ruby::Class.new(Rubinius::Tuple) {
+      component.include_into(self)
+      component.fields.each_with_index |field, index| {
+        send(:eval, "def "field";         self["index"];         end")
+        send(:eval, "def "field"=(value); self["index"] = value; end")
+      }
+    }
+  }
+  
+  static cast: |tuple| {
+    Rubinius::Unsafe.set_class(tuple, struct_class)
+  }
+  
+  [decorators]
+  
+  field: FieldDecorator
+  FieldDecorator: Decorator {
+    apply: |meme| meme.target.fields.push(meme.name)
+    [transforms]
+    expose: false
+  }
+}

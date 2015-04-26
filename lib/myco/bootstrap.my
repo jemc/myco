@@ -25,4 +25,5 @@ load "core/FileToplevel.my"
 # Below are not necessary for bootstrapping; TODO: move out of this file
 load "core/Object.my"
 load "core/Switch.my"
+load "core/Struct.my"
 load "Ruby.my"
