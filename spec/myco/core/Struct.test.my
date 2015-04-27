@@ -35,4 +35,9 @@ BasicSpec {
     assert_equal(tuple[1], :b); assert_equal(tuple.bar, :b)
     assert_equal(tuple[2], :c); assert_equal(tuple.baz, :c)
   }
+  
+  "cast fails for struct of the wrong size": {
+    tuple = Rubinius::Tuple.new(10)
+    assert_equal(Subject.cast(tuple), null)
+  }
 }

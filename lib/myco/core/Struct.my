@@ -14,7 +14,9 @@
   }
   
   static cast: |tuple| {
-    Rubinius::Unsafe.set_class(tuple, struct_class)
+    fields.size == tuple.size
+    &? Rubinius::Unsafe.set_class(tuple, struct_class)
+    ?? null
   }
   
   [decorators]
