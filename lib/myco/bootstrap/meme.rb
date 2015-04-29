@@ -268,14 +268,14 @@ module Myco
         g.pop
         
         ##
-        # if instance_variable_defined?(#{name})
+        # if __ivar_defined__(#{name})
         #   @#{name} = meme.body.invoke meme.name, @target, obj, [], nil
         # end
         # return @#{name}
         #
         g.push_self
         g.push_literal(:"@#{@name}")
-        g.send(:instance_variable_defined?, 1)
+        g.send(:__ivar_defined__, 1)
         g.goto_if_true(get)
         
         g.push_local 1 # meme
