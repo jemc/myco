@@ -1,22 +1,6 @@
 
 module Myco
-  module InstanceMethods
-    def component
-      __component__
-    end
-    
-    def parent
-      __component__.parent && __component__.parent.instance
-    end
-    
-    def parent_meme
-      __component__.parent_meme
-    end
-    
-    def memes
-      __component__.memes
-    end
-    
+  module PrimitiveInstanceMethods
     # These methods are taken from Ruby's Kernel.
     # TODO: Audit which of these should remain.
     
@@ -77,6 +61,26 @@ module Myco
     def __equal__(other)
       Rubinius.primitive :object_equal
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_equal failed"
+    end
+  end
+  
+  module InstanceMethods
+    include PrimitiveInstanceMethods
+    
+    def component
+      __component__
+    end
+    
+    def parent
+      __component__.parent && __component__.parent.instance
+    end
+    
+    def parent_meme
+      __component__.parent_meme
+    end
+    
+    def memes
+      __component__.memes
     end
   end
   
