@@ -2,6 +2,14 @@
 ::Myco::BasicDecorators << {
   [decorators]
   
+  # The 'const' decorator evaluates immediately and creates a thunk method
+  const: ConstDecorator
+  ConstDecorator: Decorator {
+    apply: |meme| {
+      meme.target.thunk_method(meme.name, meme.result)
+    }
+  }
+  
   # The 'storage' decorator acts like a set of var decorators
   # TODO: consolidate with 'var'
   storage: StorageDecorator # TODO: avoid this hack and use const decorator
