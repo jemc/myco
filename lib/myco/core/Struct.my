@@ -10,10 +10,22 @@
       component.fields.each_with_index |field, index| {
         # Define getter method
         dynamic_method(field) |g| {
+          ret_label = g.new_label
+          
           g.push_self
             g.push_int(index)
           g.send(:"[]", 1)
           
+          g.dup
+          g.goto_if_not_undefined(ret_label)
+          g.pop
+          
+          g.push_self
+            g.push_int(index)
+            g.push_self; g.send(:"__populate_"field"_field__", 0)
+          g.send(:"[]=", 2)
+          
+          ret_label.set!
           g.ret
         }
         
@@ -34,16 +46,22 @@
   }
   
   static cast: |tuple| {
-    fields.size == tuple.size
-    &? Rubinius::Unsafe.set_class(tuple, struct_class)
-    ?? null
+    fields.size > tuple.size && (
+      new_tuple = Rubinius::Tuple.pattern(fields.size, Myco.undefined)
+      new_tuple.copy_from(tuple, 0, tuple.size, 0)
+      tuple = new_tuple
+    )
+    Rubinius::Unsafe.set_class(tuple, struct_class)
   }
   
   [decorators]
   
   field: FieldDecorator
   FieldDecorator: Decorator {
-    apply: |meme| meme.target.fields.push(meme.name)
+    apply: |meme| {
+      meme.target.fields.push(meme.name)
+      meme.target.declare_meme(:"__populate_"meme.name"_field__", [], meme.body)
+    }
     [transforms]
     expose: false
   }

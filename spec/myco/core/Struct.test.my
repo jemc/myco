@@ -6,9 +6,9 @@ BasicSpec {
   name: "core/Struct"
   
   Subject < Struct {
-    field foo
+    field foo: :foo_default
     field bar
-    field baz
+    field baz: :baz_default
   }
   
   [tests]
@@ -37,8 +37,11 @@ BasicSpec {
     assert_equal(tuple[2], :C); assert_equal(tuple.baz, :C)
   }
   
-  "cast fails for struct of the wrong size": {
-    tuple = Myco.tuple(:a, :b, :c, :d, :e, :f, :g)
-    assert_equal(Subject.cast(tuple), null)
+  "cast uses default memes to fill unspecified fields": {
+    tuple = Subject.cast(Myco.tuple(:a))
+    
+    assert_equal(tuple.foo, :a)
+    assert_equal(tuple.bar, null)
+    assert_equal(tuple.baz, :baz_default)
   }
 }
