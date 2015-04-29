@@ -107,13 +107,9 @@ module Myco
       "#<#{__component__.to_s}#{vars}>"
     end
     
-    alias_method :instance_variable_set, :__set_ivar__ # TODO: remove
-    alias_method :instance_variable_get, :__get_ivar__ # TODO: remove
-    alias_method :instance_variable_defined?, :__ivar_defined__ # TODO: remove
-    alias_method :hash, :__hash__ # TODO: remove
-    
-    alias_method :equal?, :__equal__
-    alias_method :==,     :__equal__
+    alias_method :hash,   :__hash__   # TODO: remove?
+    alias_method :equal?, :__equal__  # TODO: remove?
+    alias_method :==,     :__equal__  # TODO: remove?
     
     def != other
       self == other ? false : true
