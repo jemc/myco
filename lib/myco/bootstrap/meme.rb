@@ -132,6 +132,9 @@ module Myco
       
       @target.memes[@name] = self
       
+      # TODO: consider removing
+      @target.include(::Myco::PrimitiveInstanceMethods) unless @target < ::Myco::PrimitiveInstanceMethods
+      
       if @var
         bind_var_getter
         bind_var_setter
