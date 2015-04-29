@@ -14,8 +14,7 @@
   [decorators]
   
   # Register a named signal handler
-  on: OnDecorator # TODO: avoid this hack and use const decorator
-  OnDecorator: Decorator {
+  const on: Decorator {
     apply: |meme| meme.target.__signal_handlers__(meme.name).push(meme)
     
     [transforms]

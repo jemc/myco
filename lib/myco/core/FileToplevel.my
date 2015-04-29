@@ -9,8 +9,7 @@
   
   # Run the code in the given file, ignoring the return value but
   # importing the constants defined therein into the current namespace.
-  import: ImportDecorator # TODO: avoid this hack and use const decorator
-  ImportDecorator: Decorator {
+  const import: Decorator {
     apply: |meme| {
       load_paths = [meme.target.instance.dirname]
       scope = meme.target.constant_scope
@@ -26,8 +25,7 @@
   }
   # Force an import to assign to a constant in the current namespace
   # instead of being included into the current namespace.
-  as: AsDecorator # TODO: avoid this hack and use const decorator
-  AsDecorator: Decorator {
+  const as: Decorator {
     apply: |meme, given| meme.metadata[:as] = given
   }
 }
