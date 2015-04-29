@@ -18,14 +18,7 @@ BasicSpec {
   }
   
   "cast converts the given tuple into a struct": {
-    tuple = Rubinius::Tuple.new(3)
-    tuple[0] = :a
-    tuple[1] = :b
-    tuple[2] = :c
-    
-    assert_equal(tuple[0], :a)
-    assert_equal(tuple[1], :b)
-    assert_equal(tuple[2], :c)
+    tuple = Myco.tuple(:a, :b, :c)
     
     result = Subject.cast(tuple)
     assert_equal(tuple.__id__, result.__id__)
@@ -37,7 +30,7 @@ BasicSpec {
   }
   
   "cast fails for struct of the wrong size": {
-    tuple = Rubinius::Tuple.new(10)
+    tuple = Myco.tuple(:a, :b, :c, :d, :e, :f, :g)
     assert_equal(Subject.cast(tuple), null)
   }
 }
