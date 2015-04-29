@@ -1,18 +1,20 @@
 
 module Myco
   module InstanceMethods
-    attr_reader :component
+    def component
+      __component__
+    end
     
     def parent
-      @component.parent && @component.parent.instance
+      __component__.parent && __component__.parent.instance
     end
     
     def parent_meme
-      @component.parent_meme
+      __component__.parent_meme
     end
     
     def memes
-      @component.memes
+      __component__.memes
     end
   end
   
@@ -28,15 +30,15 @@ module Myco
     end
     
     def to_s
-      "#<#{@component.to_s}>"
+      "#<#{__component__.to_s}>"
     end
     
     def inspect
-      vars = (instance_variables - [:@component]).map { |var|
+      vars = instance_variables.map { |var|
         [var.to_s[1..-1], instance_variable_get(var).inspect].join(": ")
       }
       vars = vars.any? ? (" " + vars.join(", ")) : ""
-      "#<#{@component.to_s}#{vars}>"
+      "#<#{__component__.to_s}#{vars}>"
     end
     
     # These methods are taken from Ruby's Kernel.
