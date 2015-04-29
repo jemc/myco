@@ -2,6 +2,7 @@
 require_relative 'bootstrap/find_constant'
 
 require_relative 'bootstrap/void'
+require_relative 'bootstrap/undefined'
 require_relative 'bootstrap/tuple'
 require_relative 'bootstrap/meme'
 require_relative 'bootstrap/instance'
