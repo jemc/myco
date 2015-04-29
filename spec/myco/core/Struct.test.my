@@ -27,6 +27,14 @@ BasicSpec {
     assert_equal(tuple[0], :a); assert_equal(tuple.foo, :a)
     assert_equal(tuple[1], :b); assert_equal(tuple.bar, :b)
     assert_equal(tuple[2], :c); assert_equal(tuple.baz, :c)
+    
+    tuple.foo = :A
+    tuple.bar = :B
+    tuple.baz = :C
+    
+    assert_equal(tuple[0], :A); assert_equal(tuple.foo, :A)
+    assert_equal(tuple[1], :B); assert_equal(tuple.bar, :B)
+    assert_equal(tuple[2], :C); assert_equal(tuple.baz, :C)
   }
   
   "cast fails for struct of the wrong size": {
