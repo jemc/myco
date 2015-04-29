@@ -25,12 +25,12 @@ module Myco
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_set_ivar failed"
     end
     
-    def __get_ivar__ sym, value
+    def __get_ivar__ sym
       Rubinius.primitive :object_get_ivar
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_get_ivar failed"
     end
     
-    def __ivar_defined__ sym, value
+    def __ivar_defined__ sym
       Rubinius.primitive :object_ivar_defined
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_ivar_defined failed"
     end
