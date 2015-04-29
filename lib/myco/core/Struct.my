@@ -56,8 +56,7 @@
   
   [decorators]
   
-  field: FieldDecorator
-  FieldDecorator: Decorator {
+  const field: Decorator {
     apply: |meme| {
       meme.target.fields.push(meme.name)
       meme.target.declare_meme(:"__populate_"meme.name"_field__", [], meme.body)
