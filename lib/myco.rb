@@ -31,6 +31,7 @@ stages.each do |toolset_name|
       # TODO: be more clever here communicating the load path for bootstrapping
       Myco::CoreLoadPath = File.expand_path('myco', File.dirname(__FILE__))
       Myco.eval_file 'myco/bootstrap.my'
+      Myco.eval_file 'myco/core.my'
     end
     
     require "rubinius/compiler"
