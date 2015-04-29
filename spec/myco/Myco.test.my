@@ -1,0 +1,24 @@
+
+import 'BasicSpec.my'
+
+
+BasicSpec {
+  name: "Myco"
+  
+  [tests]
+  
+  "tuple with no arguments returns an empty tuple": {
+    tuple = Myco.tuple
+    assert_is_a(tuple, Rubinius::Tuple)
+    assert_equal(tuple.size, 0)
+  }
+  
+  "tuple with arguments returns a tuple containing those arguments": {
+    tuple = Myco.tuple(:a, :b, :c)
+    assert_is_a(tuple, Rubinius::Tuple)
+    assert_equal(tuple.size, 3)
+    assert_equal(tuple[0], :a)
+    assert_equal(tuple[1], :b)
+    assert_equal(tuple[2], :c)
+  }
+}
