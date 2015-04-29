@@ -6,9 +6,29 @@
     component = self
     Ruby::Class.new(Rubinius::Tuple) {
       component.include_into(self)
+      
       component.fields.each_with_index |field, index| {
-        send(:eval, "def "field";         self["index"];         end")
-        send(:eval, "def "field"=(value); self["index"] = value; end")
+        # Define getter method
+        dynamic_method(field) |g| {
+          g.push_self
+            g.push_int(index)
+          g.send(:"[]", 1)
+          
+          g.ret
+        }
+        
+        # Define setter method
+        dynamic_method(:""field"=") |g| {
+          g.total_args = 1
+          g.local_count = 1
+          
+          g.push_self
+            g.push_int(index)
+            g.push_local(0) # value
+          g.send(:"[]=", 2)
+          
+          g.ret
+        }
       }
     }
   }
