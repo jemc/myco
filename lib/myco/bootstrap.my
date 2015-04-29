@@ -25,8 +25,3 @@ load "core/Decorator.my"
 load "core/BasicDecorators.my"
 load "core/BasicObject.my"
 load "core/FileToplevel.my"
-
-# Below are not necessary for bootstrapping; TODO: move out of this file
-load "core/Object.my"
-load "core/Switch.my"
-load "Ruby.my"
