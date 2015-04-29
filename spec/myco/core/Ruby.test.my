@@ -1,0 +1,18 @@
+
+import '../BasicSpec.my'
+
+
+BasicSpec {
+  name: "core/Ruby"
+  
+  [tests]
+  
+  "Eval can create a Ruby object": {
+    obj = Ruby::Eval @@@
+      ::Class.new do attr_accessor :foo end.new
+    @@@
+    
+    obj.foo = 88
+    assert_equal(obj.foo, 88)
+  }
+}

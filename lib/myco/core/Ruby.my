@@ -1,0 +1,6 @@
+
+::Myco::Ruby < ::Ruby::Object, ::Myco::BasicObject {
+  static eval: |*a,&b| Kernel.eval(*a, &b)
+  
+  Eval < ::Myco::EmptyObject { from_string: |string| Ruby.eval(string) }
+}

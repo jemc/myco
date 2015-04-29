@@ -1,4 +1,4 @@
 
 import "core/Object.my"
 import "core/Switch.my"
-import "Ruby.my"
+import "core/Ruby.my"
