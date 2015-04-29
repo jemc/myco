@@ -34,7 +34,7 @@ module Myco
       Rubinius.invoke_primitive :object_copy_object, copy, self
       copy
     end
-
+    
     def __hash__
       Rubinius.primitive :object_hash
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_hash failed"
