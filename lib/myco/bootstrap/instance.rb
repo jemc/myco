@@ -34,8 +34,8 @@ module Myco
     end
     
     def inspect
-      vars = instance_variables.map { |var|
-        [var.to_s[1..-1], instance_variable_get(var).inspect].join(": ")
+      vars = __ivar_names__.map { |var|
+        [var.to_s[1..-1], __get_ivar__(var).inspect].join(": ")
       }
       vars = vars.any? ? (" " + vars.join(", ")) : ""
       "#<#{__component__.to_s}#{vars}>"
@@ -105,8 +105,6 @@ module Myco
       Rubinius.primitive :object_ivar_names
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :object_ivar_names failed"
     end
-    
-    alias_method :instance_variables, :__ivar_names__ # TODO: remove
     
     def __equal__(other)
       Rubinius.primitive :object_equal
