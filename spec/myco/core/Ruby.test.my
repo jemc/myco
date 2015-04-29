@@ -3,11 +3,11 @@ import '../BasicSpec.my'
 
 
 BasicSpec {
-  name: "Ruby/Eval.my"
+  name: "core/Ruby"
   
   [tests]
   
-  "can create a Ruby object": {
+  "Eval can create a Ruby object": {
     obj = Ruby::Eval @@@
       ::Class.new do attr_accessor :foo end.new
     @@@
