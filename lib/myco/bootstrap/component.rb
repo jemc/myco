@@ -60,6 +60,8 @@ module Myco
         @dirname     = File.dirname  @filename
         @parent_meme = parent_meme
         @categories  = Rubinius::LookupTable.new
+        
+        thunk_method(:__component__, self)
       }
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }
@@ -138,7 +140,6 @@ module Myco
         yield @instance if block_given?
       else
         @instance = allocate
-        @instance.instance_variable_set(:@component, self)
         yield @instance if block_given?
         @instance.__signal__ :creation if Rubinius::Type.object_respond_to?(@instance, :__signal__)
       end
@@ -172,7 +173,6 @@ module Myco
     # TODO: re-evaluate usefulness and possibly remove in favor of using extend.
     def inject_into object
       object.extend InstanceMethods unless object.is_a? InstanceMethods
-      object.instance_variable_set(:@component, self)
       extend_object object
       object
     end
@@ -181,7 +181,6 @@ module Myco
     # call setters on the instance with the values given by kwargs.
     def new **kwargs
       instance = allocate
-      instance.instance_variable_set(:@component, self)
       kwargs.each { |key,val| instance.__send__ :"#{key}=", val }
       instance
     end
