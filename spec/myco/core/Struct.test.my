@@ -1,5 +1,6 @@
 
 import '../BasicSpec.my'
+import '../../../lib/myco/core/Struct.my'
 
 
 BasicSpec {
