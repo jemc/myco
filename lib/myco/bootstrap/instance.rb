@@ -124,8 +124,13 @@ module Myco
       ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :tuple_allocate failed"
     end
     
+    def self.__tuple_pattern__ size
+      Rubinius.primitive :tuple_pattern
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :tuple_pattern failed"
+    end
+    
     def self.allocate
-      __tuple_allocate__(__tuple_size__)
+      Rubinius::Unsafe.set_class(__tuple_pattern__(__tuple_size__, Myco.undefined), self)
     end
     
     # These are not included in InstanceMethods because they should not shadow
