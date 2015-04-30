@@ -9,40 +9,6 @@
     fields == struct_layout_known_fields &? fields ?? (
       fields.each_with_index |field, index| {
         thunk_method(:"__index_of_"field"_field__", index)
-        
-        # Define getter method
-        dynamic_method(field) |g| {
-          ret_label = g.new_label
-          
-          g.push_self
-            g.dup_top; g.send(:"__index_of_"field"_field__", 0)
-          g.send(:__tuple_at__, 1)
-          
-          g.dup
-          g.goto_if_not_undefined(ret_label)
-          g.pop
-          
-          g.push_self
-            g.push_int(index)
-            g.push_self; g.send(:"__populate_"field"_field__", 0)
-          g.send(:__tuple_put__, 2)
-          
-          ret_label.set!
-          g.ret
-        }
-        
-        # Define setter method
-        dynamic_method(:""field"=") |g| {
-          g.total_args = 1
-          g.local_count = 1
-          
-          g.push_self
-            g.dup_top; g.send(:"__index_of_"field"_field__", 0)
-            g.push_local(0) # value
-          g.send(:__tuple_put__, 2)
-          
-          g.ret
-        }
       }
     )
   }
@@ -65,9 +31,8 @@
   const field: Decorator {
     apply: |meme| {
       meme.target.fields.push(meme.name)
-      meme.target.declare_meme(:"__populate_"meme.name"_field__", [], meme.body)
     }
     [transforms]
-    expose: false
+    field: true
   }
 }

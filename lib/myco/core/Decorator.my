@@ -14,6 +14,7 @@
     self .? body(meme)   .tap |x| { meme.body    = x }
     self .? cache(meme)  .tap |x| { meme.cache   = x }
     self .? var(meme)    .tap |x| { meme.var     = x }
+    self .? field(meme)  .tap |x| { meme.field   = x }
     self .? expose(meme) .tap |x| { meme.expose  = x }
   }
 }

@@ -46,6 +46,7 @@ module Myco
     attr_accessor :body
     attr_accessor :cache
     attr_accessor :var
+    attr_accessor :field
     attr_accessor :expose
     attr_accessor :setter
     attr_accessor :getter
@@ -67,6 +68,7 @@ module Myco
       self.body   = blk  if blk
       self.cache  = false
       self.var    = false
+      self.field  = false
       self.expose = true
       
       @metadata = {}
@@ -124,6 +126,12 @@ module Myco
       @var
     end
     
+    def field= value
+      @field = value
+      bind if @bound
+      @field
+    end
+    
     def to_proc
       Proc.__from_block__(@body.block_env)
     end
@@ -137,7 +145,7 @@ module Myco
       # TODO: consider removing
       @target.include(::Myco::PrimitiveInstanceMethods) unless @target < ::Myco::PrimitiveInstanceMethods
       
-      if @var
+      if @var || @field
         bind_var_getter
         bind_var_setter
         @effective_body = @target.instance_method(@name).executable
@@ -269,16 +277,26 @@ module Myco
         g.set_local 1 # meme
         g.pop
         
-        ##
-        # if __ivar_defined__(#{name})
-        #   @#{name} = meme.body.invoke meme.name, @target, obj, [], nil
-        # end
-        # return @#{name}
-        #
-        g.push_self
-        g.push_literal(:"@#{@name}")
-        g.send(:__ivar_defined__, 1)
-        g.goto_if_true(get)
+        if @field
+          g.push_self
+            g.push_self; g.send(:"__index_of_#{@name}_field__", 0)
+          g.send(:__tuple_at__, 1)
+          
+          g.dup
+          g.goto_if_not_undefined(ret)
+          g.pop
+        else
+          ##
+          # if __ivar_defined__(#{name})
+          #   @#{name} = meme.body.invoke meme.name, @target, obj, [], nil
+          # end
+          # return @#{name}
+          #
+          g.push_self
+          g.push_literal(:"@#{@name}")
+          g.send(:__ivar_defined__, 1)
+          g.goto_if_true(get)
+        end
         
         g.push_local 1 # meme
         g.send :body, 0
@@ -288,12 +306,24 @@ module Myco
           g.make_array 0
           g.push_nil
         g.send :invoke, 5
-        g.set_ivar(:"@#{@name}")
         
-        g.goto(ret)
+        if @field
+          g.push_self
+            g.swap; g.push_self; g.send(:"__index_of_#{@name}_field__", 0)
+            g.swap # value
+          g.send(:__tuple_put__, 2)
+        else
+          g.set_ivar(:"@#{@name}")
+        end
         
-        get.set!
-        g.push_ivar(:"@#{@name}")
+        if @field
+          # nothing
+        else
+          g.goto(ret)
+          
+          get.set!
+          g.push_ivar(:"@#{@name}")
+        end
         
         ret.set!
         
@@ -330,7 +360,14 @@ module Myco
           g.send(:call_on_object, 2)
         end
         
-        g.set_ivar(:"@#{@name}")
+        if @field
+          g.push_self
+            g.swap; g.push_self; g.send(:"__index_of_#{@name}_field__", 0)
+            g.swap # value
+          g.send(:__tuple_put__, 2)
+        else
+          g.set_ivar(:"@#{@name}")
+        end
         
         g.ret
       end
