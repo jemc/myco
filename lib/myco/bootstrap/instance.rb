@@ -19,6 +19,16 @@ end
 
 module Myco
   module PrimitiveInstanceMethods
+    def __tuple_at__ idx
+      Rubinius.primitive :tuple_at
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :tuple_at failed"
+    end
+    
+    def __tuple_put__ idx, val
+      Rubinius.primitive :tuple_put
+      ::Kernel.raise ::PrimitiveFailure, "Rubinius.primitive :tuple_put failed"
+    end
+    
     # These methods are taken from Ruby's Kernel.
     # TODO: Audit which of these should remain.
     
