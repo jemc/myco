@@ -1,20 +1,20 @@
 
 ::Myco::Struct < ::Myco::BasicObject {
   static var fields: []
+  static var struct_layout_known_fields: []
   
-  static var struct_class: {
-    component = self
-    Ruby::Class.new(Rubinius::Tuple) {
-      component.include_into(self)
-      
-      component.fields.each_with_index |field, index| {
+  static __tuple_size__: struct_layout; fields.size
+  
+  static struct_layout: {
+    fields == struct_layout_known_fields &? fields ?? (
+      fields.each_with_index |field, index| {
         # Define getter method
         dynamic_method(field) |g| {
           ret_label = g.new_label
           
           g.push_self
             g.push_int(index)
-          g.send(:"[]", 1)
+          g.send(:__tuple_at__, 1)
           
           g.dup
           g.goto_if_not_undefined(ret_label)
@@ -23,7 +23,7 @@
           g.push_self
             g.push_int(index)
             g.push_self; g.send(:"__populate_"field"_field__", 0)
-          g.send(:"[]=", 2)
+          g.send(:__tuple_put__, 2)
           
           ret_label.set!
           g.ret
@@ -37,22 +37,26 @@
           g.push_self
             g.push_int(index)
             g.push_local(0) # value
-          g.send(:"[]=", 2)
+          g.send(:__tuple_put__, 2)
           
           g.ret
         }
       }
-    }
+    )
   }
   
   static cast: |tuple| {
+    struct_layout
     fields.size > tuple.size && (
       new_tuple = Rubinius::Tuple.pattern(fields.size, Myco.undefined)
       new_tuple.copy_from(tuple, 0, tuple.size, 0)
       tuple = new_tuple
     )
-    Rubinius::Unsafe.set_class(tuple, struct_class)
+    Rubinius::Unsafe.set_class(tuple, self)
   }
+  
+  "[]":  |index|        __tuple_at__(index)
+  "[]=": |index, value| __tuple_put__(index, value)
   
   [decorators]
   
