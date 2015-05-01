@@ -170,7 +170,7 @@ rule sepd_constant:
 
 rule constant_list:
   r(constant[:n0] + sepd_constant.*[:nrest])
-    { ast.array(n0, [n0, *nrest]) }
+    { [n0, *nrest] }
 
 ##
 # Bare identifiers
@@ -229,7 +229,7 @@ rule extension:
     + C.spc.* + constant_list.-[:nl]
     + C.spc.* + explicit_evaluator.-[:ne]
     + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
-    { ast.extension(tb, ne, nc, nl || ast.array(tb, []), nb) }
+    { ast.extension(tb, ne, nc, nl || [], nb) }
 
 rule category:
   r(category_name[:n0]
@@ -247,8 +247,8 @@ rule declstr_body:
     { ast.str(tb, ts.text) }
 
 rule declstr:
-  r(constant_list[:nc] + C.spc.+ + declstr_body[:nb])
-    { ast.declstr(nc, nc, nb) }
+  r(constant_list[:nl] + C.spc.+ + declstr_body[:nb])
+    { ast.declstr(nb, nl, nb) }
 
 ##
 # Assignment
