@@ -243,12 +243,14 @@ rule category:
 
 rule declstr_body:
   r(T.declstr_begin[:tb] + C.spc.* + C.nl
-  + T.declstr_body[:ts] + C.spc_nl.* + T.declstr_end)
+    + T.declstr_body[:ts] + C.spc_nl.* + T.declstr_end)
     { ast.str(tb, ts.text) }
 
 rule declstr:
-  r(constant_list[:nl] + C.spc.+ + declstr_body[:nb])
-    { ast.declstr(nb, nl, nb) }
+  r(constant_list[:nl]
+    + C.spc.* + explicit_evaluator.-[:ne]
+    + C.spc.* + declstr_body[:nb])
+    { ast.declstr(nb, ne, nl, nb) }
 
 ##
 # Assignment

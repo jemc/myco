@@ -171,7 +171,7 @@ CodeTools::AST << {
   DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareString      << { to_ruby: |g| evaluate_to_ruby(g) }
+  DeclareString      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g, self.evaluator); g.line }
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   
