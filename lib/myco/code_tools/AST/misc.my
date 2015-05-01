@@ -33,6 +33,11 @@ CodeTools::AST << {
     bytecode: |g| pos(g); g.push_false
   }
   
+  # Used in situations where no locator is available (like an empty file)
+  NoLocator < BasicObject {
+    var line: 1
+  }
+  
   # TODO: use some other way to be eager
   EVALUATE_NOW: CodeTools::AST.component_eval {
     constants.select |const_name| {
@@ -47,6 +52,11 @@ CodeTools::AST << {
         kw = [:line, *fields].zip([loc.line, *args])
         component.new(kw.to_h)
       }
+    }
+    
+    component = NoLocator
+    BuilderMethods.declare_meme(:no_loc) |*args| {
+      component.new
     }
   }
 }

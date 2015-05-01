@@ -3,7 +3,7 @@ CodeTools::AST << {
   
   DeclareObject < Node {
     node_type object
-    field evaluator, field types, field body
+    field evaluator, field types, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
@@ -12,7 +12,7 @@ CodeTools::AST << {
     data_array: [:object,
       self.line,
       self.types.body.map |item| { item.data_array },
-      self.body.array.map |item| { item.data_array },
+      self.contents.map |item| { item.data_array },
     ]
     
     data_bytecode: |g| {
@@ -20,8 +20,8 @@ CodeTools::AST << {
       g.push_literal(self.line)
         self.types.body.each |item| { item.data_bytecode(g) }
       g.make_array(self.types.body.count)
-        self.body.array.each |item| { item.data_bytecode(g) }
-      g.make_array(self.body.array.count)
+        self.contents.each |item| { item.data_bytecode(g) }
+      g.make_array(self.contents.count)
       g.make_array(4)
     }
   }

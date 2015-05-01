@@ -190,18 +190,24 @@ rule declobj_sepd_exprs:
     { [n0, *nrest] }
 
 rule declobj_expr_body:
-  r(arg_sep_opt + declobj_sepd_exprs[:nlist] + T.declare_end[:te])
-    { ast.sequence(nlist.first, nlist) }
-/ r(arg_sep_opt + T.declare_end[:te])
-    { ast.sequence(te, []) }
+  r(arg_sep_opt + declobj_sepd_exprs.-[:nlist] + T.declare_end[:te])
+    { nlist || [] }
+
+category_expr:
+  declobj_expr_not_category
+
+rule category_sepd_expr:
+  r(arg_sep + category_expr[:n0]) { n0 }
 
 rule explicit_evaluator:
   r(C.spc.* + T.args_begin + C.spc.* + constant[:n0] + C.spc.* + T.args_end)
     { n0 }
 
-rule file: 
-  r(C.spc.* + explicit_evaluator.-[:ne] + declobj_expr_body[:n0])
-    { ast.file(ne || n0, ne, n0) }
+rule file:
+  r(C.spc.*
+    + explicit_evaluator.-[:ne]
+    + declobj_expr_body[:n0])
+    { ast.file(ast.no_loc, ne, n0) }
 
 rule object:
   r(constant_list[:nl]
@@ -224,12 +230,6 @@ rule extension:
     + C.spc.* + explicit_evaluator.-[:ne]
     + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
     { ast.extension(tb, ne, nc, nl || ast.array(tb, []), nb) }
-
-category_expr:
-  declobj_expr_not_category
-
-rule category_sepd_expr:
-  r(arg_sep + category_expr[:n0]) { n0 }
 
 rule category:
   r(category_name[:n0]
