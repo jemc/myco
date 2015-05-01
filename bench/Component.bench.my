@@ -2,11 +2,23 @@
 import './BasicBench.my'
 
 BasicBench {
-  # TODO: make Myco's Object __signal__ more efficient and use Object as super
   MycoToken < BasicObject {
     var type
     var text
     var line
+    
+    inspect: [type, text, line].inspect
+    to_s:    [type, text, line].inspect
+    
+    sym:      text.to_sym
+    float:    send("Float", text)
+    integer:  send("Integer", text)
+  }
+  
+  MycoStructToken < Myco::Struct {
+    field type
+    field text
+    field line
     
     inspect: [type, text, line].inspect
     to_s:    [type, text, line].inspect
@@ -39,6 +51,8 @@ BasicBench {
   
   [tasks]
   
-  "Ruby Class#new"      : RubyToken.new(type:'foo', text:'bar', line:88)
-  "Myco::Component#new" : MycoToken.new(type:'foo', text:'bar', line:88)
+  "Ruby Class#new"        : RubyToken.new(type:'foo', text:'bar', line:88)
+  "Myco::BasicObject.new" : MycoToken.new(type:'foo', text:'bar', line:88)
+  "Myco::Struct.new"      : MycoStructToken.new(type:'foo', text:'bar', line:88)
+  "Myco::Struct.cast"     : MycoStructToken.cast_args('foo', 'bar', 88)
 }
