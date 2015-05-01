@@ -9,7 +9,15 @@ module Myco
       __send__(:"evaluate_#{type}", cscope, *rest, &block)
     end
     
+    def self.evaluation_exception(within, line, e)
+      # Make the exception message more helpful without obfuscating the backtrace
+      e.instance_variable_set(:@reason_message,
+        "While evaluating #{within} on line #{line}:\n#{e.message}")
+      raise e
+    end
+    
     def self.evaluate_file(cscope, contents)
+      line = 1 # TODO: get this as an argument (for consistency)
       component = ::Myco::Component.new(
         [::Myco::FileToplevel],
         cscope.for_method_definition,
@@ -24,10 +32,8 @@ module Myco
       component.instance
       
     rescue Exception => e
-      # Make the exception message more helpful without obfuscating the backtrace
       filename = cscope.respond_to?(:active_path) && cscope.active_path
-      e.instance_variable_set(:@reason_message, "While evaluating #{filename}:\n#{e.message}")
-      raise e
+      evaluation_exception(filename, line, e)
     end
     
     def self.evaluate_component(cscope, line, constant, types, contents)
@@ -49,10 +55,7 @@ module Myco
       component
       
     rescue Exception => e
-      # Make the exception message more helpful without obfuscating the backtrace
-      filename = cscope.respond_to?(:active_path) && cscope.active_path
-      e.instance_variable_set(:@reason_message, "While evaluating component starting on line #{line}:\n#{e.message}")
-      raise e
+      evaluation_exception("component", line, e)
     end
     
     def self.evaluate_object(cscope, line, types, contents)
@@ -71,10 +74,7 @@ module Myco
       component.instance
       
     rescue Exception => e
-      # Make the exception message more helpful without obfuscating the backtrace
-      filename = cscope.respond_to?(:active_path) && cscope.active_path
-      e.instance_variable_set(:@reason_message, "While evaluating object starting on line #{line}:\n#{e.message}")
-      raise e
+      evaluation_exception("object", line, e)
     end
     
     def self.evaluate_category(cscope, line, name, contents)
@@ -85,10 +85,7 @@ module Myco
       contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
     rescue Exception => e
-      # Make the exception message more helpful without obfuscating the backtrace
-      filename = cscope.respond_to?(:active_path) && cscope.active_path
-      e.instance_variable_set(:@reason_message, "While evaluating category starting on line #{line}:\n#{e.message}")
-      raise e
+      evaluation_exception("category", line, e)
     end
     
     def self.evaluate_extension(cscope, line, constant, types, contents)
@@ -101,10 +98,7 @@ module Myco
       
       component
     rescue Exception => e
-      # Make the exception message more helpful without obfuscating the backtrace
-      filename = cscope.respond_to?(:active_path) && cscope.active_path
-      e.instance_variable_set(:@reason_message, "While evaluating extension starting on line #{line}:\n#{e.message}")
-      raise e
+      evaluation_exception("extension", line, e)
     end
     
     def self.evaluate_meme(cscope, name, decorations, body)
