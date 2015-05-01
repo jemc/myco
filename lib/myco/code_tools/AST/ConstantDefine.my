@@ -5,9 +5,6 @@ CodeTools::AST << {
     node_type cdefn
     field constant, field object
     
-    # TODO: don't set AST state from here
-    setter object: |given| given.create = false; given
-    
     bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
