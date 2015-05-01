@@ -169,7 +169,7 @@ module Myco
         @compiled_code || make_compiled_code
         code = @compiled_code
         
-        code.scope = @constant_scope
+        code.scope = @constant_scope || raise("JITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
         script = Rubinius::CompiledCode::Script.new(code, @filename, true)
         script.eval_source = @string
         code.scope.script = script

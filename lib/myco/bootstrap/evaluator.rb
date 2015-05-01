@@ -85,14 +85,20 @@ module Myco
       contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
     end
     
-    def self.evaluate_extension(cscope, constant, contents)
+    def self.evaluate_extension(cscope, line, constant, types, contents)
       component = evaluate(cscope, constant)
+      # TODO: inject the given types like includes/super_components
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
       inner_cscope.myco_evctx.set_myco_component
       contents.each { |item| evaluate(inner_cscope, item) }
       
       component
+    rescue Exception => e
+      # Make the exception message more helpful without obfuscating the backtrace
+      filename = cscope.respond_to?(:active_path) && cscope.active_path
+      e.instance_variable_set(:@reason_message, "While evaluating extension starting on line #{line}:\n#{e.message}")
+      raise e
     end
     
     def self.evaluate_meme(cscope, name, decorations, body)

@@ -19,7 +19,7 @@ rule root:
 rule decl:
   object
 / declstr
-/ copen
+/ extension
 
 # Expressions allowable inside object declarations
 rule declobj_expr:
@@ -215,9 +215,13 @@ rule component:
     + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
     { ast.component(tb, ne, nc, nl, nb) }
 
-rule copen:
-  r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
-    { ast.copen(tb, n0, n1) }
+rule extension:
+  r(constant[:nc]
+    + C.spc.* + T.reopen
+    + C.spc.* + constant_list.-[:nl]
+    + C.spc.* + explicit_evaluator.-[:ne]
+    + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
+    { ast.extension(tb, ne, nc, nl || ast.array(tb, []), nb) }
 
 rule category_expr:
   declobj_expr_not_category
