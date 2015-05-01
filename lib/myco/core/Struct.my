@@ -1,24 +1,19 @@
 
 ::Myco::Struct < ::Myco::BasicObject {
   static var fields: []
-  static var struct_layout_known_fields: []
   
-  static __tuple_size__: struct_layout; fields.size
-  
-  static struct_layout: {
-    fields == struct_layout_known_fields &? fields ?? (
-      fields.each_with_index |field, index| {
-        thunk_method(:"__index_of_"field"_field__", index)
-      }
-    )
+  static lay_out_fields!: {
+    singleton_class.thunk_method(:__tuple_size__, fields.size)
+    fields.each_with_index |field, index| {
+      thunk_method(:"__index_of_"field"_field__", index)
+    }
   }
   
   static cast_args: |*args| cast(args.__tuple__)
   
   static cast: |tuple| {
-    struct_layout
-    fields.size > tuple.size && (
-      new_tuple = Rubinius::Tuple.pattern(fields.size, Myco.undefined)
+    __tuple_size__ > tuple.size && (
+      new_tuple = Rubinius::Tuple.pattern(__tuple_size__, Myco.undefined)
       new_tuple.copy_from(tuple, 0, tuple.size, 0)
       tuple = new_tuple
     )
@@ -33,6 +28,7 @@
   const field: Decorator {
     apply: |meme| {
       meme.target.fields.push(meme.name)
+      meme.target.lay_out_fields!
     }
     [transforms]
     field: true
