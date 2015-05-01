@@ -13,6 +13,8 @@
     )
   }
   
+  static cast_args: |*args| cast(args.__tuple__)
+  
   static cast: |tuple| {
     struct_layout
     fields.size > tuple.size && (
