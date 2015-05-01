@@ -3,24 +3,24 @@ CodeTools::AST << {
   
   DeclareCategory < Node {
     node_type category
-    field name, field body
+    field evaluator, field name, field contents
     
-    bytecode: |g| evaluate_bytecode(g)
+    bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:category,
+      self.line,
       self.name,
-      self.body.array.map |item| { item.data_array },
+      self.contents.map |item| { item.data_array },
     ]
     
     data_bytecode: |g| {
-      pos(g)
-      
       g.push_literal(:category)
+      g.push_literal(self.line)
       g.push_literal(self.name)
-        self.body.array.each |item| { item.data_bytecode(g) }
-      g.make_array(self.body.array.size)
-      g.make_array(3)
+        self.contents.each |item| { item.data_bytecode(g) }
+      g.make_array(self.contents.size)
+      g.make_array(4)
     }
   }
   
