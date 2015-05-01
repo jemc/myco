@@ -1,28 +1,30 @@
 
 CodeTools::AST << {
   
-  DeclareObject < Node {
-    node_type object
-    field evaluator, field types, field body
+  DeclareComponent < Node {
+    node_type component
+    field evaluator, field constant, field types, field body
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode
     # TODO: pass evaluator as data
-    data_array: [:object,
+    data_array: [:component,
       self.line,
+      self.constant.data_array,
       self.types.body.map |item| { item.data_array },
       self.body.array.map |item| { item.data_array },
     ]
     
     data_bytecode: |g| {
-      g.push_literal(:object)
+      g.push_literal(:component)
       g.push_literal(self.line)
+      self.constant.data_bytecode(g)
         self.types.body.each |item| { item.data_bytecode(g) }
       g.make_array(self.types.body.count)
         self.body.array.each |item| { item.data_bytecode(g) }
       g.make_array(self.body.array.count)
-      g.make_array(4)
+      g.make_array(5)
     }
   }
   

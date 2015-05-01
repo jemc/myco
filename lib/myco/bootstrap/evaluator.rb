@@ -30,10 +30,7 @@ module Myco
       raise e
     end
     
-    def self.evaluate_component(cscope, line, types, contents)
-      create = !Thread.current[:myco_evaluate_define]
-      Thread.current[:myco_evaluate_define] = false
-      
+    def self.evaluate_component(cscope, line, constant, types, contents)
       supers = types.map { |type| evaluate(cscope, type) }
       component = ::Myco::Component.new(
         supers,
@@ -42,18 +39,41 @@ module Myco
         line
       )
       
-      yield component if block_given?
+      component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
+      assign_constant(cscope, *constant, component)
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
       inner_cscope.myco_evctx.set_myco_component
       component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
-      create ? component.instance : component
+      component
       
     rescue Exception => e
       # Make the exception message more helpful without obfuscating the backtrace
       filename = cscope.respond_to?(:active_path) && cscope.active_path
       e.instance_variable_set(:@reason_message, "While evaluating component starting on line #{line}:\n#{e.message}")
+      raise e
+    end
+    
+    def self.evaluate_object(cscope, line, types, contents)
+      supers = types.map { |type| evaluate(cscope, type) }
+      component = ::Myco::Component.new(
+        supers,
+        cscope.for_method_definition,
+        cscope.active_path.to_s,
+        line
+      )
+      
+      inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
+      inner_cscope.myco_evctx.set_myco_component
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
+      
+      component.instance
+      
+    rescue Exception => e
+      # Make the exception message more helpful without obfuscating the backtrace
+      filename = cscope.respond_to?(:active_path) && cscope.active_path
+      e.instance_variable_set(:@reason_message, "While evaluating object starting on line #{line}:\n#{e.message}")
       raise e
     end
     
@@ -99,19 +119,10 @@ module Myco
       rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }
     end
     
-    def self.evaluate_define(cscope, constant, component_data)
-      Thread.current[:myco_evaluate_define] = true # TODO: use cscope instead?
-      
-      evaluate(cscope, component_data) { |component|
-        component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
-        assign_constant(cscope, *constant, component)
-      }
-    end
-    
     
     # TODO: deprecate/remove
     def self.evaluate_from_string(cscope, line, types, string)
-      object = evaluate_component(cscope, line, types, [])
+      object = evaluate_object(cscope, line, types, [])
       object.from_string(string)
     end
     

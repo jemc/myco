@@ -167,9 +167,9 @@ CodeTools::AST << {
   Script << { to_ruby: |g| g.add(self.body) }
   
   ConstantAccess     << { to_ruby: |g| evaluate_to_ruby(g) }
-  ConstantDefine     << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareString      << { to_ruby: |g| evaluate_to_ruby(g) }
   DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g); g.line }
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g) }

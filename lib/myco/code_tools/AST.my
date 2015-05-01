@@ -36,9 +36,9 @@ import 'AST/ParameterAssembly.my'
 import 'AST/BlockLiteral.my'
 
 import 'AST/ConstantAccess.my'
-import 'AST/ConstantDefine.my'
 
 import 'AST/DeclareObject.my'
+import 'AST/DeclareComponent.my'
 import 'AST/DeclareString.my'
 import 'AST/DeclareFile.my'
 import 'AST/DeclareExtension.my'

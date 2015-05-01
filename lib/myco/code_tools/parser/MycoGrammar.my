@@ -17,7 +17,7 @@ rule root:
 
 # Declarations
 rule decl:
-  declobj
+  object
 / declstr
 / copen
 
@@ -29,7 +29,7 @@ rule declobj_expr:
 # Expressions allowable inside object declarations that is not a category 
 rule declobj_expr_not_category:
   decl
-/ cdefn
+/ component
 / meme
 / constant
 
@@ -201,11 +201,23 @@ rule explicit_evaluator:
   r(T.args_begin + C.spc.* + constant[:n0] + C.spc.* + T.args_end)
     { n0 }
 
-rule declobj:
-  r(constant_list[:n0]
-    + C.spc.* + explicit_evaluator.-[:n1]
-    + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:n2])
-    { ast.declobj(tb, n0, n1, n2) }
+rule object:
+  r(constant_list[:nl]
+    + C.spc.* + explicit_evaluator.-[:ne]
+    + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
+    { ast.object(tb, ne, nl, nb) }
+
+rule component:
+  r(constant[:nc]
+    + C.spc.* + T.define
+    + C.spc.* + constant_list[:nl]
+    + C.spc.* + explicit_evaluator.-[:ne]
+    + C.spc.* + T.declare_begin[:tb] + declobj_expr_body[:nb])
+    { ast.component(tb, ne, nc, nl, nb) }
+
+rule copen:
+  r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
+    { ast.copen(tb, n0, n1) }
 
 rule category_expr:
   declobj_expr_not_category
@@ -222,14 +234,6 @@ rule category:
       + !!(arg_sep_opt + (T.catgry_begin / T.declare_end)))
       { ast.category(n0, n0.value,
         (nlist &? ast.sequence(nlist.first, nlist) ?? ast.sequence(n0, []))) }
-
-rule copen:
-  r(constant[:n0] + C.spc_nl.* + T.reopen[:tb] + C.spc_nl.* + T.declare_begin + declobj_expr_body[:n1])
-    { ast.copen(tb, n0, n1) }
-
-rule cdefn:
-  r(constant[:n0] + C.spc_nl.* + T.define[:tb] + C.spc_nl.* + declobj[:n1])
-    { ast.cdefn(tb, n0, n1) }
 
 ##
 # String object declarations
