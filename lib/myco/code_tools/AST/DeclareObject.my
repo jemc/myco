@@ -3,7 +3,7 @@ CodeTools::AST << {
   
   DeclareObject < Node {
     node_type declobj
-    field types, field body, field evaluator
+    field types, field evaluator, field body
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
