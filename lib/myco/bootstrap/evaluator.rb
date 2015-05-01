@@ -16,13 +16,12 @@ module Myco
       raise e
     end
     
-    def self.evaluate_file(cscope, contents)
-      line = 1 # TODO: get this as an argument (for consistency)
+    def self.evaluate_file(cscope, line, contents)
       component = ::Myco::Component.new(
         [::Myco::FileToplevel],
         cscope.for_method_definition,
         cscope.active_path.to_s,
-        1
+        line
       )
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)

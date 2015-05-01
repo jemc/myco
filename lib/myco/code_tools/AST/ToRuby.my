@@ -172,7 +172,7 @@ CodeTools::AST << {
   DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareString      << { to_ruby: |g| evaluate_to_ruby(g) }
-  DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g); g.line }
+  DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g, self.evaluator); g.line }
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }

@@ -2,23 +2,23 @@
 CodeTools::AST << {
   
   DeclareFile < Node {
-    node_type declfile
-    field body
+    node_type file
+    field evaluator, field body
     
-    bytecode: |g| evaluate_bytecode(g)
+    bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:file,
+      self.line,
       self.body.array.map |item| { item.data_array },
     ]
     
     data_bytecode: |g| {
-      pos(g)
-      
       g.push_literal(:file)
+      g.push_literal(self.line)
         self.body.array.each |item| { item.data_bytecode(g) }
       g.make_array(self.body.array.count)
-      g.make_array(2)
+      g.make_array(3)
     }
   }
   
