@@ -5,9 +5,6 @@ CodeTools::AST << {
     node_type decoration
     field name, field arguments
     
-    setter arguments: |x|
-      x || ArrayAssembly.new(line:self.line, body:[])
-    
     bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
@@ -17,8 +14,6 @@ CodeTools::AST << {
     ]
     
     data_bytecode: |g| {
-      pos(g)
-      
       g.push_literal(:decoration)
       self.name.bytecode(g)
       self.arguments.bytecode(g)

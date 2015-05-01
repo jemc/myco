@@ -591,21 +591,21 @@ rule meme_name:
 
 rule decoration:
   r(meme_name[:ni] + arg_list.-[:na])
-    { ast.decoration(ni, ni, na) }
+    { ast.decoration(ni, ni, na || ast.array(ni, [])) }
 
 rule sepd_decoration:
   r(C.spc.* + decoration[:n]) { n }
 
 rule decorations_and_meme_name:
   r(decoration[:n0] + sepd_decoration.*[:nrest])
-    { ast.array(n0, [n0, *nrest].reverse) }
+    { [n0, *nrest] }
 
 rule meme:
-  r(decorations_and_meme_name[:nd]
+  r(decorations_and_meme_name[:nlist]
       + C.spc.* + T.meme_mark[:tm]
       + (r(C.spc_nl.* + param_list.-[:n]) { n })[:np]
       + C.spc_nl.* + meme_either_body[:nb])
-    { ast.meme(tm, nd.body.shift.name, nd, np, nb) }
-/ r(decorations_and_meme_name[:nd])
-    { ast.meme(nd, nd.body.shift.name, nd, null, null) }
+    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, np || ast.params(nm, [], [], ast.restprm(nm), [], [], [], null, null), nb) }
+/ r(decorations_and_meme_name[:nlist])
+    { nm = nlist.pop.name; ast.meme(nm, nm, nlist) }
 }

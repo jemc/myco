@@ -3,14 +3,9 @@ CodeTools::AST << {
   
   DeclareMeme < Node {
     node_type meme
-    field name, field decorations, field parameters, field body
-    
-    setter decorations: |x|
-      x || ArrayAssembly.new(line:line, body:[])
-    setter parameters: |x|
-      x || ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
-    setter body: |x|
-      x || NullLiteral.new(line:line)
+    field name, field decorations
+    field parameters:  ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
+    field body:        NullLiteral.new(line:line)
     
     bytecode: |g| evaluate_bytecode(g)
     
@@ -26,17 +21,15 @@ CodeTools::AST << {
     # TODO: don't be redundant with data_bytecode
     data_array: [:meme,
       self.name.?data_array ?? self.name.to_literal,
-      self.decorations.body.map(&:data_array),
+      self.decorations.map(&:data_array),
       self.data_body_implementation, # TODO: body implementation as actual data
     ]
     
     data_bytecode: |g| {
-      pos(g)
-      
       g.push_literal(:meme)
       self.name.data_bytecode(g)
-        self.decorations.body.each |item| { item.data_bytecode(g) }
-      g.make_array(self.decorations.body.size)
+        self.decorations.each |item| { item.data_bytecode(g) }
+      g.make_array(self.decorations.size)
       data_body_implementation.bytecode(g)
       g.make_array(4)
     }
