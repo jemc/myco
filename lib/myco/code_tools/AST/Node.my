@@ -48,7 +48,7 @@ CodeTools::AST << {
       item.?data_array ?? (
         item &? (
           item.is_a?(Array) &? (
-            item.map |subitem| { subitem.data_array }
+            item.map |subitem| { data_array_visit(subitem) }
           ) ?? item
         ) ?? null
       )
@@ -58,7 +58,7 @@ CodeTools::AST << {
       item.?data_bytecode(g) ?? (
         item &? (
           item.is_a?(Array) &? (
-            item.each |subitem| { subitem.data_bytecode(g) }
+            item.each |subitem| { data_bytecode_visit(g, subitem) }
             g.make_array(item.size)
           ) ?? g.push_literal(item)
         ) ?? g.push_null
