@@ -2,7 +2,7 @@
 CodeTools::AST << {
   
   StringLiteral < Node {
-    node_type str
+    node_type string
     field value
     
     to_literal: self.value

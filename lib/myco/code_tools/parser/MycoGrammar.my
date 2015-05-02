@@ -248,7 +248,7 @@ rule category:
 rule declstr_body:
   r(T.declstr_begin[:tb] + C.spc.* + C.nl
     + T.declstr_body[:ts] + C.spc_nl.* + T.declstr_end)
-    { ast.str(tb, ts.text) }
+    { ast.string(tb, ts.text) }
 
 rule declstr:
   r(constant_list[:nl]
