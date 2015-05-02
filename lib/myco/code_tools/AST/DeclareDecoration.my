@@ -9,14 +9,14 @@ CodeTools::AST << {
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:decoration,
-      self.name.to_literal,
-      self.arguments.to_literal,
+      self.name.data_array,
+      self.arguments.to_literal, # TODO: data_array
     ]
     
     data_bytecode: |g| {
       g.push_literal(:decoration)
-      self.name.bytecode(g)
-      self.arguments.bytecode(g)
+      self.name.data_bytecode(g)
+      self.arguments.bytecode(g) # TODO: data_bytecode
       g.make_array(3)
     }
   }

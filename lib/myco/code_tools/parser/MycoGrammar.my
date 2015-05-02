@@ -607,7 +607,7 @@ rule meme:
   r(decorations_and_meme_name[:nlist]
       + C.spc.* + T.meme_mark[:tm]
       + C.spc_nl.* + meme_either_body_as_block[:nb])
-    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, nb) }
+    { nm = nlist.pop; ast.meme(nm, nm, nlist, nb) }
 / r(decorations_and_meme_name[:nlist])
-    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, null) }
+    { nm = nlist.pop; ast.meme(nm, nm, nlist, null) }
 }

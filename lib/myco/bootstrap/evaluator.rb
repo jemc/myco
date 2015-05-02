@@ -100,27 +100,38 @@ module Myco
       evaluation_exception("extension", line, e)
     end
     
+    def self.decoration_node_type(d, name, arguments)
+      name[0]
+    end
+    
+    def self.decoration_as_name(d, name, arguments)
+      name[1]
+    end
+    
+    def self.decoration_as_decoration(d, name, arguments)
+      [name[1], arguments]
+    end
+    
+    def self.decoration_as_constant_data(d, name, arguments)
+      name
+    end
+    
     def self.evaluate_meme(cscope, name, decorations, body)
       # TODO: bring these two cases more semantically close together
-      case name[0]
+      case decoration_node_type(*name)
       when :symbol
-        name = name[1]
         inner_cscope = ::Rubinius::ConstantScope.new(cscope.module, cscope)
         body ||= ->{}
         body.block.instance_variable_set(:@constant_scope, inner_cscope)
-        decorations = decorations.reverse.map { |deco| evaluate(cscope, deco) }
-        inner_cscope.for_method_definition.declare_meme(name, decorations, &body)
+        decorations = decorations.reverse.map { |deco| decoration_as_decoration(*deco) }
+        inner_cscope.for_method_definition.declare_meme(decoration_as_name(*name), decorations, &body)
       when :const
-        constant = name
+        constant = decoration_as_constant_data(*name)
         body.block.instance_variable_set(:@constant_scope, cscope)
         assign_constant(cscope, *constant, body.call)
       else
-        raise NotImplementedError, name[0].to_s
+        raise NotImplementedError, decoration_node_type(*name)
       end
-    end
-    
-    def self.evaluate_decoration(cscope, name, arguments)
-      [name, arguments] # TODO: try applying the decoration here
     end
     
     def self.evaluate_const(cscope, line, toplevel, names)

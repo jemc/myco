@@ -6,7 +6,7 @@ BasicSpec {
   name: "Evaluators"
   
   TestEvaluator: BasicObject {
-    evaluate: |cscope, data| data.last.map |item| { item[1][1] }
+    evaluate: |cscope, data| data.last.map |item| { item[1][1][1] }
   }
   
   subject: Object (TestEvaluator) { var foo, var bar, var baz }
