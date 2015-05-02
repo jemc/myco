@@ -102,15 +102,19 @@ module Myco
     
     def self.evaluate_meme(cscope, name, decorations, body)
       # TODO: bring these two cases more semantically close together
-      if name.is_a?(Symbol)
+      case name[0]
+      when :symbol
+        name = name[1]
         inner_cscope = ::Rubinius::ConstantScope.new(cscope.module, cscope)
         body.block.instance_variable_set(:@constant_scope, inner_cscope)
         decorations = decorations.reverse.map { |deco| evaluate(cscope, deco) }
         inner_cscope.for_method_definition.declare_meme(name, decorations, &body)
-      else
+      when :const
         constant = name
         body.block.instance_variable_set(:@constant_scope, cscope)
         assign_constant(cscope, *constant, body.call)
+      else
+        raise NotImplementedError, name[0].to_s
       end
     end
     

@@ -20,7 +20,7 @@ CodeTools::AST << {
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:meme,
-      self.name.?data_array ?? self.name.to_literal,
+      self.name.data_array,
       self.decorations.map(&:data_array),
       self.data_body_implementation, # TODO: body implementation as actual data
     ]
