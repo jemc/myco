@@ -111,6 +111,10 @@ rule block_body:
   r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
     { ast.block(nb, np, nb) }
 
+rule open_block_body:
+  r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_inline_expr_body[:nb])
+    { ast.block(nb, np, nb) }
+
 ##
 # Enclosed literals
 
@@ -580,9 +584,8 @@ rule paren_expr:
 rule meme_enclosed_expr_body:
   r(T.meme_begin + meme_expr_body[:n0]) { n0 }
 
-rule meme_either_body:
-  meme_enclosed_expr_body
-/ meme_inline_expr_body
+rule meme_either_body_as_block:
+  r((block_body / open_block_body)[:n0]) { ast.blklit(n0, n0) }
 
 rule meme_name:
   id_as_symbol
@@ -603,9 +606,8 @@ rule decorations_and_meme_name:
 rule meme:
   r(decorations_and_meme_name[:nlist]
       + C.spc.* + T.meme_mark[:tm]
-      + (r(C.spc_nl.* + param_list.-[:n]) { n })[:np]
-      + C.spc_nl.* + meme_either_body[:nb])
-    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, np || ast.params(nm, [], [], ast.restprm(nm), [], [], [], null, null), nb) }
+      + C.spc_nl.* + meme_either_body_as_block[:nb])
+    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, nb) }
 / r(decorations_and_meme_name[:nlist])
-    { nm = nlist.pop.name; ast.meme(nm, nm, nlist) }
+    { nm = nlist.pop.name; ast.meme(nm, nm, nlist, null) }
 }

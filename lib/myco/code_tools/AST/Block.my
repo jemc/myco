@@ -9,7 +9,7 @@ CodeTools::AST << {
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
-    setter parameters: |given| given || ParameterAssembly.new(line:self.line)
+    setter parameters: |given| given || ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
     setter body:       |given| given || NullLiteral.new(line:self.line)
     
     locals: self.body.?locals.?body.map(&:value) ?? null

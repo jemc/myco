@@ -106,6 +106,7 @@ module Myco
       when :symbol
         name = name[1]
         inner_cscope = ::Rubinius::ConstantScope.new(cscope.module, cscope)
+        body ||= ->{}
         body.block.instance_variable_set(:@constant_scope, inner_cscope)
         decorations = decorations.reverse.map { |deco| evaluate(cscope, deco) }
         inner_cscope.for_method_definition.declare_meme(name, decorations, &body)

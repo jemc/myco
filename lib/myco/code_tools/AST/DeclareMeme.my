@@ -3,20 +3,12 @@ CodeTools::AST << {
   
   DeclareMeme < Node {
     node_type meme
-    field name, field decorations
-    field parameters:  ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
-    field body:        NullLiteral.new(line:line)
+    field name, field decorations, field body
     
     bytecode: |g| evaluate_bytecode(g)
     
-    data_body_implementation: BlockLiteral.new(
-      line: self.line
-      block: Block.new(
-        line:       self.line
-        parameters: self.parameters
-        body:       self.body
-      )
-    )
+    # TODO: remove this helper method
+    data_body_implementation: self.body || NullLiteral.new(line:line)
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:meme,
