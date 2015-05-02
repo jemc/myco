@@ -100,20 +100,27 @@ module Myco
       evaluation_exception("extension", line, e)
     end
     
-    def self.decoration_node_type(d, name, arguments)
-      name[0]
+    def self.decoration_node_type(node_type, *data)
+      node_type
     end
     
-    def self.decoration_as_name(d, name, arguments)
-      name[1]
+    def self.decoration_as_name(node_type, *data)
+      data[0]
     end
     
-    def self.decoration_as_decoration(d, name, arguments)
-      [name[1], arguments]
+    def self.decoration_as_decoration(node_type, *data)
+      case node_type
+      when :symbol
+        [data[0], []]
+      when :invoke
+        [data[1], data[2]]
+      else
+        raise NotImplementedError, node_type.to_s
+      end
     end
     
-    def self.decoration_as_constant_data(d, name, arguments)
-      name
+    def self.decoration_as_constant_data(node_type, *data)
+      [node_type, *data]
     end
     
     def self.evaluate_meme(cscope, decorations, body)

@@ -176,7 +176,6 @@ CodeTools::AST << {
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   
   DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }
-  DeclareDecoration  << { to_ruby: |g| evaluate_to_ruby(g) }
   
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
