@@ -13,7 +13,16 @@ CodeTools::AST << {
       g.push_literal(self.value)
     }
     
-    data_bytecode: |g| bytecode(g)
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:symbol,
+      self.value,
+    ]
+    
+    data_bytecode: |g| {
+      g.push_literal(:symbol)
+      g.push_literal(self.value)
+      g.make_array(2)
+    }
   }
   
 }
