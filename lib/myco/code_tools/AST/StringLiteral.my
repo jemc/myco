@@ -5,6 +5,8 @@ CodeTools::AST << {
     node_type string
     field value
     
+    const is_data: true
+    
     to_literal: self.value
     
     bytecode: |g| {
@@ -12,17 +14,6 @@ CodeTools::AST << {
       
       g.push_literal(self.value)
       g.string_dup
-    }
-    
-    # TODO: don't be redundant with data_bytecode
-    data_array: [:string,
-      self.value,
-    ]
-    
-    data_bytecode: |g| {
-      g.push_literal(:string)
-      g.push_literal(self.value)
-      g.make_array(2)
     }
   }
   

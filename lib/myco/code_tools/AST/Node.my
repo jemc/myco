@@ -28,7 +28,7 @@ CodeTools::AST << {
     }
     
     static var node_type: null
-    static var fields:    [] # TODO: should be "static const"
+    static var fields:    []
     
     node_type: self.class.node_type
     fields:    self.class.fields
@@ -40,6 +40,48 @@ CodeTools::AST << {
             ?? value
       }
     ]
+    
+    const is_data: false
+    const has_line_data: false
+    
+    data_array_visit: |item| {
+      item.?data_array ?? (
+        item &? (
+          item.is_a?(Array) &? (
+            item.map |subitem| { subitem.data_array }
+          ) ?? item
+        ) ?? null
+      )
+    }
+    
+    data_bytecode_visit: |g, item| {
+      item.?data_bytecode(g) ?? (
+        item &? (
+          item.is_a?(Array) &? (
+            item.each |subitem| { subitem.data_bytecode(g) }
+            g.make_array(item.size)
+          ) ?? g.push_literal(item)
+        ) ?? g.push_null
+      )
+    }
+    
+    data_array: {
+      is_data || raise(""self" has no data_array implementation.")
+      line_data = has_line_data &? [self.line] ?? []
+      [self.node_type] + line_data + fields.map |field| {
+        data_array_visit(__send__(field))
+      }
+    }
+    
+    data_bytecode: |g| {
+      is_data || raise(""self" has no data_bytecode implementation.")
+      g.push_literal(self.node_type)
+      has_line_data && g.push_literal(self.line)
+      fields.map |field| {
+        data_bytecode_visit(g, __send__(field))
+      }
+      g.make_array(has_line_data &? (2 + fields.size) ?? (1 + fields.size))
+    }
     
     evaluate_bytecode: |g, evaluator=null| {
       pos(g)

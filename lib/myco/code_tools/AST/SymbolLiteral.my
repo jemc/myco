@@ -5,23 +5,14 @@ CodeTools::AST << {
     node_type symbol
     field value
     
+    const is_data: true
+    
     to_literal: self.value
     
     bytecode: |g| {
       pos(g)
       
       g.push_literal(self.value)
-    }
-    
-    # TODO: don't be redundant with data_bytecode
-    data_array: [:symbol,
-      self.value,
-    ]
-    
-    data_bytecode: |g| {
-      g.push_literal(:symbol)
-      g.push_literal(self.value)
-      g.make_array(2)
     }
   }
   
