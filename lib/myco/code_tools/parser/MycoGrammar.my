@@ -599,15 +599,15 @@ rule decoration:
 rule sepd_decoration:
   r(C.spc.* + decoration[:n]) { n }
 
-rule decorations_and_meme_name:
+rule sepd_decorations:
   r(decoration[:n0] + sepd_decoration.*[:nrest])
     { [n0, *nrest] }
 
 rule meme:
-  r(decorations_and_meme_name[:nlist]
+  r(sepd_decorations[:nlist]
       + C.spc.* + T.meme_mark[:tm]
       + C.spc_nl.* + meme_either_body_as_block[:nb])
-    { nm = nlist.pop; ast.meme(nm, nm, nlist, nb) }
-/ r(decorations_and_meme_name[:nlist])
-    { nm = nlist.pop; ast.meme(nm, nm, nlist, null) }
+    { ast.meme(nlist.first, nlist, nb) }
+/ r(sepd_decorations[:nlist])
+    { ast.meme(nlist.first, nlist, null) }
 }
