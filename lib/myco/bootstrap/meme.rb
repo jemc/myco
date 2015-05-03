@@ -180,8 +180,7 @@ module Myco
       # on the call stack.
       # TODO: move this bytecode generation to a helper method 
       meme = self
-      
-      target.dynamic_method @name, '(myco_internal)' do |g|
+      Myco.add_dynamic_method target, @name, '(myco_internal)' do |g|
         g.splat_index = 0 # *args
         
         invoke = g.new_label
@@ -259,7 +258,7 @@ module Myco
       # TODO: move this bytecode generation to a helper method 
       meme = self
       
-      target.dynamic_method @name, '(myco_internal)' do |g|
+      Myco.add_dynamic_method target, @name, '(myco_internal)' do |g|
         get = g.new_label
         ret = g.new_label
         
@@ -316,7 +315,7 @@ module Myco
       meme = self
       
       # TODO: move this bytecode generation to a helper method 
-      target.dynamic_method :"#{@name}=", '(myco_internal)' do |g|
+      Myco.add_dynamic_method target, :"#{@name}=", '(myco_internal)' do |g|
         g.total_args = 1
         g.local_count = 1
         
