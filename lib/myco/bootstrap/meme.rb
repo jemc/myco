@@ -150,7 +150,7 @@ module Myco
         bind_cache_method
         @effective_body = @target.instance_method(@name).executable
       else
-        Rubinius.add_method @name, @body, @target, :public
+        Myco.add_method(@name, @body, @target)
       end
     end
     
