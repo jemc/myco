@@ -61,7 +61,7 @@ module Myco
         @parent_meme = parent_meme
         @categories  = Rubinius::LookupTable.new
         
-        thunk_method(:__component__, self)
+        Myco.add_thunk_method(self, :__component__, self)
       }
       
       all_categories = Hash.new { |h,k| h[k] = Array.new }

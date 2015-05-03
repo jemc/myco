@@ -78,6 +78,8 @@ module Myco
       case value
       when Rubinius::BlockEnvironment::AsMethod
         @body = value
+      when Rubinius::Thunk
+        @body = value
       when Rubinius::Executable
         @body = value
         @body.scope.set_myco_meme self
