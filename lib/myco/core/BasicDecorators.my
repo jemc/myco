@@ -6,7 +6,7 @@
   const: ConstDecorator
   ConstDecorator: Decorator {
     apply: |meme| {
-      meme.target.thunk_method(meme.name, meme.result)
+      meme.body = Rubinius::Thunk.new(meme.result)
     }
   }
   

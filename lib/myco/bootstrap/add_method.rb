@@ -11,4 +11,8 @@ module Myco
   # TODO: override Module#define_method in Component to use this?
   # TODO: override Module#thunk_method in Component to use this?
   # TODO: override Module#dynamic_method in Component to use this?
+  
+  def self.add_thunk_method mod, name, value
+    add_method(mod, name, Rubinius::Thunk.new(value))
+  end
 end

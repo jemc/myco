@@ -3,9 +3,9 @@
   static var fields: []
   
   static lay_out_fields!: {
-    singleton_class.thunk_method(:__tuple_size__, fields.size)
+    Myco.add_thunk_method(singleton_class, :__tuple_size__, fields.size)
     fields.each_with_index |field, index| {
-      thunk_method(:"__index_of_"field"_field__", index)
+      Myco.add_thunk_method(self, :"__index_of_"field"_field__", index)
     }
   }
   
