@@ -150,7 +150,7 @@ module Myco
         bind_cache_method
         @effective_body = @target.instance_method(@name).executable
       else
-        Myco.add_method(@name, @body, @target)
+        Myco.add_method(@target, @name, @body)
       end
     end
     
