@@ -2,7 +2,7 @@
 module Myco
   module MemeBindable
     def memes
-      @memes ||= {}
+      @memes ||= Rubinius::LookupTable.new
     end
     
     def declare_meme name, decorations=[], body=nil, cscope=nil, &blk
