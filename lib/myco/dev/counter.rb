@@ -1,7 +1,7 @@
 
 module Myco
   module DEV
-    class COUNTER
+    class Counter
       class << self
         def coll
           @coll ||= begin
