@@ -51,12 +51,12 @@ BasicSpec {
   }
   
   "accesses with parent_meme its containing meme": {
-    assert_equal(helpers.inner.parent_meme, helpers.memes.fetch(:inner))
+    assert_equal(helpers.inner.parent_meme, helpers.memes[:inner])
     
     assert_equal(helpers.inner_choice(true).parent_meme,
-                 helpers.memes.fetch(:inner_choice))
+                 helpers.memes[:inner_choice])
     assert_equal(helpers.inner_choice(false).parent_meme,
-                 helpers.memes.fetch(:inner_choice))
+                 helpers.memes[:inner_choice])
   }
   
   "accesses locals from the scope containing the object declaration": {
