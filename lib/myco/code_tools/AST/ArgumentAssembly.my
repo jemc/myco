@@ -34,7 +34,7 @@ CodeTools::AST << {
       pre_group.size
     
     splat_bytecode: |g| ArrayAssembly.new(
-      line: self.line
+      loc: self.loc
       body: post_group
     ).bytecode(g)
     

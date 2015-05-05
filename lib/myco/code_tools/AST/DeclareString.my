@@ -9,14 +9,14 @@ CodeTools::AST << {
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:from_string,
-      self.line,
+      self.loc,
       self.types.map |item| { item.data_array },
       self.string.to_literal,
     ]
     
     data_bytecode: |g| {
       g.push_literal(:from_string)
-      g.push_literal(self.line)
+      g.push_loc(self.loc)
         self.types.each |item| { item.data_bytecode(g) }
       g.make_array(self.types.count)
       self.string.bytecode(g)

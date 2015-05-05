@@ -211,7 +211,7 @@ CodeTools::AST << {
         g.add("."self.name"")
       ) ?? (
         g.add(".__send__")
-        list.unshift(SymbolLiteral.new(line:self.line, value:self.name))
+        list.unshift(SymbolLiteral.new(loc:self.loc, value:self.name))
       )
       
       list.any? && (

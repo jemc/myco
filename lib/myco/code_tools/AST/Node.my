@@ -2,9 +2,9 @@
 CodeTools::AST << {
   
   Node < BasicObject {
-    var line
+    var loc
     
-    pos: |g| g.set_line(self.line)
+    pos: |g| g.set_line(self.loc[0])
     
     new_block_generator: |g, parameters| {
       blk = g.class.new
@@ -33,7 +33,7 @@ CodeTools::AST << {
     node_type: self.class.node_type
     fields:    self.class.fields
     representation: [
-      self.node_type, self.line, *self.fields.map |name| {
+      self.node_type, self.loc, *self.fields.map |name| {
         value = __send__(name)
         value.?map |value| { value.?representation ?? value }
           ?? value.?representation
@@ -42,7 +42,7 @@ CodeTools::AST << {
     ]
     
     const is_data: false
-    const has_line_data: false
+    const has_loc_data: false
     
     data_array_visit: |item| {
       item.?data_array ?? (
@@ -67,7 +67,7 @@ CodeTools::AST << {
     
     data_array: {
       is_data || raise(""self" has no data_array implementation.")
-      line_data = has_line_data &? [self.line] ?? []
+      line_data = has_loc_data &? [self.loc] ?? []
       [self.node_type] + line_data + fields.map |field| {
         data_array_visit(__send__(field))
       }
@@ -76,11 +76,11 @@ CodeTools::AST << {
     data_bytecode: |g| {
       is_data || raise(""self" has no data_bytecode implementation.")
       g.push_literal(self.node_type)
-      has_line_data && g.push_literal(self.line)
+      has_loc_data && g.push_loc(self.loc)
       fields.map |field| {
         data_bytecode_visit(g, __send__(field))
       }
-      g.make_array(has_line_data &? (2 + fields.size) ?? (1 + fields.size))
+      g.make_array(has_loc_data &? (2 + fields.size) ?? (1 + fields.size))
     }
     
     evaluate_bytecode: |g, evaluator=null| {

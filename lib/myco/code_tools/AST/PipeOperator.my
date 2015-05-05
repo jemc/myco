@@ -6,12 +6,12 @@ CodeTools::AST << {
     field value, field invoke
     
     implementation_args: ArgumentAssembly.new(
-      line: self.line
+      loc:  self.loc
       body: [self.value] + (self.invoke.arguments.?body ?? [])
     )
     
     implementation: Invoke.new(
-      line:         self.line
+      loc:          self.loc
       receiver:     self.invoke.receiver
       name:         self.invoke.name
       arguments:    self.implementation_args

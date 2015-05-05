@@ -6,7 +6,7 @@ CodeTools::AST << {
     field toplevel, field names
     
     const is_data: true
-    const has_line_data: true
+    const has_loc_data: true
     
     bytecode: |g| evaluate_bytecode(g)
   }

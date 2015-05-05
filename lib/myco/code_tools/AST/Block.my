@@ -9,8 +9,8 @@ CodeTools::AST << {
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
-    setter parameters: |given| given || ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
-    setter body:       |given| given || NullLiteral.new(line:self.line)
+    setter parameters: |given| given || ParameterAssembly.new(loc:loc, required:[], rest:RestParameter.new(loc:loc))
+    setter body:       |given| given || NullLiteral.new(loc:self.loc)
     
     locals: self.body.?locals.?body.map(&:value) ?? null
     
@@ -68,13 +68,13 @@ CodeTools::AST << {
       blk = new_block_generator(g, self.parameters)
       
       blk.push_state(self)
-      blk.definition_line(self.line)
+      blk.definition_line(self.loc[0])
       blk.state.push_super(state.super)
       blk.state.push_eval(state.eval)
       
       blk.state.push_name(blk.name)
       
-      # Push line info down.
+      # Push loc info down.
       pos(blk)
       
       self.parameters.bytecode(blk)

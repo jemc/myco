@@ -6,7 +6,7 @@ CodeTools::AST << {
     field receiver, field questable
     
     setter questable: |given| {
-      given.receiver = FakeReceiver.new(line: self.line)
+      given.receiver = FakeReceiver.new(loc: self.loc)
       given
     }
     

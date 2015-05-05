@@ -6,6 +6,8 @@ CodeTools::AST << {
     push_myco: push_cpath_top; find_const(:Myco)
     push_void: push_myco;      find_const(:Void)
     push_null: push_nil
+    push_loc: |loc|
+      push_literal(loc[0]); push_literal(loc[1]); make_array(2)
   }
   
   Self < Node {
@@ -35,7 +37,8 @@ CodeTools::AST << {
   
   # Used in situations where no locator is available (like an empty file)
   NoLocator < BasicObject {
-    var line: 1
+    var row: 1
+    var col: 1
   }
   
   # TODO: use some other way to be eager
@@ -49,7 +52,8 @@ CodeTools::AST << {
       
       BuilderMethods.declare_meme(node_type) |*args| {
         loc = args.shift
-        kw = [:line, *fields].zip([loc.line, *args])
+        loc = loc.?loc ?? [loc.row, loc.col]
+        kw = [:loc, *fields].zip([loc, *args])
         component.new(kw.to_h)
       }
     }

@@ -13,21 +13,21 @@ CodeTools::AST << {
       # TODO: error if passing both block argument and block literal
       # Currently, this fails silently and ignores the block argument
       self.block && (
-        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(line:self.line, body:[])
+        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(loc:self.loc, body:[])
         use_args.block = self.block
       )
       
       !self.receiver && !use_args &? (
         LocalVariableAccessAmbiguous.new(
-          line: self.line
+          loc: self.loc
           name: self.name
         )
       ) ?? (
         InvokeMethod.new(
-          line:      self.line
-          receiver:  self.receiver || Self.new(line:self.line)
+          loc:       self.loc
+          receiver:  self.receiver || Self.new(loc:self.loc)
           name:      self.name
-          arguments: use_args || ArgumentAssembly.new(line:self.line, body:[])
+          arguments: use_args || ArgumentAssembly.new(loc:self.loc, body:[])
         )
       )
     }

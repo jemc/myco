@@ -10,14 +10,14 @@ CodeTools::AST << {
     # TODO: don't be redundant with data_bytecode
     # TODO: pass evaluator as data
     data_array: [:object,
-      self.line,
+      self.loc,
       self.types.map    |item| { item.data_array },
       self.contents.map |item| { item.data_array },
     ]
     
     data_bytecode: |g| {
       g.push_literal(:object)
-      g.push_literal(self.line)
+      g.push_loc(self.loc)
         self.types.each    |item| { item.data_bytecode(g) }
       g.make_array(self.types.count)
         self.contents.each |item| { item.data_bytecode(g) }

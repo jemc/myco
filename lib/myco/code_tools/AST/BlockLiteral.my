@@ -6,13 +6,13 @@ CodeTools::AST << {
     field block
     
     implementation_receiver: ConstantAccess.new(
-      line:     self.line
+      loc:      self.loc
       toplevel: true
       names:    [:Ruby, :Proc]
     )
     
     implementation: Invoke.new(
-      line:         self.line
+      loc:          self.loc
       receiver:     self.implementation_receiver
       name:         (:new)
       block:        self.block
