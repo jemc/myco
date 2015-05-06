@@ -123,7 +123,7 @@ module Myco
       [node_type, *data]
     end
     
-    def self.evaluate_meme(cscope, decorations, body)
+    def self.evaluate_meme(cscope, loc, decorations, body)
       name = decorations.pop
       # TODO: bring these two cases more semantically close together
       case decoration_node_type(*name)

@@ -9,16 +9,18 @@ CodeTools::AST << {
     
     # TODO: don't be redundant with data_bytecode
     data_array: [:meme,
+      self.loc,
       self.decorations.map(&:data_array),
       self.body, # TODO: body implementation as actual data
     ]
     
     data_bytecode: |g| {
       g.push_literal(:meme)
+      g.push_loc(self.loc)
         self.decorations.each |item| { item.data_bytecode(g) }
       g.make_array(self.decorations.size)
       self.body.?bytecode(g) ?? g.push_null
-      g.make_array(3)
+      g.make_array(4)
     }
   }
   
