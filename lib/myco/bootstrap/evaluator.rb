@@ -9,19 +9,19 @@ module Myco
       __send__(:"evaluate_#{type}", cscope, *rest, &block)
     end
     
-    def self.evaluation_exception(within, line, e)
+    def self.evaluation_exception(within, loc, e)
       # Make the exception message more helpful without obfuscating the backtrace
       e.instance_variable_set(:@reason_message,
-        "While evaluating #{within} on line #{line}:\n#{e.message}")
+        "While evaluating #{within} at #{loc.inspect}:\n#{e.message}")
       raise e
     end
     
-    def self.evaluate_file(cscope, line, contents)
+    def self.evaluate_file(cscope, loc, contents)
       component = ::Myco::Component.new(
         [::Myco::FileToplevel],
         cscope.for_method_definition,
         cscope.active_path.to_s,
-        line
+        loc[0]
       )
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
@@ -32,16 +32,16 @@ module Myco
       
     rescue Exception => e
       filename = cscope.respond_to?(:active_path) && cscope.active_path
-      evaluation_exception(filename, line, e)
+      evaluation_exception(filename, loc, e)
     end
     
-    def self.evaluate_component(cscope, line, constant, types, contents)
+    def self.evaluate_component(cscope, loc, constant, types, contents)
       supers = types.map { |type| evaluate(cscope, type) }
       component = ::Myco::Component.new(
         supers,
         cscope.for_method_definition,
         cscope.active_path.to_s,
-        line
+        loc[0]
       )
       
       component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
@@ -54,16 +54,16 @@ module Myco
       component
       
     rescue Exception => e
-      evaluation_exception("component", line, e)
+      evaluation_exception("component", loc, e)
     end
     
-    def self.evaluate_object(cscope, line, types, contents)
+    def self.evaluate_object(cscope, loc, types, contents)
       supers = types.map { |type| evaluate(cscope, type) }
       component = ::Myco::Component.new(
         supers,
         cscope.for_method_definition,
         cscope.active_path.to_s,
-        line
+        loc[0]
       )
       
       inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
@@ -73,10 +73,10 @@ module Myco
       component.instance
       
     rescue Exception => e
-      evaluation_exception("object", line, e)
+      evaluation_exception("object", loc, e)
     end
     
-    def self.evaluate_category(cscope, line, name, contents)
+    def self.evaluate_category(cscope, loc, name, contents)
       category = cscope.for_method_definition.__category__(name)
       
       inner_cscope = ::Rubinius::ConstantScope.new(category, cscope)
@@ -84,10 +84,10 @@ module Myco
       contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
       
     rescue Exception => e
-      evaluation_exception("category", line, e)
+      evaluation_exception("category", loc, e)
     end
     
-    def self.evaluate_extension(cscope, line, constant, types, contents)
+    def self.evaluate_extension(cscope, loc, constant, types, contents)
       component = evaluate(cscope, constant)
       # TODO: inject the given types like includes/super_components
       
@@ -97,7 +97,7 @@ module Myco
       
       component
     rescue Exception => e
-      evaluation_exception("extension", line, e)
+      evaluation_exception("extension", loc, e)
     end
     
     def self.decoration_node_type(node_type, *data)
@@ -142,7 +142,7 @@ module Myco
       end
     end
     
-    def self.evaluate_const(cscope, line, toplevel, names)
+    def self.evaluate_const(cscope, loc, toplevel, names)
       first_name, *rest_names = names
       parent = search_constant(cscope, toplevel, first_name)
       rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }
@@ -150,12 +150,12 @@ module Myco
     
     
     # TODO: deprecate/remove
-    def self.evaluate_from_string(cscope, line, types, string)
-      object = evaluate_object(cscope, line, types, [])
+    def self.evaluate_from_string(cscope, loc, types, string)
+      object = evaluate_object(cscope, loc, types, [])
       object.from_string(string)
     end
     
-    def self.assign_constant(cscope, node_type, line, toplevel, names, value)
+    def self.assign_constant(cscope, node_type, loc, toplevel, names, value)
       *names, last_name = names
       first_name = names.any? && names.shift
       
