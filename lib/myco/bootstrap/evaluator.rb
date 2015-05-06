@@ -24,9 +24,9 @@ module Myco
         loc[0]
       )
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
-      inner_cscope.myco_evctx.set_myco_file
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
+      inner_evctx = evctx.nested(component)
+      inner_evctx.set_myco_file
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_evctx, item) }
       
       component.instance
       
@@ -47,9 +47,9 @@ module Myco
       component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
       assign_constant(evctx, *constant, component)
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
-      inner_cscope.myco_evctx.set_myco_component
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
+      inner_evctx = evctx.nested(component)
+      inner_evctx.set_myco_component
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_evctx, item) }
       
       component
       
@@ -66,9 +66,9 @@ module Myco
         loc[0]
       )
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
-      inner_cscope.myco_evctx.set_myco_component
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
+      inner_evctx = evctx.nested(component)
+      inner_evctx.set_myco_component
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_evctx, item) }
       
       component.instance
       
@@ -79,9 +79,9 @@ module Myco
     def self.evaluate_category(evctx, loc, name, contents)
       category = evctx.cscope.for_method_definition.__category__(name)
       
-      inner_cscope = ::Rubinius::ConstantScope.new(category, evctx.cscope)
-      inner_cscope.myco_evctx.set_myco_category
-      contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
+      inner_evctx = evctx.nested(category)
+      inner_evctx.set_myco_category
+      contents.reduce(nil) { |_, item| evaluate(inner_evctx, item) }
       
     rescue Exception => e
       evaluation_exception("category", loc, e)
@@ -91,9 +91,9 @@ module Myco
       component = evaluate(evctx, constant)
       # TODO: inject the given types like includes/super_components
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
-      inner_cscope.myco_evctx.set_myco_component
-      contents.each { |item| evaluate(inner_cscope.myco_evctx, item) }
+      inner_evctx = evctx.nested(component)
+      inner_evctx.set_myco_component
+      contents.each { |item| evaluate(inner_evctx, item) }
       
       component
     rescue Exception => e
@@ -128,11 +128,11 @@ module Myco
       # TODO: bring these two cases more semantically close together
       case decoration_node_type(*name)
       when :symbol
-        inner_cscope = ::Rubinius::ConstantScope.new(evctx.cscope.module, evctx.cscope)
+        inner_evctx = evctx.nested(evctx.cscope.module)
         body ||= ->{}
-        body.block.instance_variable_set(:@constant_scope, inner_cscope)
+        body.block.instance_variable_set(:@constant_scope, inner_evctx.cscope)
         decorations = decorations.reverse.map { |deco| decoration_as_decoration(*deco) }
-        inner_cscope.for_method_definition.declare_meme(decoration_as_name(*name), decorations, &body)
+        inner_evctx.cscope.for_method_definition.declare_meme(decoration_as_name(*name), decorations, &body)
       when :const
         constant = decoration_as_constant_data(*name)
         body.block.instance_variable_set(:@constant_scope, evctx.cscope)

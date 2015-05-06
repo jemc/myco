@@ -37,6 +37,10 @@ module Myco
         "#<#{self.class}:#{inspect_list}>"
       end
       
+      def nested(mod)
+        ::Rubinius::ConstantScope.new(mod, self.cscope).myco_evctx
+      end
+      
       attr_reader :cscope
       
       attr_reader :myco_file
