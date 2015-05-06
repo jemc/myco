@@ -46,11 +46,6 @@ module Myco
     end
   end
   
-  # Get the "current" ConstantScope (from the caller's perspective)
-  def self.cscope
-    Rubinius::ConstantScope.of_sender
-  end
-  
   # TODO: accept evctx instead of scope as argument
   def self.find_constant(name, scope=Rubinius::ConstantScope.of_sender)
     scope.myco_evctx.get_myco_constant_ref(name).value

@@ -111,7 +111,7 @@ CodeTools::AST << {
     
     evaluate_to_ruby: |g, evaluator=null| {
       g.add(evaluator || "::Myco::Evaluator")
-      g.add(".evaluate(::Myco.cscope.myco_evctx, ")
+      g.add(".evaluate(::Myco.evctx, ")
         g.literal_array(self.data_array)
       g.add(")")
     }

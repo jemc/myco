@@ -8,6 +8,18 @@ module Rubinius
 end
 
 module Myco
+  # Get the "current" ConstantScope (from the caller's perspective)
+  def self.cscope
+    Rubinius::ConstantScope.of_sender
+  end
+  
+  # Get the "current" Myco::Evaluator::Context (from the caller's perspective)
+  def self.evctx
+    Rubinius::ConstantScope.of_sender.myco_evctx
+  end
+end
+
+module Myco
   class Evaluator
     class Context
       
