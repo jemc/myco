@@ -92,7 +92,7 @@ CodeTools::AST << {
         g.push_myco
         g.find_const(:Evaluator)
       )
-        g.push_scope
+        g.push_scope; g.send(:myco_evctx, 0)
         self.data_bytecode(g)
       g.send(:evaluate, 2)
     }

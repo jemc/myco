@@ -4,9 +4,9 @@ require_relative 'evaluator/context'
 module Myco
   class Evaluator
     
-    def self.evaluate(cscope, data, &block)
+    def self.evaluate(evctx, data, &block)
       type, *rest = data
-      __send__(:"evaluate_#{type}", cscope, *rest, &block)
+      __send__(:"evaluate_#{type}", evctx, *rest, &block)
     end
     
     def self.evaluation_exception(within, loc, e)
@@ -16,40 +16,40 @@ module Myco
       raise e
     end
     
-    def self.evaluate_file(cscope, loc, contents)
+    def self.evaluate_file(evctx, loc, contents)
       component = ::Myco::Component.new(
         [::Myco::FileToplevel],
-        cscope.for_method_definition,
-        cscope.active_path.to_s,
+        evctx.cscope.for_method_definition,
+        evctx.cscope.active_path.to_s,
         loc[0]
       )
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
+      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
       inner_cscope.myco_evctx.set_myco_file
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
       
       component.instance
       
     rescue Exception => e
-      filename = cscope.respond_to?(:active_path) && cscope.active_path
+      filename = evctx.cscope.respond_to?(:active_path) && evctx.cscope.active_path
       evaluation_exception(filename, loc, e)
     end
     
-    def self.evaluate_component(cscope, loc, constant, types, contents)
-      supers = types.map { |type| evaluate(cscope, type) }
+    def self.evaluate_component(evctx, loc, constant, types, contents)
+      supers = types.map { |type| evaluate(evctx, type) }
       component = ::Myco::Component.new(
         supers,
-        cscope.for_method_definition,
-        cscope.active_path.to_s,
+        evctx.cscope.for_method_definition,
+        evctx.cscope.active_path.to_s,
         loc[0]
       )
       
       component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
-      assign_constant(cscope, *constant, component)
+      assign_constant(evctx, *constant, component)
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
+      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
       inner_cscope.myco_evctx.set_myco_component
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
       
       component
       
@@ -57,18 +57,18 @@ module Myco
       evaluation_exception("component", loc, e)
     end
     
-    def self.evaluate_object(cscope, loc, types, contents)
-      supers = types.map { |type| evaluate(cscope, type) }
+    def self.evaluate_object(evctx, loc, types, contents)
+      supers = types.map { |type| evaluate(evctx, type) }
       component = ::Myco::Component.new(
         supers,
-        cscope.for_method_definition,
-        cscope.active_path.to_s,
+        evctx.cscope.for_method_definition,
+        evctx.cscope.active_path.to_s,
         loc[0]
       )
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
+      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
       inner_cscope.myco_evctx.set_myco_component
-      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
+      component.__last__ = contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
       
       component.instance
       
@@ -76,24 +76,24 @@ module Myco
       evaluation_exception("object", loc, e)
     end
     
-    def self.evaluate_category(cscope, loc, name, contents)
-      category = cscope.for_method_definition.__category__(name)
+    def self.evaluate_category(evctx, loc, name, contents)
+      category = evctx.cscope.for_method_definition.__category__(name)
       
-      inner_cscope = ::Rubinius::ConstantScope.new(category, cscope)
+      inner_cscope = ::Rubinius::ConstantScope.new(category, evctx.cscope)
       inner_cscope.myco_evctx.set_myco_category
-      contents.reduce(nil) { |_, item| evaluate(inner_cscope, item) }
+      contents.reduce(nil) { |_, item| evaluate(inner_cscope.myco_evctx, item) }
       
     rescue Exception => e
       evaluation_exception("category", loc, e)
     end
     
-    def self.evaluate_extension(cscope, loc, constant, types, contents)
-      component = evaluate(cscope, constant)
+    def self.evaluate_extension(evctx, loc, constant, types, contents)
+      component = evaluate(evctx, constant)
       # TODO: inject the given types like includes/super_components
       
-      inner_cscope = ::Rubinius::ConstantScope.new(component, cscope)
+      inner_cscope = ::Rubinius::ConstantScope.new(component, evctx.cscope)
       inner_cscope.myco_evctx.set_myco_component
-      contents.each { |item| evaluate(inner_cscope, item) }
+      contents.each { |item| evaluate(inner_cscope.myco_evctx, item) }
       
       component
     rescue Exception => e
@@ -123,49 +123,49 @@ module Myco
       [node_type, *data]
     end
     
-    def self.evaluate_meme(cscope, loc, decorations, body)
+    def self.evaluate_meme(evctx, loc, decorations, body)
       name = decorations.pop
       # TODO: bring these two cases more semantically close together
       case decoration_node_type(*name)
       when :symbol
-        inner_cscope = ::Rubinius::ConstantScope.new(cscope.module, cscope)
+        inner_cscope = ::Rubinius::ConstantScope.new(evctx.cscope.module, evctx.cscope)
         body ||= ->{}
         body.block.instance_variable_set(:@constant_scope, inner_cscope)
         decorations = decorations.reverse.map { |deco| decoration_as_decoration(*deco) }
         inner_cscope.for_method_definition.declare_meme(decoration_as_name(*name), decorations, &body)
       when :const
         constant = decoration_as_constant_data(*name)
-        body.block.instance_variable_set(:@constant_scope, cscope)
-        assign_constant(cscope, *constant, body.call)
+        body.block.instance_variable_set(:@constant_scope, evctx.cscope)
+        assign_constant(evctx, *constant, body.call)
       else
         raise NotImplementedError, decoration_node_type(*name)
       end
     end
     
-    def self.evaluate_const(cscope, loc, toplevel, names)
+    def self.evaluate_const(evctx, loc, toplevel, names)
       first_name, *rest_names = names
-      parent = search_constant(cscope, toplevel, first_name)
+      parent = search_constant(evctx, toplevel, first_name)
       rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }
     end
     
     
     # TODO: deprecate/remove
-    def self.evaluate_from_string(cscope, loc, types, string)
-      object = evaluate_object(cscope, loc, types, [])
+    def self.evaluate_from_string(evctx, loc, types, string)
+      object = evaluate_object(evctx, loc, types, [])
       object.from_string(string)
     end
     
-    def self.assign_constant(cscope, node_type, loc, toplevel, names, value)
+    def self.assign_constant(evctx, node_type, loc, toplevel, names, value)
       *names, last_name = names
       first_name = names.any? && names.shift
       
-      parent = search_constant(cscope, toplevel, first_name)
+      parent = search_constant(evctx, toplevel, first_name)
       parent = names.reduce(parent) { |parent, var| parent.const_get(name) }
       parent.const_set(last_name, value)
       value
     end
     
-    def self.search_constant(cscope, toplevel, name=nil)
+    def self.search_constant(evctx, toplevel, name=nil)
       if toplevel
         if name
           case name
@@ -179,9 +179,9 @@ module Myco
         end
       else
         if name
-          ::Myco.find_constant(name, cscope)
+          ::Myco.find_constant(name, evctx.cscope)
         else
-          cscope.for_method_definition
+          evctx.cscope.for_method_definition
         end
       end
     end
