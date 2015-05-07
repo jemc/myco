@@ -40,7 +40,7 @@ module Myco
       component
       
     rescue Exception => e
-      @util.evaluation_exception("component", loc, e)
+      @util.evaluation_exception(:component, loc, e)
     end
     
     def self.evaluate_object(evctx, loc, types, contents)
@@ -54,7 +54,7 @@ module Myco
       component.instance
       
     rescue Exception => e
-      @util.evaluation_exception("object", loc, e)
+      @util.evaluation_exception(:object, loc, e)
     end
     
     def self.evaluate_category(evctx, loc, name, contents)
@@ -65,7 +65,7 @@ module Myco
       contents.reduce(nil) { |_, item| evaluate(inner_evctx, item) }
       
     rescue Exception => e
-      @util.evaluation_exception("category", loc, e)
+      @util.evaluation_exception(:category, loc, e)
     end
     
     def self.evaluate_extension(evctx, loc, constant, types, contents)
@@ -78,7 +78,7 @@ module Myco
       
       component
     rescue Exception => e
-      @util.evaluation_exception("extension", loc, e)
+      @util.evaluation_exception(:extension, loc, e)
     end
     
     def self.evaluate_meme(evctx, loc, decorations, body)
