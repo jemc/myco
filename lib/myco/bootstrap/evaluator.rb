@@ -90,7 +90,7 @@ module Myco
         body.block.instance_variable_set(:@constant_scope, inner_evctx.cscope)
         decorations = decorations.reverse.map { |deco| @util.decoration_as_decoration(*deco) }
         inner_evctx.cscope.for_method_definition.declare_meme(@util.decoration_as_name(*name), decorations, &body)
-      when :const
+      when :constant
         constant = @util.decoration_as_constant_data(*name)
         body.block.instance_variable_set(:@constant_scope, evctx.cscope)
         @util.assign_constant(evctx, *constant, body.call)
@@ -99,7 +99,7 @@ module Myco
       end
     end
     
-    def self.evaluate_const(evctx, loc, toplevel, names)
+    def self.evaluate_constant(evctx, loc, toplevel, names)
       first_name, *rest_names = names
       parent = @util.search_constant(evctx, toplevel, first_name)
       rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }

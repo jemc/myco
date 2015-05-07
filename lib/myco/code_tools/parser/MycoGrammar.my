@@ -159,7 +159,7 @@ rule colon_const:
 
 rule constant:
   r(T.scope.-[:ts] + T.constant[:tc] + colon_const.*[:trest])
-    { ast.const((ts||tc), !!ts, [tc.sym, *trest.map(&:sym)]) }
+    { ast.constant((ts||tc), !!ts, [tc.sym, *trest.map(&:sym)]) }
 
 rule const_sep: (C.spc_nl.* + T.const_sep + C.spc_nl.*).+
 

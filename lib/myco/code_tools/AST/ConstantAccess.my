@@ -2,7 +2,7 @@
 CodeTools::AST << {
   
   ConstantAccess < Node {
-    node_type const
+    node_type constant
     field toplevel, field names
     
     const is_data: true
