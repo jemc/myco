@@ -41,6 +41,10 @@ module Myco
         ::Rubinius::ConstantScope.new(mod, self.cscope).myco_evctx
       end
       
+      def filename
+        @cscope.active_path
+      end
+      
       attr_reader :cscope
       
       attr_reader :myco_file

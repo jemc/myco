@@ -22,8 +22,7 @@ module Myco
       component.instance
       
     rescue Exception => e
-      filename = evctx.cscope.respond_to?(:active_path) && evctx.cscope.active_path
-      @util.evaluation_exception(filename, loc, e)
+      @util.evaluation_exception(evctx.filename, loc, e)
     end
     
     def self.evaluate_component(evctx, loc, constant, types, contents)
