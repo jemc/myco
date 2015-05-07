@@ -16,13 +16,15 @@ module Myco
       raise e
     end
     
-    def self.evaluate_file(evctx, loc, contents)
-      component = ::Myco::Component.new(
-        [::Myco::FileToplevel],
+    def self.create_component(evctx, loc, supers)
+      ::Myco::Component.new(supers,
         evctx.cscope.for_method_definition,
         evctx.cscope.active_path.to_s,
-        loc[0]
-      )
+        loc[0])
+    end
+    
+    def self.evaluate_file(evctx, loc, contents)
+      component = create_component(evctx, loc, [::Myco::FileToplevel])
       
       inner_evctx = evctx.nested(component)
       inner_evctx.set_myco_file
@@ -37,12 +39,7 @@ module Myco
     
     def self.evaluate_component(evctx, loc, constant, types, contents)
       supers = types.map { |type| evaluate(evctx, type) }
-      component = ::Myco::Component.new(
-        supers,
-        evctx.cscope.for_method_definition,
-        evctx.cscope.active_path.to_s,
-        loc[0]
-      )
+      component = create_component(evctx, loc, supers)
       
       component.__name__ = constant.last.last.to_sym # TODO: use constant.names.last
       assign_constant(evctx, *constant, component)
@@ -59,12 +56,7 @@ module Myco
     
     def self.evaluate_object(evctx, loc, types, contents)
       supers = types.map { |type| evaluate(evctx, type) }
-      component = ::Myco::Component.new(
-        supers,
-        evctx.cscope.for_method_definition,
-        evctx.cscope.active_path.to_s,
-        loc[0]
-      )
+      component = create_component(evctx, loc, supers)
       
       inner_evctx = evctx.nested(component)
       inner_evctx.set_myco_component
