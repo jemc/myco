@@ -123,11 +123,6 @@ rule lit_string:
     (T.sstring_begin + T.sstring_body[:tb] + T.sstring_end))
     { ast.symbol(tb, encode_escapes(tb.text)) }
 
-rule lit_string_as_symbol:
-  r((T.string_begin  + T.string_body[:tb]  + T.string_end) /
-    (T.sstring_begin + T.sstring_body[:tb] + T.sstring_end))
-    { ast.symbol(tb, encode_escapes(tb.text).to_sym) }
-
 rule lit_symstr:
   r(T.symstr_begin + T.string_body[:tb] + T.string_end)
     { ast.symbol(tb, encode_escapes(tb.text).to_sym) }
@@ -298,6 +293,14 @@ rule invoke:
 rule invoke_classic_form:
   r(T.identifier[:tn] + C.spc.* + arg_list[:na])
     { ast.invoke(tn, null, tn.sym, na, null) }
+
+rule invoke_lambig:
+  r(T.identifier[:tn])
+    { ast.invoke(tn, null, tn.sym, null, null) }
+
+rule invoke_string_lambig:
+  r(lit_string[:tn])
+    { ast.invoke(tn, null, tn.value.to_sym, null, null) }
 
 rule op_invoke: # Allow some binary operators to be invoked with a dot
   r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_block_body[:nb])
@@ -593,8 +596,8 @@ rule meme_either_body_as_block:
 
 rule decoration:
   invoke_classic_form
-/ id_as_symbol
-/ lit_string_as_symbol
+/ invoke_lambig
+/ invoke_string_lambig
 / constant
 
 rule sepd_decoration:

@@ -36,7 +36,7 @@ CodeTools::AST << {
     data_array: [:invoke,
       null, # TODO: receiver
       self.name,
-      self.arguments.to_literal, # TODO: data_array
+      self.arguments.?to_literal ?? null, # TODO: data_array
       null, # TODO: block
     ]
     
@@ -44,7 +44,7 @@ CodeTools::AST << {
       g.push_literal(:invoke)
       g.push_null # TODO: receiver
       g.push_literal(self.name)
-      self.arguments.bytecode(g) # TODO: data_bytecode
+      self.arguments.?bytecode(g) ?? g.push_null # TODO: data_bytecode
       g.push_null # TODO: block
       g.make_array(5)
     }

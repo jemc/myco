@@ -24,14 +24,17 @@ module Myco
       
       # TODO: remove this utility method by refactoring for simplicity
       def self.decoration_as_name(node_type, *data)
-        data[0]
+        case node_type
+        when :invoke
+          data[1]
+        else
+          raise NotImplementedError, node_type.to_s
+        end
       end
       
       # TODO: remove this utility method by refactoring for simplicity
       def self.decoration_as_decoration(node_type, *data)
         case node_type
-        when :symbol
-          [data[0], []]
         when :invoke
           [data[1], data[2]]
         else

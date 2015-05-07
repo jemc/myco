@@ -84,7 +84,7 @@ module Myco
       name = decorations.pop
       # TODO: bring these two cases more semantically close together
       case @util.decoration_node_type(*name)
-      when :symbol
+      when :invoke
         inner_evctx = evctx.nested(evctx.cscope.module)
         body ||= ->{}
         body.block.instance_variable_set(:@constant_scope, inner_evctx.cscope)
