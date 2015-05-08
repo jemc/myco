@@ -97,18 +97,24 @@ module Myco
       else
         raise NotImplementedError, decoration_node_type(*name)
       end
+    rescue Exception => e
+      @util.evaluation_exception(:meme, loc, e)
     end
     
     def self.evaluate_constant(evctx, loc, toplevel, names)
       first_name, *rest_names = names
       parent = @util.search_constant(evctx, toplevel, first_name)
       rest_names.reduce(parent) { |parent, name| Rubinius::Type.const_get(parent, name.to_sym) }
+    rescue Exception => e
+      @util.evaluation_exception(:constant, loc, e)
     end
     
     # TODO: deprecate/remove
     def self.evaluate_from_string(evctx, loc, types, string)
       object = evaluate_object(evctx, loc, types, [])
       object.from_string(string)
+    rescue Exception => e
+      @util.evaluation_exception(:string, loc, e)
     end
     
   end
