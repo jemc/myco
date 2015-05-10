@@ -16,9 +16,8 @@ CodeTools::Parser < BasicObject {
   }
   
   parse_string: |string| {
-    parser = MycoParser
-    parser.parse(string)
-    parser.result &?
-      parser.result.fetch(:root) ?? parser.raise_error
+    state = MycoParser.parse(string)
+    state.result &?
+      state.result.fetch(:root) ?? state.raise_error
   }
 }
