@@ -1,5 +1,5 @@
 
-BasicObject {
+MycoBuilder: BasicObject {
   # TODO: be more clever here
   const ast: CodeTools::AST::Builder.new
   
