@@ -10,9 +10,8 @@ CodeTools::Parser < BasicObject {
   MycoBuilder: Myco.eval_file('parser/MycoBuilder.my')
   
   MycoParser: Pegleromyces::BytecodeParser {
-    grammar: MycoGrammar
-    # TODO: re-evaluate design that returns an existing builder as 'new_builder'
-    new_builder: MycoBuilder
+    const grammar: MycoGrammar
+    const builder: MycoBuilder
   }
   
   parse_string: |string| {
