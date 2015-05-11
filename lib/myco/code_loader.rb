@@ -253,7 +253,7 @@ module Myco
       end
       
       def new_parser
-        Myco::ToolSet::Parser.new
+        Myco::ToolSet::Parser
       end
       
       def new_generator

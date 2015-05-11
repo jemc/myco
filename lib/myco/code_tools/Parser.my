@@ -5,17 +5,12 @@ import as(:Pegleromyces) 'parser/pegleromyces/lib/pegleromyces.my'
 # TODO: remove this hack
 ::Myco::Pegleromyces: Pegleromyces
 
-CodeTools::Parser < BasicObject {
-  MycoGrammar: Myco.eval_file('parser/MycoGrammar.my')
-  MycoBuilder: Myco.eval_file('parser/MycoBuilder.my')
-  
-  MycoParser: Pegleromyces::BytecodeParser {
-    const grammar: MycoGrammar
-    const builder: MycoBuilder
-  }
+CodeTools::Parser: Pegleromyces::BytecodeParser {
+  const grammar: Myco.eval_file('parser/MycoGrammar.my')
+  const builder: Myco.eval_file('parser/MycoBuilder.my')
   
   parse_string: |string| {
-    state = MycoParser.parse(string)
+    state = parse(string)
     state.result &?
       state.result.fetch(:root) ?? state.raise_error
   }
