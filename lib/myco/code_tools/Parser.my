@@ -2,12 +2,12 @@
 # TODO: include Pegleromyces library in a better way than clone into subdir
 import as(:Pegleromyces) 'parser/pegleromyces/lib/pegleromyces.my'
 
-# TODO: remove this hack
-::Myco::Pegleromyces: Pegleromyces
+import 'parser/MycoGrammar.my'
+import 'parser/MycoBuilder.my'
 
 CodeTools::Parser: Pegleromyces::BytecodeParser {
-  const grammar: Myco.eval_file('parser/MycoGrammar.my')
-  const builder: Myco.eval_file('parser/MycoBuilder.my')
+  const grammar: MycoGrammar
+  const builder: MycoBuilder
   
   parse_string: |string| {
     state = parse(string)
