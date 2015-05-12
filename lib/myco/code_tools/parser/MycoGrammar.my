@@ -241,15 +241,15 @@ rule category:
 # String object declarations
 
 rule declstr_body:
-  r(T.declstr_begin[:tb] + C.spc.* + C.nl
+  r(T.declstr_begin + C.spc.* + C.nl
     + T.declstr_body[:ts] + C.spc_nl.* + T.declstr_end)
-    { ast.string(tb, ts.text) }
+    { ts.text }
 
 rule declstr:
   r(constant_list[:nl]
     + C.spc.* + explicit_evaluator.-[:ne]
-    + C.spc.* + declstr_body[:nb])
-    { ast.declstr(nb, ne, nl, nb) }
+    + C.spc.* + declstr_body[:vb])
+    { ast.declstr(nl.first, ne, nl, vb) }
 
 ##
 # Assignment
