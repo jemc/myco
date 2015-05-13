@@ -5,6 +5,8 @@ CodeTools::AST << {
     node_type numeric
     field value
     
+    const is_data: true
+    
     bytecode: |g| {
       pos(g)
       

@@ -50,7 +50,7 @@ MycoBuilder: BasicObject {
         
         result = block
           &? block.call(n0,op,n1)
-          ?? ast.invoke(op, n0, op.sym, ast.args(n1, [n1]))
+          ?? ast.invoke(op, n0, op.sym, ast.argument_assembly(n1, [n1]))
         input.unshift(result)
       ) ?? (
         output.push(n0)

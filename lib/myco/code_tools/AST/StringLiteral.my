@@ -7,7 +7,7 @@ CodeTools::AST << {
     
     const is_data: true
     
-    to_literal: self.value
+    to_literal: self.value # TODO: remove
     
     bytecode: |g| {
       pos(g)

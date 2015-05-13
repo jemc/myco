@@ -130,7 +130,7 @@ CodeTools::AST << {
   StringCompose << {
     to_ruby: |g| {
       g.add('"')
-        self.body.each_slice(2) |string, to_string| {
+        self.array.each_slice(2) |string, to_string| {
           g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
           to_string && (g.add('#{'); g.add(to_string); g.add('}'))
         }
@@ -141,7 +141,7 @@ CodeTools::AST << {
   SymbolCompose << {
     to_ruby: |g| {
       g.add(':"')
-        self.body.each_slice(2) |string, to_string| {
+        self.array.each_slice(2) |string, to_string| {
           g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
           to_string && (g.add('#{'); g.add(to_string); g.add('}'))
         }

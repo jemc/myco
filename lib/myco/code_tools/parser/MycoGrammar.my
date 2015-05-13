@@ -275,7 +275,7 @@ rule invoke_assignment:
     lhs.name = (""lhs.name"=").to_sym
     orig_arguments = lhs.arguments &? lhs.arguments.body ?? []
     arg_order = lhs.name==:"[]=" &? [*orig_arguments, rhs] ?? [rhs, *orig_arguments]
-    lhs.arguments = ast.args(rhs, arg_order)
+    lhs.arguments = ast.argument_assembly(rhs, arg_order)
     lhs
   }
 
@@ -308,7 +308,7 @@ rule op_invoke: # Allow some binary operators to be invoked with a dot
 
 rule elem_invoke:
   r(lit_array[:na] + opt_block_body[:nb])
-    { ast.invoke(na, null, :"[]", ast.args(na, na.body), nb) }
+    { ast.invoke(na, null, :"[]", ast.argument_assembly(na, na.body), nb) }
 
 rule op_invoke_id:
   left_op_normal
@@ -362,11 +362,11 @@ rule in_arg_list:
 
 rule arg_list:
   r(T.args_begin[:tb] + arg_sep_opt + in_arg_list.-[:nlist] + arg_sep_opt + T.args_end)
-    { ast.args(tb, (nlist || [])) }
+    { ast.argument_assembly(tb, (nlist || [])) }
 
 rule lit_array:
   r(T.array_begin[:tb] + arg_sep_opt + in_arg_list.-[:nlist] + arg_sep_opt + T.array_end)
-    { ast.array(tb, (nlist || [])) }
+    { ast.array_assembly(tb, (nlist || [])) }
 
 ##
 # Parameter lists

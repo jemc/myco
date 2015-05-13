@@ -2,11 +2,12 @@
 CodeTools::AST << {
   
   ArrayAssembly < Node {
-    node_type array
+    node_type array_assembly
     field body
     
-    # TODO: handle splats and other more complex assemblies
-    to_literal: self.body.map(&:to_literal)
+    const is_data: true
+    
+    to_literal: self.body.map(&:to_literal) # TODO: remove
     
     bytecode: |g| {
       pos(g)
