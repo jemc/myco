@@ -5,13 +5,28 @@ CodeTools::AST << {
     node_type call
     field receiver, field name, field arguments, field block
     
+    use_args: {
+      use_args = self.arguments
+      
+      # TODO: error if passing both block argument and block literal
+      # Currently, this fails silently and ignores the block argument
+      self.block && (
+        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(loc:self.loc, body:[])
+        use_args.block = self.block
+      )
+      
+      use_args
+    }
+    
     bytecode: |g| {
       self.receiver.?bytecode(g) ?? g.push_self
       
-      self.arguments &? (
-        self.arguments.bytecode(g)
+      use_args = self.use_args
+      
+      use_args &? (
+        use_args.bytecode(g)
         pos(g)
-        g.__send__(self.arguments.send_op, self.name, self.arguments.send_count)
+        g.__send__(use_args.send_op, self.name, use_args.send_count)
       ) ?? (
         pos(g)
         g.send(self.name, 0, !self.receiver)

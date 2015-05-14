@@ -5,30 +5,23 @@ CodeTools::AST << {
     node_type invoke
     field receiver, field name, field arguments, field block
     
+    const is_data: true
+    
     bytecode: |g| pos(g); implementation.bytecode(g)
     
     implementation: {
-      use_args = self.arguments
-      
-      # TODO: error if passing both block argument and block literal
-      # Currently, this fails silently and ignores the block argument
-      self.block && (
-        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(loc:self.loc, body:[])
-        use_args.block = self.block
-      )
-      
-      !self.receiver && !self.arguments && !self.block &? (
-        LocalVariableAccessAmbiguous.new(
-          loc: self.loc
-          name: self.name
-        )
-      ) ?? (
+      self.receiver || self.arguments || self.block &? (
         InvokeMethod.new(
           loc:       self.loc
           receiver:  self.receiver
           name:      self.name
-          arguments: use_args
+          arguments: self.arguments
           block:     self.block
+        )
+      ) ?? (
+        LocalVariableAccessAmbiguous.new(
+          loc: self.loc
+          name: self.name
         )
       )
     }

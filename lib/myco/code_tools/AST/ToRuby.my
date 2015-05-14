@@ -201,9 +201,11 @@ CodeTools::AST << {
   
   InvokeMethod << {
     to_ruby: |g| {
-      list = self.arguments &? self.arguments.body.dup ?? []
-      self.arguments.?block.is_a?(BlockArgument) && # TODO: receive block as part of arguments list
-        list.push(self.arguments.block)
+      use_args = self.use_args
+      
+      list = use_args &? use_args.body.dup ?? []
+      use_args.?block.is_a?(BlockArgument) && # TODO: receive block as part of arguments list
+        list.push(use_args.block)
       
       self.receiver && (
         g.add(self.receiver)
@@ -223,8 +225,8 @@ CodeTools::AST << {
         g.add(")")
       )
       
-      self.arguments.?block.is_a?(Block) && (
-        g.add(" {"); g.add(self.arguments.block); g.add("}")
+      use_args.?block.is_a?(Block) && (
+        g.add(" {"); g.add(use_args.block); g.add("}")
       )
     }
   }
