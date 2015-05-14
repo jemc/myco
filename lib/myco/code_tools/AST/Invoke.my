@@ -17,7 +17,7 @@ CodeTools::AST << {
         use_args.block = self.block
       )
       
-      !self.receiver && !use_args &? (
+      !self.receiver && !self.arguments && !self.block &? (
         LocalVariableAccessAmbiguous.new(
           loc: self.loc
           name: self.name
@@ -25,9 +25,10 @@ CodeTools::AST << {
       ) ?? (
         InvokeMethod.new(
           loc:       self.loc
-          receiver:  self.receiver || Self.new(loc:self.loc)
+          receiver:  self.receiver
           name:      self.name
-          arguments: use_args || ArgumentAssembly.new(loc:self.loc, body:[])
+          arguments: use_args
+          block:     self.block
         )
       )
     }

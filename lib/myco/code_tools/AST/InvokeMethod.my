@@ -3,15 +3,19 @@ CodeTools::AST << {
   
   InvokeMethod < Node {
     node_type call
-    field receiver, field name, field arguments
+    field receiver, field name, field arguments, field block
     
     bytecode: |g| {
-      self.receiver.bytecode(g)
-      self.arguments.bytecode(g)
+      self.receiver.?bytecode(g) ?? g.push_self
       
-      pos(g)
-      
-      g.__send__(self.arguments.send_op, self.name, self.arguments.send_count)
+      self.arguments &? (
+        self.arguments.bytecode(g)
+        pos(g)
+        g.__send__(self.arguments.send_op, self.name, self.arguments.send_count)
+      ) ?? (
+        pos(g)
+        g.send(self.name, 0, !self.receiver)
+      )
     }
   }
   

@@ -202,15 +202,18 @@ CodeTools::AST << {
   InvokeMethod << {
     to_ruby: |g| {
       list = self.arguments &? self.arguments.body.dup ?? []
-      self.arguments.block.is_a?(BlockArgument) && # TODO: receive block as part of arguments list
+      self.arguments.?block.is_a?(BlockArgument) && # TODO: receive block as part of arguments list
         list.push(self.arguments.block)
       
-      g.add(self.receiver)
+      self.receiver && (
+        g.add(self.receiver)
+        g.add(".")
+      )
       
       g.easy_ident?(self.name) &? (
-        g.add("."self.name"")
+        g.add(self.name.to_s)
       ) ?? (
-        g.add(".__send__")
+        g.add("__send__")
         list.unshift(SymbolLiteral.new(loc:self.loc, value:self.name))
       )
       
@@ -220,7 +223,7 @@ CodeTools::AST << {
         g.add(")")
       )
       
-      self.arguments.block.is_a?(Block) && (
+      self.arguments.?block.is_a?(Block) && (
         g.add(" {"); g.add(self.arguments.block); g.add("}")
       )
     }
