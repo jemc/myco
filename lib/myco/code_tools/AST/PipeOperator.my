@@ -5,10 +5,7 @@ CodeTools::AST << {
     node_type pipe_op
     field value, field invoke
     
-    implementation_args: ArgumentAssembly.new(
-      loc:  self.loc
-      body: [self.value] + (self.invoke.arguments.?body ?? [])
-    )
+    implementation_args: [self.value].concat(self.invoke.arguments || [])
     
     implementation: Invoke.new(
       loc:          self.loc

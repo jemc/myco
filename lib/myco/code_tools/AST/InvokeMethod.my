@@ -5,32 +5,54 @@ CodeTools::AST << {
     node_type call
     field receiver, field name, field arguments, field block
     
-    use_args: {
-      use_args = self.arguments
+    bytecode: |g| {
+      main_args  = self.main_args
+      splat_arg  = self.splat_arg
+      block      = self.block || self.block_arg
       
-      # TODO: error if passing both block argument and block literal
-      # Currently, this fails silently and ignores the block argument
-      self.block && (
-        use_args = (use_args && use_args.dup) || ArgumentAssembly.new(loc:self.loc, body:[])
-        use_args.block = self.block
+      send_count = main_args.size
+      private    = !self.receiver
+      
+      private &? g.push_self ?? self.receiver.bytecode(g)
+      
+      splat_arg &? (
+        main_args.each |item| { item.bytecode(g) }
+        splat_arg.bytecode(g)
+        block &? block.bytecode(g) ?? g.push_null
+        g.send_with_splat(self.name, send_count, private)
+      ) ?? (
+        block &? (
+          main_args.each |item| { item.bytecode(g) }
+          block.bytecode(g)
+          g.send_with_block(self.name, send_count, private)
+        ) ?? (
+          main_args.each |item| { item.bytecode(g) }
+          g.send(self.name, send_count, private)
+        )
       )
-      
-      use_args
     }
     
-    bytecode: |g| {
-      self.receiver.?bytecode(g) ?? g.push_self
+    # Last argument if it is a BlockArgument
+    block_arg:
+      self.arguments.?last.is_a?(BlockArgument) &? self.arguments.last ?? null
+    
+    # All items before the first SplatValue
+    main_args:
+      self.arguments.?take_while |item| { !item.is_a?(SplatValue) &&
+                                          !item.is_a?(BlockArgument) } ?? []
+    
+    # ArrayAssembly of all items after and including the first SplatValue
+    splat_arg: {
+      splat_arg_group =
+        self.arguments.?drop_while |item| { !item.is_a?(SplatValue) }
+                       .take_while |item| { !item.is_a?(BlockArgument) } ?? []
       
-      use_args = self.use_args
-      
-      use_args &? (
-        use_args.bytecode(g)
-        pos(g)
-        g.__send__(use_args.send_op, self.name, use_args.send_count)
-      ) ?? (
-        pos(g)
-        g.send(self.name, 0, !self.receiver)
-      )
+      splat_arg_group.any? &? (
+        ArrayAssembly.new(
+          loc: self.loc
+          body: splat_arg_group
+        )
+      ) ?? null
     }
   }
   

@@ -20,7 +20,6 @@ import 'AST/Sequence.my'
 import 'AST/SplatValue.my'
 import 'AST/ArrayAssembly.my'
 import 'AST/KeywordAssembly.my'
-import 'AST/ArgumentAssembly.my'
 import 'AST/BlockArgument.my'
 import 'AST/Block.my'
 
