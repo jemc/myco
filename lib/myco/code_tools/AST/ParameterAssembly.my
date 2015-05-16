@@ -81,7 +81,6 @@ CodeTools::AST << {
     
     # TODO: simplify
     bytecode: |g| {
-      g.state.check_for_locals = false
       all_params.each |param| { param.map_local(g.state.scope) }
       
       self.required.each |param| { param.bytecode(g) }
@@ -197,8 +196,6 @@ CodeTools::AST << {
       )
       
       self.block && self.block.bytecode(g)
-      
-      g.state.check_for_locals = true
     }
   }
   
