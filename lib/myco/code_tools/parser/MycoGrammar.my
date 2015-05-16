@@ -334,7 +334,7 @@ rule in_arg_sepd_kwarg:
 
 rule in_arg_kwargs:
   r(in_arg_kwarg[:n0] + in_arg_sepd_kwarg.*[:nrest])
-    { ast.hash(n0.first, [n0,*nrest].flatten) }
+    { ast.keyword_assembly(n0.first, [n0,*nrest].flatten) }
 
 rule in_arg_kwarg_mark: C.spc_nl.* + T.meme_mark
 

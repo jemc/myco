@@ -5,13 +5,14 @@ CodeTools::AST << {
     node_type blkarg
     field body
     
+    const is_data: true
+    
     bytecode: |g| {
       self.body.bytecode(g)
       
       done_label = g.new_label
       g.dup
-      g.is_nil
-      g.goto_if_true(done_label)
+      g.goto_if_nil(done_label)
       
       g.push_cpath_top; g.find_const(:Proc)
         g.swap
