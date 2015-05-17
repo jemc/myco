@@ -109,12 +109,14 @@ module Myco
       attr_accessor :block_environment
       
       def initialize filename, line = 1
+        @called = [:initialize]
         @filename = filename
         @line     = line
       end
       
       def bind_to cscope:nil, vscope:nil, receiver:nil,
                   call_depth:1
+        @called << :bind_to
         loc = Rubinius::VM.backtrace(call_depth, true).first
         @constant_scope = cscope || loc.constant_scope
         @variable_scope = vscope || loc.variables
@@ -124,10 +126,12 @@ module Myco
       end
       
       def make_string
+        @called << :make_string
         @string = File.read(filename)
       end
       
       def make_ast
+        @called << :make_ast
         @string || make_string
         
         parser = new_parser
@@ -146,6 +150,7 @@ module Myco
       end
       
       def make_generator
+        @called << :make_generator
         @ast || make_ast
         
         g = new_generator
@@ -158,6 +163,7 @@ module Myco
       end
       
       def make_compiled_code
+        @called << :make_compiled_code
         @generator || make_generator
         
         code = @generator.package(Rubinius::CompiledCode)
@@ -166,8 +172,11 @@ module Myco
       end
       
       def make_block_environment
+        @called << :make_block_environment
         @compiled_code || make_compiled_code
         code = @compiled_code
+        
+        @constant_scope || raise("JIT ISSUE! #{@called.inspect}") # TODO: remove this debugging instrumentation
         
         code.scope = @constant_scope
         script = Rubinius::CompiledCode::Script.new(code, @filename, true)
@@ -181,10 +190,12 @@ module Myco
       end
       
       def compile
+        @called << :compile
         @block_environment || make_block_environment
       end
       
       def load
+        @called << :load
         compile
         @block_environment.call_on_instance(@receiver)
       end
