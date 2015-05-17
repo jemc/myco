@@ -9,7 +9,11 @@ CodeTools::AST::Node << {
     bytecode: |g| {
       pos(g)
       
-      g.push_literal(self.value)
+      self.value.is_a?(Ruby::Integer) &? (
+        g.push_int(self.value)
+      ) ?? (
+        g.push_unique_literal(self.value)
+      )
     }
   }
   
