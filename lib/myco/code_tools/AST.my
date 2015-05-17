@@ -4,9 +4,9 @@ CodeTools::AST << {
   Builder < BasicObject, BuilderMethods { }
 }
 
-import 'AST/Node.my'
+import 'AST/Root.my'
 
-import 'AST/Script.my'
+import 'AST/Node.my'
 
 import 'AST/NumericLiteral.my'
 import 'AST/StringLiteral.my'

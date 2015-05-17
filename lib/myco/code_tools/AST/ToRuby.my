@@ -105,7 +105,9 @@ CodeTools::AST << {
   Node << {
     to_ruby_code: {
       g = ToRuby.new
+      g.line
       to_ruby(g)
+      g.line
       g.to_s
     }
     
@@ -115,6 +117,10 @@ CodeTools::AST << {
         g.literal_array(self.data_array)
       g.add(")")
     }
+  }
+  
+  Root << {
+    to_ruby_code: self.body.to_ruby_code
   }
   
   Self         << { to_ruby: |g| g.add("self") }
@@ -164,15 +170,13 @@ CodeTools::AST << {
     }
   }
   
-  Script << { to_ruby: |g| g.add(self.body) }
-  
   ConstantAccess     << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareString      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareFile        << { to_ruby: |g| g.line; evaluate_to_ruby(g, self.evaluator); g.line }
+  DeclareFile        << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   
   DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }

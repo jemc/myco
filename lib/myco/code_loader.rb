@@ -249,7 +249,7 @@ module Myco
     
     class MycoLoader < AbstractLoader
       def ast_root_for(body)
-        Myco::ToolSet::AST::Script.new(body: body)
+        Myco::ToolSet::AST::Root.new(body: body)
       end
       
       def new_parser

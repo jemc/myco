@@ -1,12 +1,10 @@
 
 CodeTools::AST << {
   
-  # TODO: consider moving out of the AST namespace - or maybe collapse into FileToplevel
-  Script < Node {
-    node_type script
-    field file, field body
-    
-    var variable_scope # TODO: use or remove?
+  Root < BasicObject {
+    var body
+    var file
+    var variable_scope # TODO: use in Scope variable lookup
     
     bytecode: |g| {
       g.name = :__script__
