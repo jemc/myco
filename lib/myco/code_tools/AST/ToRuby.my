@@ -172,14 +172,14 @@ CodeTools::AST << {
   
   Constant     << { to_ruby: |g| evaluate_to_ruby(g) }
   
-  DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareExtension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  Object      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  Component   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  Extension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareString      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareFile        << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareCategory    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  File        << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+  Category    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   
-  DeclareMeme        << { to_ruby: |g| evaluate_to_ruby(g) }
+  Meme        << { to_ruby: |g| evaluate_to_ruby(g) }
   
   RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
   OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }

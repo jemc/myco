@@ -36,14 +36,14 @@ import 'AST/BlockLiteral.my'
 
 import 'AST/Constant.my'
 
-import 'AST/DeclareObject.my'
-import 'AST/DeclareComponent.my'
-import 'AST/DeclareString.my'
-import 'AST/DeclareFile.my'
-import 'AST/DeclareExtension.my'
-import 'AST/DeclareCategory.my'
+import 'AST/Object.my'
+import 'AST/Component.my'
+import 'AST/DeclareString.my' # TODO: Remove
+import 'AST/File.my'
+import 'AST/Extension.my'
+import 'AST/Category.my'
 
-import 'AST/DeclareMeme.my'
+import 'AST/Meme.my'
 
 import 'AST/Invoke.my'
 import 'AST/InvokeMethod.my'

@@ -110,11 +110,11 @@ module Myco
     end
     
     # TODO: deprecate/remove
-    def self.evaluate_from_string(evctx, loc, types, string)
+    def self.evaluate_declare_string(evctx, loc, types, string)
       object = evaluate_object(evctx, loc, types, [])
       object.from_string(string)
     rescue Exception => e
-      @util.evaluation_exception(:string, loc, e)
+      @util.evaluation_exception(:declare_string, loc, e)
     end
     
   end

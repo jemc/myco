@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DeclareMeme < Node {
+  Meme < Node {
     node_type meme
     field decorations, field body
     

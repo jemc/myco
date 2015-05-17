@@ -2,20 +2,20 @@
 CodeTools::AST << {
   
   DeclareString < Node {
-    node_type declstr
+    node_type declare_string
     field evaluator, field types, field string
     
     bytecode: |g| evaluate_bytecode(g)
     
     # TODO: don't be redundant with data_bytecode
-    data_array: [:from_string,
+    data_array: [:declare_string,
       self.loc,
       self.types.map |item| { item.data_array },
       self.string,
     ]
     
     data_bytecode: |g| {
-      g.push_literal(:from_string)
+      g.push_literal(:declare_string)
       g.push_loc(self.loc)
         self.types.each |item| { item.data_bytecode(g) }
       g.make_array(self.types.count)

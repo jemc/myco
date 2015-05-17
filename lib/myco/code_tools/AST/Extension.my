@@ -1,15 +1,15 @@
 
 CodeTools::AST << {
   
-  DeclareComponent < Node {
-    node_type component
+  Extension < Node {
+    node_type extension
     field evaluator, field constant, field types, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)
     
     # TODO: don't be redundant with data_bytecode
     # TODO: pass evaluator as data
-    data_array: [:component,
+    data_array: [:extension,
       self.loc,
       self.constant.data_array,
       self.types.map    |item| { item.data_array },
@@ -17,7 +17,7 @@ CodeTools::AST << {
     ]
     
     data_bytecode: |g| {
-      g.push_literal(:component)
+      g.push_literal(:extension)
       g.push_loc(self.loc)
       self.constant.data_bytecode(g)
         self.types.each    |item| { item.data_bytecode(g) }

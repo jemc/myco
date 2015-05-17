@@ -249,7 +249,7 @@ rule declstr:
   r(constant_list[:nl]
     + C.spc.* + explicit_evaluator.-[:ne]
     + C.spc.* + declstr_body[:vb])
-    { ast.declstr(nl.first, ne, nl, vb) }
+    { ast.declare_string(nl.first, ne, nl, vb) }
 
 ##
 # Assignment

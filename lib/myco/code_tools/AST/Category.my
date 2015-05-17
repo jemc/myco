@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  DeclareCategory < Node {
+  Category < Node {
     node_type category
     field evaluator, field name, field contents
     
