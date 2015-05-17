@@ -7,7 +7,7 @@ CodeTools::AST << {
     
     const is_data: true
     
-    implementation_receiver: ConstantAccess.new(
+    implementation_receiver: Constant.new(
       loc:      self.loc
       toplevel: true
       names:    [:Ruby, :Proc]

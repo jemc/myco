@@ -170,7 +170,7 @@ CodeTools::AST << {
     }
   }
   
-  ConstantAccess     << { to_ruby: |g| evaluate_to_ruby(g) }
+  Constant     << { to_ruby: |g| evaluate_to_ruby(g) }
   
   DeclareObject      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
   DeclareComponent   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }

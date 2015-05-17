@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  ConstantAccess < Node {
+  Constant < Node {
     node_type constant
     field toplevel, field names
     
