@@ -2,8 +2,10 @@
 CodeTools::AST << {
   
   KeywordOptionalParameter < Node {
-    node_type kwoptprm
+    node_type keyword_optional_parameter
     field name, field value
+    
+    const is_data: true
     
     map_local: |scope| {
       scope.new_local(:__myco_keywords_value__)

@@ -2,7 +2,7 @@
 CodeTools::AST << {
   
   ParameterAssembly < Node {
-    node_type params
+    node_type parameter_assembly
     field required:   []
     field optional:   []
     field rest:      null
@@ -11,6 +11,8 @@ CodeTools::AST << {
     field kwoptional: []
     field kwrest:    null
     field block:     null
+    
+    const is_data: true
     
     keywords_any?:
       self.kwrequired.any? || self.kwoptional.any? || self.kwrest

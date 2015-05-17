@@ -105,7 +105,7 @@ lit_other:
 
 rule lit_block:
   r(T.op_toproc[:to] + block_body[:n1])
-    { ast.blklit(to, n1) }
+    { ast.block_literal(to, n1) }
 
 rule block_body:
   r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
@@ -376,25 +376,25 @@ param_sepd: |x| r(x[:n0] + param_sep) { n0 }
 
 rule req_param:
   r(T.identifier[:ti] + !!param_sep)
-    { ast.reqprm(ti, ti.sym) }
+    { ast.required_parameter(ti, ti.sym) }
 rule opt_param:
   r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + arg_expr[:nv])
-    { ast.optprm(ti, ti.sym, nv) }
+    { ast.optional_parameter(ti, ti.sym, nv) }
 rule rest_param:
   r(T.op_mult + C.spc_nl.* + T.identifier[:ti])
-    { ast.restprm(ti, ti.sym) }
+    { ast.rest_parameter(ti, ti.sym) }
 rule kwopt_param:
   r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + C.spc_nl.* + arg_expr[:nv])
-    { ast.kwoptprm(ti, ti.sym, nv) }
+    { ast.keyword_optional_parameter(ti, ti.sym, nv) }
 rule kwreq_param:
   r(T.identifier[:ti] + C.spc_nl.* + T.meme_mark[:to] + !!param_sep)
-    { ast.kwreqprm(ti, ti.sym) }
+    { ast.keyword_required_parameter(ti, ti.sym) }
 rule kwrest_param:
   r(T.op_exp + C.spc_nl.* + T.identifier[:ti])
-    { ast.kwrestprm(ti, ti.sym) }
+    { ast.keyword_rest_parameter(ti, ti.sym) }
 rule block_param:
   r(T.op_toproc + C.spc_nl.* + T.identifier[:ti])
-    { ast.blkprm(ti, ti.sym) }
+    { ast.block_parameter(ti, ti.sym) }
 
 rule param_list:
   r(T.params_begin[:tb]
@@ -407,11 +407,11 @@ rule param_list:
     + param_sepd(kwrest_param).-[:kwrest]
     + param_sepd(block_param).-[:block]
     + T.params_end) {
-  kwrequired = kw.select |x| { x.node_type == :kwreqprm }
-  kwoptional = kw.select |x| { x.node_type == :kwoptprm }
+  kwrequired = kw.select |x| { x.node_type == :keyword_required_parameter }
+  kwoptional = kw.select |x| { x.node_type == :keyword_optional_parameter }
   
   # TODO: the ternary clauses should not be necessary
-  ast.params(tb
+  ast.parameter_assembly(tb
     required, optional, (rest.is_a?(Array) &? rest.first ?? rest), post
     kwrequired, kwoptional, (kwrest.is_a?(Array) &? kwrest.first ?? kwrest)
     (block.is_a?(Array) &? block.first ?? block)
@@ -591,7 +591,7 @@ rule meme_enclosed_expr_body:
   r(T.meme_begin + meme_expr_body[:n0]) { n0 }
 
 rule meme_either_body_as_block:
-  r((block_body / open_block_body)[:n0]) { ast.blklit(n0, n0) }
+  r((block_body / open_block_body)[:n0]) { ast.block_literal(n0, n0) }
 
 rule decoration:
   invoke_classic_form

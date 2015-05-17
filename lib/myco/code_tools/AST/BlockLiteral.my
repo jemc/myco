@@ -2,8 +2,10 @@
 CodeTools::AST << {
   
   BlockLiteral < Node {
-    node_type blklit
+    node_type block_literal
     field block
+    
+    const is_data: true
     
     implementation_receiver: ConstantAccess.new(
       loc:      self.loc
