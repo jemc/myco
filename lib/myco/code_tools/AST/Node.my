@@ -142,7 +142,7 @@ CodeTools::AST << {
     search_local: |name| {
       (variable = self.variables[name]) &? (
         variable.nested_reference
-      ) ?? ((reference = self.parent.search_local(name)) &? (
+      ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
       ) ?? (
@@ -154,7 +154,7 @@ CodeTools::AST << {
     assign_local_reference: |name| {
       (variable = self.variables[name]) &? (
         variable.reference
-      ) ?? ((reference = self.parent.search_local(name)) &? (
+      ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
       ) ?? (
