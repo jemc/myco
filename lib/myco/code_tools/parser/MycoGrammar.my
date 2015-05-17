@@ -458,7 +458,7 @@ rule left_chained_operations:
   collapse(nlist, :t_op_compare)
   collapse(nlist, :t_op_and, :t_op_or,
                   :t_op_and_q, :t_op_or_q, :t_op_void_q) |n0,op,n1| {
-    ast.branch_op(op, op.sym, n0, n1)
+    ast.branch_operator(op, op.sym, n0, n1)
   }
   collapse(nlist, :t_op_r_pipe) |n0,op,n1| {
     ast.pipe_op(op, n0, n1)

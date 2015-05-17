@@ -2,8 +2,10 @@
 CodeTools::AST << {
   
   BranchOperator < Node {
-    node_type branch_op
+    node_type branch_operator
     field type, field left, field right
+    
+    const is_data: true
     
     bytecode: |g| {
       pos(g)
