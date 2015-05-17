@@ -2,8 +2,10 @@
 CodeTools::AST << {
   
   PipeOperator < Node {
-    node_type pipe_op
+    node_type pipe_operator
     field value, field invoke
+    
+    const is_data: true
     
     implementation_args: [self.value].concat(self.invoke.arguments || [])
     
