@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Category < Node {
-    node_type category
     field evaluator, field name, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)

@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Splat < Node {
-    node_type splat
     field value
     
     const is_data: true

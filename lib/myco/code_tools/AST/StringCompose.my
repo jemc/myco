@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   StringCompose < Node {
-    node_type string_compose
     field array
     
     const is_data: true

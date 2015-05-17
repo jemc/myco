@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   KeywordRestParameter < Node {
-    node_type keyword_rest_parameter
     field name
     
     const is_data: true

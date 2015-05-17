@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   RequiredParameter < Node {
-    node_type required_parameter
     field name
     
     const is_data: true

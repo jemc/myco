@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   KeywordAssembly < Node {
-    node_type keyword_assembly
     field body
     
     const is_data: true

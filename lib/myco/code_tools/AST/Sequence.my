@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Sequence < Node {
-    node_type sequence
     field array
     
     const is_data: true

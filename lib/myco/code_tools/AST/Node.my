@@ -30,8 +30,9 @@ CodeTools::AST << {
       blk
     }
     
-    static var node_type: null
     static var fields:    []
+    static var node_type:
+      __name__.to_s.gsub(Ruby::Regexp.new("([a-z])([A-Z])"), "\\1_\\2").downcase.to_sym
     
     node_type: self.class.node_type
     fields:    self.class.fields
@@ -101,12 +102,6 @@ CodeTools::AST << {
     }
     
     [decorators]
-    
-    const node_type: Decorator {
-      apply: |meme| meme.target.node_type = meme.name
-      [transforms]
-      expose: false
-    }
     
     const field: Decorator {
       apply: |meme| meme.target.fields.push(meme.name)

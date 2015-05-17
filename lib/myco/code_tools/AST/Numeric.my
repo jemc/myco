@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Numeric < Node {
-    node_type numeric
     field value
     
     const is_data: true

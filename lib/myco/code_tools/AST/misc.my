@@ -11,31 +11,26 @@ CodeTools::AST << {
   }
   
   Self < Node {
-    node_type self
     const is_data: true
     bytecode: |g| pos(g); g.push_self
   }
   
   Null < Node {
-    node_type null
     const is_data: true
     bytecode: |g| pos(g); g.push_null
   }
   
   Void < Node {
-    node_type void
     const is_data: true
     bytecode: |g| pos(g); g.push_void
   }
   
   True < Node {
-    node_type true
     const is_data: true
     bytecode: |g| pos(g); g.push_true
   }
   
   False < Node {
-    node_type false
     const is_data: true
     bytecode: |g| pos(g); g.push_false
   }
@@ -48,9 +43,8 @@ CodeTools::AST << {
   
   # TODO: use some other way to be eager
   EVALUATE_NOW: CodeTools::AST.component_eval {
-    constants.select |const_name| {
-      const_get(const_name).?node_type ?? null
-    }.each |const_name| {
+    constants.select |const_name| { const_get(const_name) < Node }
+             .each   |const_name| {
       component = const_get(const_name)
       node_type = component.node_type
       fields    = component.fields

@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   ParameterAssembly < Node {
-    node_type parameter_assembly
     field required:   []
     field optional:   []
     field rest:      null

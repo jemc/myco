@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   File < Node {
-    node_type file
     field evaluator, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)

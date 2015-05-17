@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Extension < Node {
-    node_type extension
     field evaluator, field constant, field types, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)

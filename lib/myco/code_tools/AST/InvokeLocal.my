@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   InvokeLocal < Node {
-    node_type invoke_local
     field name
     
     const is_data: true

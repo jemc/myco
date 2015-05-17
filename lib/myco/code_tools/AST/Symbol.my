@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Symbol < Node {
-    node_type symbol
     field value
     
     const is_data: true

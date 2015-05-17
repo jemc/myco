@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Object < Node {
-    node_type object
     field evaluator, field types, field contents
     
     bytecode: |g| evaluate_bytecode(g, self.evaluator)

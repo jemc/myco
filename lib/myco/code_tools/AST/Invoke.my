@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   Invoke < Node {
-    node_type invoke
     field receiver, field name, field arguments, field block
     
     const is_data: true

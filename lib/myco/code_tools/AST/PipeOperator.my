@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   PipeOperator < Node {
-    node_type pipe_operator
     field value, field invoke
     
     const is_data: true

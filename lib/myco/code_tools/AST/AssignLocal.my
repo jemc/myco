@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   AssignLocal < Node {
-    node_type assign_local
     field name, field value
     
     const is_data: true

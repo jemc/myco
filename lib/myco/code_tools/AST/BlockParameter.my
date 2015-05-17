@@ -2,7 +2,6 @@
 CodeTools::AST << {
   
   BlockParameter < Node {
-    node_type block_parameter
     field name
     
     const is_data: true
