@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  SymbolLiteral < Node {
+  Symbol < Node {
     node_type symbol
     field value
     

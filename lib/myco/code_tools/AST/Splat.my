@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  SplatValue < Node {
+  Splat < Node {
     node_type splat
     field value
     

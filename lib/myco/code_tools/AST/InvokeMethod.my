@@ -47,15 +47,15 @@ CodeTools::AST << {
     block_arg:
       self.arguments.?last.is_a?(BlockArgument) &? self.arguments.last ?? null
     
-    # All items before the first SplatValue
+    # All items before the first Splat
     main_args:
-      self.arguments.?take_while |item| { !item.is_a?(SplatValue) &&
+      self.arguments.?take_while |item| { !item.is_a?(Splat) &&
                                           !item.is_a?(BlockArgument) } ?? []
     
-    # ArrayAssembly of all items after and including the first SplatValue
+    # ArrayAssembly of all items after and including the first Splat
     splat_arg: {
       splat_arg_group =
-        self.arguments.?drop_while |item| { !item.is_a?(SplatValue) }
+        self.arguments.?drop_while |item| { !item.is_a?(Splat) }
                        .take_while |item| { !item.is_a?(BlockArgument) } ?? []
       
       splat_arg_group.any? &? (

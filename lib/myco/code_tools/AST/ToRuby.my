@@ -11,7 +11,7 @@ CodeTools::AST << {
     # Add to the current line the given list of Strings
     # and/or objects that respond to :to_ruby
     add: |*strings| strings.each |string| {
-      string.is_a?(String)
+      string.is_a?(Ruby::String)
         &? lines.last.concat(string.dup)
         ?? string.to_ruby(self)
     }
@@ -124,14 +124,14 @@ CodeTools::AST << {
   }
   
   Self         << { to_ruby: |g| g.add("self") }
-  NullLiteral  << { to_ruby: |g| g.add("nil") }
-  VoidLiteral  << { to_ruby: |g| g.add("::Myco::Void") }
-  TrueLiteral  << { to_ruby: |g| g.add("true") }
-  FalseLiteral << { to_ruby: |g| g.add("false") }
+  Null  << { to_ruby: |g| g.add("nil") }
+  Void  << { to_ruby: |g| g.add("::Myco::Void") }
+  True  << { to_ruby: |g| g.add("true") }
+  False << { to_ruby: |g| g.add("false") }
   
-  NumericLiteral << { to_ruby: |g| g.add(self.value.inspect) }
-  StringLiteral  << { to_ruby: |g| g.add(self.value.inspect) }
-  SymbolLiteral  << { to_ruby: |g| g.add(self.value.inspect) }
+  Numeric << { to_ruby: |g| g.add(self.value.inspect) }
+  String  << { to_ruby: |g| g.add(self.value.inspect) }
+  Symbol  << { to_ruby: |g| g.add(self.value.inspect) }
   
   StringCompose << {
     to_ruby: |g| {
@@ -213,7 +213,7 @@ CodeTools::AST << {
         g.add(self.name.to_s)
       ) ?? (
         g.add("__send__")
-        list.unshift(SymbolLiteral.new(loc:self.loc, value:self.name))
+        list.unshift(Symbol.new(loc:self.loc, value:self.name))
       )
       
       list.any? && (
@@ -259,7 +259,7 @@ CodeTools::AST << {
     }
   }
   
-  SplatValue << {
+  Splat << {
     to_ruby: |g| {
       self.value.is_a?(self.class) &? (
         self.value.to_ruby(g)

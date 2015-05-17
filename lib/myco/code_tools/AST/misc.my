@@ -12,26 +12,31 @@ CodeTools::AST << {
   
   Self < Node {
     node_type self
+    const is_data: true
     bytecode: |g| pos(g); g.push_self
   }
   
-  NullLiteral < Node {
+  Null < Node {
     node_type null
+    const is_data: true
     bytecode: |g| pos(g); g.push_null
   }
   
-  VoidLiteral < Node {
+  Void < Node {
     node_type void
+    const is_data: true
     bytecode: |g| pos(g); g.push_void
   }
   
-  TrueLiteral < Node {
+  True < Node {
     node_type true
+    const is_data: true
     bytecode: |g| pos(g); g.push_true
   }
   
-  FalseLiteral < Node {
+  False < Node {
     node_type false
+    const is_data: true
     bytecode: |g| pos(g); g.push_false
   }
   

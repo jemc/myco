@@ -8,16 +8,16 @@ import 'AST/Root.my'
 
 import 'AST/Node.my'
 
-import 'AST/NumericLiteral.my'
-import 'AST/StringLiteral.my'
-import 'AST/SymbolLiteral.my'
+import 'AST/Numeric.my'
+import 'AST/String.my'
+import 'AST/Symbol.my'
 
 import 'AST/StringCompose.my'
 import 'AST/SymbolCompose.my'
 
 import 'AST/Sequence.my'
 
-import 'AST/SplatValue.my'
+import 'AST/Splat.my'
 import 'AST/ArrayAssembly.my'
 import 'AST/KeywordAssembly.my'
 import 'AST/BlockArgument.my'

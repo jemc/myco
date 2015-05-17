@@ -1,7 +1,7 @@
 
 CodeTools::AST << {
   
-  NumericLiteral < Node {
+  Numeric < Node {
     node_type numeric
     field value
     

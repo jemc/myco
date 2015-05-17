@@ -348,7 +348,7 @@ rule in_arg_splat:
 
 rule in_arg_block:
   r(T.op_toproc[:to] + expr_atom[:n0])
-    { ast.blkarg(to, n0) }
+    { ast.block_argument(to, n0) }
 
 rule in_arg_list:
   r(in_arg_normals[:n0] + arg_sep + in_arg_kwargs[:n1] + arg_sep + in_arg_block[:n2]) { [*n0,n1,n2] }
