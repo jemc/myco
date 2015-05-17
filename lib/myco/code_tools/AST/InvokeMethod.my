@@ -8,14 +8,23 @@ CodeTools::AST << {
     const is_data: true
     
     bytecode: |g| {
+      receiver_bytecode(g)
+      send_bytecode(g)
+    }
+    
+    # Push the receiver object onto the stack.
+    receiver_bytecode: |g| {
+      self.receiver &? self.receiver.bytecode(g) ?? g.push_self
+    }
+    
+    # Assumes that a receiver object is already at the top of the stack.
+    send_bytecode: |g| {
       main_args  = self.main_args
       splat_arg  = self.splat_arg
       block      = self.block || self.block_arg
       
       send_count = main_args.size
       private    = !self.receiver
-      
-      private &? g.push_self ?? self.receiver.bytecode(g)
       
       splat_arg &? (
         main_args.each |item| { item.bytecode(g) }

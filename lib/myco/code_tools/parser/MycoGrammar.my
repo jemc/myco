@@ -494,9 +494,8 @@ rule left_chained_invocations:
   nlist.flatten!
   
   collapse(nlist, :t_dot, :t_quest) |n0,op,n1| {
-    (op.type == :t_dot)
-      &? (n1.receiver=n0; n1)
-      ?? ast.quest(op, n0, n1)
+    n1.receiver = n0
+    (op.type == :t_dot) &? n1 ?? ast.quest(op, n1)
   }
   
   # There should only be one resulting node left

@@ -204,13 +204,10 @@ CodeTools::AST << {
   Invoke << { to_ruby: |g| g.add(implementation) }
   
   InvokeMethod << {
-    to_ruby: |g| {
+    receiver_to_ruby: |g| g.add(self.receiver)
+    
+    send_to_ruby: |g| {
       list = self.arguments &? self.arguments.dup ?? []
-      
-      self.receiver && (
-        g.add(self.receiver)
-        g.add(".")
-      )
       
       g.easy_ident?(self.name) &? (
         g.add(self.name.to_s)
@@ -228,6 +225,14 @@ CodeTools::AST << {
       self.block && (
         g.add(" {"); g.add(self.block); g.add("}")
       )
+    }
+    
+    to_ruby: |g| {
+      self.receiver && (
+        receiver_to_ruby(g)
+        g.add(".")
+      )
+      send_to_ruby(g)
     }
   }
   
@@ -284,16 +289,11 @@ CodeTools::AST << {
   
   Quest << {
     to_ruby: |g| {
-      # TODO: make this output more verbose, but more correct, and without duping the questable
-      associated_questable = self.questable.dup
-      associated_questable.receiver = self.receiver
-      
+      invoke = self.invoke.implementation
       g.add("(")
-        g.add("Rubinius::Type.object_respond_to?(")
-          g.add(self.receiver)
-          g.add(", "self.questable.name.inspect").false?")
-        g.add(" ? ::Myco::Void : ")
-        g.add(associated_questable)
+        g.add("__q__ = "); invoke.receiver_to_ruby(g); g.add("; ")
+        g.add("Rubinius::Type.object_respond_to?(__q__, "invoke.name.inspect")")
+        g.add(" ? __q__."); invoke.send_to_ruby(g); g.add(" : ::Myco::Void")
       g.add(")")
     }
   }

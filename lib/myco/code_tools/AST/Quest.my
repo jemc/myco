@@ -3,19 +3,18 @@ CodeTools::AST << {
   
   Quest < Node {
     node_type quest
-    field receiver, field questable
+    field invoke
     
-    setter questable: |given| {
-      given.receiver = FakeReceiver.new(loc: self.loc)
-      given
-    }
+    const is_data: true
     
     bytecode: |g| {
       pos(g)
       
+      invoke = self.invoke.implementation
+      
       ##
-      # unless Rubinius::Type.object_respond_to?(self.receiver, self.questable.name).false?
-      #   execute_statement self.questable
+      # if Rubinius::Type.object_respond_to?(invoke.receiver, invoke.name)
+      #   execute_statement invoke
       # else
       #   return void
       # end
@@ -23,18 +22,17 @@ CodeTools::AST << {
       else_label = g.new_label
       end_label  = g.new_label
       
-      self.receiver.bytecode(g)
+      invoke.receiver_bytecode(g)
         g.dup_top # dup the receiver to save it for later
       g.push_type; g.swap
-        g.push_literal(self.questable.name)
+        g.push_literal(invoke.name)
       g.send(:"object_respond_to?", 2)
-      g.send(:"false?", 0)
-      g.goto_if_true(else_label)
+      g.goto_if_false(else_label)
       
       # The duped receiver is still at the top of the stack,
-      # and self.questable.receiver has been set to an instance of FakeReceiver
+      # and invoke.receiver has been set to an instance of FakeReceiver
       # to let the true receiver pass through instead.
-      self.questable.bytecode(g)
+      invoke.send_bytecode(g)
       g.goto(end_label)
       
       else_label.set!
@@ -42,17 +40,6 @@ CodeTools::AST << {
       g.push_void
       
       end_label.set!
-    }
-    
-    
-    FakeReceiver < Node {
-      node_type qrcvr
-      
-      # Do nothing here - this would normally be ill-advised,
-      # because Nodes are expected to push an item onto the stack,
-      # but here we are intentionally not doing so because
-      # the real receiver should already at the top of the stack
-      bytecode: |g| pos(g)
     }
   }
   
