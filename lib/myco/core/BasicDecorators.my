@@ -126,9 +126,13 @@
       
       const_name = as && as.to_sym
       const_name &? (
+        # Create a new constant to hold the imported component
         meme.target.const_set(const_name, component)
       ) ?? (
-        meme.target.include(component)
+        # Copy constants from imported component into this one
+        component.constants.each |const_name| {
+          meme.target.const_set(const_name, component.const_get(const_name))
+        }
       )
     }
   }
