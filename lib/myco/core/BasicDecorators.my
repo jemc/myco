@@ -116,4 +116,20 @@
     }
   }
   
+  # The 'import' decorator runs the code in the given file, ignoring the
+  # return value but importing the constants into the current namespace.
+  const import: Decorator {
+    apply: |meme, as: null| {
+      scope = meme.target.constant_scope
+      load_paths = [scope.myco_evctx.myco_file.instance.dirname]
+      component = Myco.eval_file(meme.name.to_s, load_paths, false, scope)
+      
+      const_name = as && as.to_sym
+      const_name &? (
+        meme.target.const_set(const_name, component)
+      ) ?? (
+        meme.target.include(component)
+      )
+    }
+  }
 }
