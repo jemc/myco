@@ -19,7 +19,7 @@ CodeTools::AST << {
           block:     self.block
         )
       ) ?? (
-        LocalVariableAccessAmbiguous.new(
+        InvokeLocal.new(
           loc: self.loc
           name: self.name
         )

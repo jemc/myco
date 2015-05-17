@@ -1,9 +1,11 @@
 
 CodeTools::AST << {
   
-  LocalVariableAccessAmbiguous < Node {
-    node_type lambig
+  InvokeLocal < Node {
+    node_type invoke_local
     field name
+    
+    const is_data: true
     
     bytecode: |g| {
       pos(g)

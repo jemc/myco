@@ -238,7 +238,7 @@ CodeTools::AST << {
     }
   }
   
-  LocalVariableAccessAmbiguous << {
+  InvokeLocal << {
     to_ruby: |g| {
       g.var_scope_has_local?(self.name) &? (
         g.add(self.name.to_s)
