@@ -48,7 +48,7 @@ import 'AST/DeclareMeme.my'
 import 'AST/Invoke.my'
 import 'AST/InvokeMethod.my'
 import 'AST/LocalVariableAccessAmbiguous.my'
-import 'AST/LocalVariableAssignment.my'
+import 'AST/AssignLocal.my'
 
 import 'AST/Quest.my'
 import 'AST/BranchOperator.my'

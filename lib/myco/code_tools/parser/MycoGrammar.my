@@ -263,7 +263,7 @@ rule assign_rhs:
 
 rule local_assignment:
   r(T.identifier[:ti] + C.spc_nl.* + T.assign[:to] + C.spc_nl.* + assign_rhs[:rhs])
-    { ast.lasgn(to, ti.sym, rhs) }
+    { ast.assign_local(to, ti.sym, rhs) }
 
 rule invoke_assignment_lhs:
   left_chained_invocations
