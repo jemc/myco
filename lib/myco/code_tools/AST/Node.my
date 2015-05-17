@@ -150,16 +150,15 @@ CodeTools::AST << {
       ))
     }
     
-    # Assign a slot number to a local variable access node.
-    # TODO: remove this method in favor of using search_local in all cases instead.
-    assign_local_reference: |var| {
-      var.variable = (variable = self.variables[var.name]) &? (
+    # Assign a slot number to a new or retrieve an existing local variable.
+    assign_local_reference: |name| {
+      (variable = self.variables[name]) &? (
         variable.reference
-      ) ?? ((reference = self.parent.search_local(var.name)) &? (
+      ) ?? ((reference = self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
       ) ?? (
-        variable = self.new_local(var.name)
+        variable = self.new_local(name)
         variable.reference
       ))
     }

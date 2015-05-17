@@ -5,13 +5,10 @@ CodeTools::AST << {
     node_type lasgn
     field name, field value
     
-    var variable # TODO: remove
-    
     bytecode: |g| {
-      var = g.state.scope.assign_local_reference(self)
+      var = g.state.scope.assign_local_reference(self.name)
       
       self.value && self.value.bytecode(g)
-      
       pos(g)
       var.set_bytecode(g)
     }
