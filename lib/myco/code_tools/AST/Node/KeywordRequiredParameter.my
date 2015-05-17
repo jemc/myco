@@ -1,0 +1,17 @@
+
+CodeTools::AST::Node << {
+  
+  KeywordRequiredParameter < Node {
+    field name
+    
+    const is_data: true
+    
+    map_local: |scope| {
+      scope.new_local(:__myco_keywords_value__)
+      scope.new_local(self.name)
+    }
+    
+    bytecode: |g| { } # TODO: move ParameterAssembly logic to this method
+  }
+   
+}

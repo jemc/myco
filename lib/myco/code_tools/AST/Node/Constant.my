@@ -1,0 +1,13 @@
+
+CodeTools::AST::Node << {
+  
+  Constant < Node {
+    field toplevel, field names
+    
+    const is_data: true
+    const has_loc_data: true
+    
+    bytecode: |g| evaluate_bytecode(g)
+  }
+  
+}

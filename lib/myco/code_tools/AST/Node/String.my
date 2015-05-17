@@ -1,0 +1,19 @@
+
+CodeTools::AST::Node << {
+  
+  String < Node {
+    field value
+    
+    const is_data: true
+    
+    to_literal: self.value # TODO: remove
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(self.value)
+      g.string_dup
+    }
+  }
+  
+}

@@ -1,0 +1,25 @@
+
+CodeTools::AST::Node << {
+  
+  OptionalParameter < Node {
+    field name, field value
+    
+    const is_data: true
+    
+    map_local: |scope| scope.new_local(self.name)
+    
+    bytecode: |g| {
+      done_label = g.new_label
+      
+      g.state.scope.search_local(self.name).get_bytecode(g)
+      g.goto_if_not_undefined(done_label)
+      
+      self.value.bytecode(g)
+      g.state.scope.search_local(self.name).set_bytecode(g)
+      g.pop
+      
+      done_label.set!
+    }
+  }
+   
+}

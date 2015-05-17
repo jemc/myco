@@ -1,0 +1,28 @@
+
+CodeTools::AST::Node << {
+  
+  Object < Node {
+    field evaluator, field types, field contents
+    
+    bytecode: |g| evaluate_bytecode(g, self.evaluator)
+    
+    # TODO: don't be redundant with data_bytecode
+    # TODO: pass evaluator as data
+    data_array: [:object,
+      self.loc,
+      self.types.map    |item| { item.data_array },
+      self.contents.map |item| { item.data_array },
+    ]
+    
+    data_bytecode: |g| {
+      g.push_literal(:object)
+      g.push_loc(self.loc)
+        self.types.each    |item| { item.data_bytecode(g) }
+      g.make_array(self.types.count)
+        self.contents.each |item| { item.data_bytecode(g) }
+      g.make_array(self.contents.count)
+      g.make_array(4)
+    }
+  }
+  
+}

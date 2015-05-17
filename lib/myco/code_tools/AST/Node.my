@@ -110,6 +110,8 @@ CodeTools::AST << {
     }
   }
   
+  Node << { Node: Node } # TODO: remove this hack
+  
   # TODO: move this out of Node.my ?
   State < BasicObject {
     var scope

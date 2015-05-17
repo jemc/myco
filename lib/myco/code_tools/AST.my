@@ -8,51 +8,51 @@ import 'AST/Root.my'
 
 import 'AST/Node.my'
 
-import 'AST/Numeric.my'
-import 'AST/String.my'
-import 'AST/Symbol.my'
+import 'AST/Node/Numeric.my'
+import 'AST/Node/String.my'
+import 'AST/Node/Symbol.my'
 
-import 'AST/StringCompose.my'
-import 'AST/SymbolCompose.my'
+import 'AST/Node/StringCompose.my'
+import 'AST/Node/SymbolCompose.my'
 
-import 'AST/Sequence.my'
+import 'AST/Node/Sequence.my'
 
-import 'AST/Splat.my'
-import 'AST/ArrayAssembly.my'
-import 'AST/KeywordAssembly.my'
-import 'AST/BlockArgument.my'
-import 'AST/Block.my'
+import 'AST/Node/Splat.my'
+import 'AST/Node/ArrayAssembly.my'
+import 'AST/Node/KeywordAssembly.my'
+import 'AST/Node/BlockArgument.my'
+import 'AST/Node/Block.my'
 
-import 'AST/RequiredParameter.my'
-import 'AST/OptionalParameter.my'
-import 'AST/RestParameter.my'
-import 'AST/KeywordRequiredParameter.my'
-import 'AST/KeywordOptionalParameter.my'
-import 'AST/KeywordRestParameter.my'
-import 'AST/BlockParameter.my'
-import 'AST/ParameterAssembly.my'
+import 'AST/Node/RequiredParameter.my'
+import 'AST/Node/OptionalParameter.my'
+import 'AST/Node/RestParameter.my'
+import 'AST/Node/KeywordRequiredParameter.my'
+import 'AST/Node/KeywordOptionalParameter.my'
+import 'AST/Node/KeywordRestParameter.my'
+import 'AST/Node/BlockParameter.my'
+import 'AST/Node/ParameterAssembly.my'
 
-import 'AST/BlockLiteral.my'
+import 'AST/Node/BlockLiteral.my'
 
-import 'AST/Constant.my'
+import 'AST/Node/Constant.my'
 
-import 'AST/Object.my'
-import 'AST/Component.my'
-import 'AST/DeclareString.my' # TODO: Remove
-import 'AST/File.my'
-import 'AST/Extension.my'
-import 'AST/Category.my'
+import 'AST/Node/Object.my'
+import 'AST/Node/Component.my'
+import 'AST/Node/DeclareString.my' # TODO: Remove
+import 'AST/Node/File.my'
+import 'AST/Node/Extension.my'
+import 'AST/Node/Category.my'
 
-import 'AST/Meme.my'
+import 'AST/Node/Meme.my'
 
-import 'AST/Invoke.my'
-import 'AST/InvokeMethod.my'
-import 'AST/InvokeLocal.my'
-import 'AST/AssignLocal.my'
+import 'AST/Node/Invoke.my'
+import 'AST/Node/InvokeMethod.my'
+import 'AST/Node/InvokeLocal.my'
+import 'AST/Node/AssignLocal.my'
 
-import 'AST/Quest.my'
-import 'AST/BranchOperator.my'
-import 'AST/PipeOperator.my'
+import 'AST/Node/Quest.my'
+import 'AST/Node/BranchOperator.my'
+import 'AST/Node/PipeOperator.my'
 
 # TODO: refactor and break out misc
 import "AST/misc.my"

@@ -1,0 +1,24 @@
+
+CodeTools::AST::Node << {
+  
+  BlockArgument < Node {
+    field body
+    
+    const is_data: true
+    
+    bytecode: |g| {
+      self.body.bytecode(g)
+      
+      done_label = g.new_label
+      g.dup
+      g.goto_if_nil(done_label)
+      
+      g.push_cpath_top; g.find_const(:Proc)
+        g.swap
+      g.send(:__from_block__, 1)
+      
+      done_label.set!
+    }
+  }
+  
+}

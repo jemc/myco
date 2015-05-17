@@ -1,0 +1,27 @@
+
+CodeTools::AST::Node << {
+  
+  Block < Node {
+    field parameters, field body
+    
+    const is_data: true
+    
+    effective_parameters:
+      self.parameters || ParameterAssembly.new(loc:loc, required:[], rest:RestParameter.new(loc:loc))
+    
+    bytecode: |g| {
+      pos(g)
+      
+      blk = new_block_generator(g) |blk| {
+        parameters = self.effective_parameters
+        parameters.generator_setup(blk)
+        parameters.bytecode(blk)
+        
+        self.body &? self.body.bytecode(blk) ?? g.push_null
+      }
+      
+      g.create_block(blk)
+    }
+  }
+  
+}

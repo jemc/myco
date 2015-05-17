@@ -123,191 +123,193 @@ CodeTools::AST << {
     to_ruby_code: self.body.to_ruby_code
   }
   
-  Self         << { to_ruby: |g| g.add("self") }
-  Null  << { to_ruby: |g| g.add("nil") }
-  Void  << { to_ruby: |g| g.add("::Myco::Void") }
-  True  << { to_ruby: |g| g.add("true") }
-  False << { to_ruby: |g| g.add("false") }
-  
-  Numeric << { to_ruby: |g| g.add(self.value.inspect) }
-  String  << { to_ruby: |g| g.add(self.value.inspect) }
-  Symbol  << { to_ruby: |g| g.add(self.value.inspect) }
-  
-  StringCompose << {
-    to_ruby: |g| {
-      g.add('"')
-        self.array.each_slice(2) |string, to_string| {
-          g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
-          to_string && (g.add('#{'); g.add(to_string); g.add('}'))
-        }
-      g.add('"')
-    }
-  }
-  
-  SymbolCompose << {
-    to_ruby: |g| {
-      g.add(':"')
-        self.array.each_slice(2) |string, to_string| {
-          g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
-          to_string && (g.add('#{'); g.add(to_string); g.add('}'))
-        }
-      g.add('"')
-    }
-  }
-  
-  ArrayAssembly << {
-    to_ruby: |g|
-      g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
-  }
-  
-  KeywordAssembly << {
-    to_ruby: |g| {
-      g.add("{")
-      g.list(self.body.each_slice(2).to_a, ",", auto_lines:true) |pair| {
-        g.add(pair.first, " => ", pair.last)
+  Node << {
+    Self  << { to_ruby: |g| g.add("self") }
+    Null  << { to_ruby: |g| g.add("nil") }
+    Void  << { to_ruby: |g| g.add("::Myco::Void") }
+    True  << { to_ruby: |g| g.add("true") }
+    False << { to_ruby: |g| g.add("false") }
+    
+    Numeric << { to_ruby: |g| g.add(self.value.inspect) }
+    String  << { to_ruby: |g| g.add(self.value.inspect) }
+    Symbol  << { to_ruby: |g| g.add(self.value.inspect) }
+    
+    StringCompose << {
+      to_ruby: |g| {
+        g.add('"')
+          self.array.each_slice(2) |string, to_string| {
+            g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
+            to_string && (g.add('#{'); g.add(to_string); g.add('}'))
+          }
+        g.add('"')
       }
-      g.add("}")
-    }
-  }
-  
-  Constant     << { to_ruby: |g| evaluate_to_ruby(g) }
-  
-  Object      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  Component   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  Extension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  DeclareString      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  File        << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  Category    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
-  
-  Meme        << { to_ruby: |g| evaluate_to_ruby(g) }
-  
-  RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
-  OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
-  RestParameter     << { to_ruby: |g| g.add("*"self.name"") }
-  
-  KeywordRequiredParameter << { to_ruby: |g| g.add(""self.name":") }
-  KeywordOptionalParameter << { to_ruby: |g| g.add(""self.name":"); g.add(self.value) }
-  KeywordRestParameter     << { to_ruby: |g| g.add("**"self.name"") }
-  
-  BlockParameter    << { to_ruby: |g| g.add("&"self.name"") }
-  
-  ParameterAssembly << {
-    to_ruby: |g|
-      g.add("|"); g.list(self.all_params, ", "); g.add("|")
-  }
-  
-  Sequence << {
-    to_ruby: |g|
-      g.add("("); g.list(self.array, "", auto_lines:true); g.add(")")
-  }
-  
-  Invoke << { to_ruby: |g| g.add(implementation) }
-  
-  InvokeMethod << {
-    receiver_to_ruby: |g| g.add(self.receiver)
-    
-    send_to_ruby: |g| {
-      list = self.arguments &? self.arguments.dup ?? []
-      
-      g.easy_ident?(self.name) &? (
-        g.add(self.name.to_s)
-      ) ?? (
-        g.add("__send__")
-        list.unshift(Symbol.new(loc:self.loc, value:self.name))
-      )
-      
-      list.any? && (
-        g.add("(")
-          g.list(list, ",", auto_lines:true)
-        g.add(")")
-      )
-      
-      self.block && (
-        g.add(" {"); g.add(self.block); g.add("}")
-      )
     }
     
-    to_ruby: |g| {
-      self.receiver && (
-        receiver_to_ruby(g)
-        g.add(".")
-      )
-      send_to_ruby(g)
+    SymbolCompose << {
+      to_ruby: |g| {
+        g.add(':"')
+          self.array.each_slice(2) |string, to_string| {
+            g.add(string.value.to_s.inspect.slice(Range.new(1, -2)))
+            to_string && (g.add('#{'); g.add(to_string); g.add('}'))
+          }
+        g.add('"')
+      }
     }
-  }
-  
-  AssignLocal << {
-    to_ruby: |g| {
-      g.var_scope_declare_local(self.name)
-      g.add(self.name.to_s); g.add(" = "); g.add(self.value)
+    
+    ArrayAssembly << {
+      to_ruby: |g|
+        g.add("["); g.list(self.body, ",", auto_lines:true); g.add("]")
     }
-  }
-  
-  InvokeLocal << {
-    to_ruby: |g| {
-      g.var_scope_has_local?(self.name) &? (
-        g.add(self.name.to_s)
-      ) ?? (
-        g.add("self")
+    
+    KeywordAssembly << {
+      to_ruby: |g| {
+        g.add("{")
+        g.list(self.body.each_slice(2).to_a, ",", auto_lines:true) |pair| {
+          g.add(pair.first, " => ", pair.last)
+        }
+        g.add("}")
+      }
+    }
+    
+    Constant     << { to_ruby: |g| evaluate_to_ruby(g) }
+    
+    Object      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    Component   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    Extension   << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    DeclareString      << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    File        << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    Category    << { to_ruby: |g| evaluate_to_ruby(g, self.evaluator) }
+    
+    Meme        << { to_ruby: |g| evaluate_to_ruby(g) }
+    
+    RequiredParameter << { to_ruby: |g| g.add(""self.name"") }
+    OptionalParameter << { to_ruby: |g| g.add(""self.name"="); g.add(self.value) }
+    RestParameter     << { to_ruby: |g| g.add("*"self.name"") }
+    
+    KeywordRequiredParameter << { to_ruby: |g| g.add(""self.name":") }
+    KeywordOptionalParameter << { to_ruby: |g| g.add(""self.name":"); g.add(self.value) }
+    KeywordRestParameter     << { to_ruby: |g| g.add("**"self.name"") }
+    
+    BlockParameter    << { to_ruby: |g| g.add("&"self.name"") }
+    
+    ParameterAssembly << {
+      to_ruby: |g|
+        g.add("|"); g.list(self.all_params, ", "); g.add("|")
+    }
+    
+    Sequence << {
+      to_ruby: |g|
+        g.add("("); g.list(self.array, "", auto_lines:true); g.add(")")
+    }
+    
+    Invoke << { to_ruby: |g| g.add(implementation) }
+    
+    InvokeMethod << {
+      receiver_to_ruby: |g| g.add(self.receiver)
+      
+      send_to_ruby: |g| {
+        list = self.arguments &? self.arguments.dup ?? []
         
         g.easy_ident?(self.name) &? (
-          g.add("."self.name"")
+          g.add(self.name.to_s)
         ) ?? (
-          g.add(".__send__("self.name.inspect")")
+          g.add("__send__")
+          list.unshift(Symbol.new(loc:self.loc, value:self.name))
         )
-      )
-    }
-  }
-  
-  Splat << {
-    to_ruby: |g| {
-      self.value.is_a?(self.class) &? (
-        self.value.to_ruby(g)
-      ) ?? (
-        g.add("*")
-        self.value.to_ruby(g)
-      )
-    }
-  }
-  
-  BlockArgument << {
-    to_ruby: |g| g.add("&"); g.add(self.body)
-  }
-  
-  Block << {
-    to_ruby: |g| {
-      g.with_nested_var_scope(self) {
-        parameters = self.effective_parameters
-        g.var_scope_declare_locals(*parameters.names)
         
-        g.add(" "); g.add(parameters); g.add(" "); g.add(self.body || "")
+        list.any? && (
+          g.add("(")
+            g.list(list, ",", auto_lines:true)
+          g.add(")")
+        )
+        
+        self.block && (
+          g.add(" {"); g.add(self.block); g.add("}")
+        )
+      }
+      
+      to_ruby: |g| {
+        self.receiver && (
+          receiver_to_ruby(g)
+          g.add(".")
+        )
+        send_to_ruby(g)
       }
     }
-  }
-  
-  BlockLiteral << { to_ruby: |g| g.add(implementation) }
-  
-  Quest << {
-    to_ruby: |g| {
-      invoke = self.invoke.implementation
-      g.add("(")
-        g.add("__q__ = "); invoke.receiver_to_ruby(g); g.add("; ")
-        g.add("Rubinius::Type.object_respond_to?(__q__, "invoke.name.inspect")")
-        g.add(" ? __q__."); invoke.send_to_ruby(g); g.add(" : ::Myco::Void")
-      g.add(")")
+    
+    AssignLocal << {
+      to_ruby: |g| {
+        g.var_scope_declare_local(self.name)
+        g.add(self.name.to_s); g.add(" = "); g.add(self.value)
+      }
     }
-  }
-  
-  BranchOperator << {
-    to_ruby: |g| {
-      g.add('::Myco.branch_op(')
-        g.add(self.type.inspect); g.add(', ')
-        g.add(self.left); g.add(') {')
-        g.add(self.right); g.add('}')
+    
+    InvokeLocal << {
+      to_ruby: |g| {
+        g.var_scope_has_local?(self.name) &? (
+          g.add(self.name.to_s)
+        ) ?? (
+          g.add("self")
+          
+          g.easy_ident?(self.name) &? (
+            g.add("."self.name"")
+          ) ?? (
+            g.add(".__send__("self.name.inspect")")
+          )
+        )
+      }
     }
-  }
-  
-  PipeOperator << {
-    to_ruby: |g| g.add(implementation)
+    
+    Splat << {
+      to_ruby: |g| {
+        self.value.is_a?(self.class) &? (
+          self.value.to_ruby(g)
+        ) ?? (
+          g.add("*")
+          self.value.to_ruby(g)
+        )
+      }
+    }
+    
+    BlockArgument << {
+      to_ruby: |g| g.add("&"); g.add(self.body)
+    }
+    
+    Block << {
+      to_ruby: |g| {
+        g.with_nested_var_scope(self) {
+          parameters = self.effective_parameters
+          g.var_scope_declare_locals(*parameters.names)
+          
+          g.add(" "); g.add(parameters); g.add(" "); g.add(self.body || "")
+        }
+      }
+    }
+    
+    BlockLiteral << { to_ruby: |g| g.add(implementation) }
+    
+    Quest << {
+      to_ruby: |g| {
+        invoke = self.invoke.implementation
+        g.add("(")
+          g.add("__q__ = "); invoke.receiver_to_ruby(g); g.add("; ")
+          g.add("Rubinius::Type.object_respond_to?(__q__, "invoke.name.inspect")")
+          g.add(" ? __q__."); invoke.send_to_ruby(g); g.add(" : ::Myco::Void")
+        g.add(")")
+      }
+    }
+    
+    BranchOperator << {
+      to_ruby: |g| {
+        g.add('::Myco.branch_op(')
+          g.add(self.type.inspect); g.add(', ')
+          g.add(self.left); g.add(') {')
+          g.add(self.right); g.add('}')
+      }
+    }
+    
+    PipeOperator << {
+      to_ruby: |g| g.add(implementation)
+    }
   }
 }

@@ -1,0 +1,51 @@
+
+CodeTools::AST::Node << {
+  
+  Invoke < Node {
+    field receiver, field name, field arguments, field block
+    
+    const is_data: true
+    
+    bytecode: |g| pos(g); implementation.bytecode(g)
+    
+    implementation: {
+      self.receiver || self.arguments || self.block &? (
+        InvokeMethod.new(
+          loc:       self.loc
+          receiver:  self.receiver
+          name:      self.name
+          arguments: self.arguments
+          block:     self.block
+        )
+      ) ?? (
+        InvokeLocal.new(
+          loc: self.loc
+          name: self.name
+        )
+      )
+    }
+    
+    # TODO: don't be redundant with data_bytecode
+    data_array: [:invoke,
+      null, # TODO: receiver
+      self.name,
+      self.arguments.?map(&:to_literal) ?? null, # TODO: data_array
+      null, # TODO: block
+    ]
+    
+    data_bytecode: |g| {
+      g.push_literal(:invoke)
+      g.push_null # TODO: receiver
+      g.push_literal(self.name)
+      self.arguments &? (
+        self.arguments.each |item| { item.bytecode(g) }
+        g.make_array(self.arguments.size)
+      ) ?? (
+        g.push_null
+      )
+      g.push_null # TODO: block
+      g.make_array(5)
+    }
+  }
+  
+}

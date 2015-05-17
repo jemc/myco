@@ -1,0 +1,17 @@
+
+CodeTools::AST::Node << {
+  
+  Sequence < Node {
+    field array
+    
+    const is_data: true
+    
+    bytecode: |g| {
+      self.array.each_with_index |item, idx| {
+        idx > 0 && g.pop
+        item.bytecode(g)
+      }
+    }
+  }
+  
+}

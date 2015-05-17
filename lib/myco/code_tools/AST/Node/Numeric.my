@@ -1,0 +1,16 @@
+
+CodeTools::AST::Node << {
+  
+  Numeric < Node {
+    field value
+    
+    const is_data: true
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_literal(self.value)
+    }
+  }
+  
+}

@@ -10,29 +10,31 @@ CodeTools::AST << {
       push_literal(loc[0]); push_literal(loc[1]); make_array(2)
   }
   
-  Self < Node {
-    const is_data: true
-    bytecode: |g| pos(g); g.push_self
-  }
-  
-  Null < Node {
-    const is_data: true
-    bytecode: |g| pos(g); g.push_null
-  }
-  
-  Void < Node {
-    const is_data: true
-    bytecode: |g| pos(g); g.push_void
-  }
-  
-  True < Node {
-    const is_data: true
-    bytecode: |g| pos(g); g.push_true
-  }
-  
-  False < Node {
-    const is_data: true
-    bytecode: |g| pos(g); g.push_false
+  Node << {
+    Self < Node {
+      const is_data: true
+      bytecode: |g| pos(g); g.push_self
+    }
+    
+    Null < Node {
+      const is_data: true
+      bytecode: |g| pos(g); g.push_null
+    }
+    
+    Void < Node {
+      const is_data: true
+      bytecode: |g| pos(g); g.push_void
+    }
+    
+    True < Node {
+      const is_data: true
+      bytecode: |g| pos(g); g.push_true
+    }
+    
+    False < Node {
+      const is_data: true
+      bytecode: |g| pos(g); g.push_false
+    }
   }
   
   # Used in situations where no locator is available (like an empty file)
@@ -42,7 +44,7 @@ CodeTools::AST << {
   }
   
   # TODO: use some other way to be eager
-  EVALUATE_NOW: CodeTools::AST.component_eval {
+  EVALUATE_NOW: CodeTools::AST::Node.component_eval {
     constants.select |const_name| { const_get(const_name) < Node }
              .each   |const_name| {
       component = const_get(const_name)

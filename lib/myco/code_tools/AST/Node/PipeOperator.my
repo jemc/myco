@@ -1,0 +1,22 @@
+
+CodeTools::AST::Node << {
+  
+  PipeOperator < Node {
+    field value, field invoke
+    
+    const is_data: true
+    
+    implementation_args: [self.value].concat(self.invoke.arguments || [])
+    
+    implementation: Invoke.new(
+      loc:          self.loc
+      receiver:     self.invoke.receiver
+      name:         self.invoke.name
+      arguments:    self.implementation_args
+      block:        self.invoke.block
+    )
+    
+    bytecode: |g| implementation.bytecode(g)
+  }
+  
+}

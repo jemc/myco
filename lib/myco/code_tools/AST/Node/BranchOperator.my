@@ -1,0 +1,59 @@
+
+CodeTools::AST::Node << {
+  
+  BranchOperator < Node {
+    field type, field left, field right
+    
+    const is_data: true
+    
+    bytecode: |g| {
+      pos(g)
+      
+      done_label = g.new_label
+      right_label = g.new_label
+      otherwise_push_void = false
+      
+      self.left.bytecode(g)
+      
+      type == :"&&" && (
+        g.dup_top
+        g.send(:"false?", 0)
+        g.goto_if_true(done_label)
+        g.pop
+      )
+      type == :"||" && (
+        g.dup_top
+        g.send(:"false?", 0)
+        g.goto_if_false(done_label)
+        g.pop
+      )
+      type == :"??" && (
+        g.dup_top
+        g.send(:"void?", 0)
+        g.goto_if_false(done_label)
+        g.pop
+      )
+      type == :"&?" && (
+        g.send(:"false?", 0)
+        g.goto_if_false(right_label)
+        otherwise_push_void = true
+      )
+      type == :"|?" && (
+        g.send(:"false?", 0)
+        g.goto_if_true(right_label)
+        otherwise_push_void = true
+      )
+      
+      otherwise_push_void && (
+        g.push_void
+        g.goto(done_label)
+        
+        right_label.set!
+      )
+      
+      self.right.bytecode(g)
+      done_label.set!
+    }
+  }
+  
+}

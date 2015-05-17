@@ -1,0 +1,30 @@
+
+CodeTools::AST::Node << {
+  
+  KeywordAssembly < Node {
+    field body
+    
+    const is_data: true
+    
+    bytecode: |g| {
+      pos(g)
+      
+      g.push_cpath_top
+      g.find_const(:Hash)
+      g.push(self.body.size / 2)
+      g.send(:new_from_literal, 1)
+      
+      self.body.each_slice(2) |pair| {
+        key = pair.first
+        value = pair.last
+        
+        g.dup
+        key.bytecode(g)
+        value.bytecode(g)
+        g.send(:"[]=", 2)
+        g.pop
+      }
+    }
+  }
+  
+}
