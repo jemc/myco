@@ -12,27 +12,18 @@ CodeTools::AST << {
     setter parameters: |given| given || ParameterAssembly.new(loc:loc, required:[], rest:RestParameter.new(loc:loc))
     setter body:       |given| given || NullLiteral.new(loc:self.loc)
     
-    locals: self.body.?locals.?body.map(&:value) ?? null
-    
-    block_local?: |name|
-      locals.?include?(name) ?? false
-    
-    module?: false
-    
     nest_scope: |scope| scope.parent = self
     
     # Look up a local variable in this block's scope.
     search_local: |name| {
       (variable = self.variables[name]) &? (
         variable.nested_reference
-      ) ?? (self.block_local?(name) &? (
-        self.new_local(name)
       ) ?? ((reference = self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
       ) ?? (
         null
-      )))
+      ))
     }
     
     # Assign a slot number to a local variable access node.
@@ -40,24 +31,19 @@ CodeTools::AST << {
     assign_local_reference: |var| {
       var.variable = (variable = self.variables[var.name]) &? (
         variable.reference
-      ) ?? (self.block_local?(var.name) &? (
-        variable = self.new_local(var.name)
-        variable.reference
       ) ?? ((reference = self.parent.search_local(var.name)) &? (
         reference.depth = reference.depth + 1
         reference
       ) ?? (
         variable = self.new_local(var.name)
         variable.reference
-      )))
+      ))
     }
     
     new_local: |name| {
       self.variables[name] = \
         self.variables[name] || CompilerClass::LocalVariable.new(allocate_slot)
     }
-    
-    new_nested_local: |name| new_local(name).nested_reference
     
     bytecode: |g| {
       pos(g)
