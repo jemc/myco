@@ -6,25 +6,28 @@ CodeTools::AST << {
     
     pos: |g| g.set_line(self.loc[0])
     
-    new_block_generator: |g, parameters| {
+    new_block_generator: |g, &block| {
       blk = g.class.new
       blk.name = g.state.name || :__block__
       blk.file = g.file
       blk.for_block = true
       
-      parameters.generator_setup(blk)
+      blk.push_state(Scope.new(parent: g.state.scope))
+      blk.definition_line(self.loc[0])
+      blk.state.push_name(blk.name)
+      pos(blk)
+      
+      block.call(blk)
+      
+      blk.ret
+      blk.close
+      
+      blk.local_count = blk.state.scope.local_count
+      blk.local_names = blk.state.scope.local_names
+      
+      blk.pop_state
       
       blk
-    }
-    
-    new_generator: |g, name, parameters=null| {
-      meth = g.class.new
-      meth.name = name
-      meth.file = g.file
-      
-      parameters && parameters.generator_setup(meth)
-      
-      meth
     }
     
     static var node_type: null
@@ -128,4 +131,43 @@ CodeTools::AST << {
     pop_name:      self.names.pop
     name:          self.names.last
   }
+  
+  # TODO: move this out of Node.my ?
+  Scope < CodeTools::Compiler::LocalVariables, BasicObject {
+    var parent
+    
+    CompilerClass: CodeTools::Compiler # TODO: remove this
+    
+    # Look up a local variable in this block's scope.
+    search_local: |name| {
+      (variable = self.variables[name]) &? (
+        variable.nested_reference
+      ) ?? ((reference = self.parent.search_local(name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        null
+      ))
+    }
+    
+    # Assign a slot number to a local variable access node.
+    # TODO: remove this method in favor of using search_local in all cases instead.
+    assign_local_reference: |var| {
+      var.variable = (variable = self.variables[var.name]) &? (
+        variable.reference
+      ) ?? ((reference = self.parent.search_local(var.name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        variable = self.new_local(var.name)
+        variable.reference
+      ))
+    }
+    
+    new_local: |name| {
+      self.variables[name] = \
+        self.variables[name] || CompilerClass::LocalVariable.new(allocate_slot)
+    }
+  }
+  
 }

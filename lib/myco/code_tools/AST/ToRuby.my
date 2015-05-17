@@ -71,13 +71,13 @@ CodeTools::AST << {
     var_scope: var_scopes.last
     
     with_nested_var_scope: |node, &block| {
-      var_scopes.push(node)
+      var_scopes.push(Ruby::Hash.new)
       block.call
       var_scopes.pop
     }
     
     var_scope_declare_local: |name|
-      var_scope.variables[name] = true
+      var_scope[name] = true
     
     var_scope_declare_locals: |*names| {
       names.each |name| { var_scope_declare_local(name) }
@@ -85,7 +85,7 @@ CodeTools::AST << {
     
     var_scope_has_local?: |name| {
       !!var_scopes.reverse.detect |scope| {
-        scope.variables.has_key?(name)
+        scope.has_key?(name)
       }
     }
     
@@ -230,7 +230,6 @@ CodeTools::AST << {
   LocalVariableAssignment << {
     to_ruby: |g| {
       g.var_scope_declare_local(self.name)
-      g.var_scope.variables[self.name] = true
       g.add(self.name.to_s); g.add(" = "); g.add(self.value)
     }
   }
