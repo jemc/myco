@@ -85,10 +85,12 @@ module Myco
     # If cscope or vscope or receiver are nil, they are pulled from
     # the given call_depth, corresponding to one of the calling frames.
     # 
-    def self.load path, load_paths=[], call_depth:1, **kwargs
+    # TODO: fix rubinius JIT issue and use "call_depth:1, **kwargs" here
+    def self.load path, load_paths, kwargs={}
+      kwargs[:call_depth] ||= 1
       begin
         loader = loader_for_file(path, load_paths)
-        loader.bind_to(call_depth:call_depth+1, **kwargs)
+        loader.bind_to(kwargs.merge(call_depth: kwargs[:call_depth] + 1))
         loader.compile
         loader.emit_rb!  if self.emit_rb
         loader.emit_rbc! if self.emit_rbc
@@ -113,12 +115,12 @@ module Myco
         @line     = line
       end
       
-      def bind_to cscope:nil, vscope:nil, receiver:nil,
-                  call_depth:1
-        loc = Rubinius::VM.backtrace(call_depth, true).first
-        @constant_scope = cscope || loc.constant_scope
-        @variable_scope = vscope || loc.variables
-        @receiver =     receiver || loc.instance_variable_get(:@receiver)
+      # TODO: fix rubinius JIT issue and use "cscope:nil, vscope:nil, receiver:nil, call_depth:1" here
+      def bind_to kwargs={}
+        loc = Rubinius::VM.backtrace(kwargs.fetch(:call_depth, 1), true).first
+        @constant_scope = kwargs[:cscope] || loc.constant_scope
+        @variable_scope = kwargs[:vscope] || loc.variables
+        @receiver =     kwargs[:receiver] || loc.instance_variable_get(:@receiver)
         
         self
       end
