@@ -268,9 +268,10 @@ CodeTools::AST << {
   Block << {
     to_ruby: |g| {
       g.with_nested_var_scope(self) {
-        g.var_scope_declare_locals(*self.parameters.names)
+        parameters = self.effective_parameters
+        g.var_scope_declare_locals(*parameters.names)
         
-        g.add(" "); g.add(self.parameters); g.add(" "); g.add(self.body)
+        g.add(" "); g.add(parameters); g.add(" "); g.add(self.body || "")
       }
     }
   }

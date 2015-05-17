@@ -5,17 +5,20 @@ CodeTools::AST << {
     node_type block
     field parameters, field body
     
-    setter parameters: |given| given || ParameterAssembly.new(loc:loc, required:[], rest:RestParameter.new(loc:loc))
-    setter body:       |given| given || NullLiteral.new(loc:self.loc)
+    const is_data: true
+    
+    effective_parameters:
+      self.parameters || ParameterAssembly.new(loc:loc, required:[], rest:RestParameter.new(loc:loc))
     
     bytecode: |g| {
       pos(g)
       
       blk = new_block_generator(g) |blk| {
-        self.parameters.generator_setup(blk)
-        self.parameters.bytecode(blk)
+        parameters = self.effective_parameters
+        parameters.generator_setup(blk)
+        parameters.bytecode(blk)
         
-        self.body.bytecode(blk)
+        self.body &? self.body.bytecode(blk) ?? g.push_null
       }
       
       g.create_block(blk)
