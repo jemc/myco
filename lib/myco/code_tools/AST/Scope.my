@@ -1,0 +1,40 @@
+
+CodeTools::AST << {
+  
+  Scope < CodeTools::Compiler::LocalVariables, BasicObject {
+    var parent
+    
+    CompilerClass: CodeTools::Compiler # TODO: remove this
+    
+    # Look up a local variable in this block's scope.
+    search_local: |name| {
+      (variable = self.variables[name]) &? (
+        variable.nested_reference
+      ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        null
+      ))
+    }
+    
+    # Assign a slot number to a new or retrieve an existing local variable.
+    assign_local_reference: |name| {
+      (variable = self.variables[name]) &? (
+        variable.reference
+      ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
+        reference.depth = reference.depth + 1
+        reference
+      ) ?? (
+        variable = self.new_local(name)
+        variable.reference
+      ))
+    }
+    
+    new_local: |name| {
+      self.variables[name] = \
+        self.variables[name] || CompilerClass::LocalVariable.new(allocate_slot)
+    }
+  }
+  
+}

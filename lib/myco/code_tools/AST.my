@@ -7,6 +7,8 @@ CodeTools::AST << {
 import 'AST/Root.my'
 
 import 'AST/Node.my'
+import 'AST/State.my'
+import 'AST/Scope.my'
 
 import 'AST/Node/Numeric.my'
 import 'AST/Node/String.my'

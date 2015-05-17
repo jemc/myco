@@ -1,0 +1,20 @@
+
+CodeTools::AST << {
+  
+  State < BasicObject {
+    var scope
+    
+    # TODO: decouple rubinius-compiler from rubinius-ast and remove this hack
+    static new: |scope| {
+      obj = allocate
+      obj.scope = scope
+      obj
+    }
+    
+    var names: [] # stack of names
+    push_name: |x| self.names.push(x)
+    pop_name:      self.names.pop
+    name:          self.names.last
+  }
+  
+}
