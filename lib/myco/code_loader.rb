@@ -85,10 +85,12 @@ module Myco
     # If cscope or vscope or receiver are nil, they are pulled from
     # the given call_depth, corresponding to one of the calling frames.
     # 
-    def self.load path, load_paths=[], call_depth:1, **kwargs
+    # TODO: fix rubinius JIT issue and use "call_depth:1, **kwargs" here
+    def self.load path, load_paths, kwargs={}
+      kwargs[:call_depth] ||= 1
       begin
         loader = loader_for_file(path, load_paths)
-        loader.bind_to(call_depth:call_depth+1, **kwargs)
+        loader.bind_to(kwargs.merge(call_depth: kwargs[:call_depth] + 1))
         loader.compile
         loader.emit_rb!  if self.emit_rb
         loader.emit_rbc! if self.emit_rbc
@@ -109,29 +111,25 @@ module Myco
       attr_accessor :block_environment
       
       def initialize filename, line = 1
-        @called = [:initialize]
         @filename = filename
         @line     = line
       end
       
-      def bind_to cscope:nil, vscope:nil, receiver:nil,
-                  call_depth:1
-        @called << :bind_to
-        loc = Rubinius::VM.backtrace(call_depth, true).first
-        @constant_scope = cscope || loc.constant_scope
-        @variable_scope = vscope || loc.variables
-        @receiver =     receiver || loc.instance_variable_get(:@receiver)
+      # TODO: fix rubinius JIT issue and use "cscope:nil, vscope:nil, receiver:nil, call_depth:1" here
+      def bind_to kwargs={}
+        loc = Rubinius::VM.backtrace(kwargs.fetch(:call_depth, 1), true).first
+        @constant_scope = kwargs[:cscope] || loc.constant_scope
+        @variable_scope = kwargs[:vscope] || loc.variables
+        @receiver =     kwargs[:receiver] || loc.instance_variable_get(:@receiver)
         
         self
       end
       
       def make_string
-        @called << :make_string
         @string = File.read(filename)
       end
       
       def make_ast
-        @called << :make_ast
         @string || make_string
         
         parser = new_parser
@@ -150,7 +148,6 @@ module Myco
       end
       
       def make_generator
-        @called << :make_generator
         @ast || make_ast
         
         g = new_generator
@@ -163,7 +160,6 @@ module Myco
       end
       
       def make_compiled_code
-        @called << :make_compiled_code
         @generator || make_generator
         
         code = @generator.package(Rubinius::CompiledCode)
@@ -172,11 +168,8 @@ module Myco
       end
       
       def make_block_environment
-        @called << :make_block_environment
         @compiled_code || make_compiled_code
         code = @compiled_code
-        
-        @constant_scope || raise("JIT ISSUE! #{@called.inspect}") # TODO: remove this debugging instrumentation
         
         code.scope = @constant_scope
         script = Rubinius::CompiledCode::Script.new(code, @filename, true)
@@ -190,12 +183,10 @@ module Myco
       end
       
       def compile
-        @called << :compile
         @block_environment || make_block_environment
       end
       
       def load
-        @called << :load
         compile
         @block_environment.call_on_instance(@receiver)
       end
