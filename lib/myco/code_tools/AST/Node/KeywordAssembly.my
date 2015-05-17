@@ -6,6 +6,8 @@ CodeTools::AST::Node << {
     
     const is_data: true
     
+    to_literal: self.body.map(&:to_literal).each_slice(2).to_h # TODO: remove
+    
     bytecode: |g| {
       pos(g)
       
