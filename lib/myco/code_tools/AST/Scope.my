@@ -3,6 +3,7 @@ CodeTools::AST << {
   
   Scope < CodeTools::Compiler::LocalVariables, BasicObject {
     var parent
+    var eval_scope
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
@@ -13,9 +14,12 @@ CodeTools::AST << {
       ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
+      ) ?? ((variable = search_eval_scope(name)) &? (
+        self.variables[name] = variable
+        variable.nested_reference
       ) ?? (
         null
-      ))
+      )))
     }
     
     # Assign a slot number to a new or retrieve an existing local variable.
@@ -25,10 +29,30 @@ CodeTools::AST << {
       ) ?? ((reference = self.parent && self.parent.search_local(name)) &? (
         reference.depth = reference.depth + 1
         reference
+      ) ?? ((variable = search_eval_scope(name)) &? (
+        self.variables[name] = variable
+        variable.nested_reference
       ) ?? (
         variable = self.new_local(name)
         variable.reference
-      ))
+      )))
+    }
+    
+    # Search the eval_scope (Rubinius::VariableScope) for a local variable.
+    search_eval_scope: |name| {
+      depth = 1
+      scope = eval_scope
+      variable = null
+      scope && loop {
+        (slot = scope.method.local_slot(name)) && (
+          variable = CompilerClass::NestedLocalVariable.new(depth, slot)
+          break
+        )
+        depth = depth + 1
+        scope = scope.parent
+        scope || break
+      }
+      variable
     }
     
     new_local: |name| {

@@ -10,7 +10,7 @@ CodeTools::AST << {
       g.name = :__script__
       g.file = self.file.to_sym
       
-      g.push_state(Scope.new)
+      g.push_state(Scope.new(eval_scope: variable_scope))
       
       self.body.bytecode(g)
       g.ret

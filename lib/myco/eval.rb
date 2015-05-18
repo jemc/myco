@@ -6,7 +6,7 @@ module Myco
     loader = Myco::CodeLoader::MycoLoader.new("(eval)")
     loader.bind_to(call_depth: call_depth + 1)
     loader.string = string
-    loader.load
+    loader.load.component.__last__
   end
   
   # TODO: deprecate with proper import set of functions

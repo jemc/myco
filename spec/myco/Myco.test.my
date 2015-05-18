@@ -21,4 +21,22 @@ BasicSpec {
     assert_equal(tuple[1], :b)
     assert_equal(tuple[2], :c)
   }
+  
+  "eval returns a value from a Myco declarative expression": {
+    obj = Myco.eval("BasicObject { foo: 88 }")
+    assert_equal(obj.foo, 88)
+  }
+  
+  "eval can read local variables from the outside scope": {
+    foo = 88
+    obj = Myco.eval("BasicObject { bar: foo + 11 }")
+    assert_equal(obj.bar, 99)
+  }
+  
+  "eval can write local variables from the outside scope": {
+    foo = 88
+    obj = Myco.eval("BasicObject { bar: foo = 99 }")
+    obj.bar
+    assert_equal(foo, 99)
+  }
 }
