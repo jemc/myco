@@ -19,20 +19,24 @@ module Myco
   
   # Use instead of Module#dynamic_method
   def self.add_dynamic_method mod, name, file="(dynamic)", line=1
+    code = dynamic_code(name, file, line) { |g| yield g }
+    code.scope = Rubinius::ConstantScope.new(mod, Rubinius::ConstantScope.new(Myco))
+    
+    add_method(mod, name, code)
+  end
+  
+  def self.dynamic_code name, file="(dynamic)", line=1
     g = Rubinius::ToolSets::Runtime::Generator.new
     g.name = name.to_sym
     g.file = file.to_sym
-    g.set_line Integer(line)
-
+    g.set_line(Integer(line))
+    
     yield g
-
+    
     g.close
     g.use_detected
     g.encode
-
-    code = g.package Rubinius::CompiledCode
-    code.scope = Rubinius::ConstantScope.new(mod, Rubinius::ConstantScope.new(Myco))
-
-    add_method(mod, name, code)
+    
+    g.package(Rubinius::CompiledCode)
   end
 end
