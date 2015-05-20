@@ -5,7 +5,7 @@ require File.expand_path('lib/myco/version', File.dirname(__FILE__))
 Gem::Specification.new do |s|
   s.name          = 'myco'
   s.version       = Myco::MYCO_VERSION
-  s.date          = '2015-04-06'
+  s.date          = '2015-05-19'
   s.summary       = 'An experimental language on the Rubinius VM'
   s.description   = 'An experimental language on the Rubinius VM'
   s.authors       = ['Joe McIlvain']
