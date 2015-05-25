@@ -24,4 +24,9 @@ BasicSpec < Object {
       STDOUT.print("\n")
     )
   }
+  
+  [decorators]
+  
+  const it:      Decorator.new
+  const specify: Decorator.new
 }
