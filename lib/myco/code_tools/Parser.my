@@ -1,6 +1,7 @@
 
 # TODO: include Pegleromyces library in a better way than clone into subdir
 import as(:Pegleromyces) 'parser/pegleromyces/lib/pegleromyces.my'
+::Pegleromyces: Pegleromyces
 
 import 'parser/MycoGrammar.my'
 import 'parser/MycoBuilder.my'
