@@ -1,0 +1,111 @@
+
+BasicSpec {
+  name: "Amadou::TokenGrammar"
+  
+  new_parser: {
+    parser = Pegleromyces::BytecodeParser.new
+    parser.grammar = Amadou::TokenGrammar
+    parser
+  }
+  
+  assert_tokens: |input, *expected| {
+    parser = new_parser
+    parser.grammar.tokenizer = &|type, source, start, stop| {[
+      type, source.slice(start, stop - start)
+    ]}
+    state = parser.parse(input)
+    state.result || state.raise_error
+    assert_equal(state.result[:root], expected)
+  }
+  
+  [tests]
+  
+  "a word": {
+    "xyz" |> assert_tokens (
+      [:phrase, [[:space, ""], [:word, "xyz"], [:space, ""]], null]
+    )
+  }
+  
+  "a word surrounded by space": {
+    "  xyz    " |> assert_tokens (
+      [:phrase, [[:space, "  "], [:word, "xyz"], [:space, "    "]], null]
+    )
+  }
+  
+  "words separated by space": {
+    "x y z" |> assert_tokens (
+      [:phrase, [
+        [:space, ""],  [:word, "x"]
+        [:space, " "], [:word, "y"]
+        [:space, " "], [:word, "z"]
+        [:space, ""]
+      ], null]
+    )
+  }
+  
+  "words separated by space and glyphs": {
+    "x + y * z" |> assert_tokens (
+      [:phrase, [
+        [:space, ""],  [:word,  "x"]
+        [:space, " "], [:glyph, "+"]
+        [:space, " "], [:word,  "y"]
+        [:space, " "], [:glyph, "*"]
+        [:space, " "], [:word,  "z"]
+        [:space, ""]
+      ], null]
+    )
+  }
+  
+  "words delimited into phrases": {
+    "the quick brown fox, the slovenly toad\n"+
+    "merge; become one" |> assert_tokens (
+      [:phrase, [
+        [:space, ""],  [:word, "the"]
+        [:space, " "], [:word, "quick"]
+        [:space, " "], [:word, "brown"]
+        [:space, " "], [:word, "fox"]
+        [:space, ""]
+      ], [:delim, ","]]
+      [:phrase, [
+        [:space, " "], [:word, "the"]
+        [:space, " "], [:word, "slovenly"]
+        [:space, " "], [:word, "toad"]
+        [:space, ""]
+      ], [:delim, "\n"]]
+      [:phrase, [
+        [:space, ""],  [:word, "merge"]
+        [:space, ""]
+      ], [:delim, ";"]]
+      [:phrase, [
+        [:space, " "], [:word, "become"]
+        [:space, " "], [:word, "one"]
+        [:space, ""]
+      ], null]
+    )
+  }
+  
+  "word phrases in groups": {
+    "x(y, z) { a[n] }" |> assert_tokens (
+      [:phrase, [
+        [:space, ""], [:word, "x"]
+        [:space, ""], [:group,
+          [:start, "("], [
+            [:phrase, [[:space, ""],  [:word, "y"], [:space, ""]], [:delim, ","]]
+            [:phrase, [[:space, " "], [:word, "z"], [:space, ""]], null]
+          ], [:stop, ")"]]
+        [:space, " "], [:group,
+          [:start, "{"], [
+            [:phrase, [
+              [:space, " "], [:word, "a"]
+              [:space, ""], [:group,
+                [:start, "["], [
+                  [:phrase, [[:space, ""], [:word, "n"], [:space, ""]], null]
+                ], [:stop, "]"]]
+              [:space, " "]
+            ], null]
+          ], [:stop, "}"]]
+        [:space, ""]
+      ], null]
+    )
+  }
+}

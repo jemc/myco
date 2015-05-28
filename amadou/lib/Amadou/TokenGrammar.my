@@ -1,0 +1,77 @@
+
+Amadou::TokenGrammar: Pegleromyces::Grammar {
+  C: Pegleromyces::Grammar {
+    nl:     str("\n")
+    spc:    set(" \t\r\f\v") / str("\\\n")
+    spc_nl: spc / nl
+    
+    eof:    !any
+    eol:    nl / eof
+    
+    # TODO: Unicode upper and lower
+    upper:  range('A','Z')
+    lower:  range('a','z')
+    num:    range('0','9')
+    alpha:  lower / upper / str('_')
+    alnum:  alpha / num
+  }
+  
+  var tokenizer
+  
+  [rules]
+  
+  rule root: phrases[:root]
+  
+  rule phrases:
+    r(phrase.*[:phrases] + phrase_no_delim[:last_phrase])
+      { [*phrases, last_phrase] }
+  
+  rule phrase:
+    r(phrase_pair.*[:pairs] + space[:space] + delim[:delim])
+      { [:phrase, [*pairs.flatten(1), space], delim] }
+  
+  rule phrase_no_delim:
+    r(phrase_pair.*[:pairs] + space[:space])
+      { [:phrase, [*pairs.flatten(1), space], null] }
+  
+  rule phrase_pair:
+    r(space[:space] + phrase_term[:term])
+      { [space, term] }
+  
+  rule phrase_term: group / string / word / glyph
+  
+  rule delim: set(",;\n").token(:delim)
+  rule space: C.spc.*.token(:space)
+  rule word:  C.alnum.+.token(:word)
+  rule glyph: (!(
+    set(",;\n") / C.spc / C.alnum
+  / set("(){}[]") / set("\'\"") / str("@@@")
+  ) + any).+.token(:glyph)
+  
+  group_type: |start, stop|
+    str(start).token(:start)[:start]
+  + phrases[:phrases]
+  + str(stop).token(:stop)[:stop]
+  
+  rule group: r(
+    group_type('(', ')')
+  / group_type('{', '}')
+  / group_type('[', ']')
+  ) { [:group, start, phrases, stop] }
+  
+  string_char: |stop| !set("\\" + stop) + any
+  string_word: |stop|
+    string_char(stop).*
+  + (str("\\") + any + string_char(stop).*).*
+  
+  string_type: |start, stop|
+    str(start).token(:start)[:start]
+  + string_word(stop).token(:word)[:word]
+  + str(stop).token(:stop)[:stop]
+  
+  rule string: r(
+    string_type('"', '"')
+  / string_type("'", "'")
+  / string_type("@@@", "@@@") # TODO: remove
+  ) { [:string, start, word, stop] }
+}

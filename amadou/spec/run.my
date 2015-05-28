@@ -1,0 +1,6 @@
+
+import '../../spec/myco/BasicSpec.my'
+
+import '../lib/Amadou.my'
+
+import 'TokenGrammar.test.my'
