@@ -1,0 +1,20 @@
+
+Amadou << {
+  Nodes << {
+    
+    Word < BasicObject {
+      static from: |token| new(token: token)
+      var token: null
+      line: token.line
+      
+      inspect: "#<"self.class" "token.text.inspect">"
+      representation: token.representation
+      
+      word: self
+      
+      const local_regexp: Regexp.new("^([[:lower:]]|_)")
+      is_local?: !!local_regexp.match(token.text)
+    }
+    
+  }
+}

@@ -1,0 +1,15 @@
+
+Amadou << {
+  Nodes << {
+    
+    Space < BasicObject {
+      static from: |token| new(token: token)
+      var token: null
+      line: token.line
+      
+      inspect: "#<"self.class" "token.text.inspect">"
+      representation: token.representation
+    }
+    
+  }
+}

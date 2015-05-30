@@ -1,0 +1,23 @@
+
+Amadou << {
+  Nodes << {
+    
+    Group < BasicObject {
+      static from: |start, phrases, finish| new(
+        start:   start
+        phrases: phrases
+        finish:  finish
+      )
+      var start:   null
+      var phrases: []
+      var finish:  null
+      
+      representation: [:group
+        start.representation
+        phrases.map(&:representation)
+        finish.representation
+      ]
+    }
+    
+  }
+}

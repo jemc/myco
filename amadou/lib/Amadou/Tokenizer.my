@@ -1,0 +1,8 @@
+
+Amadou << {
+  
+  Tokenizer < Pegleromyces::BytecodeParser {
+    const grammar: TokenGrammar
+  }
+  
+}

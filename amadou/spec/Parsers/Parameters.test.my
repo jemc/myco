@@ -1,0 +1,34 @@
+
+BasicSpec {
+  name: "Amadou::Parsers::Parameters"
+  
+  tokenize: |input| {
+    tokeenizer = Amadou::Tokenizer.new
+    state = tokeenizer.parse(input)
+    state.result || state.raise_error
+    phrases = state.result[:root]
+    phrases.first.first_term
+  }
+  
+  subject: Amadou::Parsers::Parameters
+  
+  assert_parses: |input, *expected, &block| {
+    actual = subject.parse(tokenize(input)).representation
+    block &? block.call(actual) ?? assert_equal(actual, expected)
+  }
+  
+  [tests]
+  
+  "a single required parameter": {
+    "(x)" |> assert_parses (:params, 1,
+      [[:reqprm, 1, :x]], [], null, [], [], [], null, null
+    )
+  }
+  
+  "multiple required parameters": {
+    "(x, y, z)" |> assert_parses (:params, 1,
+      [[:reqprm, 1, :x], [:reqprm, 1, :y], [:reqprm, 1, :z]]
+      [], null, [], [], [], null, null
+    )
+  }
+}

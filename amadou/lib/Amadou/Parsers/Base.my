@@ -1,0 +1,11 @@
+
+Amadou << {
+  Parsers << {
+    
+    Base < BasicObject {
+      AST: Myco::ToolSet::AST
+      const ast: AST::Builder.new
+    }
+    
+  }
+}

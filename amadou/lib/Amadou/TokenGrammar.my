@@ -1,77 +1,90 @@
 
-Amadou::TokenGrammar: Pegleromyces::Grammar {
-  C: Pegleromyces::Grammar {
-    nl:     str("\n")
-    spc:    set(" \t\r\f\v") / str("\\\n")
-    spc_nl: spc / nl
+Amadou << {
+  
+  TokenGrammar: Pegleromyces::Grammar {
+    C: Pegleromyces::Grammar {
+      nl:     str("\n")
+      spc:    set(" \t\r\f\v") / str("\\\n")
+      spc_nl: spc / nl
+      
+      eof:    !any
+      eol:    nl / eof
+      
+      # TODO: Unicode upper and lower
+      upper:  range('A','Z')
+      lower:  range('a','z')
+      num:    range('0','9')
+      alpha:  lower / upper / str('_')
+      alnum:  alpha / num
+    }
     
-    eof:    !any
-    eol:    nl / eof
+    var tokenizer: Token.method(:from)
     
-    # TODO: Unicode upper and lower
-    upper:  range('A','Z')
-    lower:  range('a','z')
-    num:    range('0','9')
-    alpha:  lower / upper / str('_')
-    alnum:  alpha / num
+    [rules]
+    
+    rule root: phrases[:root]
+    
+    rule phrases:
+      r(phrase.*[:phrases] + phrase_no_delim[:last_phrase])
+        { [*phrases, last_phrase] }
+    
+    rule phrase:
+      r(phrase_pair.*[:pairs] + space[:space] + delim[:delim])
+        { Amadou::Nodes::Phrase.from([*pairs.flatten(1), space], delim) }
+    
+    rule phrase_no_delim:
+      r(phrase_pair.*[:pairs] + space[:space])
+        { Amadou::Nodes::Phrase.from([*pairs.flatten(1), space]) }
+    
+    rule phrase_pair:
+      r(space[:space] + phrase_term[:term])
+        { [space, term] }
+    
+    rule phrase_term: group / string / word / glyph
+    
+    rule delim: set(",;\n").token(:delim)
+    
+    rule space:
+      r(C.spc.*.token(:space)[:token])
+        { Amadou::Nodes::Space.from(token) }
+    
+    rule word:
+      r(C.alnum.+.token(:word)[:token])
+        { Amadou::Nodes::Word.from(token) }
+    
+    rule glyph:
+      r((!(
+          set(",;\n") / C.spc / C.alnum
+        / set("(){}[]") / set("\'\"") / str("@@@")
+        ) + any).+.token(:glyph)[:token])
+        { Amadou::Nodes::Glyph.from(token) }
+    
+    group_type: |start, finish|
+      str(start).token(:start)[:start]
+    + phrases[:phrases]
+    + str(finish).token(:finish)[:finish]
+    
+    rule group: r(
+      group_type('(', ')')
+    / group_type('{', '}')
+    / group_type('[', ']')
+    ) { Amadou::Nodes::Group.from(start, phrases, finish) }
+    
+    string_char: |finish| !set("\\" + finish) + any
+    string_word: |finish|
+      string_char(finish).*
+    + (str("\\") + any + string_char(finish).*).*
+    
+    string_type: |start, finish|
+      str(start).token(:start)[:start]
+    + string_word(finish).token(:word)[:word]
+    + str(finish).token(:finish)[:finish]
+    
+    rule string: r(
+      string_type('"', '"')
+    / string_type("'", "'")
+    / string_type("@@@", "@@@") # TODO: remove
+    ) { [:string, start, word, finish] }
   }
   
-  var tokenizer
-  
-  [rules]
-  
-  rule root: phrases[:root]
-  
-  rule phrases:
-    r(phrase.*[:phrases] + phrase_no_delim[:last_phrase])
-      { [*phrases, last_phrase] }
-  
-  rule phrase:
-    r(phrase_pair.*[:pairs] + space[:space] + delim[:delim])
-      { [:phrase, [*pairs.flatten(1), space], delim] }
-  
-  rule phrase_no_delim:
-    r(phrase_pair.*[:pairs] + space[:space])
-      { [:phrase, [*pairs.flatten(1), space], null] }
-  
-  rule phrase_pair:
-    r(space[:space] + phrase_term[:term])
-      { [space, term] }
-  
-  rule phrase_term: group / string / word / glyph
-  
-  rule delim: set(",;\n").token(:delim)
-  rule space: C.spc.*.token(:space)
-  rule word:  C.alnum.+.token(:word)
-  rule glyph: (!(
-    set(",;\n") / C.spc / C.alnum
-  / set("(){}[]") / set("\'\"") / str("@@@")
-  ) + any).+.token(:glyph)
-  
-  group_type: |start, stop|
-    str(start).token(:start)[:start]
-  + phrases[:phrases]
-  + str(stop).token(:stop)[:stop]
-  
-  rule group: r(
-    group_type('(', ')')
-  / group_type('{', '}')
-  / group_type('[', ']')
-  ) { [:group, start, phrases, stop] }
-  
-  string_char: |stop| !set("\\" + stop) + any
-  string_word: |stop|
-    string_char(stop).*
-  + (str("\\") + any + string_char(stop).*).*
-  
-  string_type: |start, stop|
-    str(start).token(:start)[:start]
-  + string_word(stop).token(:word)[:word]
-  + str(stop).token(:stop)[:stop]
-  
-  rule string: r(
-    string_type('"', '"')
-  / string_type("'", "'")
-  / string_type("@@@", "@@@") # TODO: remove
-  ) { [:string, start, word, stop] }
 }

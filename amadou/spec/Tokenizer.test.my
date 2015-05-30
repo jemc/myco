@@ -1,22 +1,16 @@
 
 BasicSpec {
-  name: "Amadou::TokenGrammar"
+  name: "Amadou::Tokenizer"
   
-  new_parser: {
-    parser = Pegleromyces::BytecodeParser.new
-    parser.grammar = Amadou::TokenGrammar
-    parser
-  }
-  
-  assert_tokens: |input, *expected| {
-    parser = new_parser
-    parser.grammar.tokenizer = &|type, source, start, stop| {[
-      type, source.slice(start, stop - start)
-    ]}
-    state = parser.parse(input)
+  tokenize: |input| {
+    tokenizer = Amadou::Tokenizer.new
+    state = tokenizer.parse(input)
     state.result || state.raise_error
-    assert_equal(state.result[:root], expected)
+    state.result[:root]
   }
+  
+  assert_tokens: |input, *expected|
+    assert_equal(tokenize(input).map(&:representation), expected)
   
   [tests]
   
@@ -92,7 +86,7 @@ BasicSpec {
           [:start, "("], [
             [:phrase, [[:space, ""],  [:word, "y"], [:space, ""]], [:delim, ","]]
             [:phrase, [[:space, " "], [:word, "z"], [:space, ""]], null]
-          ], [:stop, ")"]]
+          ], [:finish, ")"]]
         [:space, " "], [:group,
           [:start, "{"], [
             [:phrase, [
@@ -100,10 +94,10 @@ BasicSpec {
               [:space, ""], [:group,
                 [:start, "["], [
                   [:phrase, [[:space, ""], [:word, "n"], [:space, ""]], null]
-                ], [:stop, "]"]]
+                ], [:finish, "]"]]
               [:space, " "]
             ], null]
-          ], [:stop, "}"]]
+          ], [:finish, "}"]]
         [:space, ""]
       ], null]
     )

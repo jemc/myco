@@ -1,0 +1,26 @@
+
+Amadou << {
+  Parsers << {
+    
+    Parameters: Base {
+      parse: |group| {
+        output = AST::ParameterAssembly.new(line: group.start.line)
+        
+        group.phrases.each |phrase| {
+          phrase.any_terms? && parse_phrase(phrase, output)
+        }
+        
+        output
+      }
+      
+      parse_phrase: |phrase, output| {
+        first_term = phrase.term_at(0)
+        
+        phrase.term_count == 1 && first_term.word.is_local? &? (
+          output.required.push(ast.reqprm(first_term, first_term.token.sym))
+        )
+      }
+    }
+    
+  }
+}
