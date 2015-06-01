@@ -41,8 +41,10 @@
   # alias(::Ruby::Kernel, :raise) raise
   # alias(::Ruby::Kernel, :loop) loop
   raise: |*args| ::Ruby.__send__(:raise, *args)
-  loop: |&block| ::Ruby.__send__(:loop, &block)
-  break: raise(::Ruby::StopIteration)
+  
+  # TODO remove deprecated aliases after 0.1.9 is released
+  loop: |&block| Loop.run(&block)
+  break:         Loop.break
   
   send: |*args, &block| __send__(*args, &block)
   

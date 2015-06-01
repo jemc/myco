@@ -2,3 +2,4 @@
 import "core/Object.my"
 import "core/Switch.my"
 import "core/Ruby.my"
+import "core/Loop.my"

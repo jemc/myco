@@ -28,9 +28,9 @@ Amadou << {
       idx_hash[0] = 0
       count = 0
       idx = -1
-      Ruby.__send__(:loop) { # TODO: Loop.run
+      Loop.run {
         idx = string.index("\n", idx + 1)
-        idx || Ruby.__send__(:raise, ::Ruby::StopIteration) # TODO: Loop.break
+        idx || Loop.break
         count = count + 1
         idx_hash[idx] = count
       }

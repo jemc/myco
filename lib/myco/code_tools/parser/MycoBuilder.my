@@ -40,8 +40,8 @@ MycoBuilder: BasicObject {
     output = []
     
     # Scan through, reducing or shifting based on the operator
-    loop {
-      (input.count > 2) || break
+    Loop.run {
+      (input.count > 2) || Loop.break
       n0 = input.shift
       op = input.shift
       

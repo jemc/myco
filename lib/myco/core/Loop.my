@@ -1,0 +1,5 @@
+
+::Myco::Loop: ::Myco::BasicObject {
+  run: |&block| ::Ruby.__send__(:loop, &block)
+  break:        ::Ruby.__send__(:raise, ::Ruby::StopIteration)
+}
