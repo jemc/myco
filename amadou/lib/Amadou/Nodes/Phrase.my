@@ -11,6 +11,7 @@ Amadou << {
       
       any_terms?: list.size > 1
       first_term: term_at(0)
+      terms:      list.select(&:is_term?)
       
       term_at:  |idx| list[idx * 2 + 1]
       space_at: |idx| list[idx * 2 + 1]
