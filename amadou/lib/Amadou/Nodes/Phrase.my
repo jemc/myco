@@ -19,6 +19,11 @@ Amadou << {
       term_count:  (list.size - 1) / 2
       space_count: (list.size + 1) / 2
       
+      subphrase: |start, finish=null| {
+        range = Ruby::Range.new(start * 2, (finish &? finish * 2 ?? -1))
+        Phrase.from(list[range], delim)
+      }
+      
       representation: [:phrase,
         list.map(&:representation),
         delim.?representation ?? null,

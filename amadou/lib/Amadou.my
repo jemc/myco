@@ -17,4 +17,5 @@ import 'Amadou/Nodes/Phrase.my'
 Amadou::Parsers < BasicObject { }
 
 import 'Amadou/Parsers/Base.my'
+import 'Amadou/Parsers/Sequence.my'
 import 'Amadou/Parsers/Parameters.my'

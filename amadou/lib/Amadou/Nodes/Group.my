@@ -11,9 +11,9 @@ Amadou << {
         phrases: phrases
         finish:  finish
       )
-      var start:   null
+      var start:   Token.from(:start, "", 0, 0)
       var phrases: []
-      var finish:  null
+      var finish:  Token.from(:finish, "", 0, 0)
       
       representation: [:group
         start.representation

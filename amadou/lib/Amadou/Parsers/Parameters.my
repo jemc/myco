@@ -19,16 +19,21 @@ Amadou << {
       
       parse_phrase: |output, phrase| {
         phrase.term_count |> case (
-          0, &{ Loop.break }
+          0, &{ Loop.break } # skip empty phrases
           1, &{ parse_phrase_1_term(output, *phrase.terms) }
           2, &{ parse_phrase_2_term(output, *phrase.terms) }
+          3, &{ parse_phrase_more_terms(output, phrase) }
              &{ }
         )
       }
       
       parse_phrase_1_term: |output, term| {
         term.is_word? && term.is_local? && (
-          output.required.push(ast.reqprm(term, term.token.sym))
+          (output.optional.any? || output.rest) &? (
+            output.post.push(ast.reqprm(term, term.token.sym))
+          ) ?? (
+            output.required.push(ast.reqprm(term, term.token.sym))
+          )
           Loop.break
         )
         term.is_glyph? && (
@@ -45,16 +50,47 @@ Amadou << {
         )
       }
       
-      parse_phrase_2_term: |output, term_a, term_b| {
-        term_a.is_glyph? && term_b.is_word? && term_b.is_local? (
-          term_a.text == "*" && (
+      parse_phrase_2_term: |output, term_1, term_2| {
+        term_1.is_glyph? && term_2.is_word? && term_2.is_local? (
+          term_1.text == "*" && (
             output.rest && raise("Can't parse multiple rest parameters")
-            output.rest = ast.restprm(term_b, term_b.token.sym)
+            output.rest = ast.restprm(term_2, term_2.token.sym)
             Loop.break
           )
-          term_a.text == "**" && (
+          term_1.text == "**" && (
             output.kwrest && raise("Can't parse multiple kwrest parameters")
-            output.kwrest = ast.kwrestprm(term_b, term_b.token.sym)
+            output.kwrest = ast.kwrestprm(term_2, term_2.token.sym)
+            Loop.break
+          )
+          term_1.text == "&" && (
+            output.block && raise("Can't parse multiple block parameters")
+            output.block = ast.blkprm(term_2, term_2.token.sym)
+            Loop.break
+          )
+        )
+        term_1.is_word? && term_1.is_local? && term_2.is_glyph? && (
+          term_2.text == ":" && (
+            output.kwrequired.push(ast.kwreqprm(term_1, term_1.token.sym))
+            Loop.break
+          )
+        )
+      }
+      
+      parse_phrase_more_terms: |output, phrase| {
+        term_1 = phrase.term_at(0)
+        term_2 = phrase.term_at(1)
+        subphrase = phrase.subphrase(2)
+        
+        term_1.is_word? && term_1.is_local? && term_2.is_glyph? (
+          value = Parsers::Sequence.parse(
+            Nodes::Group.new(phrases: [subphrase])
+          )
+          term_2.text == "=" && (
+            output.optional.push(ast.optprm(term_1, term_1.token.sym, value))
+            Loop.break
+          )
+          term_2.text == ":" && (
+            output.kwoptional.push(ast.kwoptprm(term_1, term_1.token.sym, value))
             Loop.break
           )
         )

@@ -50,7 +50,7 @@ BasicSpec {
   "a named rest parameter": {
     "*xyz" |> assert_parses (:params, 1,
       [], []
-      [:restprm, 1, :"xyz"]
+      [:restprm, 1, :xyz]
       [], [], [], null, null
     )
   }
@@ -66,8 +66,80 @@ BasicSpec {
   "a named kwrest parameter": {
     "**xyz" |> assert_parses (:params, 1,
       [], [], null, [], [], []
-      [:kwrestprm, 1, :"xyz"]
+      [:kwrestprm, 1, :xyz]
       null
+    )
+  }
+  
+  "a block parameter": {
+    "&xyz" |> assert_parses (:params, 1,
+      [], [], null, [], [], [], null
+      [:blkprm, 1, :xyz]
+    )
+  }
+  
+  "required keyword parameters": {
+    "x:, y:, z:" |> assert_parses (:params, 1,
+      [], [], null, []
+      [[:kwreqprm, 1, :x], [:kwreqprm, 1, :y], [:kwreqprm, 1, :z]]
+      [], null, null
+    )
+  }
+  
+  "optional keyword parameters": {
+    "x:1, y:2, z:3" |> assert_parses (:params, 1,
+      [], [], null, [], []
+      [[:kwoptprm, 1, :x, [:sequence, 1, [[:numeric, 1, 1]]]]
+       [:kwoptprm, 1, :y, [:sequence, 1, [[:numeric, 1, 2]]]]
+       [:kwoptprm, 1, :z, [:sequence, 1, [[:numeric, 1, 3]]]]]
+      null, null
+    )
+  }
+  
+  "optional positional parameters": {
+    "x=1, y=2, z=3" |> assert_parses (:params, 1,
+      []
+      [[:optprm, 1, :x, [:sequence, 1, [[:numeric, 1, 1]]]]
+       [:optprm, 1, :y, [:sequence, 1, [[:numeric, 1, 2]]]]
+       [:optprm, 1, :z, [:sequence, 1, [[:numeric, 1, 3]]]]]
+      null, [], [], [], null, null
+    )
+  }
+  
+  "required parameters before and after optional parameters": {
+    "x, y=2, z" |> assert_parses (:params, 1,
+      [[:reqprm, 1, :x]]
+      [[:optprm, 1, :y, [:sequence, 1, [[:numeric, 1, 2]]]]]
+      null
+      [[:reqprm, 1, :z]]
+      [], [], null, null
+    )
+  }
+  
+  "required parameters before and after rest parameter": {
+    "x, *y, z" |> assert_parses (:params, 1,
+      [[:reqprm, 1, :x]]
+      []
+      [:restprm, 1, :y]
+      [[:reqprm, 1, :z]]
+      [], [], null, null
+    )
+  }
+  
+  "a mixture of parameters": {
+    "a,b,c=1,d=2,*e,f,g:,h:,i:3,j:4,**k,&l" |> assert_parses (:params, 1
+      [[:reqprm, 1, :a]
+       [:reqprm, 1, :b]]
+      [[:optprm, 1, :c, [:sequence, 1, [[:numeric, 1, 1]]]]
+       [:optprm, 1, :d, [:sequence, 1, [[:numeric, 1, 2]]]]]
+      [:restprm, 1, :e]
+      [[:reqprm, 1, :f]]
+      [[:kwreqprm, 1, :g]
+       [:kwreqprm, 1, :h]]
+      [[:kwoptprm, 1, :i, [:sequence, 1, [[:numeric, 1, 3]]]]
+       [:kwoptprm, 1, :j, [:sequence, 1, [[:numeric, 1, 4]]]]]
+      [:kwrestprm, 1, :k]
+      [:blkprm, 1, :l]
     )
   }
 }

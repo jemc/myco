@@ -1,0 +1,39 @@
+
+Amadou << {
+  Parsers << {
+    
+    Sequence: Base {
+      parse: |group| {
+        output = []
+        
+        group.phrases.each |phrase| {
+          Loop.run {
+            parse_phrase(output, phrase)
+            # If not broken before this point, no match was found
+            raise("No known meaning for parameter phrase: "phrase.inspect"")
+          }
+        }
+        
+        AST::Sequence.new(line: group.start.line, array: output)
+      }
+      
+      parse_phrase: |output, phrase| {
+        # TODO: full sequence parsing
+        phrase.term_count |> case (
+          0, &{ Loop.break } # skip empty phrases
+          1, &{ parse_phrase_1_term(output, *phrase.terms) }
+             &{ }
+        )
+      }
+      
+      parse_phrase_1_term: |output, term| {
+        # TODO: full sequence parsing
+        term.is_word? && term.is_integer? && (
+          output.push(ast.numeric(term, term.token.integer))
+          Loop.break
+        )
+      }
+    }
+    
+  }
+}

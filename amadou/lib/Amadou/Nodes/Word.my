@@ -16,6 +16,9 @@ Amadou << {
       
       const local_regexp: Regexp.new("^([[:lower:]]|_)")
       is_local?: !!local_regexp.match(token.text)
+      
+      const integer_regexp: Regexp.new("^[0-9]+$")
+      is_integer?: !!integer_regexp.match(token.text)
     }
     
   }
