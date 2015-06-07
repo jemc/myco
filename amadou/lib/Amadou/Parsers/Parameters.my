@@ -7,93 +7,79 @@ Amadou << {
         output = AST::ParameterAssembly.new(line: group.start.line)
         
         group.phrases.each |phrase| {
-          Loop.run {
-            parse_phrase(output, phrase)
-            # If not broken before this point, no match was found
-            raise("No known meaning for parameter phrase: "phrase.inspect"")
-          }
+          result = engine.match(phrase)
+          result || raise("No known meaning for parameter phrase: "phrase.inspect"")
+          handlers.__send__(result.first, output, *result.last)
         }
         
         output
       }
       
-      parse_phrase: |output, phrase| {
-        phrase.term_count |> case (
-          0, &{ Loop.break } # skip empty phrases
-          1, &{ parse_phrase_1_term(output, *phrase.terms) }
-          2, &{ parse_phrase_2_term(output, *phrase.terms) }
-          3, &{ parse_phrase_more_terms(output, phrase) }
-             &{ }
-        )
-      }
-      
-      parse_phrase_1_term: |output, term| {
-        term.is_word? && term.is_local? && (
-          (output.optional.any? || output.rest) &? (
-            output.post.push(ast.reqprm(term, term.token.sym))
-          ) ?? (
-            output.required.push(ast.reqprm(term, term.token.sym))
-          )
-          Loop.break
-        )
-        term.is_glyph? && (
-          term.text == "*" && (
-            output.rest && raise("Can't parse multiple rest parameters")
-            output.rest = ast.restprm(term, :"*")
-            Loop.break
-          )
-          term.text == "**" && (
-            output.kwrest && raise("Can't parse multiple kwrest parameters")
-            output.kwrest = ast.kwrestprm(term, :"**")
-            Loop.break
-          )
-        )
-      }
-      
-      parse_phrase_2_term: |output, term_1, term_2| {
-        term_1.is_glyph? && term_2.is_word? && term_2.is_local? (
-          term_1.text == "*" && (
-            output.rest && raise("Can't parse multiple rest parameters")
-            output.rest = ast.restprm(term_2, term_2.token.sym)
-            Loop.break
-          )
-          term_1.text == "**" && (
-            output.kwrest && raise("Can't parse multiple kwrest parameters")
-            output.kwrest = ast.kwrestprm(term_2, term_2.token.sym)
-            Loop.break
-          )
-          term_1.text == "&" && (
-            output.block && raise("Can't parse multiple block parameters")
-            output.block = ast.blkprm(term_2, term_2.token.sym)
-            Loop.break
-          )
-        )
-        term_1.is_word? && term_1.is_local? && term_2.is_glyph? && (
-          term_2.text == ":" && (
-            output.kwrequired.push(ast.kwreqprm(term_1, term_1.token.sym))
-            Loop.break
-          )
-        )
-      }
-      
-      parse_phrase_more_terms: |output, phrase| {
-        term_1 = phrase.term_at(0)
-        term_2 = phrase.term_at(1)
-        subphrase = phrase.subphrase(2)
+      const engine: Engines::PhraseMatch {
+        [rules]
+        rule none:        null
         
-        term_1.is_word? && term_1.is_local? && term_2.is_glyph? (
-          value = Parsers::Sequence.parse(
-            Nodes::Group.new(phrases: [subphrase])
-          )
-          term_2.text == "=" && (
-            output.optional.push(ast.optprm(term_1, term_1.token.sym, value))
-            Loop.break
-          )
-          term_2.text == ":" && (
-            output.kwoptional.push(ast.kwoptprm(term_1, term_1.token.sym, value))
-            Loop.break
-          )
+        rule required:    word(:is_local?)
+        rule rest_anon:   glyph("*")
+        rule kwrest_anon: glyph("**")
+        
+        rule rest:        glyph("*")  + word(:is_local?)
+        rule kwrest:      glyph("**") + word(:is_local?)
+        rule block:       glyph("&")  + word(:is_local?)
+        rule kwrequired:  word(:is_local?) + glyph(":")
+        
+        rule optional:    word(:is_local?) + glyph("=") + subphrase
+        rule kwoptional:  word(:is_local?) + glyph(":") + subphrase
+      }
+      
+      [handlers]
+      
+      none: {}
+      
+      required: |output, term| {
+        (output.optional.any? || output.rest) &? (
+          output.post.push(ast.reqprm(term, term.token.sym))
+        ) ?? (
+          output.required.push(ast.reqprm(term, term.token.sym))
         )
+      }
+      
+      rest_anon: |output, name| {
+        output.rest && raise("Can't parse multiple rest parameters")
+        output.rest = ast.restprm(name, :"*")
+      }
+      
+      kwrest_anon: |output, name| {
+        output.kwrest && raise("Can't parse multiple kwrest parameters")
+        output.kwrest = ast.kwrestprm(name, :"**")
+      }
+      
+      rest: |output, glyph, name| {
+        output.rest && raise("Can't parse multiple rest parameters")
+        output.rest = ast.restprm(name, name.token.sym)
+      }
+      
+      kwrest: |output, glyph, name| {
+        output.kwrest && raise("Can't parse multiple kwrest parameters")
+        output.kwrest = ast.kwrestprm(name, name.token.sym)
+      }
+      
+      block: |output, glyph, name| {
+        output.block && raise("Can't parse multiple block parameters")
+        output.block = ast.blkprm(name, name.token.sym)
+      }
+      
+      kwrequired: |output, name, glyph|
+        output.kwrequired.push(ast.kwreqprm(name, name.token.sym))
+      
+      optional: |output, name, glyph, value| {
+        value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
+        output.optional.push(ast.optprm(name, name.token.sym, value))
+      }
+      
+      kwoptional: |output, name, glyph, value| {
+        value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
+        output.kwoptional.push(ast.kwoptprm(name, name.token.sym, value))
       }
     }
     

@@ -14,6 +14,10 @@ import 'Amadou/Nodes/Space.my'
 import 'Amadou/Nodes/Group.my'
 import 'Amadou/Nodes/Phrase.my'
 
+Amadou::Engines < BasicObject { }
+
+import 'Amadou/Engines/PhraseMatch.my'
+
 Amadou::Parsers < BasicObject { }
 
 import 'Amadou/Parsers/Base.my'
