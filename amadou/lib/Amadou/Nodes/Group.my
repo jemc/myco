@@ -2,7 +2,10 @@
 Amadou << {
   Nodes << {
     
-    Group < BasicObject {
+    Group < Base {
+      const is_term?:  true
+      const is_group?: true
+      
       static from: |start, phrases, finish| new(
         start:   start
         phrases: phrases

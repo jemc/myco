@@ -2,15 +2,17 @@
 Amadou << {
   Nodes << {
     
-    Word < BasicObject {
+    Word < Base {
+      const is_term?: true
+      const is_word?: true
+      
       static from: |token| new(token: token)
       var token: null
       line: token.line
+      text: token.text
       
       inspect: "#<"self.class" "token.text.inspect">"
       representation: token.representation
-      
-      word: self
       
       const local_regexp: Regexp.new("^([[:lower:]]|_)")
       is_local?: !!local_regexp.match(token.text)

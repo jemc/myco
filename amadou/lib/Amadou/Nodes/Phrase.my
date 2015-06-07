@@ -2,7 +2,9 @@
 Amadou << {
   Nodes << {
     
-    Phrase < BasicObject {
+    Phrase < Base {
+      const is_phrase?: true
+      
       static from: |list, delim=null| new(list: list, delim: delim)
       var list: []
       var delim: null

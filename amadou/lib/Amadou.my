@@ -7,11 +7,12 @@ import 'Amadou/Tokenizer.my'
 
 Amadou::Nodes < BasicObject { }
 
+import 'Amadou/Nodes/Base.my'
 import 'Amadou/Nodes/Word.my'
 import 'Amadou/Nodes/Glyph.my'
 import 'Amadou/Nodes/Space.my'
-import 'Amadou/Nodes/Phrase.my'
 import 'Amadou/Nodes/Group.my'
+import 'Amadou/Nodes/Phrase.my'
 
 Amadou::Parsers < BasicObject { }
 

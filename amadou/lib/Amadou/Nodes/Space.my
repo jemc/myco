@@ -2,10 +2,13 @@
 Amadou << {
   Nodes << {
     
-    Space < BasicObject {
+    Space < Base {
+      const is_space?: true
+      
       static from: |token| new(token: token)
       var token: null
       line: token.line
+      text: token.text
       
       inspect: "#<"self.class" "token.text.inspect">"
       representation: token.representation
