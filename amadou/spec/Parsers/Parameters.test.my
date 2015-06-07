@@ -4,7 +4,7 @@ BasicSpec {
   
   tokenize: |input| {
     tokenizer = Amadou::Tokenizer.new
-    state = tokenizer.parse(input)
+    state = tokenizer.parse("{"input"}")
     state.result || state.raise_error
     phrases = state.result[:root]
     phrases.first.first_term
@@ -19,16 +19,55 @@ BasicSpec {
   
   [tests]
   
+  "no parameters": {
+    "" |> assert_parses (:params, 1,
+      [], [], null, [], [], [], null, null
+    )
+  }
+  
   "a single required parameter": {
-    "(x)" |> assert_parses (:params, 1,
-      [[:reqprm, 1, :x]], [], null, [], [], [], null, null
+    "x" |> assert_parses (:params, 1,
+      [[:reqprm, 1, :x]]
+      [], null, [], [], [], null, null
     )
   }
   
   "multiple required parameters": {
-    "(x, y, z)" |> assert_parses (:params, 1,
+    "x, y, z" |> assert_parses (:params, 1,
       [[:reqprm, 1, :x], [:reqprm, 1, :y], [:reqprm, 1, :z]]
       [], null, [], [], [], null, null
+    )
+  }
+  
+  "an anonymous rest parameter": {
+    "*" |> assert_parses (:params, 1,
+      [], []
+      [:restprm, 1, :"*"]
+      [], [], [], null, null
+    )
+  }
+  
+  "a named rest parameter": {
+    "*xyz" |> assert_parses (:params, 1,
+      [], []
+      [:restprm, 1, :"xyz"]
+      [], [], [], null, null
+    )
+  }
+  
+  "an anonymous kwrest parameter": {
+    "**" |> assert_parses (:params, 1,
+      [], [], null, [], [], []
+      [:kwrestprm, 1, :"**"]
+      null
+    )
+  }
+  
+  "a named kwrest parameter": {
+    "**xyz" |> assert_parses (:params, 1,
+      [], [], null, [], [], []
+      [:kwrestprm, 1, :"xyz"]
+      null
     )
   }
 }
