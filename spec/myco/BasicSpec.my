@@ -6,7 +6,7 @@ BasicSpec < Object {
   refute: |arg, message="expected "arg.inspect" to be falsey"|
     arg && raise(message)
   
-  assert_equal: |a, b, message="expected "a.inspect" to equal "b.inspect""|
+  assert_equal: |a, b, message="expected "a.inspect"\nto equal "b.inspect""|
     a == b || raise(message)
   
   refute_equal: |a, b, message="expected "a.inspect" to not equal "b.inspect""|
