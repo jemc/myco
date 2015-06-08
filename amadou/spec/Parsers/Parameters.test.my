@@ -3,8 +3,7 @@ BasicSpec {
   name: "Amadou::Parsers::Parameters"
   
   tokenize: |input| {
-    tokenizer = Amadou::Tokenizer.new
-    state = tokenizer.parse("{"input"}")
+    state = Amadou::Tokenizer.parse("{"input"}")
     state.result || state.raise_error
     phrases = state.result[:root]
     phrases.first.first_term
