@@ -97,16 +97,17 @@ Amadou << {
       glyph: |*a| checklist(CheckTerm.from(:is_glyph?, *a))
       subphrase: |*a| checklist(CheckSubphrase.new)
       
+      static var rule_table: Rubinius::LookupTable.new
+      
       match: |phrase| {
-        args = null
-        name = rules.memes.keys.detect |name| {
-          rule = rules.__send__(name)
+        found_name = args = null
+        self.class.rule_table.detect |name, rule| {
           psize = phrase.list.size
           
           (rule.size_varies? &? (rule.size < psize) ?? (rule.size == psize))
-          && (args = rule.check(phrase))
+          && (args = rule.check(phrase)) && (found_name = name)
         }
-        args &? [name, args] ?? null
+        args &? [found_name, args] ?? null
       }
       
       [rules]
@@ -117,6 +118,7 @@ Amadou << {
         apply: |meme| {
           rule = meme.result || Checklist.new
           rule.normalize!
+          meme.target.main.rule_table[meme.name] = rule
           meme.body = Rubinius::Thunk.new(rule)
         }
       }
