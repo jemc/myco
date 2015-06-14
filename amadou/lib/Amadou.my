@@ -4,7 +4,6 @@
 import 'Amadou/Token.my'
 import 'Amadou/TokenGrammar.my'
 import 'Amadou/Tokenizer.my'
-import 'Amadou/Word.my'
 
 Amadou::Nodes < BasicObject { }
 

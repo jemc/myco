@@ -16,20 +16,22 @@ Amadou << {
       }
       
       const engine: Engines::PhraseMatch {
+        local_word: word(Regexp.new("^([[:lower:]]|_)"))
+        
         [rules]
         rule none:        null
         
-        rule required:    word([Word, :local?])
+        rule required:    local_word
         rule rest_anon:   glyph("*")
         rule kwrest_anon: glyph("**")
         
-        rule rest:        glyph("*")  + word([Word, :local?])
-        rule kwrest:      glyph("**") + word([Word, :local?])
-        rule block:       glyph("&")  + word([Word, :local?])
-        rule kwrequired:  word([Word, :local?]) + glyph(":")
+        rule rest:        glyph("*")  + local_word
+        rule kwrest:      glyph("**") + local_word
+        rule block:       glyph("&")  + local_word
+        rule kwrequired:  local_word + glyph(":")
         
-        rule optional:    word([Word, :local?]) + glyph("=") + subphrase
-        rule kwoptional:  word([Word, :local?]) + glyph(":") + subphrase
+        rule optional:    local_word + glyph("=") + subphrase
+        rule kwoptional:  local_word + glyph(":") + subphrase
       }
       
       [handlers]

@@ -3,6 +3,8 @@ Amadou << {
   Parsers << {
     
     Sequence: Base {
+      const integer_pattern: Regexp.new("^[0-9]+$")
+      
       parse: |group| {
         output = []
         
@@ -28,7 +30,7 @@ Amadou << {
       
       parse_phrase_1_term: |output, term| {
         # TODO: full sequence parsing
-        term.tagged?(:word) && Word.integer?(term) && (
+        term.tagged?(:word) && integer_pattern.match(term.text) && (
           output.push(ast.numeric(term, term.integer))
           Loop.break
         )

@@ -50,15 +50,17 @@ Amadou << {
       }
       
       CheckTokenized < BasicObject {
-        var truths: []
-        var tags: []
-        var text: null
+        var tags:     []
+        var truths:   []
+        var patterns: []
+        var text:    null
         
         static from: |*args, implicit:false| {
           obj = new
           args.each |arg| {
-            arg.is_a?(Array)  && obj.truths.push(arg)
             arg.is_a?(Symbol) && obj.tags.push(arg)
+            arg.is_a?(Array)  && obj.truths.push(arg)
+            arg.is_a?(Regexp) && obj.patterns.push(arg)
             arg.is_a?(String) && (obj.text = arg)
           }
           obj.implicit = implicit
@@ -70,8 +72,9 @@ Amadou << {
         const size_varies?: false
         
         fails_check?: |term| {
-             (tags.detect   |tag|         { !(term.tagged?(tag)) })
-          || (truths.detect |obj, method| { !(obj.__send__(method, term)) })
+             (tags.detect     |tag|         { !(term.tagged?(tag)) })
+          || (truths.detect   |obj, method| { !(obj.__send__(method, term)) })
+          || (patterns.detect |pattern|     { !(pattern.match(term.text)) })
           || (text && !(text == term.text))
         }
       }
