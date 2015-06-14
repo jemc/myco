@@ -19,17 +19,17 @@ Amadou << {
         [rules]
         rule none:        null
         
-        rule required:    word(:is_local?)
+        rule required:    word([Word, :local?])
         rule rest_anon:   glyph("*")
         rule kwrest_anon: glyph("**")
         
-        rule rest:        glyph("*")  + word(:is_local?)
-        rule kwrest:      glyph("**") + word(:is_local?)
-        rule block:       glyph("&")  + word(:is_local?)
-        rule kwrequired:  word(:is_local?) + glyph(":")
+        rule rest:        glyph("*")  + word([Word, :local?])
+        rule kwrest:      glyph("**") + word([Word, :local?])
+        rule block:       glyph("&")  + word([Word, :local?])
+        rule kwrequired:  word([Word, :local?]) + glyph(":")
         
-        rule optional:    word(:is_local?) + glyph("=") + subphrase
-        rule kwoptional:  word(:is_local?) + glyph(":") + subphrase
+        rule optional:    word([Word, :local?]) + glyph("=") + subphrase
+        rule kwoptional:  word([Word, :local?]) + glyph(":") + subphrase
       }
       
       [handlers]
@@ -38,9 +38,9 @@ Amadou << {
       
       required: |output, term| {
         (output.optional.any? || output.rest) &? (
-          output.post.push(ast.reqprm(term, term.token.sym))
+          output.post.push(ast.reqprm(term, term.sym))
         ) ?? (
-          output.required.push(ast.reqprm(term, term.token.sym))
+          output.required.push(ast.reqprm(term, term.sym))
         )
       }
       
@@ -56,30 +56,30 @@ Amadou << {
       
       rest: |output, glyph, name| {
         output.rest && raise("Can't parse multiple rest parameters")
-        output.rest = ast.restprm(name, name.token.sym)
+        output.rest = ast.restprm(name, name.sym)
       }
       
       kwrest: |output, glyph, name| {
         output.kwrest && raise("Can't parse multiple kwrest parameters")
-        output.kwrest = ast.kwrestprm(name, name.token.sym)
+        output.kwrest = ast.kwrestprm(name, name.sym)
       }
       
       block: |output, glyph, name| {
         output.block && raise("Can't parse multiple block parameters")
-        output.block = ast.blkprm(name, name.token.sym)
+        output.block = ast.blkprm(name, name.sym)
       }
       
       kwrequired: |output, name, glyph|
-        output.kwrequired.push(ast.kwreqprm(name, name.token.sym))
+        output.kwrequired.push(ast.kwreqprm(name, name.sym))
       
       optional: |output, name, glyph, value| {
         value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
-        output.optional.push(ast.optprm(name, name.token.sym, value))
+        output.optional.push(ast.optprm(name, name.sym, value))
       }
       
       kwoptional: |output, name, glyph, value| {
         value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
-        output.kwoptional.push(ast.kwoptprm(name, name.token.sym, value))
+        output.kwoptional.push(ast.kwoptprm(name, name.sym, value))
       }
     }
     

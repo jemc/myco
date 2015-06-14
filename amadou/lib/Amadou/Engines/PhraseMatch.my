@@ -51,12 +51,14 @@ Amadou << {
       
       CheckTokenized < BasicObject {
         var truths: []
+        var tags: []
         var text: null
         
         static from: |*args, implicit:false| {
           obj = new
           args.each |arg| {
-            arg.is_a?(Symbol) && obj.truths.push(arg)
+            arg.is_a?(Array)  && obj.truths.push(arg)
+            arg.is_a?(Symbol) && obj.tags.push(arg)
             arg.is_a?(String) && (obj.text = arg)
           }
           obj.implicit = implicit
@@ -68,17 +70,18 @@ Amadou << {
         const size_varies?: false
         
         fails_check?: |term| {
-            (truths.detect |method| { !(term.__send__(method)) })
+             (tags.detect   |tag|         { !(term.tagged?(tag)) })
+          || (truths.detect |obj, method| { !(obj.__send__(method, term)) })
           || (text && !(text == term.text))
         }
       }
       
       CheckSpace < CheckTokenized {
-        var truths: [:is_space?]
+        var tags: [:space]
       }
       
       CheckTerm < CheckTokenized {
-        var truths: [:is_term?]
+        var tags: [:term]
       }
       
       CheckSubphrase < BasicObject {
@@ -93,8 +96,8 @@ Amadou << {
       checklist: |*list| Checklist.new(list: list)
       
       space: |*a| checklist(CheckSpace.from(*a, implicit: true))
-      word:  |*a| checklist(CheckTerm.from(:is_word?, *a))
-      glyph: |*a| checklist(CheckTerm.from(:is_glyph?, *a))
+      word:  |*a| checklist(CheckTerm.from(:word, *a))
+      glyph: |*a| checklist(CheckTerm.from(:glyph, *a))
       subphrase: |*a| checklist(CheckSubphrase.new)
       
       static var rule_table: Rubinius::LookupTable.new

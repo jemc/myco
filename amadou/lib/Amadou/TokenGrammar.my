@@ -45,19 +45,16 @@ Amadou << {
     rule delim: set(",;\n").token(:delim)
     
     rule space:
-      r(C.spc.*.token(:space)[:token])
-        { Amadou::Nodes::Space.from(token) }
+      C.spc.*.token(:space)
     
     rule word:
-      r(C.alnum.+.token(:word)[:token])
-        { Amadou::Nodes::Word.from(token) }
+      C.alnum.+.token([:term, :word])
     
     rule glyph:
-      r((!(
+      (!(
           set(",;\n") / C.spc / C.alnum
         / set("(){}[]") / set("\'\"") / str("@@@")
-        ) + any).+.token(:glyph)[:token])
-        { Amadou::Nodes::Glyph.from(token) }
+        ) + any).+.token([:term, :glyph])
     
     group_type: |start, finish|
       str(start).token(:start)[:start]
@@ -77,7 +74,7 @@ Amadou << {
     
     string_type: |start, finish|
       str(start).token(:start)[:start]
-    + string_word(finish).token(:word)[:word]
+    + string_word(finish).token([:term, :word])[:word]
     + str(finish).token(:finish)[:finish]
     
     rule string: r(

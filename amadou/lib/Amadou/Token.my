@@ -2,15 +2,13 @@
 Amadou << {
   
   Token < BasicObject {
-    var type
     var source
     var range
     
-    static from: |type, source, start, stop| new(
-      type:   type
+    static from: |tags, source, start, stop| new(
       source: source
       range:  ::Ruby::Range.new(start, stop, true)
-    )
+    ).tagged(*(tags.is_a?(Array) &? tags ?? [tags]))
     
     text: source[range]
     
@@ -18,9 +16,19 @@ Amadou << {
     float:            text.to_f
     integer: |base=0| text.to_inum(base, true)
     
-    inspect: "#<"self.class" "type.inspect" "text.inspect">"
+    inspect: "#<"self.class" "tags.inspect" "text.inspect">"
     
-    representation: [type, text]
+    representation: [last_tag, text] # TODO: show all tags
+    
+    var tag_table: Rubinius::LookupTable.new
+    var last_tag: null # TODO: remove
+    tags:         tag_table.keys
+    tagged?: |t|  tag_table.key?(t)
+    tagged: |*ts| {
+      ts.each |t| { tag_table[t] = true }
+      self.last_tag = ts.last
+      self
+    }
     
     # Given a string, return a map of indices of newline positions to line numbers
     static memoize line_map_for: |string| {

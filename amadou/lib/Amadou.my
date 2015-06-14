@@ -4,13 +4,10 @@
 import 'Amadou/Token.my'
 import 'Amadou/TokenGrammar.my'
 import 'Amadou/Tokenizer.my'
+import 'Amadou/Word.my'
 
 Amadou::Nodes < BasicObject { }
 
-import 'Amadou/Nodes/Base.my'
-import 'Amadou/Nodes/Word.my'
-import 'Amadou/Nodes/Glyph.my'
-import 'Amadou/Nodes/Space.my'
 import 'Amadou/Nodes/Group.my'
 import 'Amadou/Nodes/Phrase.my'
 

@@ -28,8 +28,8 @@ Amadou << {
       
       parse_phrase_1_term: |output, term| {
         # TODO: full sequence parsing
-        term.is_word? && term.is_integer? && (
-          output.push(ast.numeric(term, term.token.integer))
+        term.tagged?(:word) && Word.integer?(term) && (
+          output.push(ast.numeric(term, term.integer))
           Loop.break
         )
       }
