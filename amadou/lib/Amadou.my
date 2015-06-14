@@ -4,11 +4,8 @@
 import 'Amadou/Token.my'
 import 'Amadou/TokenGrammar.my'
 import 'Amadou/Tokenizer.my'
-
-Amadou::Nodes < BasicObject { }
-
-import 'Amadou/Nodes/Group.my'
-import 'Amadou/Nodes/Phrase.my'
+import 'Amadou/Group.my'
+import 'Amadou/Phrase.my'
 
 Amadou::Engines < BasicObject { }
 

@@ -1,0 +1,21 @@
+
+Amadou << {
+  
+  Group < BasicObject {
+    static from: |start, phrases, finish| new(
+      start:   start
+      phrases: phrases
+      finish:  finish
+    )
+    var start:   Token.from(:start, "", 0, 0)
+    var phrases: []
+    var finish:  Token.from(:finish, "", 0, 0)
+    
+    representation: [:group
+      start.representation
+      phrases.map(&:representation)
+      finish.representation
+    ]
+  }
+  
+}

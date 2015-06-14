@@ -30,11 +30,11 @@ Amadou << {
     
     rule phrase:
       r(phrase_pair.*[:pairs] + space[:space] + delim[:delim])
-        { Amadou::Nodes::Phrase.from([*pairs.flatten(1), space], delim) }
+        { Amadou::Phrase.from([*pairs.flatten(1), space], delim) }
     
     rule phrase_no_delim:
       r(phrase_pair.*[:pairs] + space[:space])
-        { Amadou::Nodes::Phrase.from([*pairs.flatten(1), space]) }
+        { Amadou::Phrase.from([*pairs.flatten(1), space]) }
     
     rule phrase_pair:
       r(space[:space] + phrase_term[:term])
@@ -65,7 +65,7 @@ Amadou << {
       group_type('(', ')')
     / group_type('{', '}')
     / group_type('[', ']')
-    ) { Amadou::Nodes::Group.from(start, phrases, finish) }
+    ) { Amadou::Group.from(start, phrases, finish) }
     
     string_char: |finish| !set("\\" + finish) + any
     string_word: |finish|

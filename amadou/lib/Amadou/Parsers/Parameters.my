@@ -75,12 +75,12 @@ Amadou << {
         output.kwrequired.push(ast.kwreqprm(name, name.sym))
       
       optional: |output, name, glyph, value| {
-        value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
+        value = Parsers::Sequence.parse(Group.new(phrases: [value]))
         output.optional.push(ast.optprm(name, name.sym, value))
       }
       
       kwoptional: |output, name, glyph, value| {
-        value = Parsers::Sequence.parse(Nodes::Group.new(phrases: [value]))
+        value = Parsers::Sequence.parse(Group.new(phrases: [value]))
         output.kwoptional.push(ast.kwoptprm(name, name.sym, value))
       }
     }

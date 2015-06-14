@@ -38,7 +38,7 @@ Amadou << {
           fails = list.each_with_index.detect |item, idx| {
             item.implicit? &? false ?? (
               phrase_item = item.size_varies?
-                &? Nodes::Phrase.from(phrase.list[Ruby::Range.new(idx, -1)])
+                &? Phrase.from(phrase.list[Ruby::Range.new(idx, -1)])
                 ?? phrase.list[idx]
               
               checked_items.push(phrase_item)
