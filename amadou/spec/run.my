@@ -6,3 +6,4 @@ import '../lib/Amadou.my'
 import 'Tokenizer.test.my'
 
 import 'Parsers/Parameters.test.my'
+import 'Parsers/Declaration.test.my'

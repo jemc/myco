@@ -1,0 +1,73 @@
+
+NOTE: THE :is_word? && :is_const? && :is_local? && :is_atom?
+predicates should not be methods of the term, but a combination
+of accumulated tags and third party functions operating on the term.
+
+All non-space terms should be instances of the same class,
+but should be able to be tagged as having certain properties.
+
+The nanopasses/scanners illustrated below should be able to -
+  - match based on tags or specific external third-party functions
+  - add or remove tags in terms they scan
+  - consolidate or break up terms, phrases, or groups in place
+
+pass symbol:
+  r(glyph(":") + space(0) + word[:t0])
+    { new_token_term(t0, :atom, :symbol]) } # Note that all arguments following the first are tags
+
+pass symbol_string:
+  r(glyph(":") + space(0) + string[:s0])
+    { new_token_term(s0.body, :atom, :symbol, :symbol_string]) }
+
+pass string_compose_part:
+  r(term(:string) + term(:))
+
+pass string_compose:
+  r(term(:atom) + )
+
+{
+  pass const_part:
+    r(glyph("::") + word(:is_const?)[:t])
+      { new_token_term(t, :const_part]) }
+
+  pass constant:
+    r(word(:is_const?)[:t0] + term(:const_part).*[:tlist])
+      { new_data_term([t0, *tlist], :constant]) }
+}
+
+================================================================================
+================================================================================
+================================================================================
+
+rule tags(:atom, :null)  literal_null:  term(:word, "null")
+rule tags(:atom, :void)  literal_void:  term(:word, "void")
+rule tags(:atom, :true)  literal_true:  term(:word, "true")
+rule tags(:atom, :false) literal_false: term(:word, "false")
+rule tags(:atom, :self)  literal_self:  term(:word, "self")
+
+atom null:  term(:word, "null")
+atom void:  term(:word, "void")
+atom true:  term(:word, "true")
+atom false: term(:word, "false")
+atom self:  term(:word, "self")
+
+{
+atom null:  word("null")
+atom void:  word("void")
+atom true:  word("true")
+atom false: word("false")
+atom self:  word("self")
+
+atom digits: word(Regexp.new("^[[:digit:]]+$"))
+
+const re_suffix: Regexp.new("[\\?\\!]")
+atom symbol: glyph(":") + space(0) + word + (space(0) + glyph(re_suffix)).-
+atom ident: word + (space(0) + glyph(re_suffix)).-
+
+atom lit_block:       glyph("&") + space + group("{","}")
+atom lit_param_block: glyph("&") + space + glyph("|") + space + group("{","}")
+}
+
+================================================================================
+
+rule unary_not: term(:glyph, "!") + term(:atom)

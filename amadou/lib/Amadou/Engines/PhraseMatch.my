@@ -96,6 +96,14 @@ Amadou << {
         fails_check?: |subphrase| false
       }
       
+      CheckOneOrMore < BasicObject {
+        static from: new
+        
+        const implicit?: false
+        const size_varies?: true
+        
+      }
+      
       checklist: |*list| Checklist.new(list: list)
       
       space: |*a| checklist(CheckSpace.from(*a, implicit: true))

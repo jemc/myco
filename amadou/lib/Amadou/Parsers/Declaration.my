@@ -1,0 +1,38 @@
+
+Amadou << {
+  Parsers << {
+    
+    Declaration: Base {
+      parse: |group| {
+        output = []
+        
+        group.phrases.each |phrase| {
+          result = engine.match(phrase)
+          result || raise("No known meaning for declaration phrase: "phrase.inspect"")
+          handlers.__send__(result.first, output, *result.last)
+        }
+        
+        output
+      }
+      
+      const engine: Engines::PhraseMatch {
+        [rules]
+        rule none:       null
+        
+        rule empty_meme: word
+      }
+      
+      [handlers]
+      
+      none: {}
+      
+      empty_meme: |output, name| {
+        dummy_name   = ast.symbol(name, :dummy) # TODO: remove dummy
+        name_literal = ast.symbol(name, name.sym)
+        decorations  = ast.array(name, [name_literal])
+        output.push(ast.meme(name, dummy_name, decorations))
+      }
+    }
+    
+  }
+}

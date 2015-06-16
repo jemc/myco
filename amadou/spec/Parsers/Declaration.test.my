@@ -1,0 +1,34 @@
+
+BasicSpec {
+  name: "Amadou::Parsers::Declaration"
+  
+  tokenize: |input| {
+    state = Amadou::Tokenizer.parse("{"input"}")
+    state.result || state.raise_error
+    phrases = state.result[:root]
+    phrases.first.first_term
+  }
+  
+  subject: Amadou::Parsers::Declaration
+  
+  assert_parses: |input, *expected, &block| {
+    actual = subject.parse(tokenize(input)).map(&:representation)
+    block &? block.call(actual) ?? assert_equal(actual, expected)
+  }
+  
+  [tests]
+  
+  "empty declaration": {
+    "" |> assert_parses()
+  }
+  
+  "a single one-word empty meme": {
+    "xyz" |> assert_parses(
+      [:meme, 1, :dummy, # TODO: remove dummy
+        [:array, 1, [[:symbol, 1, :xyz]]]
+        [:params, 1, [], [], [:restprm, 1, null], [], [], [], null, null]
+        [:null, 1]
+      ]
+    )
+  }
+}
