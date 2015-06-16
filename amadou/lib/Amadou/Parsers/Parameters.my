@@ -23,11 +23,11 @@ Amadou << {
         
         rule required:    local_word
         rule rest_anon:   glyph("*")
-        rule kwrest_anon: glyph("**")
+        rule kwrest_anon: glyph("*") + glyph("*")
         
-        rule rest:        glyph("*")  + local_word
-        rule kwrest:      glyph("**") + local_word
-        rule block:       glyph("&")  + local_word
+        rule rest:        glyph("*") + local_word
+        rule kwrest:      glyph("*") + glyph("*") + local_word
+        rule block:       glyph("&") + local_word
         rule kwrequired:  local_word + glyph(":")
         
         rule optional:    local_word + glyph("=") + subphrase
@@ -51,9 +51,9 @@ Amadou << {
         output.rest = ast.restprm(name, :"*")
       }
       
-      kwrest_anon: |output, name| {
+      kwrest_anon: |output, g1, g2| {
         output.kwrest && raise("Can't parse multiple kwrest parameters")
-        output.kwrest = ast.kwrestprm(name, :"**")
+        output.kwrest = ast.kwrestprm(g1, :"**")
       }
       
       rest: |output, glyph, name| {
@@ -61,7 +61,7 @@ Amadou << {
         output.rest = ast.restprm(name, name.sym)
       }
       
-      kwrest: |output, glyph, name| {
+      kwrest: |output, g1, g2, name| {
         output.kwrest && raise("Can't parse multiple kwrest parameters")
         output.kwrest = ast.kwrestprm(name, name.sym)
       }

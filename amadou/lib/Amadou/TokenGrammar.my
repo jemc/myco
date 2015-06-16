@@ -54,7 +54,7 @@ Amadou << {
       (!(
           set(",;\n") / C.spc / C.alnum
         / set("(){}[]") / set("\'\"") / str("@@@")
-        ) + any).+.token([:term, :glyph])
+        ) + any).token([:term, :glyph])
     
     group_type: |start, finish|
       str(start).token(:start)[:start]
