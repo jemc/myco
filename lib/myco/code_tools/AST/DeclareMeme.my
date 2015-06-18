@@ -1,78 +1,58 @@
 
 CodeTools::AST << {
   
-  DeclareMemeBody < Block {
-    node_type "DeclareMemeBody" # To prevent it from masquerading as a Block TODO: remove
-    field name
-    
-    bytecode: |g| {
-      pos(g)
-      
-      g.state.scope.nest_scope(self)
-      
-      meth = new_generator(g, self.name, self.parameters)
-      
-      meth.push_state(self)
-      meth.state.push_super(self)
-      meth.definition_line(self.line)
-      
-      meth.state.push_name(self.name.to_sym)
-      
-      self.parameters.bytecode(meth)
-      self.body.bytecode(meth)
-      
-      meth.state.pop_name
-      
-      meth.local_count = local_count
-      meth.local_names = local_names
-      
-      meth.ret
-      meth.close
-      meth.pop_state
-      
-      g.push_scope
-      g.send(:for_method_definition, 0)
-      g.add_scope
-      
-      # Create the BlockEnvironment from the meth Generator
-      g.create_block(meth)
-    }
-  }
-  
   DeclareMeme < Node {
     node_type meme
-    field name, field decorations, field parameters, field body
-    
-    setter name: |x|
-      x.value
-    setter decorations: |x|
-      x || ArrayAssembly.new(line:line, body:[])
-    setter parameters: |x|
-      x || ParameterAssembly.new(line:line, required:[], rest:RestParameter.new(line:line))
-    setter body: |x|
-      x || NullLiteral.new(line:line)
-    
-    body_implementation: DeclareMemeBody.new(
-      line:       self.line
-      name:       self.name
-      parameters: self.parameters
-      body:       self.body
-    )
+    field decorations, field body
     
     bytecode: |g| {
       pos(g)
       
-      ##
-      # module = scope.for_method_definition
-      # module.send :declare_meme, self.name, self.decorations,
-      #   BlockEnvironment(body_implementation)
-      #
-      g.push_scope
-      g.send(:for_method_definition, 0)
-        g.push_literal(self.name)
-        self.decorations.bytecode(g)
-        body_implementation.bytecode(g)
-      g.send(:declare_meme, 3)
+      self.effective_name.node_type == :symbol &? (
+        ##
+        # module = scope.for_method_definition
+        # module.send :declare_meme, name, decorations, Proc(body)
+        #
+        g.push_scope
+        g.send(:for_method_definition, 0)
+          self.effective_name.bytecode(g)
+          self.effective_decorations.bytecode(g)
+          self.effective_body.bytecode(g)
+        g.send(:declare_meme, 3)
+      ) ?? (
+        ConstantAssignment.new(
+          line:     self.line
+          constant: self.effective_name
+          value:    self.effective_body.block.body
+        ).bytecode(g)
+      )
+    }
+    
+    effective_name: self.decorations.last
+    
+    effective_decorations: {
+      decorations = self.decorations[Ruby::Range.new(0, -1, true)]
+      
+      ArrayAssembly.new(line: self.line, body: decorations.reverse.map |d| {
+        d.node_type == :invoke &? (
+          ArrayAssembly.new(line: d.line, body: [
+            SymbolLiteral.new(line: d.line, value: d.name)
+            ArrayAssembly.new(line: d.line, body: d.arguments.body)
+          ])
+        ) ?? (
+          d
+        )
+      })
+    }
+    
+    effective_body: {
+      body = self.body || BlockLiteral.new(line: self.line,
+        block: Block.new(line: self.line,
+          body: NullLiteral.new(line: self.line)
+        )
+      )
+      body.block.new_cscope = true
+      body
     }
   }
   

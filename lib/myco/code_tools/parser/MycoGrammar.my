@@ -30,8 +30,6 @@ rule declobj_expr:
 rule declobj_expr_not_category:
   decl
 / cdefn
-/ cmeme
-/ constant
 / meme
 
 # Expressions allowable inside memes
@@ -112,6 +110,10 @@ rule lit_block:
 
 rule block_body:
   r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_enclosed_expr_body[:nb])
+    { ast.block(nb, np, nb) }
+
+rule open_block_body:
+  r(C.spc_nl.* + param_list.-[:np] + C.spc_nl.* + meme_inline_expr_body[:nb])
     { ast.block(nb, np, nb) }
 
 ##
@@ -276,6 +278,10 @@ opt_block_body: (r(C.spc_nl.* + block_body[:n]) { n }).-
 rule invoke:
   r(T.identifier[:tn] + opt_arg_list[:na] + opt_block_body[:nb])
     { ast.invoke(tn, null, tn.sym, na, nb) }
+
+rule invoke_classic_form:
+  r(T.identifier[:tn] + C.spc.* + arg_list[:na])
+    { ast.invoke(tn, null, tn.sym, na, null) }
 
 rule op_invoke: # Allow some binary operators to be invoked with a dot
   r(op_invoke_id[:tn] + opt_arg_list[:na] + opt_block_body[:nb])
@@ -566,28 +572,21 @@ rule paren_expr:
 rule meme_enclosed_expr_body:
   r(T.meme_begin + meme_expr_body[:n0]) { n0 }
 
-rule meme_either_body:
-  meme_enclosed_expr_body
-/ meme_inline_expr_body
+rule meme_either_body_as_block:
+  r((block_body / open_block_body)[:n0]) { ast.blklit(n0, n0) }
 
-rule cmeme:
-  r(constant[:n0] + C.spc.* + T.meme_mark[:tm] + C.spc_nl.* + meme_inline_expr_body[:n1])
-    { ast.cdecl(tm, n0, n1) }
-
-rule meme_name:
-  id_as_symbol
+rule decoration:
+  invoke_classic_form
+/ id_as_symbol
 / lit_string_as_symbol
+/ constant
 
-rule decorator:
-  r(meme_name[:ni] + arg_list.-[:na])
-    { ast.deco(ni, ni, na) }
+rule sepd_decoration:
+  r(C.spc.* + decoration[:n]) { n }
 
-rule sepd_decorator:
-  r(C.spc.* + decorator[:n]) { n }
-
-rule decorators_and_meme_name:
-  r(decorator[:n0] + sepd_decorator.*[:nrest])
-    { ast.array(n0, [n0, *nrest].reverse) }
+rule sepd_decorations:
+  r(decoration[:n0] + sepd_decoration.*[:nrest])
+    { [n0, *nrest] }
 
 rule meme:
   r(decorators_and_meme_name[:nd]
@@ -597,4 +596,12 @@ rule meme:
     { ast.meme(tm, nd.body.shift.name, nd, np, nb) }
 / r(decorators_and_meme_name[:nd])
     { ast.meme(nd, nd.body.shift.name, nd, null, null) }
+
+rule meme:
+  r(sepd_decorations[:nlist]
+      + C.spc.* + T.meme_mark[:tm]
+      + C.spc_nl.* + meme_either_body_as_block[:nb])
+    { ast.meme(nlist.first, nlist, nb) }
+/ r(sepd_decorations[:nlist])
+    { ast.meme(nlist.first, nlist, null) }
 }

@@ -45,8 +45,6 @@ import 'AST/DeclareString.my'
 import 'AST/DeclareFile.my'
 import 'AST/DeclareExtension.my'
 import 'AST/DeclareCategory.my'
-
-import 'AST/DeclareDecorator.my'
 import 'AST/DeclareMeme.my'
 
 import 'AST/Invoke.my'

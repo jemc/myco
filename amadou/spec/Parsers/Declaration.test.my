@@ -24,11 +24,7 @@ BasicSpec {
   
   "a single one-word empty meme": {
     "xyz" |> assert_parses(
-      [:meme, 1, :dummy, # TODO: remove dummy
-        [:array, 1, [[:symbol, 1, :xyz]]]
-        [:params, 1, [], [], [:restprm, 1, null], [], [], [], null, null]
-        [:null, 1]
-      ]
+      [:meme, 1, [:array, 1, [[:symbol, 1, :xyz]]], null]
     )
   }
 }

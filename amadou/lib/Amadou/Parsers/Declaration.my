@@ -27,10 +27,11 @@ Amadou << {
       none: {}
       
       empty_meme: |output, name| {
-        dummy_name   = ast.symbol(name, :dummy) # TODO: remove dummy
-        name_literal = ast.symbol(name, name.sym)
-        decorations  = ast.array(name, [name_literal])
-        output.push(ast.meme(name, dummy_name, decorations))
+        output.push(ast.meme(name,
+          ast.array(name, [
+            ast.symbol(name, name.sym)
+          ])
+        ))
       }
     }
     

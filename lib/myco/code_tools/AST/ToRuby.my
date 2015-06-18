@@ -238,25 +238,22 @@ CodeTools::AST << {
   
   DeclareMeme << {
     to_ruby: |g| {
-      g.with_nested_var_scope(body_implementation) {
-        g.var_scope_declare_locals(*self.parameters.names)
-        
+      name = self.decorations.last
+      name.node_type == :symbol &? (
         g.add("declare_meme(")
-        g.add(""self.name.inspect", ")
-        g.add(self.decorations); g.add(", nil, ::Myco.cscope.dup)")
-        g.add(" { ");
-          g.add(self.parameters); g.add(" ")
-          g.add(self.body);
-        g.add("}")
-      }
-    }
-  }
-  
-  DeclareDecorator << {
-    to_ruby: |g| {
-      g.add("["self.name.value.inspect", [")
-        g.list(self.arguments.body, ",", auto_lines:true)
-      g.add("]]")
+          g.list([
+            self.effective_name
+            self.effective_decorations
+            self.effective_body
+          ], ",", auto_lines: true)
+        g.add(")")
+      ) ?? (
+        g.add(ConstantAssignment.new(
+          line:     self.line
+          constant: self.effective_name
+          value:    self.effective_body.block.body
+        ))
+      )
     }
   }
   
@@ -351,9 +348,9 @@ CodeTools::AST << {
   Block << {
     to_ruby: |g| {
       g.with_nested_var_scope(self) {
-        g.var_scope_declare_locals(*self.parameters.names)
+        g.var_scope_declare_locals(*self.effective_parameters.names)
         
-        g.add(" "); g.add(self.parameters); g.add(" "); g.add(self.body)
+        g.add(" "); g.add(self.effective_parameters); g.add(" "); g.add(self.body)
       }
     }
   }

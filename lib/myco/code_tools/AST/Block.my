@@ -6,11 +6,11 @@ CodeTools::AST << {
     field parameters, field body
     
     var parent # TODO: investigate removing
+    var new_cscope
     
     CompilerClass: CodeTools::Compiler # TODO: remove this
     
-    setter parameters: |given| given || ParameterAssembly.new(line:self.line)
-    setter body:       |given| given || NullLiteral.new(line:self.line)
+    setter body: |given| given || NullLiteral.new(line:self.line)
     
     locals: self.body.?locals.?body.map(&:value) ?? null
     
@@ -59,13 +59,19 @@ CodeTools::AST << {
     
     new_nested_local: |name| new_local(name).nested_reference
     
+    effective_parameters: self.parameters || ParameterAssembly.new(
+      line: self.line
+      rest: RestParameter.new(line: self.line)
+    )
+    
     bytecode: |g| {
       pos(g)
       
       state = g.state
       state.scope.nest_scope(self)
       
-      blk = new_block_generator(g, self.parameters)
+      parameters = self.effective_parameters
+      blk = new_block_generator(g, parameters)
       
       blk.push_state(self)
       blk.definition_line(self.line)
@@ -77,7 +83,7 @@ CodeTools::AST << {
       # Push line info down.
       pos(blk)
       
-      self.parameters.bytecode(blk)
+      parameters.bytecode(blk)
       
       blk.state.push_block
       blk.push_modifiers
@@ -97,6 +103,11 @@ CodeTools::AST << {
       blk.local_count = local_count
       blk.local_names = local_names
       
+      self.new_cscope &? (
+        g.push_scope
+        g.send(:for_method_definition, 0)
+        g.add_scope
+      )
       g.create_block(blk)
     }
   }
