@@ -1,7 +1,7 @@
 
 Amadou << {
   
-  Tokenizer: Pegleromyces::BytecodeParser {
+  Tokenizer: Pegleromyces::Parser {
     const grammar: TokenGrammar
   }
   

@@ -6,7 +6,7 @@ import as(:Pegleromyces) 'parser/pegleromyces/lib/pegleromyces.my'
 import 'parser/MycoGrammar.my'
 import 'parser/MycoBuilder.my'
 
-CodeTools::Parser: Pegleromyces::BytecodeParser {
+CodeTools::Parser: Pegleromyces::Parser {
   const grammar: MycoGrammar
   const builder: MycoBuilder
   
