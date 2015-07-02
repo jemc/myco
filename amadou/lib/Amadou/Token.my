@@ -30,6 +30,8 @@ Amadou << {
       self
     }
     
+    match?: |pattern| !!pattern.match(self.text)
+    
     # Given a string, return a map of indices of newline positions to line numbers
     static memoize line_map_for: |string| {
       idx_hash = ::Ruby::Hash.new

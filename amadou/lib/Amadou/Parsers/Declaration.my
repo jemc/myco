@@ -7,26 +7,40 @@ Amadou << {
         output = []
         
         group.phrases.each |phrase| {
-          result = engine.match(phrase)
-          result || raise("No known meaning for declaration phrase: "phrase.inspect"")
-          handlers.__send__(result.first, output, *result.last)
+          state = parser.parse(phrase.list)
+          state.end_idx || raise("No known meaning for declaration phrase: "phrase.inspect"")
+          result = state.result[:root]
+          handlers.__send__(result.first, output, result.last)
         }
         
         output
       }
       
-      const engine: Engines::PhraseMatch {
-        [rules]
-        rule none:       null
-        
-        rule empty_meme: word
+      const parser: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          s:            si([:tagged?, [:space], true])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          word:         si([:tagged?, [:word],  true])
+          local_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [local_word_pattern], true])
+          
+          [rules]
+          rule root: (
+              r(none)       { [:none,       captures] }
+            / r(empty_meme) { [:empty_meme, captures] }
+          )[:root]
+          
+          rule none:       s+esi
+          rule empty_meme: s+ word[:name] +s+esi
+        }
       }
       
       [handlers]
       
       none: {}
       
-      empty_meme: |output, name| {
+      empty_meme: |output, name:| {
         output.push(ast.meme(name,
           ast.array(name, [
             ast.symbol(name, name.sym)

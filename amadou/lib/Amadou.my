@@ -7,11 +7,7 @@ import 'Amadou/Tokenizer.my'
 import 'Amadou/Group.my'
 import 'Amadou/Phrase.my'
 
-Amadou::Engines < BasicObject { }
-
-import 'Amadou/Engines/PhraseMatch.my'
-
-Amadou::Parsers < BasicObject { }
+::Amadou::Parsers < BasicObject { }
 
 import 'Amadou/Parsers/Base.my'
 import 'Amadou/Parsers/Sequence.my'
