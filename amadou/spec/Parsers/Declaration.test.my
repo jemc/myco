@@ -35,4 +35,12 @@ BasicSpec {
       [:meme, 1, [:array, 1, [[:symbol, 1, :z]]], null]
     )
   }
+  
+  "a single multi-word empty meme": {
+    "x y z" |> assert_parses(
+      [:meme, 1, [:array, 1, [[:symbol, 1, :x]
+                              [:symbol, 1, :y]
+                              [:symbol, 1, :z]]], null]
+    )
+  }
 }

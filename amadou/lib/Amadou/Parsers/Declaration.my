@@ -32,7 +32,8 @@ Amadou << {
           )[:root]
           
           rule none:       s+esi
-          rule empty_meme: s+ word[:name] +s+esi
+          rule empty_meme: s+ name.+[:names] +esi
+          rule name:       r(word[:name] + s) { name }
         }
       }
       
@@ -40,11 +41,12 @@ Amadou << {
       
       none: {}
       
-      empty_meme: |output, name:| {
-        output.push(ast.meme(name,
-          ast.array(name, [
+      empty_meme: |output, names:| {
+        first_name = names.first
+        output.push(ast.meme(first_name,
+          ast.array(first_name, names.map |name| {
             ast.symbol(name, name.sym)
-          ])
+          })
         ))
       }
     }
