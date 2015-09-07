@@ -12,7 +12,7 @@ Amadou << {
           Loop.run {
             parse_phrase(output, phrase)
             # If not broken before this point, no match was found
-            raise("No known meaning for parameter phrase: "phrase.inspect"")
+            raise("No known meaning for sequence phrase: "phrase.inspect"")
           }
         }
         
