@@ -11,6 +11,16 @@ Amadou << {
     var phrases: []
     var finish:  Token.from(:finish, "", 0, 0)
     
+    var tag_table:  Rubinius::LookupTable.new
+    tags:           tag_table.keys
+    tagged?: |t|    tag_table.key?(t) || :group == t
+    tagged: |*tags| tags.each |t| { tag_table[t] = true }; self
+    
+    start_match?:  |pattern| !!pattern.match(start.text)
+    finish_match?: |pattern| !!pattern.match(finish.text)
+    
+    inspect: "#<"self.class" "start.inspect" "phrases.inspect" "finish.inspect">"
+    
     representation: [:group
       start.representation
       phrases.map(&:representation)

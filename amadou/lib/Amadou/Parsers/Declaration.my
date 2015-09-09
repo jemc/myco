@@ -19,11 +19,15 @@ Amadou << {
       const parser: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          const paren_pattern:      Regexp.new("\\(")
+          
           s:            si([:tagged?, [:space], true])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
           word:         si([:tagged?, [:word],  true])
           local_word:   si([:tagged?, [:word],  true]
                            [:match?,  [local_word_pattern], true])
+          paren_group:  si([:tagged?, [:group], true]
+                           [:start_match?, [paren_pattern], true])
           
           [rules]
           rule root: (
@@ -31,9 +35,12 @@ Amadou << {
             / r(empty_meme) { [:empty_meme, captures] }
           )[:root]
           
-          rule none:       s+esi
-          rule empty_meme: s+ name.+[:names] +esi
-          rule name:       r(word[:name] + s) { name }
+          rule none:        s+esi
+          rule empty_meme:  s+ name.+[:names] +esi
+          
+          rule name:
+            r(word[:name] + s + paren_group[:args] + s) { [name, args] }
+          / r(word[:name] + s)                          { [name, null] }
         }
       }
       
@@ -42,10 +49,15 @@ Amadou << {
       none: {}
       
       empty_meme: |output, names:| {
-        first_name = names.first
+        first_name = names.first.first
         output.push(ast.meme(first_name,
-          ast.array(first_name, names.map |name| {
-            ast.symbol(name, name.sym)
+          ast.array(first_name, names.map |name, args| {
+            args &? (
+              args = ast.args(args.start, Parsers::Sequence.parse(args).array)
+              ast.invoke(name, null, name.sym, args, null)
+            ) ?? (
+              ast.symbol(name, name.sym)
+            )
           })
         ))
       }

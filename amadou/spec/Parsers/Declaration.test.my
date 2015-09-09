@@ -43,4 +43,24 @@ BasicSpec {
                               [:symbol, 1, :z]]], null]
     )
   }
+  
+  "a single one-word decoration-argumented empty meme": {
+    "xyz(1,2,3)" |> assert_parses(
+      [:meme, 1, [:array, 1, [[:invoke, 1, null, :xyz,
+                                [:args, 1, [[:numeric, 1, 1]
+                                            [:numeric, 1, 2]
+                                            [:numeric, 1, 3]]], null]]], null]
+    )
+  }
+  
+  "a single multi-word decoration-argumented empty meme": {
+    "x(1) y(2) z(3)" |> assert_parses(
+      [:meme, 1, [:array, 1, [[:invoke, 1, null, :x,
+                                [:args, 1, [[:numeric, 1, 1]]], null]
+                              [:invoke, 1, null, :y,
+                                [:args, 1, [[:numeric, 1, 2]]], null]
+                              [:invoke, 1, null, :z,
+                                [:args, 1, [[:numeric, 1, 3]]], null]]], null]
+    )
+  }
 }
