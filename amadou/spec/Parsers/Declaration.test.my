@@ -63,4 +63,11 @@ BasicSpec {
                                 [:args, 1, [[:numeric, 1, 3]]], null]]], null]
     )
   }
+  
+  "a single one-word closed meme": {
+    "xyz: { 1 }" |> assert_parses(
+      [:meme, 1, [:array, 1, [[:symbol, 1, :xyz]]]
+                 [:block, 1, null, [:sequence, 1, [[:numeric, 1, 1]]]]]
+    )
+  }
 }

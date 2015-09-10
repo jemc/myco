@@ -19,7 +19,8 @@ Amadou << {
       const parser: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
-          const paren_pattern:      Regexp.new("\\(")
+          const paren_pattern:      Regexp.new("^\\($")
+          const brace_pattern:      Regexp.new("^\\{$")
           
           s:            si([:tagged?, [:space], true])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
@@ -28,20 +29,40 @@ Amadou << {
                            [:match?,  [local_word_pattern], true])
           paren_group:  si([:tagged?, [:group], true]
                            [:start_match?, [paren_pattern], true])
+          brace_group:  si([:tagged?, [:group], true]
+                           [:start_match?, [brace_pattern], true])
           
           [rules]
           rule root: (
-              r(none)       { [:none,       captures] }
-            / r(empty_meme) { [:empty_meme, captures] }
+              r(none)        { [:none,        captures] }
+            / r(closed_meme) { [:closed_meme, captures] }
+            / r(open_meme)   { [:open_meme,   captures] }
+            / r(empty_meme)  { [:empty_meme,  captures] }
           )[:root]
           
           rule none:        s+esi
+          rule closed_meme: s+ name.+[:names] + meme_params[:params] + closed_meme_body[:body] +esi
+          rule open_meme:   s+ si([:tagged?, [:never], true]) +esi
           rule empty_meme:  s+ name.+[:names] +esi
           
+          rule meme_params:      r(glyph(":") +s)         { null } # TODO: support params here
+          rule closed_meme_body: r(brace_group[:body] +s) { body }
+          
           rule name:
-            r(word[:name] + s + paren_group[:args] + s) { [name, args] }
-          / r(word[:name] + s)                          { [name, null] }
+            r(word[:name] +s+ paren_group[:args] +s) { [name, args] }
+          / r(word[:name] +s)                        { [name, null] }
         }
+      }
+      
+      [helpers]
+      
+      decorators_from: |names| names.map |name, args| {
+        args &? (
+          args = ast.args(args.start, Parsers::Sequence.parse(args).array)
+          ast.invoke(name, null, name.sym, args, null)
+        ) ?? (
+          ast.symbol(name, name.sym)
+        )
       }
       
       [handlers]
@@ -51,14 +72,16 @@ Amadou << {
       empty_meme: |output, names:| {
         first_name = names.first.first
         output.push(ast.meme(first_name,
-          ast.array(first_name, names.map |name, args| {
-            args &? (
-              args = ast.args(args.start, Parsers::Sequence.parse(args).array)
-              ast.invoke(name, null, name.sym, args, null)
-            ) ?? (
-              ast.symbol(name, name.sym)
-            )
-          })
+          ast.array(first_name, helpers.decorators_from(names))
+        ))
+      }
+      
+      closed_meme: |output, names:, params:, body:| {
+        first_name = names.first.first
+        output.push(ast.meme(first_name,
+          ast.array(first_name, helpers.decorators_from(names))
+          ast.block(body.start, params && Parsers::Parameters.parse(params),
+                                          Parsers::Sequence.parse(body))
         ))
       }
     }
