@@ -3,38 +3,45 @@ Amadou << {
   Parsers << {
     
     Sequence: Base {
-      const integer_pattern: Regexp.new("^[0-9]+$")
-      
       parse: |group| {
         output = []
         
         group.phrases.each |phrase| {
-          Loop.run {
-            parse_phrase(output, phrase)
-            # If not broken before this point, no match was found
-            raise("No known meaning for sequence phrase: "phrase.inspect"")
-          }
+          state = parser.parse(phrase.list)
+          state.end_idx || raise("No known meaning for sequence phrase: "phrase.inspect"")
+          result = state.result[:root]
+          handlers.__send__(result.first, output, result.last)
         }
         
         AST::Sequence.new(line: group.start.line, array: output)
       }
       
-      parse_phrase: |output, phrase| {
-        # TODO: full sequence parsing
-        phrase.term_count |> case (
-          0, &{ Loop.break } # skip empty phrases
-          1, &{ parse_phrase_1_term(output, *phrase.terms) }
-             &{ }
-        )
+      const parser: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const integer_pattern: Regexp.new("^[0-9]+$")
+          
+          s:            si([:tagged?, [:space], true])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          integer_word: si([:tagged?, [:word],  true]
+                           [:match?,  [integer_pattern], true])
+          
+          [rules]
+          rule root: (
+              r(none)    { [:none,    captures] }
+            / r(integer) { [:integer, captures] }
+          )[:root]
+          
+          rule none:    s+esi
+          rule integer: s+ integer_word[:integer] +s+esi
+        }
       }
       
-      parse_phrase_1_term: |output, term| {
-        # TODO: full sequence parsing
-        term.tagged?(:word) && integer_pattern.match(term.text) && (
-          output.push(ast.numeric(term, term.integer))
-          Loop.break
-        )
-      }
+      [handlers]
+      
+      none: {}
+      
+      integer: |output, integer:|
+        output.push(ast.numeric(integer, integer.integer))
     }
     
   }

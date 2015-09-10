@@ -1,0 +1,46 @@
+
+BasicSpec {
+  name: "Amadou::Parsers::Sequence"
+  
+  tokenize: |input| {
+    state = Amadou::Tokenizer.parse("{"input"}")
+    state.result || state.raise_error
+    phrases = state.result[:root]
+    phrases.first.first_term
+  }
+  
+  subject: Amadou::Parsers::Sequence
+  
+  assert_parses: |input, *expected, &block| {
+    actual = subject.parse(tokenize(input)).array.map(&:representation)
+    block &? block.call(actual) ?? assert_equal(actual, expected)
+  }
+  
+  [tests]
+  
+  "empty sequence": {
+    "" |> assert_parses()
+  }
+  
+  "a single integer": {
+    "1" |> assert_parses(
+      [:numeric, 1, 1]
+    )
+  }
+  
+  "several integers": {
+    "1; 2; 3" |> assert_parses(
+      [:numeric, 1, 1]
+      [:numeric, 1, 2]
+      [:numeric, 1, 3]
+    )
+  }
+  
+  "several integers (on separate lines)": {
+    "1\n2\n3" |> assert_parses(
+      [:numeric, 1, 1]
+      [:numeric, 2, 2]
+      [:numeric, 3, 3]
+    )
+  }
+}
