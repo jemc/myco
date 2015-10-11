@@ -10,6 +10,15 @@ Amadou << {
       range:  ::Ruby::Range.new(start, stop, true)
     ).tagged(*(tags.is_a?(Array) &? tags ?? [tags]))
     
+    "+": |other| {
+      tags = (self.tags + other.tags).uniq
+      
+      (self.source == other.source)
+      &? Token.from(tags, self.source, self.start, other.stop)
+      ?? Token.from(tags, self.source + other.source,
+                   self.start, self.source.size + other.stop)
+    }
+    
     text: source[range]
     
     sym:              text.to_sym
