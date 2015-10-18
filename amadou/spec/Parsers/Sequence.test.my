@@ -43,4 +43,16 @@ BasicSpec {
       [:numeric, 3, 3]
     )
   }
+  
+  "operator clusters of integers": {
+    "1 + 2 * 3 - 4" |> assert_parses(
+      [:invoke, 1, [:invoke, 1, [:numeric, 1, 1], :"+", [:args, 1, [
+        [:invoke, 1, [:numeric, 1, 2], :"*", [:args, 1, [
+          [:numeric, 1, 3]
+        ]], null]
+      ]], null], :"-", [:args, 1, [
+        [:numeric, 1, 4]
+      ]], null]
+    )
+  }
 }

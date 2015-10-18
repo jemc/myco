@@ -5,15 +5,74 @@ Amadou << {
     Sequence: Base {
       parse: |group| {
         output = []
+        phrases = group.phrases.dup
         
-        group.phrases.each |phrase| {
-          state = parser.parse(phrase.list)
-          state.end_idx || raise("No known meaning for sequence phrase: "phrase.inspect"")
-          result = state.result[:root]
-          handlers.__send__(result.first, output, result.last)
+        Loop.run {
+          phrases.empty? && Loop.break
+          current_phrase = phrases.shift
+          current_list  = current_phrase.list.dup
+          current_delim = current_phrase.delim
+          
+          Loop.run {
+            state = parser.parse(current_list)
+            state.end_idx &? (
+              result = state.result[:root]
+              output.push(handlers.__send__(*result))
+              Loop.break
+            ) ?? (
+              (!phrases.empty? && current_delim.text == "\n") &? (
+                next_phrase = phrases.shift
+                next_list  = next_phrase.list.dup
+                next_delim = next_phrase.delim
+                
+                current_list.push(current_list.pop + next_list.shift)
+                current_list.append(next_list)
+                current_list.push(current_delim.tagged(:delim))
+                
+                current_delim = next_delim
+              ) ?? (
+                raise("No known meaning for sequence phrase list: "current_list.inspect"")
+              )
+            )
+          }
         }
         
-        AST::Sequence.new(line: group.start.line, array: output)
+        AST::Sequence.new(line: group.start.line, array: output.compact)
+      }
+      
+      Helpers: BasicObject {
+        # Given a node,op list ([node, op, node, op, ... node]) and target priority,
+        # collapse the (node, op, node) groups where the priority is the same.
+        #
+        # This function is meant to be called several times on the same list,
+        # with a different priority each time to collapse in order of precedence.
+        #
+        collapse: |input, target_priority| {
+          output = []
+          
+          # Scan through, reducing or shifting based on the operator
+          Loop.run {
+            (input.count > 2) || Loop.break
+            n0 = input.shift
+            op = input.shift
+            
+            op.tap |type, priority, token| {
+              n1 = input.shift
+              
+              (priority == target_priority) &? (
+                input.unshift([type, operator: token, left: n0, right: n1])
+              ) ?? (
+                output.push(n0)
+                output.push(op)
+              )
+            }
+          }
+          
+          # Push the last item remaining
+          output.push(input.shift)
+          
+          input.replace(output)
+        }
       }
       
       const parser: Pegleromyces::Stream::Parser {
@@ -21,18 +80,122 @@ Amadou << {
           const integer_pattern: Regexp.new("^[0-9]+$")
           
           s:            si([:tagged?, [:space], true])
+          zs:           si([:tagged?, [:space], true], [:size, [], 0])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
           integer_word: si([:tagged?, [:word],  true]
                            [:match?,  [integer_pattern], true])
           
-          [rules]
-          rule root: (
-              r(none)    { [:none,    captures] }
-            / r(integer) { [:integer, captures] }
-          )[:root]
+          mglyph: |mtext| {
+            texts = mtext.each_codepoint.to_a
+            
+            patt = si([:tagged?, [:glyph], true], [:text, [], texts.shift])
+            
+            texts.each |text| {
+              patt = patt + zs +
+                si([:tagged?, [:glyph], true], [:text, [], texts.shift])
+            }
+            
+            r(patt) |list| { list.first + list.last }
+          }
           
-          rule none:    s+esi
-          rule integer: s+ integer_word[:integer] +s+esi
+          [rules]
+          rule root: s+ (
+              none
+            / left_chained_operations
+            / expr_atom
+          )[:root] +s.-+esi
+          
+          rule none: r(!!esi) { [:none, captures] }
+          
+          rule expr_atom: integer
+          
+          rule integer:
+            r(integer_word[:integer])
+              { [:integer, captures] }
+          
+          ##
+          # Two-term operators
+          
+          left_op_normal: r((
+              r((mglyph("**"))[:op])                         { [1, op] }
+            / r((glyph("*") / glyph("/") / glyph("%"))[:op]) { [2, op] }
+            / r((glyph("+") / glyph("-"))[:op])              { [3, op] }
+            / r((glyph("<") / mglyph("<=") / mglyph("<=>")
+               / glyph(">") / mglyph(">="))[:op])            { [4, op] }
+          )[:details]) { [:op_normal, *details] }
+          
+          left_op_flow: r((
+              r((mglyph("&&") / mglyph("&?") / mglyph("??")
+               / mglyph("||") / mglyph("&?"))[:op])          { [5, op] }
+            / r((mglyph("|>"))[:op])                         { [6, op] }
+          )[:details]) { [:op_flow, *details] }
+          
+          rule left_op: left_op_normal / left_op_flow
+          
+          # Achieve left-associativity through iteration.
+          #
+          # PEG parsers get tripped up by left recursion
+          # (in contrast to LALR parsers, which prefer left recursion).
+          # This is a well-understood limitation, but refer to:
+          # http://www.dalnefre.com/wp/2011/05/parsing-expression-grammars-part-4/
+          # for an easy-to-understand explanation of this problem and this solution.
+          #
+          rule left_chained_operation:
+            r(s+ left_op[:to] +s+ expr_atom[:n1])
+              { [to, n1] }
+          
+          rule left_chained_operations:
+            r(expr_atom[:n0] + left_chained_operation.+[:nlist])
+          {
+            nlist.flatten!(1)
+            nlist.unshift(n0)
+            
+            # Given a node,op list ([node, op, node, op, ... node]) and target priority,
+            # collapse the (node, op, node) groups where the priority is the same.
+            #
+            # This function is meant to be called several times on the same list,
+            # with a different priority each time to collapse in order of precedence.
+            #
+            collapse = &|input, target_priority| {
+              output = []
+              
+              # Scan through, reducing or shifting based on the operator
+              Loop.run {
+                (input.count > 2) || Loop.break
+                n0 = input.shift
+                op = input.shift
+                
+                op.tap |type, priority, token| {
+                  (priority == target_priority) &? (
+                    n1 = input.shift
+                    input.unshift([type, operator: token, left: n0, right: n1])
+                  ) ?? (
+                    output.push(n0)
+                    output.push(op)
+                  )
+                }
+              }
+              
+              # Push the last item remaining
+              output.push(input.shift)
+              
+              input.replace(output)
+            }
+            
+            collapse.call(nlist, 1)
+            collapse.call(nlist, 2)
+            collapse.call(nlist, 3)
+            collapse.call(nlist, 4)
+            collapse.call(nlist, 5)
+            collapse.call(nlist, 6)
+            
+            # There should only be one resulting node left
+            (nlist.count == 1)
+              || raise("Failed to fully collapse left_chained_operations: "nlist"")
+            
+            nlist.first
+          }
+          
         }
       }
       
@@ -40,9 +203,18 @@ Amadou << {
       
       none: {}
       
-      integer: |output, integer:|
-        output.push(ast.numeric(integer, integer.integer))
+      integer: |integer:|
+        ast.numeric(integer, integer.integer)
+      
+      op_normal: |left:, operator:, right:| {
+        left  = send(*left)
+        right = send(*right)
+        ast.invoke(operator, left, operator.sym, ast.args(right, [right]))
+      }
+      
+      op_flow: {}
     }
     
   }
 }
+api
