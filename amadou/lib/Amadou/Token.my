@@ -20,6 +20,7 @@ Amadou << {
     }
     
     text: source[range]
+    size: range.size
     
     sym:              text.to_sym
     float:            text.to_f
