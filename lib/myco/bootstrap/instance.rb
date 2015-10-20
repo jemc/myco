@@ -99,12 +99,22 @@ module Myco
       "#<#{__component__.to_s}>"
     end
     
-    def inspect
+    def inspect(pretty: true)
       vars = __ivar_names__.map { |var|
         [var.to_s[1..-1], __get_ivar__(var).inspect].join(": ")
       }
-      vars = vars.any? ? (" " + vars.join(", ")) : ""
-      "#<#{__component__.to_s}#{vars}>"
+      
+      vars = if vars.empty?
+        ""
+      elsif vars.size == 1
+        vars.first
+      elsif !pretty
+        vars.join(", ")
+      else
+        "\n  " + vars.join("\n").gsub("\n", "\n  ") + "\n"
+      end
+      
+      "#{__component__.to_s}#(#{vars})"
     end
     
     alias_method :hash,   :__hash__   # TODO: remove?
