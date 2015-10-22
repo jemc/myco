@@ -86,7 +86,7 @@ Amadou << {
                            [:match?,  [integer_pattern], true])
           
           mglyph: |mtext| {
-            texts = mtext.each_codepoint.to_a
+            texts = mtext.each_codepoint.map |code| { [code].pack("U*") }
             
             patt = si([:tagged?, [:glyph], true], [:text, [], texts.shift])
             
@@ -95,7 +95,9 @@ Amadou << {
                 si([:tagged?, [:glyph], true], [:text, [], texts.shift])
             }
             
-            r(patt) |list| { list.first + list.last }
+            patt = patt[:mglyph]
+            
+            r(patt) { mglyph.first + mglyph.last }
           }
           
           [rules]
