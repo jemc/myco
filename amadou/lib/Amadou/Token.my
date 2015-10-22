@@ -14,9 +14,9 @@ Amadou << {
       tags = (self.tags + other.tags).uniq
       
       (self.source == other.source)
-      &? Token.from(tags, self.source, self.start, other.stop)
+      &? Token.from(tags, self.source, self.range.first, other.range.last)
       ?? Token.from(tags, self.source + other.source,
-                   self.start, self.source.size + other.stop)
+                   self.range.first, self.source.size + other.range.last)
     }
     
     text: source[range]
