@@ -214,7 +214,16 @@ Amadou << {
         ast.invoke(operator, left, operator.sym, ast.args(right, [right]))
       }
       
-      op_flow: {}
+      op_flow: |left:, operator:, right:| {
+        op_sym = operator.sym
+        left   = send(*left)
+        right  = send(*right)
+        (op_sym == :"|>") &? (
+          ast.pipe_op(left, left, right)
+        ) ?? (
+          ast.branch_op(operator, op_sym, left, right)
+        )
+      }
     }
     
   }

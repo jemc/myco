@@ -55,4 +55,15 @@ BasicSpec {
       ]], null]
     )
   }
+  
+  "branch operators around integers": {
+    "1 &? 2 ?? 3" |> assert_parses(
+      [:branch_op, 1, :"??"
+        [:branch_op, 1, :"&?"
+          [:numeric, 1, 1]
+          [:numeric, 1, 2]]
+        [:numeric, 1, 3]
+      ]
+    )
+  }
 }
