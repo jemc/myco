@@ -40,41 +40,6 @@ Amadou << {
         AST::Sequence.new(line: group.start.line, array: output.compact)
       }
       
-      Helpers: BasicObject {
-        # Given a node,op list ([node, op, node, op, ... node]) and target priority,
-        # collapse the (node, op, node) groups where the priority is the same.
-        #
-        # This function is meant to be called several times on the same list,
-        # with a different priority each time to collapse in order of precedence.
-        #
-        collapse: |input, target_priority| {
-          output = []
-          
-          # Scan through, reducing or shifting based on the operator
-          Loop.run {
-            (input.count > 2) || Loop.break
-            n0 = input.shift
-            op = input.shift
-            
-            op.tap |type, priority, token| {
-              n1 = input.shift
-              
-              (priority == target_priority) &? (
-                input.unshift([type, operator: token, left: n0, right: n1])
-              ) ?? (
-                output.push(n0)
-                output.push(op)
-              )
-            }
-          }
-          
-          # Push the last item remaining
-          output.push(input.shift)
-          
-          input.replace(output)
-        }
-      }
-      
       const parser: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const integer_pattern: Regexp.new("^[0-9]+$")
