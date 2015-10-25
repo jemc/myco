@@ -66,4 +66,62 @@ BasicSpec {
       ]
     )
   }
+  
+  "chained invocations (without arguments or blocks)": {
+    "x.y . z" |> assert_parses(
+      [:invoke, 1,
+        [:invoke, 1,
+          [:invoke, 1, null, :x, null, null],
+        :y, null, null],
+      :z, null, null]
+    )
+  }
+  
+  "chained invocations (with arguments)": {
+    "x().y (1) . z(2,3)" |> assert_parses(
+      [:invoke, 1,
+        [:invoke, 1,
+          [:invoke, 1, null, :x, [:args, 1, []], null],
+        :y, [:args, 1, [[:numeric, 1, 1]]], null],
+      :z, [:args, 1, [[:numeric, 1, 2], [:numeric, 1, 3]]], null]
+    )
+  }
+  
+  "chained invocations (with blocks)": {
+    "x{}.y{1} . z { 2; 3 }" |> assert_parses(
+      [:invoke, 1,
+        [:invoke, 1,
+          [:invoke, 1, null, :x, null, [:sequence, 1, []]],
+        :y, null, [:sequence, 1, [[:numeric, 1, 1]]]],
+      :z, null, [:sequence, 1, [[:numeric, 1, 2], [:numeric, 1, 3]]]]
+    )
+  }
+  
+  "chained operators as invocations": {
+    "1.+(2.*(3.-) { 4; 5 })" |> assert_parses(
+      [:invoke, 1, [:numeric, 1, 1], :"+", [:args, 1, [
+        [:invoke, 1, [:numeric, 1, 2], :"*", [:args, 1, [
+          [:invoke, 1, [:numeric, 1, 3], :"-", null, null]
+        ]], [:sequence, 1, [
+          [:numeric, 1, 4],
+          [:numeric, 1, 5]
+        ]]]
+      ]], null]
+    )
+  }
+  
+  "element read operator invocations": {
+    "x[1, y[z[]{ 2; 3 }]]" |> assert_parses(
+      [:invoke, 1, [:invoke, 1, null, :x, null, null], :"[]", [:args, 1, [
+        [:numeric, 1, 1],
+        [:invoke, 1, [:invoke, 1, null, :y, null, null], :"[]", [:args, 1, [
+          [:invoke, 1, [:invoke, 1, null, :z, null, null], :"[]", [:args, 1, [
+          ]], [:sequence, 1, [
+            [:numeric, 1, 2],
+            [:numeric, 1, 3]
+          ]]]
+        ]], null]
+      ]], null]
+    )
+  }
 }

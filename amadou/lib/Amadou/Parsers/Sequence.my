@@ -13,6 +13,13 @@ Amadou << {
           current_list  = current_phrase.list.dup
           current_delim = current_phrase.delim
           
+          # TODO: combine phrases that begin/end with a glyph or brace group (block),
+          #       where the separating delim is a newline (not a semicolon);
+          #       however, be careful about invoke_op, which should not span a newline -
+          #       this can probably be acheived by checking the content of the space
+          #       between invoke_name and the argument list paren_group to be sure
+          #       that it is not a newline.
+          
           Loop.run {
             state = parser.parse(current_list)
             state.end_idx &? (
@@ -42,13 +49,25 @@ Amadou << {
       
       const parser: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
-          const integer_pattern: Regexp.new("^[0-9]+$")
+          const integer_pattern:    Regexp.new("^[0-9]+$")
+          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          const paren_pattern:      Regexp.new("^\\($")
+          const brace_pattern:      Regexp.new("^\\{$")
+          const brack_pattern:      Regexp.new("^\\[$")
           
           s:            si([:tagged?, [:space], true])
           zs:           si([:tagged?, [:space], true], [:size, [], 0])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
           integer_word: si([:tagged?, [:word],  true]
                            [:match?,  [integer_pattern], true])
+          local_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [local_word_pattern], true])
+          paren_group:  si([:tagged?, [:group], true]
+                           [:start_match?, [paren_pattern], true])
+          brace_group:  si([:tagged?, [:group], true]
+                           [:start_match?, [brace_pattern], true])
+          brack_group:  si([:tagged?, [:group], true]
+                           [:start_match?, [brack_pattern], true])
           
           mglyph: |mtext| {
             texts = mtext.each_codepoint.map |code| { [code].pack("U*") }
@@ -74,7 +93,12 @@ Amadou << {
           
           rule none: r(!!esi) { [:none, captures] }
           
-          rule expr_atom: integer
+          rule expr_atom:
+            left_chained_invocations
+          / integer
+          
+          rule expr_atom_not_chained:
+            integer
           
           rule integer:
             r(integer_word[:integer])
@@ -163,6 +187,50 @@ Amadou << {
             nlist.first
           }
           
+          ##
+          # Invocations and Quests (soft-failing invocations)
+          
+          rule left_invoke_op:
+            glyph("?")
+          / glyph(".")
+          
+          rule left_chained_invocation:
+            r(s+ left_invoke_op[:to] +s+ invoke[:n1]) { [to, n1] }
+          / r(s[:to]+ elem_invoke[:n1])               { [to, n1] }
+          
+          rule left_chained_invocations:
+            r((expr_atom_not_chained[:n0] / invoke[:n0]) + left_chained_invocation.+[:nlist])
+          {
+            n0 = n0()
+            nlist.each |op, n1| {
+              n0 = (op.sym == :"?") &? (
+                [:quest, receiver: n0, questable: n1]
+              ) ?? (
+                n1.last[:receiver] = n0
+                n1
+              )
+            }
+            n0
+          }
+          
+          opt_paren_group: (r(s+ paren_group[:n]) { n }).-
+          opt_brace_group: (r(s+ brace_group[:n]) { n }).-
+          opt_brack_group: (r(s+ brack_group[:n]) { n }).-
+          
+          invoke_name:
+            local_word
+          / r(left_op_normal[:ary]) { ary.last } # discard precedence info
+          
+          rule invoke:
+            r(invoke_name[:name]
+            + opt_paren_group[:arguments] + opt_brace_group[:block])
+              { [:invoke, loc: name, receiver: null, name: name.sym,
+                  arguments: arguments, block: block] }
+          
+          rule elem_invoke:
+            r(brack_group[:arguments] + opt_brace_group[:block])
+              { [:invoke, loc: arguments.start, receiver: null, name: :"[]",
+                  arguments: arguments, block: block] }
         }
       }
       
@@ -188,6 +256,16 @@ Amadou << {
         ) ?? (
           ast.branch_op(operator, op_sym, left, right)
         )
+      }
+      
+      invoke: |loc:, receiver:, name:, arguments:, block:| {
+        receiver  = receiver  && send(*receiver)
+        block     = block     && Parsers::Sequence.parse(block)
+        arguments = arguments && (
+          arg_array = Parsers::Sequence.parse(arguments).array
+          ast.args(arg_array.first || loc, arg_array)
+        )
+        ast.invoke(loc, receiver, name, arguments, block)
       }
     }
     
