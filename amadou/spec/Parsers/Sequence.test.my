@@ -44,6 +44,16 @@ BasicSpec {
     )
   }
   
+  "simple immediate values": {
+    "null; void; true; false; self" |> assert_parses(
+      [:null,  1]
+      [:void,  1]
+      [:true,  1]
+      [:false, 1]
+      [:self,  1]
+    )
+  }
+  
   "operator clusters of integers": {
     "1 + 2 * 3 - 4" |> assert_parses(
       [:invoke, 1, [:invoke, 1, [:numeric, 1, 1], :"+", [:args, 1, [

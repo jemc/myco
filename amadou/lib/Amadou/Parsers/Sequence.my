@@ -58,6 +58,7 @@ Amadou << {
           s:            si([:tagged?, [:space], true])
           zs:           si([:tagged?, [:space], true], [:size, [], 0])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          word:  |text| si([:tagged?, [:word],  true], [:text, [], text])
           integer_word: si([:tagged?, [:word],  true]
                            [:match?,  [integer_pattern], true])
           local_word:   si([:tagged?, [:word],  true]
@@ -95,10 +96,19 @@ Amadou << {
           
           rule expr_atom:
             left_chained_invocations
+          / immediate
           / integer
           
           rule expr_atom_not_chained:
-            integer
+            immediate
+          / integer
+          
+          rule immediate:
+            r(word("null")[:t0])  { [:null,  token: t0] }
+          / r(word("void")[:t0])  { [:void,  token: t0] }
+          / r(word("true")[:t0])  { [:true,  token: t0] }
+          / r(word("false")[:t0]) { [:false, token: t0] }
+          / r(word("self")[:t0])  { [:self,  token: t0] }
           
           rule integer:
             r(integer_word[:integer])
@@ -237,6 +247,12 @@ Amadou << {
       [handlers]
       
       none: {}
+      
+      null:  |token:| ast.null(token)
+      void:  |token:| ast.void(token)
+      true:  |token:| ast.true(token)
+      false: |token:| ast.false(token)
+      self:  |token:| ast.self(token)
       
       integer: |integer:|
         ast.numeric(integer, integer.integer)
