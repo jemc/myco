@@ -97,6 +97,21 @@ BasicSpec {
     )
   }
   
+  "chained invocations (with arguments)": {
+    "x.?y .? z(2,3)" |> assert_parses(
+      [:quest, 1,
+        [:quest, 1,
+          [:invoke, 1, null, :x, null, null]
+          [:invoke, 1, [:qrcvr, 1], :y, null, null]
+        ]
+        [:invoke, 1, [:qrcvr, 1], :z, [:args, 1, [
+          [:numeric, 1, 2]
+          [:numeric, 1, 3]
+        ]], null]
+      ]
+    )
+  }
+  
   "chained invocations (with blocks)": {
     "x{}.y{1} . z { 2; 3 }" |> assert_parses(
       [:invoke, 1,

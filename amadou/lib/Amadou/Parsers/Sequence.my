@@ -201,7 +201,7 @@ Amadou << {
           # Invocations and Quests (soft-failing invocations)
           
           rule left_invoke_op:
-            glyph("?")
+            mglyph(".?")
           / glyph(".")
           
           rule left_chained_invocation:
@@ -213,8 +213,8 @@ Amadou << {
           {
             n0 = n0()
             nlist.each |op, n1| {
-              n0 = (op.sym == :"?") &? (
-                [:quest, receiver: n0, questable: n1]
+              n0 = (op.sym == :".?") &? (
+                [:quest, loc: n1.last[:loc], receiver: n0, questable: n1]
               ) ?? (
                 n1.last[:receiver] = n0
                 n1
@@ -283,6 +283,9 @@ Amadou << {
         )
         ast.invoke(loc, receiver, name, arguments, block)
       }
+      
+      quest: |loc:, receiver:, questable:|
+        ast.quest(loc, send(*receiver), send(*questable))
     }
     
   }
