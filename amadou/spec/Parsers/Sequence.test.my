@@ -54,6 +54,12 @@ BasicSpec {
     )
   }
   
+  "a symbol": {
+    ":xyz" |> assert_parses(
+      [:symbol, 1, :xyz]
+    )
+  }
+  
   "operator clusters of integers": {
     "1 + 2 * 3 - 4" |> assert_parses(
       [:invoke, 1, [:invoke, 1, [:numeric, 1, 1], :"+", [:args, 1, [

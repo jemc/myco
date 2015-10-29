@@ -96,11 +96,13 @@ Amadou << {
           
           rule expr_atom:
             left_chained_invocations
+          / symbol
           / immediate
           / integer
           
           rule expr_atom_not_chained:
-            immediate
+            symbol
+          / immediate
           / integer
           
           rule immediate:
@@ -113,6 +115,10 @@ Amadou << {
           rule integer:
             r(integer_word[:integer])
               { [:integer, captures] }
+          
+          rule symbol:
+            r(glyph(":")[:loc] + zs + local_word[:word])
+              { [:symbol, captures] }
           
           ##
           # Two-term operators
@@ -256,6 +262,9 @@ Amadou << {
       
       integer: |integer:|
         ast.numeric(integer, integer.integer)
+      
+      symbol: |loc:, word:|
+        ast.symbol(loc, word.sym)
       
       op_normal: |left:, operator:, right:| {
         left  = send(*left)
