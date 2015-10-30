@@ -51,9 +51,6 @@ Amadou << {
         const grammar: Pegleromyces::Grammar {
           const integer_pattern:    Regexp.new("^[0-9]+$")
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
-          const paren_pattern:      Regexp.new("^\\($")
-          const brace_pattern:      Regexp.new("^\\{$")
-          const brack_pattern:      Regexp.new("^\\[$")
           
           s:            si([:tagged?, [:space], true])
           zs:           si([:tagged?, [:space], true], [:size, [], 0])
@@ -64,11 +61,11 @@ Amadou << {
           local_word:   si([:tagged?, [:word],  true]
                            [:match?,  [local_word_pattern], true])
           paren_group:  si([:tagged?, [:group], true]
-                           [:start_match?, [paren_pattern], true])
+                           [:start_eq?, [:"("], true])
           brace_group:  si([:tagged?, [:group], true]
-                           [:start_match?, [brace_pattern], true])
+                           [:start_eq?, [:"{"], true])
           brack_group:  si([:tagged?, [:group], true]
-                           [:start_match?, [brack_pattern], true])
+                           [:start_eq?, [:"["], true])
           
           mglyph: |mtext| {
             texts = mtext.each_codepoint.map |code| { [code].pack("U*") }

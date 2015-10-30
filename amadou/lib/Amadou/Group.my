@@ -16,6 +16,9 @@ Amadou << {
     tagged?: |t|    tag_table.key?(t) || :group == t
     tagged: |*tags| tags.each |t| { tag_table[t] = true }; self
     
+    start_eq?:  |x| x.to_sym == start.sym
+    finish_eq?: |x| x.to_sym == finish.sym
+    
     start_match?:  |pattern| !!pattern.match(start.text)
     finish_match?: |pattern| !!pattern.match(finish.text)
     

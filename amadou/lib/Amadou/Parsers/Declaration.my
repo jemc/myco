@@ -19,8 +19,6 @@ Amadou << {
       const parser: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
-          const paren_pattern:      Regexp.new("^\\($")
-          const brace_pattern:      Regexp.new("^\\{$")
           
           s:            si([:tagged?, [:space], true])
           glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
@@ -28,9 +26,9 @@ Amadou << {
           local_word:   si([:tagged?, [:word],  true]
                            [:match?,  [local_word_pattern], true])
           paren_group:  si([:tagged?, [:group], true]
-                           [:start_match?, [paren_pattern], true])
+                           [:start_eq?, [:"("], true])
           brace_group:  si([:tagged?, [:group], true]
-                           [:start_match?, [brace_pattern], true])
+                           [:start_eq?, [:"{"], true])
           
           [rules]
           rule root: (
