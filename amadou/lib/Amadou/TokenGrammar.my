@@ -74,14 +74,14 @@ Amadou << {
     
     string_type: |start, finish|
       str(start).token(:start)[:start]
-    + string_word(finish).token([:term, :word])[:word]
+    + string_word(finish).token([:content])[:content]
     + str(finish).token(:finish)[:finish]
     
     rule string: r(
       string_type('"', '"')
     / string_type("'", "'")
     / string_type("@@@", "@@@") # TODO: remove
-    ) { [:string, start, word, finish] }
+    ) { Amadou::String.from(start, content, finish) }
   }
   
 }

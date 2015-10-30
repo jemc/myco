@@ -6,6 +6,7 @@ import 'Amadou/TokenGrammar.my'
 import 'Amadou/Tokenizer.my'
 import 'Amadou/Group.my'
 import 'Amadou/Phrase.my'
+import 'Amadou/String.my'
 
 ::Amadou::Parsers < BasicObject { }
 

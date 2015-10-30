@@ -1,0 +1,41 @@
+
+Amadou << {
+  
+  String < BasicObject {
+    static from: |start, content, finish| new(
+      start:   start
+      content: content
+      finish:  finish
+    )
+    var start:   Token.from(:start,   "", 0, 0)
+    var content: Token.from(:content, "", 0, 0)
+    var finish:  Token.from(:finish,  "", 0, 0)
+    
+    text: content.text
+    size: content.size
+    
+    sym:              text.to_sym
+    float:            text.to_f
+    integer: |base=0| text.to_inum(base, true)
+    
+    var tag_table:  Rubinius::LookupTable.new
+    tags:           tag_table.keys
+    tagged?: |t|    tag_table.key?(t) || :string == t
+    tagged: |*tags| tags.each |t| { tag_table[t] = true }; self
+    
+    start_eq?:  |x| x.to_sym == start.sym
+    finish_eq?: |x| x.to_sym == finish.sym
+    
+    start_match?:  |pattern| !!pattern.match(start.text)
+    finish_match?: |pattern| !!pattern.match(finish.text)
+    
+    inspect: "#<"self.class" "start.inspect" "content.inspect" "finish.inspect">"
+    
+    representation: [:string
+      start.representation
+      string
+      finish.representation
+    ]
+  }
+  
+}
