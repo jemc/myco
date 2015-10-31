@@ -67,10 +67,10 @@ Amadou << {
     / group_type('[', ']')
     ) { Amadou::Group.from(start, phrases, finish) }
     
-    string_char: |finish| !set("\\" + finish) + any
+    string_char: |finish| !set(92.chr + finish) + any
     string_word: |finish|
       string_char(finish).*
-    + (str("\\") + any + string_char(finish).*).*
+    + (str(92.chr) + any + string_char(finish).*).*
     
     string_type: |start, finish|
       str(start).token(:start)[:start]
