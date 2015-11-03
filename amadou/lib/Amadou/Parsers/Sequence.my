@@ -126,7 +126,7 @@ Amadou << {
               { [:symbol, captures] }
           
           rule string:
-            r((str)[:content])
+            r(str[:content])
               { [:string, loc: content.start, content: content.content] }
           
           ##
