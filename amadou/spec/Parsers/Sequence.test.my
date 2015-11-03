@@ -100,6 +100,12 @@ BasicSpec {
     )
   }
   
+  "a single invocation (without arguments or blocks)": {
+    "x" |> assert_parses(
+      [:invoke, 1, null, :x, null, null]
+    )
+  }
+  
   "chained invocations (without arguments or blocks)": {
     "x.y . z" |> assert_parses(
       [:invoke, 1,

@@ -99,12 +99,14 @@ Amadou << {
           / string
           / immediate
           / integer
+          / invoke
           
           rule expr_atom_not_chained:
             symbol
           / string
           / immediate
           / integer
+          / invoke
           
           rule immediate:
             r(word("null")[:t0])  { [:null,  token: t0] }
@@ -220,7 +222,7 @@ Amadou << {
           / r(s[:to]+ elem_invoke[:n1])               { [to, n1] }
           
           rule left_chained_invocations:
-            r((expr_atom_not_chained[:n0] / invoke[:n0]) + left_chained_invocation.+[:nlist])
+            r(expr_atom_not_chained[:n0] + left_chained_invocation.+[:nlist])
           {
             n0 = n0()
             nlist.each |op, n1| {
