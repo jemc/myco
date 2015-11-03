@@ -44,6 +44,21 @@ BasicSpec {
     )
   }
   
+  "several integer sequences": {
+    "(1; 2; 3); (7; 8; 9)" |> assert_parses(
+      [:sequence, 1, [
+        [:numeric, 1, 1]
+        [:numeric, 1, 2]
+        [:numeric, 1, 3]
+      ]]
+      [:sequence, 1, [
+        [:numeric, 1, 7]
+        [:numeric, 1, 8]
+        [:numeric, 1, 9]
+      ]]
+    )
+  }
+  
   "simple immediate values": {
     "null; void; true; false; self" |> assert_parses(
       [:null,  1]

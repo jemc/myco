@@ -98,6 +98,7 @@ Amadou << {
           / symbol
           / string
           / unary_operation
+          / paren_expr
           / immediate
           / integer
           / invoke
@@ -106,6 +107,7 @@ Amadou << {
             symbol
           / string
           / unary_operation
+          / paren_expr
           / immediate
           / integer
           / invoke
@@ -128,6 +130,10 @@ Amadou << {
           rule string:
             r(str[:content])
               { [:string, loc: content.start, content: content.content] }
+          
+          rule paren_expr:
+            r(paren_group[:group])
+              { [:sequence, group: group] }
           
           ##
           # Unary operators
@@ -314,6 +320,9 @@ Amadou << {
       
       string: |loc:, content:|
         ast.str(loc, helpers.encode_escapes(content.text))
+      
+      sequence: |group:|
+        Parsers::Sequence.parse(group)
       
       op_normal: |left:, operator:, right:| {
         left  = send(*left)
