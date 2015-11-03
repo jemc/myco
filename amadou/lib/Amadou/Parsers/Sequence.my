@@ -4,47 +4,59 @@ Amadou << {
     
     Sequence: Base {
       parse: |group| {
-        output = []
-        phrases = group.phrases.dup
+        # TODO: right-combine phrases that end with a glyph or brace group (block),
+        #       where the separating delim is a newline (not a semicolon);
+        #       however, be careful about invoke_op, which should not span a newline -
+        #       this can probably be acheived by checking the content of the space
+        #       between invoke_name and the argument list paren_group to be sure
+        #       that it is not a newline.
         
-        Loop.run {
-          phrases.empty? && Loop.break
-          current_phrase = phrases.shift
-          current_list  = current_phrase.list.dup
-          current_delim = current_phrase.delim
-          
-          # TODO: combine phrases that begin/end with a glyph or brace group (block),
-          #       where the separating delim is a newline (not a semicolon);
-          #       however, be careful about invoke_op, which should not span a newline -
-          #       this can probably be acheived by checking the content of the space
-          #       between invoke_name and the argument list paren_group to be sure
-          #       that it is not a newline.
-          
-          Loop.run {
-            state = parser.parse(current_list)
-            state.end_idx &? (
-              result = state.result[:root]
-              output.push(handlers.__send__(*result))
-              Loop.break
-            ) ?? (
-              (!phrases.empty? && current_delim.text == "\n") &? (
-                next_phrase = phrases.shift
-                next_list  = next_phrase.list.dup
-                next_delim = next_phrase.delim
-                
-                current_list.push(current_list.pop + next_list.shift)
-                current_list.append(next_list)
-                current_list.push(current_delim.tagged(:delim))
-                
-                current_delim = next_delim
-              ) ?? (
-                raise("No known meaning for sequence phrase list: "current_list.inspect"")
-              )
-            )
-          }
+        group.phrases.each_cons(2) |last_phrase, phrase| {
+          last_phrase.delim_eq?("\n") && (
+            state = left_combine_finder.parse(phrase.list)
+            state.end_idx && last_phrase.tagged(:join_to_next)
+          )
         }
         
+        output = []
+        ongoing_list = []
+        
+        group.phrases.each |phrase| {
+          ongoing_list.empty? &? (
+            ongoing_list = phrase.list.dup
+          ) ?? (
+            list = phrase.list.dup
+            ongoing_list.push(ongoing_list.pop + list.shift)
+            ongoing_list.concat(list)
+          )
+          
+          phrase.tagged?(:join_to_next) || (
+            state = parser.parse(ongoing_list)
+            state.end_idx || raise("No known meaning for sequence phrase list: "ongoing_list.inspect"")
+            result = state.result[:root]
+            output.push(handlers.__send__(*result))
+            
+            ongoing_list.clear
+          )
+        }
+        
+        ongoing_list.empty? || raise("No known meaning for sequence phrase list: "ongoing_list.inspect"")
+        
         AST::Sequence.new(line: group.start.line, array: output.compact)
+      }
+      
+      const left_combine_finder: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          s:           si([:tagged?, [:space],  true])
+          anyglyph:    si([:tagged?, [:glyph],  true])
+          brace_group: si([:tagged?, [:group], true]
+                          [:start_eq?, [:"{"], true])
+          
+          [rules]
+          
+          rule root:
+            s+ (anyglyph / brace_group) # followed by whatever - we don't care
+        }
       }
       
       const parser: Pegleromyces::Stream::Parser {

@@ -11,6 +11,10 @@ Amadou << {
     tagged?: |t|    tag_table.key?(t) || :phrase == t
     tagged: |*tags| tags.each |t| { tag_table[t] = true }; self
     
+    delim_eq?: |x| x.to_sym == delim.sym
+    
+    delim_match?: |pattern| !!pattern.match(delim.text)
+    
     any_terms?: list.size > 1
     first_term: term_at(0)
     terms:      list.select |item| { item.tagged?(:term) }
