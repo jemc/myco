@@ -54,9 +54,26 @@ BasicSpec {
     )
   }
   
-  "a symbol": {
-    ":xyz" |> assert_parses(
+  "several symbol literals": {
+    l = 92.chr # escape-slash character: '\'
+    ':xyz; :"xyz"; :"x'+l+'"y'+l+l+'z'+l+l+l+'"";' +
+    "      :'xyz'; :'x"+l+"'y"+l+l+"z"+l+l+l+"''" |> assert_parses(
       [:symbol, 1, :xyz]
+      [:symbol, 1, :xyz]
+      [:symbol, 1, ('x"y'+l+'z'+l+'"').to_sym]
+      [:symbol, 1, :xyz]
+      [:symbol, 1, ("x'y"+l+"z"+l+"'").to_sym]
+    )
+  }
+  
+  "several string literals": {
+    l = 92.chr # escape-slash character: '\'
+    '"xyz"; "x'+l+'"y'+l+l+'z'+l+l+l+'"";' +
+    "'xyz'; 'x"+l+"'y"+l+l+"z"+l+l+l+"''" |> assert_parses(
+      [:str, 1, 'xyz']
+      [:str, 1, 'x"y'+l+'z'+l+'"']
+      [:str, 1, "xyz"]
+      [:str, 1, "x'y"+l+"z"+l+"'"]
     )
   }
   

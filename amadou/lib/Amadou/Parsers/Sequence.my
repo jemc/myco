@@ -52,10 +52,12 @@ Amadou << {
           const integer_pattern:    Regexp.new("^[0-9]+$")
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
           
-          s:            si([:tagged?, [:space], true])
-          zs:           si([:tagged?, [:space], true], [:size, [], 0])
-          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
-          word:  |text| si([:tagged?, [:word],  true], [:text, [], text])
+          s:            si([:tagged?, [:space],  true])
+          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
+          str:          si([:tagged?, [:string], true])
+          glyph: |text| si([:tagged?, [:glyph],  true], [:text, [], text])
+          word:  |text| si([:tagged?, [:word],   true], [:text, [], text])
+          
           integer_word: si([:tagged?, [:word],  true]
                            [:match?,  [integer_pattern], true])
           local_word:   si([:tagged?, [:word],  true]
@@ -94,11 +96,13 @@ Amadou << {
           rule expr_atom:
             left_chained_invocations
           / symbol
+          / string
           / immediate
           / integer
           
           rule expr_atom_not_chained:
             symbol
+          / string
           / immediate
           / integer
           
@@ -114,8 +118,12 @@ Amadou << {
               { [:integer, captures] }
           
           rule symbol:
-            r(glyph(":")[:loc] + zs + local_word[:word])
+            r(glyph(":")[:loc] + zs + (str / local_word)[:content])
               { [:symbol, captures] }
+          
+          rule string:
+            r((str)[:content])
+              { [:string, loc: content.start, content: content.content] }
           
           ##
           # Two-term operators
@@ -247,6 +255,35 @@ Amadou << {
         }
       }
       
+      [helpers]
+      
+      const escape_encodings: {
+        hash = ::Ruby::Hash.new
+        hash["\\a"] =  7.chr # \a  0x07  Bell or alert
+        hash["\\b"] =  8.chr # \b  0x08  Backspace
+        # TODO:              # \cx       Control-x
+        # TODO:              # \C-x      Control-x
+        hash["\\e"] = 27.chr # \e  0x1b  Escape
+        hash["\\f"] = 12.chr # \f  0x0c  Formfeed
+        # TODO:              # \M-\C-x   Meta-Control-x
+        hash["\\n"] = 10.chr # \n  0x0a  Newline
+        # TODO:              # \nnn      Octal notation, where n is a digit
+        hash["\\r"] = 13.chr # \r  0x0d  Carriage return
+        hash["\\s"] = 32.chr # \s  0x20  Space
+        hash["\\t"] =  9.chr # \t  0x09  Tab
+        hash["\\v"] = 11.chr # \v  0x0b  Vertical tab
+        # TODO:              # \xnn      Hexadecimal notation, where n is a digit
+        hash
+      }
+      
+      # Encode escape characters in string literals
+      # TODO: rigorously test and refine
+      encode_escapes: |str| {
+        str.gsub(Regexp.new("\\\\.")) |substr| {
+          escape_encodings.fetch(substr, substr[-1])
+        }
+      }
+      
       [handlers]
       
       none: {}
@@ -260,8 +297,11 @@ Amadou << {
       integer: |integer:|
         ast.numeric(integer, integer.integer)
       
-      symbol: |loc:, word:|
-        ast.symbol(loc, word.sym)
+      symbol: |loc:, content:|
+        ast.symbol(loc, helpers.encode_escapes(content.text).to_sym)
+      
+      string: |loc:, content:|
+        ast.str(loc, helpers.encode_escapes(content.text))
       
       op_normal: |left:, operator:, right:| {
         left  = send(*left)
