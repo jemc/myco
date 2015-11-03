@@ -100,6 +100,22 @@ BasicSpec {
     )
   }
   
+  "unary operations": {
+    "!1; !!2" |> assert_parses(
+      [:invoke, 1,
+        [:numeric, 1, 1],
+        :"!", null, null
+      ]
+      [:invoke, 1,
+        [:invoke, 1,
+          [:numeric, 1, 2],
+          :"!", null, null
+        ],
+        :"!", null, null
+      ]
+    )
+  }
+  
   "a single invocation (without arguments or blocks)": {
     "x" |> assert_parses(
       [:invoke, 1, null, :x, null, null]

@@ -97,6 +97,7 @@ Amadou << {
             left_chained_invocations
           / symbol
           / string
+          / unary_operation
           / immediate
           / integer
           / invoke
@@ -104,6 +105,7 @@ Amadou << {
           rule expr_atom_not_chained:
             symbol
           / string
+          / unary_operation
           / immediate
           / integer
           / invoke
@@ -126,6 +128,14 @@ Amadou << {
           rule string:
             r((str)[:content])
               { [:string, loc: content.start, content: content.content] }
+          
+          ##
+          # Unary operators
+          
+          rule unary_operation:
+            r(glyph("!")[:t0] +s+ expr_atom[:n0])
+              { [:invoke, loc: t0, receiver: n0, name: t0.sym,
+                  arguments: null, block: null] }
           
           ##
           # Two-term operators
