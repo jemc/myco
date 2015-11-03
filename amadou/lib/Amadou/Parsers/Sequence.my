@@ -150,8 +150,8 @@ Amadou << {
               r((mglyph("**"))[:op])                         { [1, op] }
             / r((glyph("*") / glyph("/") / glyph("%"))[:op]) { [2, op] }
             / r((glyph("+") / glyph("-"))[:op])              { [3, op] }
-            / r((glyph("<") / mglyph("<=") / mglyph("<=>")
-               / glyph(">") / mglyph(">="))[:op])            { [4, op] }
+            / r((mglyph("<=") / mglyph("<=>") / mglyph(">=")
+                / glyph("<")  /  glyph(">"))[:op])           { [4, op] }
           )[:details]) { [:op_normal, *details] }
           
           left_op_flow: r((
