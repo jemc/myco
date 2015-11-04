@@ -211,8 +211,9 @@ BasicSpec {
   }
   
   "lines joined by dangling operators": {
-    "1\n+ 2" |> assert_parses(
+    "1\n+ 2\n3 *\n4" |> assert_parses(
       [:invoke, 2, [:numeric, 1, 1], :"+", [:args, 2, [[:numeric, 2, 2]]], null]
+      [:invoke, 3, [:numeric, 3, 3], :"*", [:args, 4, [[:numeric, 4, 4]]], null]
     )
   }
 }
