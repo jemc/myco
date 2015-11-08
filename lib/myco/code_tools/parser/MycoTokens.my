@@ -26,11 +26,6 @@ MycoTokens: Pegleromyces::Grammar {
   token constant:     C.upper + C.alnum.*
   token identifier:   C.lower + C.alnum.* + C.suffix.-
   token symbol:       str(':') + (C.lower / C.upper) + C.alnum.* + C.suffix.-
-  token null:         str('null')
-  token void:         str('void')
-  token true:         str('true')
-  token false:        str('false')
-  token self:         str('self')
   token float:        str('-').- + C.num.+ + str('.') + C.num.+
   token integer:      str('-').- + C.num.+
   

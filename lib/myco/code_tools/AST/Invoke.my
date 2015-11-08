@@ -18,10 +18,14 @@ CodeTools::AST << {
       )
       
       !self.receiver && !use_args &? (
-        LocalVariableAccessAmbiguous.new(
-          line: self.line
-          name: self.name
-        )
+              (self.name == :self)  &? (Self        .new(line: self.line)
+        ) ?? ((self.name == :null)  &? (NullLiteral .new(line: self.line)
+        ) ?? ((self.name == :void)  &? (VoidLiteral .new(line: self.line)
+        ) ?? ((self.name == :true)  &? (TrueLiteral .new(line: self.line)
+        ) ?? ((self.name == :false) &? (FalseLiteral.new(line: self.line)
+        ) ?? (
+          LocalVariableAccessAmbiguous.new(line: self.line, name: self.name)
+        )))))
       ) ?? (
         InvokeMethod.new(
           line:      self.line

@@ -194,7 +194,6 @@ Amadou << {
           / string
           / unary_operation
           / paren_expr
-          / immediate
           / integer
           / invoke
           
@@ -203,20 +202,12 @@ Amadou << {
           / string
           / unary_operation
           / paren_expr
-          / immediate
           / integer
           / invoke
           
           rule atom_token:
             r(si([:tagged?, [:atom], true])[:atom])
               { atom.data.merge(loc: atom) }
-          
-          rule immediate:
-            r(word("null")[:t0])  { [:null,  token: t0] }
-          / r(word("void")[:t0])  { [:void,  token: t0] }
-          / r(word("true")[:t0])  { [:true,  token: t0] }
-          / r(word("false")[:t0]) { [:false, token: t0] }
-          / r(word("self")[:t0])  { [:self,  token: t0] }
           
           rule integer:
             r(integer_word[:integer])
@@ -400,12 +391,6 @@ Amadou << {
       [handlers]
       
       none: {}
-      
-      null:  |token:| ast.null(token)
-      void:  |token:| ast.void(token)
-      true:  |token:| ast.true(token)
-      false: |token:| ast.false(token)
-      self:  |token:| ast.self(token)
       
       integer: |integer:|
         ast.numeric(integer, integer.integer)

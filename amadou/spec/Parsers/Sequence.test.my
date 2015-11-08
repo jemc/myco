@@ -59,13 +59,13 @@ BasicSpec {
     )
   }
   
-  "simple immediate values": {
+  "simple immediate literals parsed as invokes": {
     "null; void; true; false; self" |> assert_parses(
-      [:null,  1]
-      [:void,  1]
-      [:true,  1]
-      [:false, 1]
-      [:self,  1]
+      [:invoke, 1, null, :null,  null, null]
+      [:invoke, 1, null, :void,  null, null]
+      [:invoke, 1, null, :true,  null, null]
+      [:invoke, 1, null, :false, null, null]
+      [:invoke, 1, null, :self,  null, null]
     )
   }
   

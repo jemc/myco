@@ -89,12 +89,7 @@ rule expr_atom_not_string:
 # Simple literals
 
 rule lit_simple:
-  r(T.null[:t0])     { ast.null(t0) }
-/ r(T.void[:t0])     { ast.void(t0) }
-/ r(T.true[:t0])     { ast.true(t0) }
-/ r(T.false[:t0])    { ast.false(t0) }
-/ r(T.self[:t0])     { ast.self(t0) }
-/ r(T.float[:t0])    { ast.numeric(t0, t0.float) }
+  r(T.float[:t0])    { ast.numeric(t0, t0.float) }
 / r(T.integer[:t0])  { ast.numeric(t0, t0.integer) }
 / r(T.symbol[:t0])   { ast.symbol(t0, t0.text.slice(Range.new(1,-1)).to_sym) } # TODO: more succinct here
 
