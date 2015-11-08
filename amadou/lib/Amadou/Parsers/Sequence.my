@@ -7,7 +7,7 @@ Amadou << {
         # Scan/replace for pre-combine atoms
         [
           word_punctuator
-          symbol_scanner
+          symbol_atomizer
         ].each |scanner| {
           group.phrases.each |phrase| {
             phrase.list = scanner.scan_replace(phrase.list)
@@ -63,6 +63,7 @@ Amadou << {
         AST::Sequence.new(line: group.start.line, array: output.compact)
       }
       
+      # Join question marks or exclamation points onto the end of local words.
       const word_punctuator: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
@@ -82,7 +83,8 @@ Amadou << {
         }
       }
       
-      const symbol_scanner: Pegleromyces::Stream::Parser {
+      # Detect and convert symbol atoms.
+      const symbol_atomizer: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
           
@@ -106,6 +108,7 @@ Amadou << {
         }
       }
       
+      # Match phrases that look like a continuation of the previous phrase.
       const left_combine_finder: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           s:           si([:tagged?, [:space], true])
@@ -121,6 +124,7 @@ Amadou << {
         }
       }
       
+      # Match phrases that look like they continue into the next phrase.
       const right_combine_finder: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           s:        si([:tagged?, [:space], true])
