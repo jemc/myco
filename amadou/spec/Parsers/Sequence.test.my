@@ -216,4 +216,11 @@ BasicSpec {
       [:invoke, 3, [:numeric, 3, 3], :"*", [:args, 4, [[:numeric, 4, 4]]], null]
     )
   }
+  
+  "lines NOT joined together by symbol colons": {
+    ":foo\n:bar" |> assert_parses(
+      [:symbol, 1, :foo]
+      [:symbol, 2, :bar]
+    )
+  }
 }

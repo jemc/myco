@@ -4,6 +4,15 @@ Amadou << {
     
     Sequence: Base {
       parse: |group| {
+        # Scan/replace for pre-combine atoms
+        [
+          symbol_scanner
+        ].each |scanner| {
+          group.phrases.each |phrase| {
+            phrase.list = scanner.scan_replace(phrase.list)
+          }
+        }
+        
         # Tag phrases where the previous phrase ends with a newline which
         # match a pattern suggesting it is a continuation of the last phrase.
         group.phrases.each_cons(2) |last_phrase, phrase| {
@@ -41,6 +50,7 @@ Amadou << {
             state = parser.parse(ongoing_list)
             state.end_idx || raise("No known meaning for sequence phrase list: "ongoing_list.inspect"")
             result = state.result[:root]
+            result.is_a?(Hash) && (result = [result.delete(:type), result]) # TODO: use atom format everywhere?
             output.push(handlers.__send__(*result))
             
             ongoing_list.clear
@@ -81,6 +91,32 @@ Amadou << {
           # TODO: don't match for invoke operators (like .+) that end a phrase.
           rule root:
             s+ maybe_nons_then_anys.+ +esi
+        }
+      }
+      
+      const symbol_scanner: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          
+          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
+          str:          si([:tagged?, [:string], true])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          local_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [local_word_pattern], true])
+          
+          var tokenizer: Token.method(:from)
+          
+          [rules]
+          
+          rule root: symbol[:root]
+          
+          rule symbol:
+            r(glyph(":")[:loc] + zs + str[:content])
+              { (loc + content.finish)
+                  .tagged(:atom).with_data(type: :symbol, content: content) }
+          / r(glyph(":")[:loc] + zs + local_word[:content])
+              { (loc + content)
+                  .tagged(:atom).with_data(type: :symbol, content: content) }
         }
       }
       
@@ -132,7 +168,7 @@ Amadou << {
           
           rule expr_atom:
             left_chained_invocations
-          / symbol
+          / atom_token
           / string
           / unary_operation
           / paren_expr
@@ -141,13 +177,17 @@ Amadou << {
           / invoke
           
           rule expr_atom_not_chained:
-            symbol
+            atom_token
           / string
           / unary_operation
           / paren_expr
           / immediate
           / integer
           / invoke
+          
+          rule atom_token:
+            r(si([:tagged?, [:atom], true])[:atom])
+              { atom.data.merge(loc: atom) }
           
           rule immediate:
             r(word("null")[:t0])  { [:null,  token: t0] }
@@ -159,10 +199,6 @@ Amadou << {
           rule integer:
             r(integer_word[:integer])
               { [:integer, captures] }
-          
-          rule symbol:
-            r(glyph(":")[:loc] + zs + (str / local_word)[:content])
-              { [:symbol, captures] }
           
           rule string:
             r(str[:content])
