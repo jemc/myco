@@ -72,8 +72,6 @@ Amadou << {
           local_word:   si([:tagged?, [:word],  true]
                            [:match?,  [local_word_pattern], true])
           
-          var tokenizer: Token.method(:from)
-          
           [rules]
           
           rule root: symbol[:root]
