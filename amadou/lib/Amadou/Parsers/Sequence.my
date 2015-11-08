@@ -32,7 +32,7 @@ Amadou << {
             ongoing_list = phrase.list.dup
           ) ?? (
             list = phrase.list.dup
-            ongoing_list.push(ongoing_list.pop + list.shift)
+            ongoing_list.push((ongoing_list.pop + list.shift).tagged(:space))
             ongoing_list.concat(list)
           )
           

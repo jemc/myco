@@ -11,7 +11,7 @@ Amadou << {
     ).tagged(*(tags.is_a?(Array) &? tags ?? [tags]))
     
     "+": |other| {
-      tags = (self.tags + other.tags).uniq
+      tags = []
       
       (self.source == other.source)
       &? Token.from(tags, self.source, self.range.first, other.range.last)
