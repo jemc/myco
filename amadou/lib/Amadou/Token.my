@@ -40,6 +40,9 @@ Amadou << {
       self
     }
     
+    var data: ::Ruby::Hash.new
+    with_data: |data| self.data.merge!(data); self
+    
     match?: |pattern| !!pattern.match(self.text)
     
     # Given a string, return a map of indices of newline positions to line numbers
