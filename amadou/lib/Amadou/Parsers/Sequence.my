@@ -6,6 +6,7 @@ Amadou << {
       parse: |group| {
         # Scan/replace for pre-combine atoms
         [
+          word_punctuator
           symbol_scanner
         ].each |scanner| {
           group.phrases.each |phrase| {
@@ -60,6 +61,25 @@ Amadou << {
         ongoing_list.empty? || raise("No known meaning for sequence phrase list: "ongoing_list.inspect"")
         
         AST::Sequence.new(line: group.start.line, array: output.compact)
+      }
+      
+      const word_punctuator: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          
+          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          local_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [local_word_pattern], true])
+          
+          [rules]
+          
+          rule root: symbol[:root]
+          
+          rule symbol:
+            r(local_word[:start] + zs + (glyph("?") / glyph("!"))[:finish])
+              { (start + finish).tagged(:word) }
+        }
       }
       
       const symbol_scanner: Pegleromyces::Stream::Parser {
