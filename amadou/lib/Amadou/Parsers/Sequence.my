@@ -62,6 +62,32 @@ Amadou << {
         AST::Sequence.new(line: group.start.line, array: output.compact)
       }
       
+      const symbol_scanner: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
+          
+          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
+          str:          si([:tagged?, [:string], true])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          local_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [local_word_pattern], true])
+          
+          var tokenizer: Token.method(:from)
+          
+          [rules]
+          
+          rule root: symbol[:root]
+          
+          rule symbol:
+            r(glyph(":")[:loc] + zs + str[:content])
+              { (loc + content.finish)
+                  .tagged(:atom).with_data(type: :symbol, content: content) }
+          / r(glyph(":")[:loc] + zs + local_word[:content])
+              { (loc + content)
+                  .tagged(:atom).with_data(type: :symbol, content: content) }
+        }
+      }
+      
       const left_combine_finder: Pegleromyces::Stream::Parser {
         const grammar: Pegleromyces::Grammar {
           s:           si([:tagged?, [:space], true])
@@ -91,32 +117,6 @@ Amadou << {
           # TODO: don't match for invoke operators (like .+) that end a phrase.
           rule root:
             s+ maybe_nons_then_anys.+ +esi
-        }
-      }
-      
-      const symbol_scanner: Pegleromyces::Stream::Parser {
-        const grammar: Pegleromyces::Grammar {
-          const local_word_pattern: Regexp.new("^([[:lower:]]|_)")
-          
-          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
-          str:          si([:tagged?, [:string], true])
-          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
-          local_word:   si([:tagged?, [:word],  true]
-                           [:match?,  [local_word_pattern], true])
-          
-          var tokenizer: Token.method(:from)
-          
-          [rules]
-          
-          rule root: symbol[:root]
-          
-          rule symbol:
-            r(glyph(":")[:loc] + zs + str[:content])
-              { (loc + content.finish)
-                  .tagged(:atom).with_data(type: :symbol, content: content) }
-          / r(glyph(":")[:loc] + zs + local_word[:content])
-              { (loc + content)
-                  .tagged(:atom).with_data(type: :symbol, content: content) }
         }
       }
       
