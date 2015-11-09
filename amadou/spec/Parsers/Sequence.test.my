@@ -84,6 +84,15 @@ BasicSpec {
     )
   }
   
+  "several constants": {
+    "XYZ; X::Y::Z; ::XYZ; ::X::Y::Z" |> assert_parses(
+      [:const, 1, false, [:XYZ]]
+      [:const, 1, false, [:X, :Y, :Z]]
+      [:const, 1, true,  [:XYZ]]
+      [:const, 1, true,  [:X, :Y, :Z]]
+    )
+  }
+  
   "several string literals": {
     l = 92.chr # escape-slash character: '\'
     '"xyz"; "x'+l+'"y'+l+l+'z'+l+l+l+'"";' +

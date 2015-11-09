@@ -8,6 +8,7 @@ Amadou << {
         [
           word_punctuator
           symbol_atomizer
+          constant_atomizer
         ].each |scanner| {
           group.phrases.each |phrase| {
             phrase.list = scanner.scan_replace(phrase.list)
@@ -105,6 +106,32 @@ Amadou << {
           / r(glyph(":")[:loc] + zs + local_word[:content])
               { (loc + content)
                   .tagged(:atom).with_data(type: :symbol, content: content) }
+        }
+      }
+      
+      # Detect and convert constant atoms.
+      const constant_atomizer: Pegleromyces::Stream::Parser {
+        const grammar: Pegleromyces::Grammar {
+          const upper_word_pattern: Regexp.new("^[[:upper:]]")
+          
+          zs:           si([:tagged?, [:space],  true], [:size, [], 0])
+          glyph: |text| si([:tagged?, [:glyph], true], [:text, [], text])
+          upper_word:   si([:tagged?, [:word],  true]
+                           [:match?,  [upper_word_pattern], true])
+          
+          [rules]
+          
+          rule root: constant[:root]
+          
+          cc: glyph(":") +zs+ glyph(":")
+          
+          rule cc_constant: r(zs+ cc +zs+ upper_word[:t]) { t }
+          rule cc_zs:       r(cc[:t] +zs) { t }
+          
+          rule constant:
+            r(cc_zs.-[:top] + upper_word[:tc] + cc_constant.*[:trest])
+              { (tc + (trest.last || tc)).tagged(:atom)
+                  .with_data(type: :constant, top: !!top, words: [tc]+trest) }
         }
       }
       
@@ -400,6 +427,9 @@ Amadou << {
       
       string: |loc:, content:|
         ast.str(loc, helpers.encode_escapes(content.text))
+      
+      constant: |loc:, top:, words:|
+        ast.const(words.first, top, words.map(&:sym))
       
       sequence: |group:|
         Parsers::Sequence.parse(group)
