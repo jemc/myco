@@ -3,8 +3,8 @@ module Myco
   # In Myco, try to always use Myco.add_method instead of Rubinius.add_method
   # to bypass all of the Ruby-specific logic therein.
   
-  def self.add_method mod, name, executable
-    mod.method_table.store(name, executable, :public)
+  def self.add_method mod, name, executable, cscope
+    mod.method_table.store(name, nil, executable, cscope, 0, :public)
     Rubinius::VM.reset_method_cache(mod, name)
   end
   
@@ -14,7 +14,7 @@ module Myco
   
   # Use instead of Module#thunk_method
   def self.add_thunk_method mod, name, value
-    add_method(mod, name, Rubinius::Thunk.new(value))
+    add_method(mod, name, Rubinius::Thunk.new(value), nil)
   end
   
   # Use instead of Module#dynamic_method
@@ -31,8 +31,8 @@ module Myco
     g.encode
 
     code = g.package Rubinius::CompiledCode
-    code.scope = Rubinius::ConstantScope.new(mod, Rubinius::ConstantScope.new(Myco))
+    cscope = Rubinius::ConstantScope.new(mod, Rubinius::ConstantScope.new(Myco))
 
-    add_method(mod, name, code)
+    add_method(mod, name, code, cscope)
   end
 end

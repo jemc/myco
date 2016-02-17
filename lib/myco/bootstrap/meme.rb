@@ -152,7 +152,8 @@ module Myco
         bind_cache_method
         @effective_body = @target.instance_method(@name).executable
       else
-        Myco.add_method(@target, @name, @body)
+        cscope = @body.respond_to?(:scope) ? @body.scope : nil
+        Myco.add_method(@target, @name, @body, cscope)
       end
     end
     
